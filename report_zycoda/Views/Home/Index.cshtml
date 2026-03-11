@@ -6,72 +6,209 @@
     var end = Context.Request.Query["end"].ToString();
 }
 
-<h2>Maintenance Report</h2>
+<style>
+    body {
+        background-color: #f0f4f8; /* พื้นหลังสีฟ้าอ่อนมากๆ */
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #333;
+    }
 
-<form method="get" style="margin-bottom:20px">
+    .report-container {
+        background: #fff;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        margin: 20px auto;
+        max-width: 1200px;
+    }
 
-    Job Type
-    <select name="jobtype">
-        <option value="EM" selected="@(jobtype == "EM")">EM</option>
-        <option value="CM" selected="@(jobtype == "CM")">CM</option>
-        <option value="EM,CM" selected="@(jobtype == "EM,CM")">EM + CM</option>
-    </select>
+    h2 {
+        color: #0056b3; /* สีน้ำเงินเข้ม */
+        border-left: 5px solid #007bff;
+        padding-left: 15px;
+        margin-bottom: 25px;
+        font-weight: 600;
+    }
 
-    Start
-    <input type="date" name="start" value="@start">
+    /* Form Styling */
+    .filter-section {
+        background: #e7f1ff;
+        padding: 20px;
+        border-radius: 8px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: flex-end;
+        margin-bottom: 25px;
+    }
 
-    End
-    <input type="date" name="end" value="@end">
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
 
-    <button type="submit">Search</button>
+        .form-group label {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #495057;
+        }
 
-</form>
+    .filter-section select,
+    .filter-section input {
+        padding: 8px 12px;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        outline: none;
+    }
 
-<p>
-    Total Records :
-    <b>@(Model != null ? Model.Count : 0)</b>
-</p>
+        .filter-section select:focus,
+        .filter-section input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
 
-<table border="1" cellpadding="8" style="width:100%;border-collapse:collapse">
+    .btn-search {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 25px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background 0.3s;
+    }
 
-    <thead style="background:#f2f2f2">
-        <tr>
-            <th>ID</th>
-            <th>Machine</th>
-            <th>Problem</th>
-            <th>Cause</th>
-            <th>Downtime</th>
-            <th>Status</th>
-            <th>Create By</th>
-        </tr>
-    </thead>
+        .btn-search:hover {
+            background-color: #0056b3;
+        }
 
-    <tbody>
+    /* Table Styling */
+    .table-responsive {
+        overflow-x: auto;
+    }
 
-        @if (Model != null && Model.Count > 0)
-        {
-            foreach (var item in Model)
-            {
+    .custom-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        border-radius: 8px;
+        overflow: hidden; /* ให้ขอบมนมีผลกับตาราง */
+    }
+
+        .custom-table thead {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+
+        .custom-table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .custom-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .custom-table tbody tr:nth-child(even) {
+            background-color: #f8fbff;
+        }
+
+        .custom-table tbody tr:hover {
+            background-color: #eef5ff;
+            transition: 0.2s;
+        }
+
+    .badge-status {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        background: #e2e3e5;
+        color: #383d41;
+    }
+
+    .total-count {
+        margin-bottom: 10px;
+        color: #666;
+    }
+
+        .total-count b {
+            color: #007bff;
+            font-size: 1.1rem;
+        }
+</style>
+
+<div class="report-container">
+    <h2>Maintenance Report</h2>
+
+    <form method="get">
+        <div class="filter-section">
+            <div class="form-group">
+                <label>Job Type</label>
+                <select name="jobtype">
+                    <option value="EM" selected="@(jobtype == "EM")">EM</option>
+                    <option value="CM" selected="@(jobtype == "CM")">CM</option>
+                    <option value="EM,CM" selected="@(jobtype == "EM,CM")">EM + CM</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Start Date</label>
+                <input type="date" name="start" value="@start">
+            </div>
+
+            <div class="form-group">
+                <label>End Date</label>
+                <input type="date" name="end" value="@end">
+            </div>
+
+            <button type="submit" class="btn-search">Search</button>
+        </div>
+    </form>
+
+    <p class="total-count">
+        Total Records : <b>@(Model != null ? Model.Count : 0)</b>
+    </p>
+
+    <div class="table-responsive">
+        <table class="custom-table">
+            <thead>
                 <tr>
-                    <td>@item.id</td>
-                    <td>@item.fldetail</td>
-                    <td>@item.problem</td>
-                    <td>@item.causes</td>
-                    <td>@item.downtime นาที</td>
-                    <td>@item.statustext</td>
-                    <td>@item.usercreate</td>
+                    <th>ID</th>
+                    <th>Machine</th>
+                    <th>Problem</th>
+                    <th>Cause</th>
+                    <th>Downtime</th>
+                    <th>Status</th>
+                    <th>Created By</th>
                 </tr>
-            }
-        }
-        else
-        {
-            <tr>
-                <td colspan="7" style="text-align:center">
-                    No data found
-                </td>
-            </tr>
-        }
-
-    </tbody>
-
-</table>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Count > 0)
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td><strong>@item.id</strong></td>
+                            <td>@item.problem</td>
+                            <td>@item.causes</td>
+                            <td>@item.downtime min</td>
+                            <td><span class="badge-status">@item.status</span></td>
+                            <td>@item.usercreate</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" style="text-align:center; padding: 40px; color: #999;">
+                            <i class="fas fa-inbox"></i> No data found for the selected criteria
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

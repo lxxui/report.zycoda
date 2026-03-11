@@ -1,8 +1,8 @@
 ﻿namespace report_zycoda.Models
 {
-    public class Section
+    public class Status
     {
-        public string? section { get; set; }
+        public string? id { get; set; }
         public string? name { get; set; }
     }
 }

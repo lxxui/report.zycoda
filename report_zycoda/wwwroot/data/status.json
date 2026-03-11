@@ -1,0 +1,30 @@
+﻿[
+    {
+        "id": "Pending",
+        "name": "Pending"
+    },
+    {
+        "id": "Create",
+        "name": "Create"
+    },
+    {
+        "id": "Accept",
+        "name": "Accept"
+    },
+    {
+        "id": "Assigned",
+        "name": "Assigned"
+    },
+    {
+        "id": "Finish",
+        "name": "Finish"
+    },
+    {
+        "id": "Confirm",
+        "name": "Confirm"
+    },
+    {
+        "id": "Reject",
+        "name": "Reject"
+    }
+]

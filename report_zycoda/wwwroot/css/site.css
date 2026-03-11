@@ -1,22 +1,43 @@
+/* นำเข้าฟอนต์ TH Sarabun New จาก CDN */
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@100;400;700&display=swap');
+
+html, body {
+    /* กำหนดให้ใช้ Sarabun เป็นหลัก ถ้าไม่มีให้ใช้ระบบ Sans-serif */
+    font-family: 'Sarabun', sans-serif;
+    font-size: 16px; /* ปรับขนาดเริ่มต้นให้พอดีกับสารบรรณ */
+}
+
+/* สำหรับงานที่ต้องการความเนี๊ยบแบบฟอนต์สารบรรณดั้งเดิม (ถ้ามีไฟล์ .ttf) */
+@font-face {
+    font-family: 'THSarabunNew';
+    src: url('/fonts/THSarabunNew.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
 html {
-  font-size: 14px;
+    font-size: 14px;
+    font-family: 'Sarabun', 'TH Sarabun New', sans-serif; /* เพิ่มตรงนี้ */
+    position: relative;
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    html {
+        font-size: 16px;
+    }
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+    line-height: 1.6; /* ฟอนต์ไทยควรมีระยะบรรทัดที่กว้างขึ้นเล็กน้อยเพื่อให้ไม่อึดอัด */
+}
+
+/* ปรับแต่งปุ่มและ input ให้เข้ากับดีไซน์เดิมของคุณ */
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+/* ถ้าอยากให้หัวข้อตาราง หรือตัวเลขดูเด่นขึ้น */
+.fw-bold {
+    font-weight: 700 !important;
 }

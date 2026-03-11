@@ -7,33 +7,38 @@ namespace report_zycoda.Controllers
 {
     public class MaintenanceController : Controller
     {
-        public async Task<IActionResult> Index(string jobtype, string start, string end ,string section,string statustext)
+        public async Task<IActionResult> Index(string jobtype, string start, string end ,string Sectioncreate, string Status)
         {
             if (string.IsNullOrEmpty(jobtype))jobtype = "EM,CM";
 
             if (string.IsNullOrEmpty(start)) start = DateTime.Today.ToString("yyyy-MM-dd");
             if (string.IsNullOrEmpty(end)) end = DateTime.Today.ToString("yyyy-MM-dd");
 
-            // เพิ่ม parameter statustext และ section เข้าไปใน URL
+            // เพิ่ม parameter statustext และ sectioncreate เข้าไปใน URL
             var apiUrl = $"https://api.zycoda.com/apimpros/get_job_order?plant=FARMHOUSE&jobtype={jobtype}&start={start}&end={end}";
 
-            if (!string.IsNullOrEmpty(section))
+            if (!string.IsNullOrEmpty(Sectioncreate))
             {
-                apiUrl += $"&section={section}";
+                apiUrl += $"&sectioncreate={Sectioncreate}";
             }
 
-            if (!string.IsNullOrEmpty(statustext))
+            if (!string.IsNullOrEmpty(Status))
             {
-                apiUrl += $"&statustext={statustext}";
+                apiUrl += $"&status={Status}";
             }
 
 
-            // ✅ อ่าน sections.json
-            var jsonSection = System.IO.File.ReadAllText("wwwroot/data/sections.json");
+            // ✅ อ่าน sectioncreates.json
+            var jsonsectioncreate = System.IO.File.ReadAllText("wwwroot/data/section.json");
+            var sectioncreates = JsonSerializer.Deserialize<List<Models.Sectioncreate>>(jsonsectioncreate);
+            ViewBag.Section = sectioncreates;
 
-            var sections = JsonSerializer.Deserialize<List<Models.Section>>(jsonSection);
+            // ✅ อ่าน status.json
+            var jsonstatus = System.IO.File.ReadAllText("wwwroot/data/status.json");
+            var status = JsonSerializer.Deserialize<List<Models.Status>>(jsonstatus);
+            ViewBag.Status = status;
 
-            ViewBag.Sections = sections;
+
 
             List<MaintenanceReport> data = new List<MaintenanceReport>();
 
@@ -47,9 +52,25 @@ namespace report_zycoda.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
+                    var allData = JsonSerializer.Deserialize<List<MaintenanceReport>>(json) ?? new List<MaintenanceReport>();
 
-                    data = JsonSerializer.Deserialize<List<MaintenanceReport>>(json)
-                           ?? new List<MaintenanceReport>();
+                    // เริ่มต้นด้วยข้อมูลทั้งหมด
+                    var filteredData = allData.AsEnumerable();
+
+                    // กรอง Status
+                    if (!string.IsNullOrEmpty(Status))
+                    {
+                        filteredData = filteredData.Where(x => string.Equals(x.status, Status, StringComparison.OrdinalIgnoreCase));
+                    }
+
+                    // กรอง Section (กรองเพิ่มจากตัวบน)
+                    if (!string.IsNullOrEmpty(Sectioncreate))
+                    {
+                        // สมมติว่าใน Model มี property ชื่อ sectioncreate
+                        filteredData = filteredData.Where(x => string.Equals(x.sectioncreate, Sectioncreate, StringComparison.OrdinalIgnoreCase));
+                    }
+
+                    data = filteredData.ToList();
                 }
             }
 
