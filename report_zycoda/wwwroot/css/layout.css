@@ -1,0 +1,70 @@
+﻿
+:root {
+    --nav-blue: #0052cc;
+    --body-bg: #f4f7fa;
+}
+
+body {
+    background-color: var(--body-bg);
+    color: #334155;
+}
+
+/* Navbar Styling */
+.main-nav {
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(10px); /* เอฟเฟกต์กระจกฝ้า */
+    border-bottom: 1px solid #e2e8f0;
+    padding: 0.75rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    color: var(--nav-blue) !important;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.brand-logo {
+    height: 40px; /* ปรับขนาดความสูงโลโก้ตรงนี้ */
+    width: auto;
+    object-fit: contain;
+}
+
+.nav-link {
+    font-weight: 500;
+    color: #64748b !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+    .nav-link:hover {
+        color: var(--nav-blue) !important;
+        background: #f0f7ff;
+    }
+
+    .nav-link.active {
+        color: var(--nav-blue) !important;
+        background: #e0f0ff;
+    }
+
+/* Content Area */
+.content-wrapper {
+    min-height: calc(100vh - 160px);
+    padding-top: 20px;
+}
+
+/* Footer */
+footer {
+    background: white;
+    padding: 20px 0;
+    border-top: 1px solid #e2e8f0;
+    margin-top: 50px;
+    font-size: 0.85rem;
+}
+

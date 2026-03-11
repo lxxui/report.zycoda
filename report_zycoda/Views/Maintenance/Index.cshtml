@@ -1,0 +1,201 @@
+﻿@model List<report_zycoda.Models.MaintenanceReport>
+
+@{
+    var jobtype = Context.Request.Query["jobtype"].ToString();
+    var start = Context.Request.Query["start"].ToString();
+    var end = Context.Request.Query["end"].ToString();
+    var section = Context.Request.Query["sectioncreate"].ToString();
+    var status = Context.Request.Query["status"].ToString();
+    var reports = Model ?? new List<report_zycoda.Models.MaintenanceReport>();
+}
+<link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+
+<div class="container-fluid py-4">
+    <div class="card report-card mb-4">
+        <div class="card-header-custom d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <h4><i class="bi bi-file-earmark-bar-graph-fill me-2"></i>Maintenance Report</h4>
+                <button onclick="window.print();" class="btn btn-outline-secondary btn-sm ms-3 d-print-none">
+                    <i class="bi bi-printer-fill me-1"></i> พิมพ์รายงาน
+                </button>
+            </div>
+            <span class="text-muted small">@DateTime.Now.ToString("dd MMM yyyy HH:mm")</span>
+        </div>
+
+        <div class="card-body">
+            <form method="get" class="filter-box mb-4">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">ประเภทงาน</label>
+                        <select name="jobtype" class="form-select border-0 shadow-sm">
+                            <option value="EM,CM" selected="@(jobtype == "EM,CM")">-- ทั้งหมด --</option>
+                            <option value="EM" selected="@(jobtype == "EM")">งานฉุกเฉิน (EM)</option>
+                            <option value="CM" selected="@(jobtype == "CM")">งานทั่วไป (CM)</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">หน่วยงาน (Section)</label>
+                        <select name="sectioncreate" class="form-select border-0 shadow-sm">
+                            <option value="">-- หน่วยงานผู้แจ้ง --</option>
+                            @if (ViewBag.Section != null)
+                            {
+                                foreach (var sec in (List<report_zycoda.Models.Sectioncreate>)ViewBag.Section)
+                                {
+                                    // เช็ก selected โดยใช้ตัวแปรที่รับมาด้านบน
+                                    <option value="@sec.section" selected="@(section == sec.section)">
+                                        @(sec.section + " - " + sec.name)
+                                    </option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">วันที่เริ่ม</label>
+                        <input type="text" id="startDatePicker" name="start" class="form-control border-0 shadow-sm" value="@start" placeholder="เลือกวันที่เริ่ม">
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">วันที่สิ้นสุด</label>
+                        <input type="text" id="endDatePicker" name="end" class="form-control border-0 shadow-sm" value="@end" placeholder="เลือกวันที่จบ">
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">สถานะ</label>
+                        <select name="status" class="form-select border-0 shadow-sm">
+                            <option value="">-- ทั้งหมด --</option>
+                            @if (ViewBag.status != null)
+                            {
+                                foreach (var stat in (List<report_zycoda.Models.Status>)ViewBag.Status)
+                                {
+                                    <option value="@stat.id" selected="@(status == stat.name)">
+                                        @stat.name
+                                    </option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-1">
+                        <button type="submit" id="btnSearch" class="btn btn-primary w-100 shadow-sm py-2">
+                            <i class="bi bi-search"></i> ค้นหา
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="d-flex flex-wrap gap-2 mb-4 align-items-center">
+                <span class="text-secondary fw-bold me-2" style="font-size: 0.9rem;">สรุปงาน:</span>
+                <div class="summary-badge shadow-sm">Pending: <b>@reports.Count(x => x.status == "Pending")</b></div>
+                <div class="summary-badge shadow-sm text-danger">Create: <b>@reports.Count(x => x.status == "Create")</b></div>
+                <div class="summary-badge shadow-sm text-warning">Accept: <b>@reports.Count(x => x.status == "Accept")</b></div>
+                <div class="summary-badge shadow-sm text-primary">Assigned: <b>@reports.Count(x => x.status == "Assigned")</b></div>
+                <div class="summary-badge shadow-sm text-success">Finish: <b>@reports.Count(x => x.status == "Finish")</b></div>
+                <div class="ms-auto">
+                    <span class="text-muted small">พบทั้งหมด <b>@reports.Count</b> รายการ</span>
+                </div>
+            </div>
+
+            <div class="table-container shadow-sm border">
+                <table class="table table-hover table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width:140px;">เลขที่เอกสาร</th>
+                            <th style="width:25%;">เครื่องจักร / อุปกรณ์</th>
+                            <th>รายละเอียดปัญหา</th>
+                            <th class="text-center">เวลาเครื่องหยุด</th>
+                            <th class="text-center" style="width:140px;">สถานะ</th>
+                            <th style="width:150px;">ผู้แจ้งงาน</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (reports.Any())
+                        {
+                            foreach (var item in reports)
+                            {
+                                <tr>
+                                    <td class="fw-bold text-dark">#@item.id</td>
+                                    <td>
+                                        <div class="fw-bold text-primary mb-1">@item.fldetail</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-clamp" title="@item.problem">
+                                            @item.detail
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        @{
+                                            int totalMin = item.downtime.GetValueOrDefault();
+                                            string dStr = totalMin >= 1440 ? $"{totalMin / 1440}d " : "";
+                                            string hStr = (totalMin % 1440) / 60 > 0 ? $"{(totalMin % 1440) / 60}h " : "";
+                                            string mStr = $"{totalMin % 60}m";
+                                        }
+                                        <span class="downtime-pill fw-bold">
+                                            <i class="bi bi-clock-history me-1"></i> @(dStr + hStr + mStr)
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="fw-bold @item.StatusCssClass" style="font-size: 0.95rem;">
+                                            @if (item.status?.Trim() == "Assigned")
+                                            {
+                                                <i class="bi bi-person-fill me-1"></i>
+                                            }
+                                            else
+                                            {
+                                                <span class="me-1">●</span>
+                                            }
+                                            @item.status
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-light rounded-circle p-2 me-2 d-flex align-items-center justify-content-center" style="width:30px; height:30px;">
+                                                <i class="bi bi-person text-secondary small"></i>
+                                            </div>
+                                            <span class="small text-muted">@item.usercreate</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-5">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="80" class="opacity-25 mb-3">
+                                    <p class="text-muted">ไม่พบข้อมูลที่ค้นหา</p>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const config = {
+        dateFormat: "Y-m-d",
+        altInput: true,
+        altFormat: "d/m/Y",
+        allowInput: true
+    };
+    flatpickr("#startDatePicker", config);
+    flatpickr("#endDatePicker", config);
+
+
+    // script loading
+    document.querySelector("form").addEventListener("submit", function () {
+        const btn = document.getElementById("btnSearch");
+
+        btn.disabled = true;
+        btn.innerHTML = `
+    <span class="spinner-border spinner-border-sm me-2"></span>
+    กำลังค้นหา
+    `;
+    });
+
+
+</script>
