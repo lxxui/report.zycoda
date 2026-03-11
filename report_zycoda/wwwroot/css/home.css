@@ -7,7 +7,6 @@
 
 body {
     background-color: #f8f9fc;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
 /* Card & Container */
@@ -151,3 +150,14 @@ body {
         background: var(--primary-blue);
         color: white;
 }
+
+.text-clamp {
+    max-width: 700px; /* กำหนดความกว้าง */
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* ให้แสดง 2 บรรทัด */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
+}
+
