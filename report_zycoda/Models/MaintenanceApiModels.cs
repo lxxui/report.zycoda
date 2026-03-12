@@ -3,7 +3,7 @@
 
 namespace report_zycoda.Models
 {
-    public class MaintenanceReport
+    public class MaintenanceApiModels
     {
 
         // header
@@ -19,15 +19,27 @@ namespace report_zycoda.Models
         public int? timerepair { get; set; }
         public string? tag_abnormal { get; set; }
         public string? jobtype { get; set; }
-        public string? section { get; set; }
-        public string? statustexttext { get; set; }
-        public string? fldetail { get; set; }
-        public string? statustext { get; set; }
         public string? usercreate { get; set; }
         public string? solution { get; set; }
         public string? problem { get; set; }
+
+        public string? fldetail { get; set; }
         public string? causes { get; set; }
         public string? ordertype { get; set; }
-        public string? bdfac { get; set; }
+     
+        public string? sectioncreate { get; set; }
+
+        public string? status { get; set; }
+
+        public string StatusCssClass => status?.Trim() switch
+        {
+            "Pending" => "st-pending",  // สีน้ำเงิน (จากรูปเดิม)
+            "Create" => "text-danger",  // สีแดง
+            "Accept" => "text-warning", // สีส้ม/เหลือง
+            "Assigned" => "text-primary", // สีฟ้า/น้ำเงิน
+            "Finish" => "text-success",  // สีเขียว
+            _ => "text-secondary"
+        };
+
     }
 }

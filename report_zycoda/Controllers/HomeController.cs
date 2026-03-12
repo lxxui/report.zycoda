@@ -1,32 +1,52 @@
-using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using report_zycoda.Models;
 
-namespace report_zycoda.Controllers
+public class HomeController : Controller
 {
-    public class HomeController : Controller
+    private readonly ILogger<HomeController> _logger;
+    private readonly ApiService _apiService;
+
+    public HomeController(ILogger<HomeController> logger, ApiService apiService)
     {
-        private readonly ILogger<HomeController> _logger;
+        _logger = logger;
+        _apiService = apiService;
+    }
 
-        public HomeController(ILogger<HomeController> logger)
+    [HttpGet]
+    public IActionResult Login()
+    {
+        // ถ้ามี Session อยู่แล้ว ไม่ต้องล็อกอินซ้ำ
+        if (!string.IsNullOrEmpty(HttpContext.Session.GetString("ApiUser")))
         {
-            _logger = logger;
+            return RedirectToAction("Index", "Maintenance");
+        }
+        return View();
+    }
+
+    [HttpPost]
+    public IActionResult Login(string username, string password)
+    {
+        // 🚩 เช็คทางลัด (Hardcode)
+        if (username == "723582" && password == "3582")
+        {
+            // ✅ จำลองข้อมูล User ใส่ Session
+            HttpContext.Session.SetString("ApiUser", "723582");
+            HttpContext.Session.SetString("ApiPass", "3582");
+            HttpContext.Session.SetString("UserFullName", "Fai Narirat");
+            HttpContext.Session.SetString("UserSection", "IT");
+
+            return RedirectToAction("Index", "Maintenance");
         }
 
-        public IActionResult Index()
-        {
-            return View();
-        }
+        // ถ้าไม่ใช่รหัสนี้ ให้เด้งกลับหน้าเดิมพร้อม Error
+        ViewBag.ErrorMessage = "รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง";
+        return View();
+    }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+    [HttpPost]
+    public IActionResult Logout()
+    {
+        HttpContext.Session.Clear();
+        return RedirectToAction("Login");
     }
 }

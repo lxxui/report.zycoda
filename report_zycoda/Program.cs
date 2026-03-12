@@ -1,16 +1,36 @@
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// ----------------------
+// Services
+// ----------------------
+
 builder.Services.AddControllersWithViews();
-builder.Services.AddScoped<ApiService>();
+
+// Session
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+// HttpContext
+builder.Services.AddHttpContextAccessor();
+
+// API Service
+builder.Services.AddHttpClient<ApiService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ----------------------
+// Middleware
+// ----------------------
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -19,10 +39,17 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// Session ต้องอยู่ตรงนี้
+app.UseSession();
+
 app.UseAuthorization();
+
+// ----------------------
+// Routing
+// ----------------------
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Login}/{id?}");
 
 app.Run();

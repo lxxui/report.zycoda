@@ -1,0 +1,163 @@
+﻿
+:root {
+    --primary-blue: #0061f2;
+    --light-blue: #f0f7ff;
+    --border-color: #e3e6f0;
+}
+
+body {
+    background-color: #f8f9fc;
+}
+
+/* Card & Container */
+.report-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 120, 0.1);
+}
+
+.card-header-custom {
+    background-color: #fff;
+    border-bottom: 1px solid var(--border-color);
+    padding: 1.25rem;
+    border-radius: 15px 15px 0 0 !important;
+}
+
+.card-header-custom h4 {
+        color: var(--primary-blue);
+        font-weight: 700;
+        margin: 0;
+    }
+
+/* Filter Section */
+.filter-box {
+    background-color: var(--light-blue);
+    border-radius: 10px;
+    padding: 20px;
+    border: 1px solid #d1e3ff;
+}
+
+.form-label {
+    color: #4e73df;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Table Styling */
+.table-container {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table thead {
+    background-color: #4e73df;
+    color: white;
+}
+
+    .table thead th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        padding: 15px;
+        border: none;
+    }
+
+.table tbody td {
+    padding: 12px 15px;
+    vertical-align: middle;
+    color: #5a5c69;
+    border-bottom: 1px solid #f2f2f2;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #ffffff;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f1f4ff;
+}
+
+/* Custom Status Badges */
+.badge-status {
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 0.75rem;
+    display: inline-block;
+    text-align: center;
+    min-width: 90px;
+}
+
+.st-pending {
+    background: #eaecf4;
+    color: #5a5c69;
+}
+
+.st-create {
+    background: #ffe5e5;
+    color: #e74a3b;
+}
+
+.st-accept {
+    background: #fff4e0;
+    color: #f6c23e;
+}
+
+.st-assigned {
+    background: #e0f0ff;
+    color: #0061f2;
+    border: 1px solid #b3d7ff;
+}
+
+.st-finish {
+    background: #ddfbe5;
+    color: #1cc88a;
+}
+
+.st-confirm {
+    background: #0061f2;
+    color: #fff;
+}
+
+.st-reject {
+    background: #f8f9fc;
+    color: #b7b9cc;
+    border: 1px solid #d1d3e2;
+}
+
+/* Downtime Badge */
+.downtime-pill {
+    background: #fdf2d2;
+    color: #856404;
+    border: 1px solid #ffeeba;
+    font-size: 0.85rem;
+    padding: 4px 12px;
+    border-radius: 8px;
+}
+
+.summary-badge {
+    font-size: 0.8rem;
+    border: 1px solid #e3e6f0;
+    background: white;
+    color: #4e73df;
+    padding: 8px 15px;
+    border-radius: 10px;
+    transition: all 0.2s;
+}
+
+.summary-badge:hover {
+        background: var(--primary-blue);
+        color: white;
+}
+
+.text-clamp {
+    max-width: 700px; /* กำหนดความกว้าง */
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* ให้แสดง 2 บรรทัด */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
+}
+

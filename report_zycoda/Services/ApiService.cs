@@ -1,43 +1,65 @@
-﻿using System.Net.Http;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using report_zycoda.Models;
+using System.Net.Http.Json;
 
 public class ApiService
 {
     private readonly IConfiguration _config;
+    private readonly HttpClient _httpClient;
 
-    public ApiService(IConfiguration config)
+    public ApiService(IConfiguration config, HttpClient httpClient)
     {
         _config = config;
+        _httpClient = httpClient;
     }
 
-    // ปรับให้รับ parameters เพื่อเอาไปใช้สร้าง dynamic URL
-    public async Task<List<MaintenanceReport>> GetJobs(string jobtype, string start, string end)
+    // ✅ ดึงข้อมูลงาน (Maintenance Jobs)
+    public async Task<List<MaintenanceApiModels>> GetJobs(string jobtype, string start, string end, string? user = null, string? pwd = null)
     {
-        var username = _config["ApiSettings:Username"];
-        var password = _config["ApiSettings:Password"];
         var baseUrl = _config["ApiSettings:BaseUrl"];
+        var apiUsername = user ?? _config["ApiSettings:Username"];
+        var apiPassword = pwd ?? _config["ApiSettings:Password"];
 
-        // ตรวจสอบค่าว่าง (ถ้าไม่มีให้ใช้ค่า Default)
         jobtype = string.IsNullOrEmpty(jobtype) ? "EM,CM" : jobtype;
         start = string.IsNullOrEmpty(start) ? DateTime.Today.ToString("yyyy-MM-dd") : start;
         end = string.IsNullOrEmpty(end) ? DateTime.Today.ToString("yyyy-MM-dd") : end;
 
-        // ตัวแปร jobtype, start, end จะมาจาก parameter ของฟังก์ชันแล้ว
         string url = $"{baseUrl}/get_job_order?plant=FARMHOUSE&jobtype={jobtype}&start={start}&end={end}";
 
-        using (HttpClient client = new HttpClient())
+        _httpClient.DefaultRequestHeaders.Clear();
+        _httpClient.DefaultRequestHeaders.Add("username", apiUsername);
+        _httpClient.DefaultRequestHeaders.Add("password", apiPassword);
+
+        var response = await _httpClient.GetAsync(url);
+        var json = await response.Content.ReadAsStringAsync();
+
+        return JsonConvert.DeserializeObject<List<MaintenanceApiModels>>(json) ?? new List<MaintenanceApiModels>();
+    }
+
+    // ✅ ฟังก์ชัน Login โดยการตรวจสอบจากรายชื่อพนักงาน
+    public async Task<UserApiModels?> LoginAsync(string username, string password)
+    {
+        try
         {
-            client.DefaultRequestHeaders.Add("username", username);
-            client.DefaultRequestHeaders.Add("password", password);
+            // 🚩 อ่านจากไฟล์ที่เรา Manual ไว้ในเครื่อง
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "users.json");
+            var json = await System.IO.File.ReadAllTextAsync(filePath);
 
-            var response = await client.GetAsync(url);
-            var json = await response.Content.ReadAsStringAsync();
+            var users = JsonConvert.DeserializeObject<List<UserApiModels>>(json);
 
-            Console.WriteLine($"CALLING API: {url}"); // ช่วย Debug ดูว่า URL ที่ส่งไปหน้าตาเป็นยังไง
-
-            return JsonConvert.DeserializeObject<List<MaintenanceReport>>(json)
-                   ?? new List<MaintenanceReport>();
+            if (users != null)
+            {
+                return users.FirstOrDefault(u =>
+                    u.username == username &&
+                    u.password == password &&
+                    u.active == "on");
+            }
         }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine("Error reading users.json: " + ex.Message);
+        }
+
+        return null;
     }
 }
