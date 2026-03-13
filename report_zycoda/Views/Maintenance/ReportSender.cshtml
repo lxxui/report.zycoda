@@ -1,0 +1,157 @@
+﻿@model List<MaintenanceApiModels>
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold text-navy mb-0">ติดตาม Job (ผู้แจ้งงาน)</h4>
+            <p class="text-muted small">ตรวจสอบสถานะงานซ่อมที่คุณเป็นคนแจ้งระบบ</p>
+        </div>
+        <div class="text-end">
+            <span class="badge bg-light text-dark border px-3 py-2">
+                <i class="bi bi-person-circle me-1"></i> @Context.Session.GetString("UserFullName")
+            </span>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center py-3 border-start border-primary border-4">
+                <div class="text-muted small fw-bold">TOTAL</div>
+                <div class="h3 fw-bold text-primary">@Model.Count</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center py-3 border-start border-warning border-4">
+                <div class="text-muted small fw-bold">OPEN</div>
+                <div class="h3 fw-bold text-warning">@Model.Count(x => x.status == "Open")</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center py-3 border-start border-info border-4">
+                <div class="text-muted small fw-bold">IN PROGRESS</div>
+                <div class="h3 fw-bold text-info">@Model.Count(x => x.status == "In Progress")</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center py-3 border-start border-success border-4">
+                <div class="text-muted small fw-bold">FINISH</div>
+                <div class="h3 fw-bold text-success">@Model.Count(x => x.status == "Closed")</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4 bg-light">
+        <div class="card-body">
+            <form method="get" asp-action="ReportSender" class="row g-2 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">ช่วงวันที่แจ้ง</label>
+                    <div class="input-group">
+                        <input type="text" name="start" id="start_date" class="form-control border-0 shadow-sm" value="@ViewBag.Start" placeholder="เริ่ม">
+                        <span class="input-group-text border-0 bg-white">-</span>
+                        <input type="text" name="end" id="end_date" class="form-control border-0 shadow-sm" value="@ViewBag.End" placeholder="สิ้นสุด">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold">สถานะ</label>
+                    <select name="status" class="form-select border-0 shadow-sm">
+                        <option value="">-- ทั้งหมด --</option>
+                        @if (ViewBag.Status != null)
+                        {
+                            foreach (var stat in (List<report_zycoda.Models.StatusApiModels>)ViewBag.Status)
+                            {
+                                <option value="@stat.id" selected="@(ViewBag.CurrentStatus == stat.id)">@stat.name</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-navy w-100 shadow-sm">
+                        <i class="bi bi-search me-1"></i> ค้นหา
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-muted">
+                    <tr>
+                        <th class="ps-4" style="font-size: 0.8rem;">JOB NO.</th>
+                        <th style="font-size: 0.8rem;">DATE / TIME</th>
+                        <th style="font-size: 0.8rem;">ASSET / PROBLEM</th>
+                        <th style="font-size: 0.8rem;">STATUS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-bold text-navy">@item.jobno</td>
+                                <td>
+                                    <div class="fw-bold" style="font-size: 0.85rem;">@item.jobdate</div>
+                                    <div class="text-muted small">@item.jobtime</div>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-dark" style="font-size: 0.85rem;">@item.assetname</div>
+                                    <div class="text-muted text-truncate" style="max-width: 400px; font-size: 0.8rem;">@item.problem_description</div>
+                                </td>
+                                <td>
+                                    @{
+                                        var badgeColor = item.status == "Open" ? "warning" :
+                                        item.status == "Closed" ? "success" : "info";
+                                    }
+                                    <span class="badge bg-@badgeColor rounded-pill px-3">@item.status</span>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="4" class="text-center py-5 text-muted">ไม่พบรายการแจ้งซ่อมของคุณ</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .text-navy {
+        color: #1e3c72;
+    }
+
+    .btn-navy {
+        background-color: #1e3c72;
+        color: white;
+    }
+
+        .btn-navy:hover {
+            background-color: #152c55;
+            color: white;
+        }
+
+    .bg-light {
+        background-color: #f8f9fa !important;
+    }
+
+    .card {
+        border-radius: 12px;
+    }
+
+    .table thead th {
+        border-top: none;
+        text-transform: uppercase;
+    }
+</style>
+
+<script>
+    flatpickr("#start_date, #end_date", {
+        dateFormat: "d/m/Y",
+        locale: "th",
+        allowInput: true
+    });
+</script>

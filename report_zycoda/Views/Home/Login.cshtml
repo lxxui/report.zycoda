@@ -121,10 +121,12 @@
         </div>
 
         @* 🚩 ปรับให้ยิงไปที่ Home/Login เพื่อเช็ครหัส 723582 *@
+        @* --- จุดที่ 1: แก้ไข Action และ Controller --- *@
         <form method="post" asp-controller="Home" asp-action="Login">
             <div class="form-group">
                 <label>Username</label>
-                <input type="text" name="username" placeholder="ระบุชื่อผู้ใช้งาน" required />
+                @* --- จุดที่ 2: name ต้องเป็น "username" ตัวเล็กตาม Model --- *@
+                <input type="text" name="username" placeholder="ระบุรหัสพนักงาน" required />
             </div>
 
             <div class="form-group">
@@ -139,11 +141,8 @@
                 </div>
             }
 
-            <button type="submit" class="btn-login">
-                Sign In
-            </button>
+            <button type="submit" class="btn-login">Sign In</button>
         </form>
-
         <div class="footer-text">
             &copy; 2026 Zycoda. All rights reserved.
         </div>

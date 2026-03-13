@@ -2,87 +2,74 @@
 using Microsoft.AspNetCore.Mvc;
 using report_zycoda.Models;
 using static System.Collections.Specialized.BitVector32;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace report_zycoda.Controllers
 {
     public class MaintenanceController : Controller
     {
 
-        public async Task<IActionResult> Index(string jobtype, string start, string end ,string Sectioncreate, string Status)
+        public async Task<IActionResult> Index(string jobtype, string start, string end, string Sectioncreate, string Status)
         {
-            if (string.IsNullOrEmpty(jobtype))jobtype = "EM,CM";
+            // 1. ตั้งค่าพื้นฐาน (ถ้ามาหน้าแรก jobtype จะเป็น EM,CM)
+            if (string.IsNullOrEmpty(jobtype)) jobtype = "EM,CM";
 
-            // ถ้าไม่มีการส่งค่าวันที่มา (เปิดหน้าแรก) ให้ใช้ค่าวันที่ปัจจุบัน
-            var startDate = string.IsNullOrEmpty(start) ? DateTime.Now.ToString("dd/MM/yyyy") : start;
-            var endDate = string.IsNullOrEmpty(end) ? DateTime.Now.ToString("dd/MM/yyyy") : end;
+            // 2. ส่งค่ากลับไปที่ View (เพื่อให้หน้าเว็บจำค่าที่ User เลือก แต่ถ้าไม่ได้เลือกจะเป็นช่องว่าง)
+            ViewBag.Start = start;
+            ViewBag.End = end;
 
-            ViewBag.Start = startDate;
-            ViewBag.End = endDate;
+            // 3. เริ่มสร้าง URL พื้นฐาน
+            var apiUrl = $"https://api.zycoda.com/apimpros/get_job_order?plant=FARMHOUSE&jobtype={jobtype}";
 
-            // เพิ่ม parameter statustext และ sectioncreate เข้าไปใน URL
-            var apiUrl = $"https://api.zycoda.com/apimpros/get_job_order?plant=FARMHOUSE&jobtype={jobtype}&start={start}&end={end}";
+            // ✅ เพิ่ม Parameter วันที่ เฉพาะเมื่อมีการเลือกมาเท่านั้น (ถ้ามาหน้าแรก สองบรรทัดนี้จะถูกข้ามไป)
+            if (!string.IsNullOrEmpty(start)) apiUrl += $"&start={start}";
+            if (!string.IsNullOrEmpty(end)) apiUrl += $"&end={end}";
 
-            if (!string.IsNullOrEmpty(Sectioncreate))
-            {
-                apiUrl += $"&sectioncreate={Sectioncreate}";
-            }
+            // ✅ เพิ่ม Filter อื่นๆ ถ้ามีการเลือก
+            if (!string.IsNullOrEmpty(Sectioncreate)) apiUrl += $"&sectioncreate={Sectioncreate}";
+            if (!string.IsNullOrEmpty(Status)) apiUrl += $"&status={Status}";
 
-            if (!string.IsNullOrEmpty(Status))
-            {
-                apiUrl += $"&status={Status}";
-            }
-
-
-            // ✅ อ่าน sectioncreates.json
+            // อ่านไฟล์ JSON สำหรับ Dropdown
             var jsonsectioncreate = System.IO.File.ReadAllText("wwwroot/data/section.json");
-            var sectioncreates = JsonSerializer.Deserialize<List<Models.SectionApiModels>>(jsonsectioncreate);
-            ViewBag.Section = sectioncreates;
+            ViewBag.Section = JsonSerializer.Deserialize<List<Models.SectionApiModels>>(jsonsectioncreate);
 
-            // ✅ อ่าน status.json
             var jsonstatus = System.IO.File.ReadAllText("wwwroot/data/status.json");
-            var status = JsonSerializer.Deserialize<List<Models.StatusApiModels>>(jsonstatus);
-            ViewBag.Status = status;
-
-
+            ViewBag.Status = JsonSerializer.Deserialize<List<Models.StatusApiModels>>(jsonstatus);
 
             List<MaintenanceApiModels> data = new List<MaintenanceApiModels>();
 
             using (HttpClient client = new HttpClient())
             {
-                // 🚩 1. ดึงค่าจาก Session ที่เราเก็บไว้ตอน Login (สะกด Key ให้ตรงกับ HomeController)
                 var sessionUser = HttpContext.Session.GetString("ApiUser");
                 var sessionPass = HttpContext.Session.GetString("ApiPass");
 
-                // 🚩 2. เช็คกันเหนียว: ถ้าไม่มี Session (อาจจะแอบเข้าหน้า Index ตรงๆ) ให้ไล่กลับไปหน้า Login
-                if (string.IsNullOrEmpty(sessionUser))
-                {
-                    return RedirectToAction("Login", "Home");
-                }
+                // เช็ค Session กันเหนียว
+                if (string.IsNullOrEmpty(sessionUser)) return RedirectToAction("Login", "Home");
 
-                // 🚩 3. เอาค่าที่ดึงได้มาใส่ใน Header แทนเลขที่ Fixed ไว้
                 client.DefaultRequestHeaders.Add("username", sessionUser);
                 client.DefaultRequestHeaders.Add("password", sessionPass);
 
+                // ดึงข้อมูลจาก API
                 var response = await client.GetAsync(apiUrl);
 
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
-                    var allData = JsonSerializer.Deserialize<List<MaintenanceApiModels>>(json) ?? new List<MaintenanceApiModels>();
 
-                    // เริ่มต้นด้วยข้อมูลทั้งหมด
+                    // ใช้ Newtonsoft.Json เพราะรองรับ JSON ก้อนใหญ่และยืดหยุ่นกว่า
+                    var allData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<MaintenanceApiModels>>(json) ?? new List<MaintenanceApiModels>();
+
+                    // 🚩 กรองข้อมูลในเครื่อง (In-memory Filter) 
+                    // เผื่อกรณี API คืนมาทั้งหมด แต่เราอยากกรองเพิ่มตาม Dropdown ที่เลือก
                     var filteredData = allData.AsEnumerable();
 
-                    // กรอง Status
                     if (!string.IsNullOrEmpty(Status))
                     {
                         filteredData = filteredData.Where(x => string.Equals(x.status, Status, StringComparison.OrdinalIgnoreCase));
                     }
 
-                    // กรอง Section (กรองเพิ่มจากตัวบน)
                     if (!string.IsNullOrEmpty(Sectioncreate))
                     {
-                        // สมมติว่าใน Model มี property ชื่อ sectioncreate
                         filteredData = filteredData.Where(x => string.Equals(x.sectioncreate, Sectioncreate, StringComparison.OrdinalIgnoreCase));
                     }
 
@@ -91,6 +78,212 @@ namespace report_zycoda.Controllers
             }
 
             return View(data);
+        }
+
+        // เพิ่มตัวนี้ต่อจาก Index เดิมได้เลยครับ
+
+        public async Task<IActionResult> ReportReceiver(string sectionFrom, string sectionTo, string start, string end, string status)
+        {
+            // 1. ดึง Session
+            var sessionUser = HttpContext.Session.GetString("ApiUser");
+            var sessionPass = HttpContext.Session.GetString("ApiPass");
+
+            if (string.IsNullOrEmpty(sessionUser)) return RedirectToAction("Login", "Home");
+
+            // 2. อ่านไฟล์ JSON สำหรับ Dropdown (โหลดครั้งเดียวพอครับ)
+            try
+            {
+                var jsonSection = System.IO.File.ReadAllText("wwwroot/data/section.json");
+                ViewBag.Section = JsonSerializer.Deserialize<List<Models.SectionApiModels>>(jsonSection);
+
+                var jsonStatus = System.IO.File.ReadAllText("wwwroot/data/status.json");
+                ViewBag.Status = JsonSerializer.Deserialize<List<Models.StatusApiModels>>(jsonStatus);
+            }
+            catch { /* กันไฟล์หาย */ }
+
+            // 3. เก็บค่า Filter ไว้ส่งกลับหน้า View เพื่อให้ Dropdown/Input ค้างค่าเดิมไว้
+            ViewBag.SectionFrom = sectionFrom;
+            ViewBag.SectionTo = sectionTo;
+            ViewBag.Start = start;
+            ViewBag.End = end;
+            ViewBag.CurrentStatus = status;
+
+            // 4. สร้าง URL (ใช้ EM,CM เหมือน Dashboard)
+            var apiUrl = $"https://api.zycoda.com/apimpros/get_job_order?plant=FARMHOUSE&jobtype=EM,CM";
+
+            if (!string.IsNullOrEmpty(start)) apiUrl += $"&start={start}";
+            if (!string.IsNullOrEmpty(end)) apiUrl += $"&end={end}";
+            // หมายเหตุ: section จาก API ปกติจะใช้ sectioncreate แต่ถ้าเราจะกรองเป็นช่วง (From-To) 
+            // เราจะดึงข้อมูลมาก่อนแล้วค่อยกรองในเครื่อง (In-memory) ตาม logic ด้านล่างครับ
+
+            List<MaintenanceApiModels> data = new List<MaintenanceApiModels>();
+
+            using (HttpClient client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("username", sessionUser);
+                client.DefaultRequestHeaders.Add("password", sessionPass);
+
+                try
+                {
+                    var response = await client.GetAsync(apiUrl);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var json = await response.Content.ReadAsStringAsync();
+
+                        // ✅ เช็คว่าเป็น JSON List จริงไหม (กัน Error "invalid password")
+                        if (json.Trim().StartsWith("["))
+                        {
+                            var allData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<MaintenanceApiModels>>(json) ?? new List<MaintenanceApiModels>();
+
+                            // 🚩 กรองข้อมูลในเครื่อง (In-memory Filter)
+                            var filteredData = allData.AsEnumerable();
+
+                            // กรองตาม Status (ถ้าเลือก)
+                            if (!string.IsNullOrEmpty(status))
+                            {
+                                filteredData = filteredData.Where(x => string.Equals(x.status, status, StringComparison.OrdinalIgnoreCase));
+                            }
+
+                            // 🚩 กรองช่วงแผนก (Section From - To)
+                            if (!string.IsNullOrEmpty(sectionFrom) && !string.IsNullOrEmpty(sectionTo))
+                            {
+                                filteredData = filteredData.Where(x =>
+                                    string.Compare(x.sectioncreate, sectionFrom) >= 0 &&
+                                    string.Compare(x.sectioncreate, sectionTo) <= 0);
+                            }
+                            // ถ้าเลือกแค่ From อย่างเดียว
+                            else if (!string.IsNullOrEmpty(sectionFrom))
+                            {
+                                filteredData = filteredData.Where(x => x.sectioncreate == sectionFrom);
+                            }
+
+                            data = filteredData.ToList();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // พ่น Error ลง Console ไว้ดูเวลาติดปัญหา
+                    System.Diagnostics.Debug.WriteLine("Report Error: " + ex.Message);
+                }
+            }
+
+            return View(data);
+        }
+
+        public async Task<IActionResult> ReportSender(string start, string end, string status)
+        {
+            // 1. ดึงข้อมูลตัวตนจาก Session
+            var sessionUser = HttpContext.Session.GetString("ApiUser"); // รหัสพนักงาน (ใช้เช็ค usercreate)
+            var sessionPass = HttpContext.Session.GetString("ApiPass");
+            var userSection = HttpContext.Session.GetString("UserSection"); // แผนก
+
+            if (string.IsNullOrEmpty(sessionUser)) return RedirectToAction("Login", "Home");
+
+            // 2. เตรียมข้อมูลสำหรับ Dropdown Status
+            try
+            {
+                // อ่านไฟล์ JSON สำหรับ Dropdown
+                var jsonsectioncreate = System.IO.File.ReadAllText("wwwroot/data/section.json");
+                ViewBag.Section = JsonSerializer.Deserialize<List<Models.SectionApiModels>>(jsonsectioncreate);
+
+                var jsonstatus = System.IO.File.ReadAllText("wwwroot/data/status.json");
+                ViewBag.Status = JsonSerializer.Deserialize<List<Models.StatusApiModels>>(jsonstatus);
+            }
+            catch { }
+
+            ViewBag.Start = start;
+            ViewBag.End = end;
+            ViewBag.CurrentStatus = status;
+
+            // 3. ยิง API ดึงข้อมูล (ดึงแบบกว้างมาก่อน แล้วค่อยมา Filter ละเอียดในเครื่อง)
+            var apiUrl = $"https://api.zycoda.com/apimpros/get_job_order?plant=FARMHOUSE&jobtype=EM,CM";
+            if (!string.IsNullOrEmpty(start)) apiUrl += $"&start={start}";
+            if (!string.IsNullOrEmpty(end)) apiUrl += $"&end={end}";
+
+            List<MaintenanceApiModels> data = new List<MaintenanceApiModels>();
+
+            using (HttpClient client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("username", sessionUser);
+                client.DefaultRequestHeaders.Add("password", sessionPass);
+
+                try
+                {
+                    var response = await client.GetAsync(apiUrl);
+                    var json = await response.Content.ReadAsStringAsync();
+
+                    if (json.Trim().StartsWith("["))
+                    {
+                        var allData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<MaintenanceApiModels>>(json) ?? new List<MaintenanceApiModels>();
+
+                        // 🚩 Logic สำคัญ: กรองว่า "เราเป็นคนแจ้ง" 
+                        // โดยเช็คจาก usercreate ต้องตรงกับ sessionUser
+                        var filteredData = allData.Where(x =>
+                            x.usercreate == sessionUser ||
+                            (x.sectioncreate == userSection && x.usercreate == sessionUser)
+                        );
+
+                        // กรองตาม Status ถ้ามีการเลือก
+                        if (!string.IsNullOrEmpty(status))
+                        {
+                            filteredData = filteredData.Where(x => string.Equals(x.status, status, StringComparison.OrdinalIgnoreCase));
+                        }
+
+                        data = filteredData.OrderByDescending(x => x.id).ToList();
+                    }
+                }
+                catch { }
+            }
+            return View(data);
+        }
+
+        public async Task<IActionResult> PrintReport(int type, string sectionFrom, string sectionTo, string start, string end, string status)
+        {
+            // 1. ดึงข้อมูลจาก API โดยใช้ Filter ที่ส่งมา (Logic เดียวกับใน ReportReceiver)
+            var sessionUser = HttpContext.Session.GetString("ApiUser");
+            var sessionPass = HttpContext.Session.GetString("ApiPass");
+
+            var apiUrl = $"https://api.zycoda.com/apimpros/get_job_order?plant=FARMHOUSE&jobtype=EM,CM";
+            if (!string.IsNullOrEmpty(start)) apiUrl += $"&start={start}";
+            if (!string.IsNullOrEmpty(end)) apiUrl += $"&end={end}";
+            if (!string.IsNullOrEmpty(status)) apiUrl += $"&status={status}";
+
+            List<MaintenanceApiModels> data = new List<MaintenanceApiModels>();
+
+            using (HttpClient client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("username", sessionUser);
+                client.DefaultRequestHeaders.Add("password", sessionPass);
+
+                var response = await client.GetAsync(apiUrl);
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    if (json.Trim().StartsWith("["))
+                    {
+                        var allData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<MaintenanceApiModels>>(json) ?? new List<MaintenanceApiModels>();
+
+                        // กรอง Section From - To ตามที่ User เลือก
+                        if (!string.IsNullOrEmpty(sectionFrom) && !string.IsNullOrEmpty(sectionTo))
+                        {
+                            data = allData.Where(x =>
+                                string.Compare(x.sectioncreate, sectionFrom) >= 0 &&
+                                string.Compare(x.sectioncreate, sectionTo) <= 0).ToList();
+                        }
+                        else { data = allData; }
+                    }
+                }
+            }
+
+            // 2. ส่งค่าหัวรายงานไปที่ ViewBag
+            ViewBag.SectionFrom = sectionFrom;
+            ViewBag.SectionTo = sectionTo;
+            ViewBag.StartDate = start;
+            ViewBag.EndDate = end;
+            ViewBag.Status = status ?? "ALL";
+
+            return View("~/Views/report/PrintReport.cshtml", data);
         }
     }
 }

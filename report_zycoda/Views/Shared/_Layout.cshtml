@@ -22,9 +22,10 @@
 </head>
 <body>
     <header>
+
         <nav class="navbar navbar-expand-sm navbar-light main-nav">
             <div class="container-fluid px-4">
-                <a class="navbar-brand" asp-area="" asp-controller="Maintenance" asp-action="Index">
+                <a class="navbar-brand" asp-area="" asp-controller="Dashboard" asp-action="Index">
                     @* <img src="~/images/logo.png" alt="Logo" class="brand-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/5968/5968204.png'; this.style.opacity='0.5'"> *@
                     <span class="d-none d-sm-inline">ZYCODA REPORT</span>
                 </a>
@@ -51,10 +52,12 @@
                     <div class="d-flex align-items-center ms-md-4 ps-md-4 border-start d-none d-md-flex">
                         <div class="text-end me-2">
                             <div class="small fw-bold">
+                                @* แก้เป็น UserFullName ให้ตรงกับที่ Set ไว้ใน Controller *@
                                 @(Context.Session.GetString("UserFullName") ?? "Guest User")
                             </div>
                             <div class="text-muted" style="font-size: 0.7rem;">
-                                @(HttpContextAccessor.HttpContext?.Session.GetString("UserSection") ?? "IT Department")
+                                @* แก้เป็น UserSection *@
+                                @(Context.Session.GetString("UserSection") ?? "No Department")
                             </div>
                         </div>
 
@@ -80,6 +83,7 @@
             @RenderBody()
         </main>
     </div>
+
 
     <footer class="footer text-muted">
         <div class="container-fluid px-4">

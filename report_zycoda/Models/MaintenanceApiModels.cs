@@ -17,6 +17,9 @@ namespace report_zycoda.Models
         public string? fl { get; set; }
         public int? downtime { get; set; }
         public int? timerepair { get; set; }
+
+        public string? timecreate { get; set; }
+
         public string? tag_abnormal { get; set; }
         public string? jobtype { get; set; }
         public string? usercreate { get; set; }

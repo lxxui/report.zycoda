@@ -1,0 +1,232 @@
+﻿@model List<MaintenanceApiModels>
+
+@{
+	var section = Context.Request.Query["sectioncreate"].ToString();
+	var status = Context.Request.Query["status"].ToString();
+
+}
+
+<div class="container-fluid py-4">
+	<div class="card shadow-sm mb-4 border-0">
+		<div class="card-header bg-white py-3">
+			<h5 class="mb-0 fw-bold text-navy"><i class="bi bi-funnel-fill me-2"></i>ตัวกรองรายงานติดตาม Job (ผู้รับแจ้ง)</h5>
+		</div>
+		<div class="card-body bg-light">
+			<form method="get" asp-action="ReportReceiver">
+				<div class="row g-3">
+					<div class="col-md-3">
+						<label class="form-label small fw-bold">หน่วยงานแจ้ง (จาก)</label>
+						<select name="sectioncreate" class="form-select border-0 shadow-sm">
+							<option value="">-- หน่วยงานผู้แจ้ง --</option>
+							@if (ViewBag.Section != null)
+							{
+								foreach (var sec in (List<report_zycoda.Models.SectionApiModels>)ViewBag.Section)
+								{
+									// เช็ก selected โดยใช้ตัวแปรที่รับมาด้านบน
+									<option value="@sec.section" selected="@(section == sec.section)">
+										@(sec.section + " - " + sec.name)
+									</option>
+								}
+							}
+						</select>
+					</div>
+					<div class="col-md-3">
+						<label class="form-label small fw-bold">หน่วยงานแจ้ง (ถึง)</label>
+						<select name="sectioncreate" class="form-select border-0 shadow-sm">
+							<option value="">-- หน่วยงานผู้แจ้ง --</option>
+							@if (ViewBag.Section != null)
+							{
+								foreach (var sec in (List<report_zycoda.Models.SectionApiModels>)ViewBag.Section)
+								{
+									// เช็ก selected โดยใช้ตัวแปรที่รับมาด้านบน
+									<option value="@sec.section" selected="@(section == sec.section)">
+										@(sec.section + " - " + sec.name)
+									</option>
+								}
+							}
+						</select>
+					</div>
+
+					<div class="col-md-2">
+						<label class="form-label small fw-bold">วันที่แจ้ง (เริ่ม)</label>
+						<input type="text" name="start" id="start_date" class="form-control shadow-sm bg-white"
+							   placeholder="วว/ดด/ปปปป" value="@ViewBag.Start" readonly>
+					</div>
+					<div class="col-md-2">
+						<label class="form-label small fw-bold">วันที่แจ้ง (สิ้นสุด)</label>
+						<input type="text" name="end" id="end_date" class="form-control shadow-sm bg-white"
+							   placeholder="วว/ดด/ปปปป" value="@ViewBag.End" readonly>
+					</div>
+
+					<div class="col-md-2">
+						<label class="form-label small fw-bold">สถานะใบแจ้งงาน</label>
+						<select name="status" class="form-select border-0 shadow-sm">
+							<option value="">-- ทั้งหมด --</option>
+							@if (ViewBag.status != null)
+							{
+								foreach (var stat in (List<report_zycoda.Models.StatusApiModels>)ViewBag.Status)
+								{
+									<option value="@stat.id" selected="@(status == stat.name)">
+										@stat.name
+									</option>
+								}
+							}
+						</select>
+					</div>
+
+					<div class="col-12 d-flex justify-content-between align-items-end mt-4">
+						<div>
+							<button type="submit" class="btn btn-primary px-4 shadow-sm">
+								<i class="bi bi-search me-2"></i>ค้นหาข้อมูล
+							</button>
+						</div>
+
+						<div class="btn-group shadow-sm">
+							<button type="button" onclick="printReport(1)" class="btn btn-outline-dark">
+								<i class="bi bi-printer me-2"></i>พิมพ์รูปแบบ 1
+							</button>
+							<button type="button" onclick="printReport(2)" class="btn btn-outline-dark">
+								<i class="bi bi-printer me-2"></i>พิมพ์รูปแบบ 2
+							</button>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+
+
+	<!-- แสดงข้อมูล -->
+	<div class="container-fluid mt-2">
+		<div class="card shadow-sm border-0">
+			<div class="card-body p-0">
+				<div class="table-responsive">
+					<table class="table table-hover align-middle mb-0">
+						<thead class="bg-navy text-white">
+							<tr>
+								<th class="py-3 ps-4" style="width: 120px;">เลขที่ใบแจ้ง</th>
+								<th class="py-3">วันที่แจ้ง</th>
+								<th class="py-3">หน่วยงานผู้แจ้ง</th>
+								<th class="py-3">ชื่อเครื่องจักร / อาการเสีย</th>
+								<th class="py-3" style="width: 130px;">สถานะ</th>
+								<th class="py-3 text-center" style="width: 100px;">จัดการ</th>
+							</tr>
+						</thead>
+						<tbody>
+							@if (Model != null && Model.Any())
+							{
+								foreach (var item in Model)
+								{
+									<tr>
+										<td class="ps-4 fw-bold text-navy">@item.id</td>
+										<td>
+											<div class="small">@item.timecreate</div>
+										</td>
+										<td>
+											<span class="badge bg-light text-dark border">@item.sectioncreate</span>
+										</td>
+										<td>
+											<div class="fw-bold">@item.detail</div>
+											<div class="text-truncate text-muted" style="max-width: 300px; font-size: 0.85rem;">
+												@item.detail
+											</div>
+										</td>
+										<td class="text-center">
+											<div class="fw-bold @item.StatusCssClass" style="font-size: 0.95rem;">
+												@if (item.status?.Trim() == "Assigned")
+												{
+													<i class="bi bi-person-fill me-1"></i>
+												}
+												else
+												{
+													<span class="me-1">●</span>
+												}
+												@item.status
+											</div>
+										</td>
+										<td class="text-center">
+											<button class="btn btn-sm btn-outline-primary rounded-circle" title="ดูรายละเอียด">
+												<i class="bi bi-eye"></i>
+											</button>
+										</td>
+									</tr>
+								}
+							}
+							else
+							{
+								<tr>
+									<td colspan="6" class="text-center py-5">
+										<img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="80" class="opacity-25 mb-3" />
+										<p class="text-muted">ไม่พบข้อมูลที่ตรงตามเงื่อนไขการค้นหา</p>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<style>
+		.bg-navy {
+			background-color: #1e3c72;
+		}
+
+		.table thead th {
+			font-weight: 500;
+			font-size: 0.9rem;
+			letter-spacing: 0.5px;
+		}
+
+		.table tbody td {
+			font-size: 0.9rem;
+			border-bottom: 1px solid #f0f0f0;
+		}
+
+		.table-hover tbody tr:hover {
+			background-color: #f8faff;
+			transition: 0.2s;
+		}
+
+		.badge {
+			font-weight: 400;
+		}
+	</style>
+
+</div>
+
+<script>
+	function printReport(type) {
+		// ดึงค่าจาก Filter ปัจจุบันส่งไปที่ Action สำหรับ Print
+		const params = new URLSearchParams(window.location.search);
+		window.open(`/Maintenance/ReportReceiver?type=${type}&${params.toString()}`, '_blank');
+	}
+
+
+	//แปลงเป็น วันเดือนปี
+		const config = {
+		dateFormat: "Y-m-d",
+		altInput: true,
+		altFormat: "d/m/Y",
+		allowInput: true
+	};
+	flatpickr("#start_date", config);
+	flatpickr("#end_date", config);
+
+</script>
+
+<style>
+	.text-navy {
+		color: #1e3c72;
+	}
+
+	.btn-primary {
+		background-color: #1e3c72;
+		border: none;
+	}
+
+		.btn-primary:hover {
+			background-color: #2a5298;
+		}
+</style>
