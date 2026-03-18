@@ -208,6 +208,47 @@
 
         }
 
+        #loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.85);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+
+        .spinner {
+            border: 5px solid rgba(255,255,255,0.2);
+            border-top: 5px solid #38bdf8;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 10px;
+        }
+
+        @@keyframes spin {
+            0%
+
+        {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+
+        }
+
+
     </style>
 </head>
 
@@ -246,7 +287,13 @@
         <div class="footer-text">
             &copy; 2026 Zycoda. All rights reserved.
         </div>
+        <div id="loading-overlay">
+            <div class="spinner"></div>
+            <p>Signing in...</p>
+        </div>
     </div>
+   
+
 
     <script>
         const canvas = document.getElementById('network-canvas');

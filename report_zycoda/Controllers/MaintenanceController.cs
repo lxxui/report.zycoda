@@ -263,10 +263,8 @@ namespace report_zycoda.Controllers
         //    return View(data);
         //}
 
-        public async Task<IActionResult> ReportSender(string jobtype, string start, string end, string section, string Status)
+        public async Task<IActionResult> ReportSender(string start, string end, string Status)
         {
-            // 1. ตั้งค่าพื้นฐาน (ถ้ามาหน้าแรก jobtype จะเป็น EM,CM)
-            if (string.IsNullOrEmpty(jobtype)) jobtype = "EM,CM";
 
             // 1. ตั้งค่าวันที่ปัจจุบันเป็น ค.ศ. (yyyy-MM-dd)
             if (string.IsNullOrEmpty(start))
@@ -284,19 +282,18 @@ namespace report_zycoda.Controllers
 
 
             // 3. เริ่มสร้าง URL พื้นฐาน
-            var apiUrl = $"https://api.zycoda.com/apimpros/get_job_order?plant=FARMHOUSE&jobtype={jobtype}";
+            var apiUrl = $"https://api.zycoda.com/apimpros/get_job_order?plant=FARMHOUSE&";
 
-            // ✅ เพิ่ม Parameter วันที่ เฉพาะเมื่อมีการเลือกมาเท่านั้น (ถ้ามาหน้าแรก สองบรรทัดนี้จะถูกข้ามไป)
+            var section = HttpContext.Session.GetString("Section");
+
             if (!string.IsNullOrEmpty(start)) apiUrl += $"&start={start}";
             if (!string.IsNullOrEmpty(end)) apiUrl += $"&end={end}";
-
-            // ✅ เพิ่ม Filter อื่นๆ ถ้ามีการเลือก
-            if (!string.IsNullOrEmpty(section)) apiUrl += $"&sectioncreate={section}";
+            if (!string.IsNullOrEmpty(section)) apiUrl += $"&section={section}";
             if (!string.IsNullOrEmpty(Status)) apiUrl += $"&status={Status}";
 
             // อ่านไฟล์ JSON สำหรับ Dropdown
-            var jsonsectioncreate = System.IO.File.ReadAllText("wwwroot/data/section.json");
-            ViewBag.Section = JsonSerializer.Deserialize<List<Models.SectionApiModels>>(jsonsectioncreate);
+            var jsonsection = System.IO.File.ReadAllText("wwwroot/data/section.json");
+            ViewBag.Section = JsonSerializer.Deserialize<List<Models.SectionApiModels>>(jsonsection);
 
             var jsonstatus = System.IO.File.ReadAllText("wwwroot/data/status.json");
             ViewBag.Status = JsonSerializer.Deserialize<List<Models.StatusApiModels>>(jsonstatus);
@@ -332,12 +329,6 @@ namespace report_zycoda.Controllers
                     {
                         filteredData = filteredData.Where(x => string.Equals(x.status, Status, StringComparison.OrdinalIgnoreCase));
                     }
-
-                    if (!string.IsNullOrEmpty(section))
-                    {
-                        filteredData = filteredData.Where(x => string.Equals(x.sectioncreate, section, StringComparison.OrdinalIgnoreCase));
-                    }
-
                     data = filteredData.ToList();
                 }
             }
