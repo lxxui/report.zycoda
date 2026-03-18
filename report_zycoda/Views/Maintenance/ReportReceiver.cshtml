@@ -11,6 +11,33 @@
 		<div class="card-header bg-white py-3">
 			<h5 class="mb-0 fw-bold text-navy"><i class="bi bi-funnel-fill me-2"></i>ตัวกรองรายงานติดตาม Job (ผู้รับแจ้ง)</h5>
 		</div>
+		<div class="row g-3 mb-4">
+			<div class="col-md-3">
+				<div class="card border-0 shadow-sm text-center py-3 border-start border-primary border-4">
+					<div class="text-muted small fw-bold">งานทั้งหมด</div>
+					<div class="h3 fw-bold text-primary">@Model.Count</div>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="card border-0 shadow-sm text-center py-3 border-start border-warning border-4">
+					<div class="text-muted small fw-bold">แจ้งงานใหม่</div>
+					<div class="h3 fw-bold text-warning">@Model.Count(x => x.status == "Create")</div>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="card border-0 shadow-sm text-center py-3 border-start border-info border-4">
+					<div class="text-muted small fw-bold">รับงานแล้ว</div>
+					<div class="h3 fw-bold text-info">@Model.Count(x => x.status == "Accept")</div>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="card border-0 shadow-sm text-center py-3 border-start border-success border-4">
+					<div class="text-muted small fw-bold">ปิดงาน</div>
+					<div class="h3 fw-bold text-success">@Model.Count(x => x.status == "Confirm")</div>
+				</div>
+			</div>
+		</div>
+
 		<div class="card-body bg-light">
 			<form method="get" asp-action="ReportReceiver">
 				<div class="row g-3">
@@ -109,7 +136,6 @@
 								<th class="py-3">หน่วยงานผู้แจ้ง</th>
 								<th class="py-3">ชื่อเครื่องจักร / อาการเสีย</th>
 								<th class="py-3" style="width: 130px;">สถานะ</th>
-								<th class="py-3 text-center" style="width: 100px;">จัดการ</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -120,14 +146,26 @@
 									<tr>
 										<td class="ps-4 fw-bold text-navy">@item.id</td>
 										<td>
-											<div class="small">@item.timecreate</div>
+											@if (DateTime.TryParse(item.timecreate, out DateTime dt))
+											{
+												<div class="fw-bold" style="font-size: 0.85rem;">
+													@dt.ToString("dd/MM/yyyy")
+												</div>
+												<div class="text-muted" style="font-size: 0.75rem;">
+													@dt.ToString("HH:mm:ss") น.
+												</div>
+											}
+											else
+											{
+												<div class="small">@item.timecreate</div>
+											}
 										</td>
 										<td>
 											<span class="badge bg-light text-dark border">@item.sectioncreate</span>
 										</td>
 										<td>
-											<div class="fw-bold">@item.detail</div>
-											<div class="text-truncate text-muted" style="max-width: 300px; font-size: 0.85rem;">
+											<div class="fw-bold">@item.fl (@item.fldetail)</div>
+											<div class="text-truncate text-muted" style="max-width: 800px; font-size: 0.85rem;">
 												@item.detail
 											</div>
 										</td>
@@ -143,11 +181,6 @@
 												}
 												@item.status
 											</div>
-										</td>
-										<td class="text-center">
-											<button class="btn btn-sm btn-outline-primary rounded-circle" title="ดูรายละเอียด">
-												<i class="bi bi-eye"></i>
-											</button>
 										</td>
 									</tr>
 								}

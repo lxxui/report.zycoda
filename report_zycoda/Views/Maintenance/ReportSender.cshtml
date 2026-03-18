@@ -1,157 +1,232 @@
 ﻿@model List<MaintenanceApiModels>
 
+@{
+	var section = Context.Request.Query["sectioncreate"].ToString();
+	var status = Context.Request.Query["status"].ToString();
+
+}
+
 <div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="fw-bold text-navy mb-0">ติดตาม Job (ผู้แจ้งงาน)</h4>
-            <p class="text-muted small">ตรวจสอบสถานะงานซ่อมที่คุณเป็นคนแจ้งระบบ</p>
-        </div>
-        <div class="text-end">
-            <span class="badge bg-light text-dark border px-3 py-2">
-                <i class="bi bi-person-circle me-1"></i> @Context.Session.GetString("UserFullName")
-            </span>
-        </div>
-    </div>
+	<div class="card shadow-sm mb-4 border-0">
+		<div class="card-header bg-white py-3">
+			<h5 class="mb-0 fw-bold text-navy"><i class="bi bi-funnel-fill me-2"></i>ตัวกรองรายงานติดตาม Job (ผู้แจ้งงาน)</h5>
+		</div>
+		<div class="row g-3 mb-4">
+			<div class="col-md-3">
+				<div class="card border-0 shadow-sm text-center py-3 border-start border-primary border-4">
+					<div class="text-muted small fw-bold">งานทั้งหมด</div>
+					<div class="h3 fw-bold text-primary">@Model.Count</div>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="card border-0 shadow-sm text-center py-3 border-start border-warning border-4">
+					<div class="text-muted small fw-bold">แจ้งงานใหม่</div>
+					<div class="h3 fw-bold text-warning">@Model.Count(x => x.status == "Create")</div>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="card border-0 shadow-sm text-center py-3 border-start border-info border-4">
+					<div class="text-muted small fw-bold">รับงานแล้ว</div>
+					<div class="h3 fw-bold text-info">@Model.Count(x => x.status == "Accept")</div>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="card border-0 shadow-sm text-center py-3 border-start border-success border-4">
+					<div class="text-muted small fw-bold">ปิดงาน</div>
+					<div class="h3 fw-bold text-success">@Model.Count(x => x.status == "Confirm")</div>
+				</div>
+			</div>
+		</div>
 
-    <div class="row g-3 mb-4">
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm text-center py-3 border-start border-primary border-4">
-                <div class="text-muted small fw-bold">TOTAL</div>
-                <div class="h3 fw-bold text-primary">@Model.Count</div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm text-center py-3 border-start border-warning border-4">
-                <div class="text-muted small fw-bold">OPEN</div>
-                <div class="h3 fw-bold text-warning">@Model.Count(x => x.status == "Open")</div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm text-center py-3 border-start border-info border-4">
-                <div class="text-muted small fw-bold">IN PROGRESS</div>
-                <div class="h3 fw-bold text-info">@Model.Count(x => x.status == "In Progress")</div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm text-center py-3 border-start border-success border-4">
-                <div class="text-muted small fw-bold">FINISH</div>
-                <div class="h3 fw-bold text-success">@Model.Count(x => x.status == "Closed")</div>
-            </div>
-        </div>
-    </div>
+		<div class="card-body bg-light">
+			<form method="get" asp-action="ReportReceiver">
+				<div class="row g-3">
+					<div class="col-md-2">
+						<label class="form-label small fw-bold">วันที่แจ้ง (เริ่ม)</label>
+						<input type="text" name="start" id="start_date" class="form-control shadow-sm bg-white"
+							   placeholder="วว/ดด/ปปปป" value="@ViewBag.Start" readonly>
+					</div>
+					<div class="col-md-2">
+						<label class="form-label small fw-bold">วันที่แจ้ง (สิ้นสุด)</label>
+						<input type="text" name="end" id="end_date" class="form-control shadow-sm bg-white"
+							   placeholder="วว/ดด/ปปปป" value="@ViewBag.End" readonly>
+					</div>
 
-    <div class="card border-0 shadow-sm mb-4 bg-light">
-        <div class="card-body">
-            <form method="get" asp-action="ReportSender" class="row g-2 align-items-end">
-                <div class="col-md-4">
-                    <label class="form-label small fw-bold">ช่วงวันที่แจ้ง</label>
-                    <div class="input-group">
-                        <input type="text" name="start" id="start_date" class="form-control border-0 shadow-sm" value="@ViewBag.Start" placeholder="เริ่ม">
-                        <span class="input-group-text border-0 bg-white">-</span>
-                        <input type="text" name="end" id="end_date" class="form-control border-0 shadow-sm" value="@ViewBag.End" placeholder="สิ้นสุด">
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label small fw-bold">สถานะ</label>
-                    <select name="status" class="form-select border-0 shadow-sm">
-                        <option value="">-- ทั้งหมด --</option>
-                        @if (ViewBag.Status != null)
-                        {
-                            foreach (var stat in (List<report_zycoda.Models.StatusApiModels>)ViewBag.Status)
-                            {
-                                <option value="@stat.id" selected="@(ViewBag.CurrentStatus == stat.id)">@stat.name</option>
-                            }
-                        }
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-navy w-100 shadow-sm">
-                        <i class="bi bi-search me-1"></i> ค้นหา
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+					<div class="col-md-2">
+						<label class="form-label small fw-bold">สถานะใบแจ้งงาน</label>
+						<select name="status" class="form-select border-0 shadow-sm">
+							<option value="">-- ทั้งหมด --</option>
+							@if (ViewBag.status != null)
+							{
+								foreach (var stat in (List<report_zycoda.Models.StatusApiModels>)ViewBag.Status)
+								{
+									<option value="@stat.id" selected="@(status == stat.name)">
+										@stat.name
+									</option>
+								}
+							}
+						</select>
+					</div>
 
-    <div class="card border-0 shadow-sm">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light text-muted">
-                    <tr>
-                        <th class="ps-4" style="font-size: 0.8rem;">JOB NO.</th>
-                        <th style="font-size: 0.8rem;">DATE / TIME</th>
-                        <th style="font-size: 0.8rem;">ASSET / PROBLEM</th>
-                        <th style="font-size: 0.8rem;">STATUS</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model.Any())
-                    {
-                        foreach (var item in Model)
-                        {
-                            <tr>
-                                <td class="ps-4 fw-bold text-navy">@item.jobno</td>
-                                <td>
-                                    <div class="fw-bold" style="font-size: 0.85rem;">@item.jobdate</div>
-                                    <div class="text-muted small">@item.jobtime</div>
-                                </td>
-                                <td>
-                                    <div class="fw-bold text-dark" style="font-size: 0.85rem;">@item.assetname</div>
-                                    <div class="text-muted text-truncate" style="max-width: 400px; font-size: 0.8rem;">@item.problem_description</div>
-                                </td>
-                                <td>
-                                    @{
-                                        var badgeColor = item.status == "Open" ? "warning" :
-                                        item.status == "Closed" ? "success" : "info";
-                                    }
-                                    <span class="badge bg-@badgeColor rounded-pill px-3">@item.status</span>
-                                </td>
-                            </tr>
-                        }
-                    }
-                    else
-                    {
-                        <tr><td colspan="4" class="text-center py-5 text-muted">ไม่พบรายการแจ้งซ่อมของคุณ</td></tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
+					<div class="col-12 d-flex justify-content-between align-items-end mt-4">
+						<div>
+							<button type="submit" class="btn btn-primary px-4 shadow-sm">
+								<i class="bi bi-search me-2"></i>ค้นหาข้อมูล
+							</button>
+						</div>
+
+						<div class="btn-group shadow-sm">
+							<button type="button" onclick="printReport(1)" class="btn btn-outline-dark">
+								<i class="bi bi-printer me-2"></i>พิมพ์รูปแบบ 1
+							</button>
+							<button type="button" onclick="printReport(2)" class="btn btn-outline-dark">
+								<i class="bi bi-printer me-2"></i>พิมพ์รูปแบบ 2
+							</button>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+
+
+	<!-- แสดงข้อมูล -->
+	<div class="container-fluid mt-2">
+		<div class="card shadow-sm border-0">
+			<div class="card-body p-0">
+				<div class="table-responsive">
+					<table class="table table-hover align-middle mb-0">
+						<thead class="bg-navy text-white">
+							<tr>
+								<th class="py-3 ps-4" style="width: 120px;">เลขที่ใบแจ้ง</th>
+								<th class="py-3">วันที่แจ้ง</th>
+								<th class="py-3">หน่วยงานผู้แจ้ง</th>
+								<th class="py-3">ชื่อเครื่องจักร / อาการเสีย</th>
+								<th class="py-3" style="width: 130px;">สถานะ</th>
+							</tr>
+						</thead>
+						<tbody>
+							@if (Model != null && Model.Any())
+							{
+								foreach (var item in Model)
+								{
+									<tr>
+										<td class="ps-4 fw-bold text-navy">@item.id</td>
+										<td>
+											@if (DateTime.TryParse(item.timecreate, out DateTime dt))
+											{
+												<div class="fw-bold" style="font-size: 0.85rem;">
+													@dt.ToString("dd/MM/yyyy")
+												</div>
+												<div class="text-muted" style="font-size: 0.75rem;">
+													@dt.ToString("HH:mm:ss") น.
+												</div>
+											}
+											else
+											{
+												<div class="small">@item.timecreate</div>
+											}
+										</td>
+										<td>
+											<span class="badge bg-light text-dark border">@item.sectioncreate</span>
+										</td>
+										<td>
+											<div class="fw-bold">@item.fl (@item.fldetail)</div>
+											<div class="text-truncate text-muted" style="max-width: 800px; font-size: 0.85rem;">
+												@item.detail
+											</div>
+										</td>
+										<td class="text-center">
+											<div class="fw-bold @item.StatusCssClass" style="font-size: 0.95rem;">
+												@if (item.status?.Trim() == "Assigned")
+												{
+													<i class="bi bi-person-fill me-1"></i>
+												}
+												else
+												{
+													<span class="me-1">●</span>
+												}
+												@item.status
+											</div>
+										</td>
+									</tr>
+								}
+							}
+							else
+							{
+								<tr>
+									<td colspan="6" class="text-center py-5">
+										<img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="80" class="opacity-25 mb-3" />
+										<p class="text-muted">ไม่พบข้อมูลที่ตรงตามเงื่อนไขการค้นหา</p>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<style>
+		.bg-navy {
+			background-color: #1e3c72;
+		}
+
+		.table thead th {
+			font-weight: 500;
+			font-size: 0.9rem;
+			letter-spacing: 0.5px;
+		}
+
+		.table tbody td {
+			font-size: 0.9rem;
+			border-bottom: 1px solid #f0f0f0;
+		}
+
+		.table-hover tbody tr:hover {
+			background-color: #f8faff;
+			transition: 0.2s;
+		}
+
+		.badge {
+			font-weight: 400;
+		}
+	</style>
+
 </div>
 
-<style>
-    .text-navy {
-        color: #1e3c72;
-    }
-
-    .btn-navy {
-        background-color: #1e3c72;
-        color: white;
-    }
-
-        .btn-navy:hover {
-            background-color: #152c55;
-            color: white;
-        }
-
-    .bg-light {
-        background-color: #f8f9fa !important;
-    }
-
-    .card {
-        border-radius: 12px;
-    }
-
-    .table thead th {
-        border-top: none;
-        text-transform: uppercase;
-    }
-</style>
-
 <script>
-    flatpickr("#start_date, #end_date", {
-        dateFormat: "d/m/Y",
-        locale: "th",
-        allowInput: true
-    });
+	function printReport(type) {
+		// ดึงค่าจาก Filter ปัจจุบันส่งไปที่ Action สำหรับ Print
+		const params = new URLSearchParams(window.location.search);
+		window.open(`/Maintenance/ReportReceiver?type=${type}&${params.toString()}`, '_blank');
+	}
+
+
+	//แปลงเป็น วันเดือนปี
+		const config = {
+		dateFormat: "Y-m-d",
+		altInput: true,
+		altFormat: "d/m/Y",
+		allowInput: true
+	};
+	flatpickr("#start_date", config);
+	flatpickr("#end_date", config);
+
 </script>
+
+<style>
+	.text-navy {
+		color: #1e3c72;
+	}
+
+	.btn-primary {
+		background-color: #1e3c72;
+		border: none;
+	}
+
+		.btn-primary:hover {
+			background-color: #2a5298;
+		}
+</style>

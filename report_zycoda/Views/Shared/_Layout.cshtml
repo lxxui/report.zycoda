@@ -35,39 +35,24 @@
                 </button>
 
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")"
-                               asp-area="" asp-controller="Maintenance" asp-action="Index">
-                                <i class="bi bi-house-door me-1"></i> Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item ms-md-2">
-                            <a class="nav-link" href="#">
-                                <i class="bi bi-gear me-1"></i> Settings
-                            </a>
-                        </li>
-                    </ul>
+                    <div class="d-flex align-items-center ms-auto ps-md-4 border-start d-none d-md-flex">
 
-                    <div class="d-flex align-items-center ms-md-4 ps-md-4 border-start d-none d-md-flex">
-                        <div class="text-end me-2">
-                            <div class="small fw-bold">
-                                @* แก้เป็น UserFullName ให้ตรงกับที่ Set ไว้ใน Controller *@
+                        <div class="text-end me-3">
+                            <div class="small fw-bold text-dark">
                                 @(Context.Session.GetString("UserFullName") ?? "Guest User")
                             </div>
-                            <div class="text-muted" style="font-size: 0.7rem;">
-                                @* แก้เป็น UserSection *@
+                            <div class="text-muted" style="font-size: 0.75rem; line-height: 1;">
                                 @(Context.Session.GetString("UserSection") ?? "No Department")
                             </div>
                         </div>
 
-                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width:35px; height:35px;">
-                            <i class="bi bi-person"></i>
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm" style="width:38px; height:38px;">
+                            <i class="bi bi-person-fill"></i>
                         </div>
 
                         <form asp-controller="Home" asp-action="Logout" method="post" id="logoutForm" class="d-inline">
                             @Html.AntiForgeryToken()
-                            <button type="button" class="btn btn-outline-danger btn-sm border-0" onclick="showLogoutAlert()">
+                            <button type="button" class="btn btn-outline-danger btn-sm border-0 hover-effect" onclick="showLogoutAlert()">
                                 <i class="bi bi-box-arrow-right"></i>
                                 <span class="d-none d-lg-inline ms-1">Logout</span>
                             </button>
