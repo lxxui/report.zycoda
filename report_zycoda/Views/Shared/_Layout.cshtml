@@ -6,7 +6,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Maintenance System</title>
+    <title>Zycoda Report</title>
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true" />
 
@@ -22,11 +23,9 @@
 </head>
 <body>
     <header>
-
-        <nav class="navbar navbar-expand-sm navbar-light main-nav">
+        <nav class="navbar navbar-expand-sm navbar-light main-nav fixed-top shadow-sm">
             <div class="container-fluid px-4">
                 <a class="navbar-brand" asp-area="" asp-controller="Dashboard" asp-action="Index">
-                    @* <img src="~/images/logo.png" alt="Logo" class="brand-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/5968/5968204.png'; this.style.opacity='0.5'"> *@
                     <span class="d-none d-sm-inline">ZYCODA REPORT</span>
                 </a>
 
@@ -91,28 +90,28 @@
 
     <script>
         function showLogoutAlert() {
-            Swal.fire({
-                title: 'ออกจากระบบ?',
-                text: "คุณต้องการออกจากระบบ Zycoda Report ใช่หรือไม่?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33', // สีแดง (Danger)
-                cancelButtonColor: '#6c757d', // สีเทา (Secondary)
-                confirmButtonText: '<i class="bi bi-check-lg"></i> ใช่, ออกจากระบบ',
-                cancelButtonText: 'ยกเลิก',
-                background: '#ffffff',
-                borderRadius: '15px',
-                customClass: {
-                    title: 'fw-bold',
-                    confirmButton: 'btn btn-danger px-4',
-                    cancelButton: 'btn btn-secondary px-4'
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // ถ้ากดยืนยัน ให้ส่งฟอร์ม Logout
-                    document.getElementById('logoutForm').submit();
-                }
-            })
+        Swal.fire({
+        title: 'ออกจากระบบ?',
+        text: "คุณต้องการออกจากระบบ Zycoda Report ใช่หรือไม่?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33', // สีแดง (Danger)
+        cancelButtonColor: '#6c757d', // สีเทา (Secondary)
+        confirmButtonText: '<i class="bi bi-check-lg"></i> ใช่, ออกจากระบบ',
+        cancelButtonText: 'ยกเลิก',
+        background: '#ffffff',
+        borderRadius: '15px',
+        customClass: {
+        title: 'fw-bold',
+        confirmButton: 'btn btn-danger px-4',
+        cancelButton: 'btn btn-secondary px-4'
+        }
+        }).then((result) => {
+        if (result.isConfirmed) {
+        // ถ้ากดยืนยัน ให้ส่งฟอร์ม Logout
+        document.getElementById('logoutForm').submit();
+        }
+        })
         }
     </script>
 

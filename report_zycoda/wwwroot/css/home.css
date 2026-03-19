@@ -23,7 +23,7 @@ body {
     border-radius: 15px 15px 0 0 !important;
 }
 
-.card-header-custom h4 {
+    .card-header-custom h4 {
         color: var(--primary-blue);
         font-weight: 700;
         margin: 0;
@@ -146,10 +146,10 @@ body {
     transition: all 0.2s;
 }
 
-.summary-badge:hover {
+    .summary-badge:hover {
         background: var(--primary-blue);
         color: white;
-}
+    }
 
 .text-clamp {
     max-width: 700px; /* กำหนดความกว้าง */
@@ -161,3 +161,50 @@ body {
     word-break: break-word;
 }
 
+
+.nav-tabs-custom {
+    border-bottom: 2px solid #ebeeb11;
+    margin-bottom: 2rem;
+}
+
+.nav-link-custom {
+    padding: 1rem 2rem;
+    border: none;
+    color: #6c757d;
+    font-weight: 600;
+    transition: all 0.3s;
+    border-bottom: 3px solid transparent;
+    text-decoration: none;
+}
+
+    .nav-link-custom.active {
+        color: #0d6efd;
+        border-bottom: 3px solid #0d6efd;
+        background: rgba(13, 110, 253, 0.05);
+    }
+
+    .nav-link-custom:hover {
+        color: #0d6efd;
+    }
+
+.stat-card {
+    border-radius: 15px;
+    border: none;
+    transition: transform 0.2s;
+}
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+.table-container {
+    border-radius: 15px;
+    overflow: hidden;
+    background: white;
+}
+
+.filter-box {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 20px;
+}

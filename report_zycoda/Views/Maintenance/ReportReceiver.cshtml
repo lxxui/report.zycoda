@@ -11,26 +11,26 @@
 		<div class="card-header bg-white py-3">
 			<h5 class="mb-0 fw-bold text-navy"><i class="bi bi-funnel-fill me-2"></i>ตัวกรองรายงานติดตาม Job (ผู้รับแจ้ง)</h5>
 		</div>
-		<div class="row g-3 mb-4">
-			<div class="col-md-3">
+		<div class="row g-3 mb-4 row-cols-md-5">
+			<div class="col">
 				<div class="card border-0 shadow-sm text-center py-3 border-start border-primary border-4">
 					<div class="text-muted small fw-bold">งานทั้งหมด</div>
 					<div class="h3 fw-bold text-primary">@Model.Count</div>
 				</div>
 			</div>
-			<div class="col-md-3">
+			<div class="col">
 				<div class="card border-0 shadow-sm text-center py-3 border-start border-warning border-4">
 					<div class="text-muted small fw-bold">แจ้งงานใหม่</div>
 					<div class="h3 fw-bold text-warning">@Model.Count(x => x.status == "Create")</div>
 				</div>
 			</div>
-			<div class="col-md-3">
+			<div class="col">
 				<div class="card border-0 shadow-sm text-center py-3 border-start border-info border-4">
 					<div class="text-muted small fw-bold">รับงานแล้ว</div>
 					<div class="h3 fw-bold text-info">@Model.Count(x => x.status == "Accept")</div>
 				</div>
 			</div>
-			<div class="col-md-3">
+			<div class="col">
 				<div class="card border-0 shadow-sm text-center py-3 border-start border-success border-4">
 					<div class="text-muted small fw-bold">ปิดงาน</div>
 					<div class="h3 fw-bold text-success">@Model.Count(x => x.status == "Confirm")</div>
@@ -201,31 +201,7 @@
 		</div>
 	</div>
 
-	<style>
-		.bg-navy {
-			background-color: #1e3c72;
-		}
-
-		.table thead th {
-			font-weight: 500;
-			font-size: 0.9rem;
-			letter-spacing: 0.5px;
-		}
-
-		.table tbody td {
-			font-size: 0.9rem;
-			border-bottom: 1px solid #f0f0f0;
-		}
-
-		.table-hover tbody tr:hover {
-			background-color: #f8faff;
-			transition: 0.2s;
-		}
-
-		.badge {
-			font-weight: 400;
-		}
-	</style>
+	<link href="~/css/reportreceiver.css" rel="stylesheet">
 
 </div>
 
@@ -248,18 +224,3 @@
 	flatpickr("#end_date", config);
 
 </script>
-
-<style>
-	.text-navy {
-		color: #1e3c72;
-	}
-
-	.btn-primary {
-		background-color: #1e3c72;
-		border: none;
-	}
-
-		.btn-primary:hover {
-			background-color: #2a5298;
-		}
-</style>

@@ -1,6 +1,7 @@
-﻿using System.Text.Json;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using report_zycoda.Models;
+using System.Text.Json;
+using System.Xml.Linq;
 
 public class HomeController : Controller
 {
@@ -31,40 +32,51 @@ public class HomeController : Controller
     {
         try
         {
-            string jsonPath = Path.Combine(_env.WebRootPath, "data", "user.json");
+            string userPath = Path.Combine(_env.WebRootPath, "data", "user.json");
+            string sectionPath = Path.Combine(_env.WebRootPath, "data", "section.json");
 
-            if (System.IO.File.Exists(jsonPath))
+            if (System.IO.File.Exists(userPath))
             {
-                using (var reader = new StreamReader(jsonPath, System.Text.Encoding.UTF8, true))
+                var userJson = await System.IO.File.ReadAllTextAsync(userPath, System.Text.Encoding.UTF8);
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var userList = JsonSerializer.Deserialize<List<UserApiModels>>(userJson, options);
+
+                // 1. หา User ที่ Login เข้ามา
+                var user = userList?.FirstOrDefault(u =>
+                    u.username?.Trim() == username?.Trim() &&
+                    u.password?.Trim() == password?.Trim());
+
+                if (user != null)
                 {
-                    var jsonString = await reader.ReadToEndAsync();
-                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                    var userList = JsonSerializer.Deserialize<List<UserApiModels>>(jsonString, options);
+                    // เก็บข้อมูลพื้นฐานลง Session
+                    HttpContext.Session.SetString("ApiUser", user.username?.Trim() ?? "");
+                    HttpContext.Session.SetString("ApiPass", user.password?.Trim() ?? "");
+                    HttpContext.Session.SetString("UserFullName", $"{user.firstname} {user.lastname}");
+                    HttpContext.Session.SetString("UserRole", user.rule ?? "");
 
-                    if (userList != null)
+                    // 2. 🚩 เจาะจงหาชื่อแผนก (name) จาก section.json
+                    string displaySection = user.section ?? "N/A"; // ค่า Default ถ้าหาไม่เจอ
+
+                    if (System.IO.File.Exists(sectionPath))
                     {
-                        // ค้นหา User โดยใช้ Trim() เพื่อป้องกันช่องว่างเกิน
-                        var user = userList.FirstOrDefault(u =>
-                            u.username?.ToString().Trim() == username?.Trim() &&
-                            u.password?.ToString().Trim() == password?.Trim());
+                        var sectionJson = await System.IO.File.ReadAllTextAsync(sectionPath, System.Text.Encoding.UTF8);
+                        // ใช้ Model Section โดยตรงเพื่อให้ดึงค่า 'name' ได้แม่นยำ
+                        var sectionList = JsonSerializer.Deserialize<List<SectionApiModels>>(sectionJson, options);
 
-                        if (user != null)
+                        // เทียบรหัสแผนกจาก User กับรหัสแผนกในไฟล์ JSON
+                        var match = sectionList?.FirstOrDefault(s => s.section == user.section);
+                        if (match != null)
                         {
-                            // 🚩 หัวใจสำคัญ: เก็บ Password ลง Session ชื่อ "ApiPass" 
-                            // เพื่อให้ MaintenanceController ดึงไปใช้ต่อ API ของ Zycoda ได้
-                            HttpContext.Session.SetString("ApiUser", user.username?.Trim() ?? "");
-                            HttpContext.Session.SetString("ApiPass", user.password?.Trim() ?? ""); // บรรทัดนี้ห้ามลืม!
-
-                            HttpContext.Session.SetString("UserFullName", $"{user.firstname} {user.lastname}");
-                            HttpContext.Session.SetString("UserSection", user.section ?? "N/A");
-                            HttpContext.Session.SetString("UserRole", user.rule ?? "");
-
-                            // บังคับ Save Session ลง Memory ทันที
-                            await HttpContext.Session.CommitAsync();
-
-                            return RedirectToAction("Index", "Dashboard");
+                            displaySection = match.name; // เปลี่ยนจากรหัส "140200" เป็น "แผนกพัฒนาระบบ..."
                         }
                     }
+
+                    HttpContext.Session.SetString("UserSection", displaySection);
+
+                    // บังคับ Save Session
+                    await HttpContext.Session.CommitAsync();
+
+                    return RedirectToAction("Index", "Dashboard");
                 }
             }
         }
@@ -73,7 +85,6 @@ public class HomeController : Controller
             _logger.LogError(ex, "เกิดข้อผิดพลาดตอน Login");
         }
 
-        // ถ้าเข้าเงื่อนไขนี้แสดงว่ารหัสผิด หรือหาไฟล์ไม่เจอ
         ViewBag.ErrorMessage = "รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง";
         return View();
     }

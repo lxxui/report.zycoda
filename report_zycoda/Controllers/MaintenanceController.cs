@@ -1,7 +1,8 @@
-﻿using System.Globalization;
-using System.Text.Json;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using report_zycoda.Models;
+using System.Globalization;
+using System.Text;
+using System.Text.Json;
 using static System.Collections.Specialized.BitVector32;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -10,79 +11,78 @@ namespace report_zycoda.Controllers
     public class MaintenanceController : Controller
     {
 
-        public async Task<IActionResult> Index(string jobtype, string start, string end, string Sectioncreate, string Status)
+        // หน้า Home
+        public async Task<IActionResult> Index(string jobtype, string start, string end, string Sectioncreate, string Status, string v = "myjob")
         {
-            // 1. ตั้งค่าพื้นฐาน (ถ้ามาหน้าแรก jobtype จะเป็น EM,CM)
+            // 1. ตั้งค่าพื้นฐาน
             if (string.IsNullOrEmpty(jobtype)) jobtype = "EM,CM";
-
-            // 2. ส่งค่ากลับไปที่ View (เพื่อให้หน้าเว็บจำค่าที่ User เลือก แต่ถ้าไม่ได้เลือกจะเป็นช่องว่าง)
-            ViewBag.Start = start;
-            ViewBag.End = end;
-
-            // 3. เริ่มสร้าง URL พื้นฐาน
-            var apiUrl = $"https://api.zycoda.com/apimpros/get_job_order?plant=FARMHOUSE&jobtype={jobtype}";
-
-            // ✅ เพิ่ม Parameter วันที่ เฉพาะเมื่อมีการเลือกมาเท่านั้น (ถ้ามาหน้าแรก สองบรรทัดนี้จะถูกข้ามไป)
-            if (!string.IsNullOrEmpty(start)) apiUrl += $"&start={start}";
-            if (!string.IsNullOrEmpty(end)) apiUrl += $"&end={end}";
-
-            // ✅ เพิ่ม Filter อื่นๆ ถ้ามีการเลือก
-            if (!string.IsNullOrEmpty(Sectioncreate)) apiUrl += $"&sectioncreate={Sectioncreate}";
-            if (!string.IsNullOrEmpty(Status)) apiUrl += $"&status={Status}";
-
-            // อ่านไฟล์ JSON สำหรับ Dropdown
-            var jsonsectioncreate = System.IO.File.ReadAllText("wwwroot/data/section.json");
-            ViewBag.Section = JsonSerializer.Deserialize<List<Models.SectionApiModels>>(jsonsectioncreate);
-
-            var jsonstatus = System.IO.File.ReadAllText("wwwroot/data/status.json");
-            ViewBag.Status = JsonSerializer.Deserialize<List<Models.StatusApiModels>>(jsonstatus);
+            ViewBag.CurrentMode = v;
 
             List<MaintenanceApiModels> data = new List<MaintenanceApiModels>();
+            // ใช้เส้น farmhouse ตามที่ตรวจพบใน Network Tab
+            string apiUrl = "https://farmhouse.zycoda.com/joborderapi/gets";
 
             using (HttpClient client = new HttpClient())
             {
                 var sessionUser = HttpContext.Session.GetString("ApiUser");
-                var sessionPass = HttpContext.Session.GetString("ApiPass");
+                var token = HttpContext.Session.GetString("ApiToken"); // ดึง Bearer Token
+                var sectionOption = HttpContext.Session.GetString("UserSectionOption") ?? ""; // เช่น "321010,321020,..."
 
-                // เช็ค Session กันเหนียว
                 if (string.IsNullOrEmpty(sessionUser)) return RedirectToAction("Login", "Home");
 
+                // ใส่ Header ตามที่ API farmhouse ต้องการ
+                if (!string.IsNullOrEmpty(token)) client.DefaultRequestHeaders.Add("Authorization", "Bearer " + token);
                 client.DefaultRequestHeaders.Add("username", sessionUser);
-                client.DefaultRequestHeaders.Add("password", sessionPass);
 
-                // ดึงข้อมูลจาก API
-                var response = await client.GetAsync(apiUrl);
+                // 2. เตรียม URL และยิงแบบ POST เสมอสำหรับเส้นนี้
+                string fullUrl = $"{apiUrl}?jobtype={jobtype}";
+                if (!string.IsNullOrEmpty(start)) fullUrl += $"&start={start}";
+                if (!string.IsNullOrEmpty(end)) fullUrl += $"&end={end}";
 
-                if (response.IsSuccessStatusCode)
+                var content = new StringContent("", Encoding.UTF8, "application/json");
+                var response = await client.PostAsync(fullUrl, content);
+
+                if (response != null && response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
-
-                    // ใช้ Newtonsoft.Json เพราะรองรับ JSON ก้อนใหญ่และยืดหยุ่นกว่า
-                    var allData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<MaintenanceApiModels>>(json) ?? new List<MaintenanceApiModels>();
-
-                    // 🚩 กรองข้อมูลในเครื่อง (In-memory Filter) 
-                    // เผื่อกรณี API คืนมาทั้งหมด แต่เราอยากกรองเพิ่มตาม Dropdown ที่เลือก
-                    var filteredData = allData.AsEnumerable();
-
-                    if (!string.IsNullOrEmpty(Status))
+                    if (!json.Trim().StartsWith("<"))
                     {
-                        filteredData = filteredData.Where(x => string.Equals(x.status, Status, StringComparison.OrdinalIgnoreCase));
-                    }
+                        var allData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<MaintenanceApiModels>>(json) ?? new List<MaintenanceApiModels>();
 
-                    if (!string.IsNullOrEmpty(Sectioncreate))
-                    {
-                        filteredData = filteredData.Where(x => string.Equals(x.sectioncreate, Sectioncreate, StringComparison.OrdinalIgnoreCase));
-                    }
+                        // 🚩 3. Logic การกรองข้อมูลหลังบ้าน
+                        var allowedSections = sectionOption.Split(',').Select(s => s.Trim()).ToList();
 
-                    data = filteredData.ToList();
+                        if (v == "followup") // หน้าติดตามงาน
+                        {
+                            // กรองเฉพาะงานที่:
+                            // 1. อยู่ในแผนกที่มีสิทธิ์ (sectionoption)
+                            // 2. และเป็นงานที่ Accept ไปแล้ว หรือเกี่ยวข้องกับเรา
+                            data = allData.Where(x =>
+                                allowedSections.Contains(x.sectioncreate ?? "") &&
+                                (x.status == "Accept" || x.status == "Assigned" || x.acceptby == sessionUser)
+                            ).ToList();
+                        }
+                        else
+                        {
+                            // หน้า My Job: แสดงงานทั้งหมดในสิทธิ์ที่ยังไม่ได้กรองละเอียด
+                            data = allData.Where(x => allowedSections.Contains(x.sectioncreate ?? "")).ToList();
+
+                            // กรองเพิ่มตาม Search Filter หน้าเว็บ
+                            if (!string.IsNullOrEmpty(Status))
+                                data = data.Where(x => string.Equals(x.status, Status, StringComparison.OrdinalIgnoreCase)).ToList();
+                            if (!string.IsNullOrEmpty(Sectioncreate))
+                                data = data.Where(x => string.Equals(x.sectioncreate, Sectioncreate, StringComparison.OrdinalIgnoreCase)).ToList();
+                        }
+                    }
                 }
             }
 
+            // โหลด Dropdown เหมือนเดิม
+            var jsonSection = System.IO.File.ReadAllText("wwwroot/data/section.json");
+            ViewBag.Section = System.Text.Json.JsonSerializer.Deserialize<List<Models.SectionApiModels>>(jsonSection);
+
             return View(data);
         }
-
-        // เพิ่มตัวนี้ต่อจาก Index เดิมได้เลยครับ
-
         public async Task<IActionResult> ReportReceiver(string jobtype, string start, string end, string Sectioncreate, string Status)
         {
             // 1. ตั้งค่าพื้นฐาน (ถ้ามาหน้าแรก jobtype จะเป็น EM,CM)
