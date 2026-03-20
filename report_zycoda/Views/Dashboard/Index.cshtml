@@ -10,17 +10,23 @@
     </div>
 
     <div class="row g-4">
-        <div class="col-md-6 col-lg-4">
-            <a asp-controller="Maintenance" asp-action="Index" asp-route-v="myjob" class="card-link">
-                <div class="card h-100 shadow-sm border-0 report-card dashboard-main">
-                    <div class="card-body p-4">
-                        <div class="icon-box mb-3 text-navy"><i class="bi bi-speedometer2"></i></div>
-                        <h5 class="card-title fw-bold">ภาพรวมข้อมูลงานแจ้งซ่อม</h5>
-                        <p class="card-text text-muted small">Dashboard สรุปสถานะงานซ่อมทั้งหมด กรองข้อมูลตามประเภทงานและวันที่</p>
+        @* ครอบด้วยเงื่อนไข User.IsInRole *@
+        @if (User.Identity.IsAuthenticated && User.IsInRole("Administrator"))
+        {
+            <div class="col-md-6 col-lg-4">
+                <a asp-controller="Maintenance" asp-action="Index" asp-route-v="myjob" class="card-link">
+                    <div class="card h-100 shadow-sm border-0 report-card dashboard-main">
+                        <div class="card-body p-4">
+                            <div class="icon-box mb-3 text-navy"><i class="bi bi-speedometer2"></i></div>
+                            <h5 class="card-title fw-bold">ภาพรวมข้อมูลงานแจ้งซ่อม</h5>
+                            <p class="card-text text-muted small">Dashboard สรุปสถานะงานซ่อมทั้งหมด กรองข้อมูลตามประเภทงานและวันที่</p>
+                        </div>
                     </div>
-                </div>
-            </a>
-        </div>
+                </a>
+            </div>
+        }
+
+
         <div class="col-md-6 col-lg-4">
             <a asp-controller="Maintenance" asp-action="ReportReceiver" class="card-link">
                 <div class="card h-100 shadow-sm border-0 report-card">

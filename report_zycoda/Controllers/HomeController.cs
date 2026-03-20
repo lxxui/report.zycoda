@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
 using report_zycoda.Models;
+using System.Security.Claims;
 using System.Text.Json;
 using System.Xml.Linq;
 
@@ -48,34 +51,56 @@ public class HomeController : Controller
 
                 if (user != null)
                 {
-                    // เก็บข้อมูลพื้นฐานลง Session
-                    HttpContext.Session.SetString("ApiUser", user.username?.Trim() ?? "");
-                    HttpContext.Session.SetString("ApiPass", user.password?.Trim() ?? "");
-                    HttpContext.Session.SetString("UserFullName", $"{user.firstname} {user.lastname}");
-                    HttpContext.Session.SetString("UserRole", user.rule ?? "");
+                    // --- เริ่มต้นการหาชื่อแผนกจากรหัส ---
+                    string displaySectionName = user.section ?? "N/A"; // ค่าเริ่มต้นเผื่อหาไม่เจอ
 
-                    // 2. 🚩 เจาะจงหาชื่อแผนก (name) จาก section.json
-                    string displaySection = user.section ?? "N/A"; // ค่า Default ถ้าหาไม่เจอ
-
-                    if (System.IO.File.Exists(sectionPath))
+                    try
                     {
-                        var sectionJson = await System.IO.File.ReadAllTextAsync(sectionPath, System.Text.Encoding.UTF8);
-                        // ใช้ Model Section โดยตรงเพื่อให้ดึงค่า 'name' ได้แม่นยำ
-                        var sectionList = JsonSerializer.Deserialize<List<SectionApiModels>>(sectionJson, options);
-
-                        // เทียบรหัสแผนกจาก User กับรหัสแผนกในไฟล์ JSON
-                        var match = sectionList?.FirstOrDefault(s => s.section == user.section);
-                        if (match != null)
+                        string sections = Path.Combine(_env.WebRootPath, "data", "section.json");
+                        if (System.IO.File.Exists(sections))
                         {
-                            displaySection = match.name; // เปลี่ยนจากรหัส "140200" เป็น "แผนกพัฒนาระบบ..."
+                            var sectionJson = await System.IO.File.ReadAllTextAsync(sections, System.Text.Encoding.UTF8);
+                            var sectionList = JsonSerializer.Deserialize<List<SectionApiModels>>(sectionJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                            // เทียบรหัสจาก user.json กับรหัสใน section.json เพื่อเอาค่า 'name'
+                            var match = sectionList?.FirstOrDefault(s => s.section == user.section);
+                            if (match != null)
+                            {
+                                displaySectionName = match.name; // จะได้ "แผนกพัฒนาระบบ (SD MIS)"
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error matching section name");
+                    }
+
+                    // --- สร้าง Claims โดยใช้ชื่อแผนกที่หาได้ ---
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, user.username ?? ""),
+                        new Claim("FullName", $"{user.firstname} {user.lastname}"),
+                        new Claim("Section", displaySectionName),
+                        new Claim("ApiPassword", user.password ?? "") // 🚩 เก็บ Password ลงในตั๋วด้วย
+                    };
+
+                    // แตก Role เหมือนเดิม
+                    if (!string.IsNullOrEmpty(user.rule))
+                    {
+                        var roles = user.rule.Split(',');
+                        foreach (var role in roles)
+                        {
+                            claims.Add(new Claim(ClaimTypes.Role, role.Trim()));
                         }
                     }
 
-                    HttpContext.Session.SetString("UserSection", displaySection);
+                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
-                    // บังคับ Save Session
+                    // เก็บชื่อแผนกลง Session เผื่อใช้ที่อื่นด้วย
+                    HttpContext.Session.SetString("UserSection", displaySectionName);
+
                     await HttpContext.Session.CommitAsync();
-
                     return RedirectToAction("Index", "Dashboard");
                 }
             }
