@@ -1,5 +1,22 @@
 ﻿@{
     ViewData["Title"] = "Report Dashboard";
+
+    // 🚩 1. ดึงค่าสิทธิ์จาก Claims
+    var userClass = User.Claims.FirstOrDefault(c => c.Type == "UserClass")?.Value;
+    var userSection = User.Claims.FirstOrDefault(c => c.Type == "Section")?.Value;
+
+    // 🚩 2. รายการ Section หน่วยงานรับแจ้งที่ Fixed ไว้
+    var allowedSections = new List<string>
+    {
+        "310089", "310098", "310099", "317020", "317030", "317040", "317050",
+        "317110", "317120", "317130", "317140", "317150", "317210", "317220",
+        "317230", "317240", "317310", "317320", "317330", "317340", "317350",
+        "317360", "317371", "317372", "317374", "317375", "317380", "317381",
+        "318050", "318060", "318070", "320100", "ITRECEIVE"
+    };
+
+    // 🚩 3. สร้างเงื่อนไขเช็คสิทธิ์
+    bool isAuthorizedReceiver = userClass == "3" && !string.IsNullOrEmpty(userSection) && allowedSections.Contains(userSection);
 }
 
 <div class="container py-5">
@@ -26,18 +43,21 @@
             </div>
         }
 
-
-        <div class="col-md-6 col-lg-4">
-            <a asp-controller="Maintenance" asp-action="ReportReceiver" class="card-link">
-                <div class="card h-100 shadow-sm border-0 report-card">
-                    <div class="card-body p-4">
-                        <div class="icon-box mb-3"><i class="bi bi-clipboard-check"></i></div>
-                        <h5 class="card-title fw-bold">ติดตาม Job (ผู้รับแจ้ง)</h5>
-                        <p class="card-text text-muted small">ตรวจสอบความคืบหน้างานสำหรับเจ้าหน้าที่รับแจ้งงาน</p>
+        @* 🚩 แสดงเฉพาะคนที่เป็น Class 3 และอยู่ในหน่วยงานที่กำหนด *@
+        @if (isAuthorizedReceiver)
+        {
+            <div class="col-md-6 col-lg-4">
+                <a asp-controller="Maintenance" asp-action="ReportReceiver" class="card-link">
+                    <div class="card h-100 shadow-sm border-0 report-card">
+                        <div class="card-body p-4">
+                            <div class="icon-box mb-3"><i class="bi bi-clipboard-check"></i></div>
+                            <h5 class="card-title fw-bold">ติดตาม Job (ผู้รับแจ้ง)</h5>
+                            <p class="card-text text-muted small">ตรวจสอบความคืบหน้างานสำหรับเจ้าหน้าที่รับแจ้งงาน</p>
+                        </div>
                     </div>
-                </div>
-            </a>
-        </div>
+                </a>
+            </div>
+        }
         <div class="col-md-6 col-lg-4">
             <a asp-controller="Maintenance" asp-action="ReportSender" class="card-link">
                 <div class="card h-100 shadow-sm border-0 report-card">
@@ -49,42 +69,54 @@
                 </div>
             </a>
         </div>
-
-        <div class="col-md-6 col-lg-4">
-            <a href="#" class="card-link">
-                <div class="card h-100 shadow-sm border-0 report-card">
-                    <div class="card-body p-4">
-                        <div class="icon-box mb-3 text-danger"><i class="bi bi-exclamation-triangle"></i></div>
-                        <h5 class="card-title fw-bold">รายงานปัญหาเครื่องจักร</h5>
-                        <p class="card-text text-muted small">รวบรวมปัญหาที่เกิดขึ้นเพื่อวางแผนป้องกัน</p>
+          @* 🚩 แสดงเฉพาะคนที่เป็น Class 3 และอยู่ในหน่วยงานที่กำหนด *@
+        @if (isAuthorizedReceiver)
+        {
+            <div class="col-md-6 col-lg-4">
+                <a href="#" class="card-link">
+                    <div class="card h-100 shadow-sm border-0 report-card">
+                        <div class="card-body p-4">
+                            <div class="icon-box mb-3 text-danger"><i class="bi bi-exclamation-triangle"></i></div>
+                            <h5 class="card-title fw-bold">รายงานปัญหาเครื่องจักร</h5>
+                            <p class="card-text text-muted small">รวบรวมปัญหาที่เกิดขึ้นเพื่อวางแผนป้องกัน</p>
+                        </div>
                     </div>
-                </div>
-            </a>
-        </div>
+                </a>
+            </div>
+        }
 
-        <div class="col-md-6 col-lg-4">
-            <a href="#" class="card-link">
-                <div class="card h-100 shadow-sm border-0 report-card highlight">
-                    <div class="card-body p-4">
-                        <div class="icon-box mb-3 text-info"><i class="bi bi-megaphone"></i></div>
-                        <h5 class="card-title fw-bold">รายงาน HOTLINE</h5>
-                        <p class="card-text text-muted small">สรุปภาพรวมตามหน่วยงานเพื่อส่งผู้บริหาร</p>
+        @* 🚩 แสดงเฉพาะคนที่เป็น Class 3 และอยู่ในหน่วยงานที่กำหนด *@
+        @if (isAuthorizedReceiver)
+        {
+            <div class="col-md-6 col-lg-4">
+                <a href="#" class="card-link">
+                    <div class="card h-100 shadow-sm border-0 report-card highlight">
+                        <div class="card-body p-4">
+                            <div class="icon-box mb-3 text-info"><i class="bi bi-megaphone"></i></div>
+                            <h5 class="card-title fw-bold">รายงาน HOTLINE</h5>
+                            <p class="card-text text-muted small">สรุปภาพรวมตามหน่วยงานเพื่อส่งผู้บริหาร</p>
+                        </div>
                     </div>
-                </div>
-            </a>
-        </div>
+                </a>
+            </div>
+        }
 
-        <div class="col-md-6 col-lg-4">
-            <a href="#" class="card-link">
-                <div class="card h-100 shadow-sm border-0 report-card">
-                    <div class="card-body p-4">
-                        <div class="icon-box mb-3 text-secondary"><i class="bi bi-clock-history"></i></div>
-                        <h5 class="card-title fw-bold">ประวัติการซ่อม</h5>
-                        <p class="card-text text-muted small">ดูข้อมูลย้อนหลังการซ่อมบำรุงเครื่องจักรรายตัว</p>
+        @* 🚩 แสดงเฉพาะคนที่เป็น Class 3 และอยู่ในหน่วยงานที่กำหนด *@
+        @if (isAuthorizedReceiver)
+        {
+            <div class="col-md-6 col-lg-4">
+                <a href="#" class="card-link">
+                    <div class="card h-100 shadow-sm border-0 report-card">
+                        <div class="card-body p-4">
+                            <div class="icon-box mb-3 text-secondary"><i class="bi bi-clock-history"></i></div>
+                            <h5 class="card-title fw-bold">ประวัติการซ่อม</h5>
+                            <p class="card-text text-muted small">ดูข้อมูลย้อนหลังการซ่อมบำรุงเครื่องจักรรายตัว</p>
+                        </div>
                     </div>
-                </div>
-            </a>
-        </div>
+                </a>
+            </div>
+        }
+
 
         <div class="col-md-6 col-lg-4">
             <a href="#" class="card-link">
