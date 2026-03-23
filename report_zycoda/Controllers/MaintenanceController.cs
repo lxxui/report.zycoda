@@ -15,89 +15,89 @@ namespace report_zycoda.Controllers
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Index(string jobtype, string start, string end, string Sectioncreate, string Status, string v = "myjob")
         {
-            // 🚩 ดึงข้อมูลจาก Identity/Claims (ไม่หายแม้ Session จะ Timeout)
             var sessionUser = User.Identity.Name;
             var sessionPass = User.Claims.FirstOrDefault(c => c.Type == "ApiPassword")?.Value;
 
-            // เช็คว่า Login หรือยัง (ใช้ Identity เช็คจะชัวร์กว่า Session)
+            // 🚩 1. ดึงสิทธิ์ User มาเตรียมไว้
+            var userClass = User.Claims.FirstOrDefault(c => c.Type == "Class")?.Value;
+            var sectionOption = User.Claims.FirstOrDefault(c => c.Type == "SectionOption")?.Value;
+            var mySection = HttpContext.Session.GetString("Section");
+
             if (!User.Identity.IsAuthenticated) return RedirectToAction("Login", "Home");
 
-            // --- ส่วน Logic เดิมของคุณ ---
             if (string.IsNullOrEmpty(jobtype)) jobtype = "EM,CM";
-
-            // 1. ตั้งค่าวันที่ปัจจุบันเป็น ค.ศ. (yyyy-MM-dd)
-            if (string.IsNullOrEmpty(start))
-            {
-                start = DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            }
-            if (string.IsNullOrEmpty(end))
-            {
-                end = DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            }
+            if (string.IsNullOrEmpty(start)) start = DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            if (string.IsNullOrEmpty(end)) end = DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 
             ViewBag.Start = start;
             ViewBag.End = end;
 
+            // 🚩 2. รายการหน่วยงานฝ่ายผลิต (Hardcode ตามรูป)
+            var productionSections = new List<string> {
+                "310012", "310013", "310014", "311010", "311020", "311090",
+                "312010", "312020", "312030", "312090", "313010", "313020",
+                "313030", "313040", "313090", "314010", "314020", "314030",
+                "314040", "314041", "314042", "314090"
+            };
+            if (!string.IsNullOrEmpty(sectionOption))
+            {
+                productionSections.AddRange(sectionOption.Split(',').Select(s => s.Trim()));
+                productionSections = productionSections.Distinct().ToList();
+            }
 
+            // 🚩 3. สร้าง URL (ถ้า Class 3 ไม่ส่ง Sectioncreate เพื่อให้ได้ข้อมูลลูกน้องมาทั้งหมด)
+            var apiUrl = $"https://api.zycoda.com/apimpros/get_job_order?plant=FARMHOUSE&jobtype={jobtype}&start={start}&end={end}";
 
-            // 3. เริ่มสร้าง URL พื้นฐาน
-            var apiUrl = $"https://api.zycoda.com/apimpros/get_job_order?plant=FARMHOUSE&jobtype={jobtype}";
+            if (userClass != "3" && !string.IsNullOrEmpty(Sectioncreate))
+            {
+                apiUrl += $"&sectioncreate={Sectioncreate}";
+            }
 
-            // ✅ เพิ่ม Parameter วันที่ เฉพาะเมื่อมีการเลือกมาเท่านั้น (ถ้ามาหน้าแรก สองบรรทัดนี้จะถูกข้ามไป)
-            if (!string.IsNullOrEmpty(start)) apiUrl += $"&start={start}";
-            if (!string.IsNullOrEmpty(end)) apiUrl += $"&end={end}";
-
-            // ✅ เพิ่ม Filter อื่นๆ ถ้ามีการเลือก
-            if (!string.IsNullOrEmpty(Sectioncreate)) apiUrl += $"&sectioncreate={Sectioncreate}";
-            if (!string.IsNullOrEmpty(Status)) apiUrl += $"&status={Status}";
-
-            // อ่านไฟล์ JSON สำหรับ Dropdown
-            var jsonsectioncreate = System.IO.File.ReadAllText("wwwroot/data/section.json");
-            ViewBag.Section = JsonSerializer.Deserialize<List<Models.SectionApiModels>>(jsonsectioncreate);
+            // อ่าน JSON Master
+            var jsonsection = System.IO.File.ReadAllText("wwwroot/data/section.json");
+            ViewBag.Section = JsonSerializer.Deserialize<List<Models.SectionApiModels>>(jsonsection);
 
             var jsonstatus = System.IO.File.ReadAllText("wwwroot/data/status.json");
-            ViewBag.Status = JsonSerializer.Deserialize<List<Models.StatusApiModels>>(jsonstatus);
+            var statusMaster = JsonSerializer.Deserialize<List<Models.StatusApiModels>>(jsonstatus);
+            ViewBag.Status = statusMaster;
 
             List<MaintenanceApiModels> data = new List<MaintenanceApiModels>();
 
             using (HttpClient client = new HttpClient())
             {
-                // 🚩 3. ตรวจสอบว่าพาสเวิร์ดใน Session ยังอยู่ไหม (ถ้าหายอาจต้องเก็บใน Claims ตอน Login ด้วยจะดีกว่า)
-                if (string.IsNullOrEmpty(sessionPass))
-                {
-                    // ถ้า Session Pass หาย ให้ลองดึงจากตั๋ว หรือถ้าไม่มีจริงๆ ค่อยดีดกลับ
-                    return RedirectToAction("Login", "Home");
-                }
-
+                if (string.IsNullOrEmpty(sessionPass)) return RedirectToAction("Login", "Home");
                 client.DefaultRequestHeaders.Add("username", sessionUser);
                 client.DefaultRequestHeaders.Add("password", sessionPass);
 
-
-                // ดึงข้อมูลจาก API
                 var response = await client.GetAsync(apiUrl);
-
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
-
-                    // ใช้ Newtonsoft.Json เพราะรองรับ JSON ก้อนใหญ่และยืดหยุ่นกว่า
                     var allData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<MaintenanceApiModels>>(json) ?? new List<MaintenanceApiModels>();
 
-                    // 🚩 กรองข้อมูลในเครื่อง (In-memory Filter) 
-                    // เผื่อกรณี API คืนมาทั้งหมด แต่เราอยากกรองเพิ่มตาม Dropdown ที่เลือก
-                    var filteredData = allData.AsEnumerable();
-
-                    if (!string.IsNullOrEmpty(Status))
+                    if (userClass == "3")
                     {
-                        filteredData = filteredData.Where(x => string.Equals(x.status, Status, StringComparison.OrdinalIgnoreCase));
-                    }
+                        data = allData.Where(x => {
+                            // 🚩 ตรวจสอบว่า x.usercreate เป็น Object (JObject) หรือไม่
+                            if (x.usercreate is Newtonsoft.Json.Linq.JObject jo)
+                            {
+                                var sectionOfUser = jo["section"]?.ToString();
+                                // ถ้ามีหน่วยงานในก้อน User ให้เช็คว่าอยู่ในกลุ่มที่อนุญาตไหม
+                                if (!string.IsNullOrEmpty(sectionOfUser) && productionSections.Contains(sectionOfUser))
+                                    return true;
+                            }
 
-                    if (!string.IsNullOrEmpty(Sectioncreate))
+                            // เช็คจาก section หลักของใบงาน (อันนี้ชัวร์สุด)
+                            if (!string.IsNullOrEmpty(x.section) && productionSections.Contains(x.section))
+                                return true;
+
+                            return false;
+                        }).ToList();
+                    }
+                    else
                     {
-                        filteredData = filteredData.Where(x => string.Equals(x.sectioncreate, Sectioncreate, StringComparison.OrdinalIgnoreCase));
+                        data = allData;
                     }
-
-                    data = filteredData.ToList();
                 }
             }
 
@@ -118,13 +118,13 @@ namespace report_zycoda.Controllers
 
             // 🚩 3. Fixed รายการ Section ที่มีสิทธิ์ "รับแจ้ง" (อ้างอิงจาก JSON ที่คุณให้มา)
             var allowedSections = new List<string>
-    {
-        "310089", "310098", "310099", "317020", "317030", "317040", "317050",
-        "317110", "317120", "317130", "317140", "317150", "317210", "317220",
-        "317230", "317240", "317310", "317320", "317330", "317340", "317350",
-        "317360", "317371", "317372", "317374", "317375", "317380", "317381",
-        "318050", "318060", "318070", "320100", "ITRECEIVE"
-    };
+                {
+                    "310089", "310098", "310099", "317020", "317030", "317040", "317050",
+                    "317110", "317120", "317130", "317140", "317150", "317210", "317220",
+                    "317230", "317240", "317310", "317320", "317330", "317340", "317350",
+                    "317360", "317371", "317372", "317374", "317375", "317380", "317381",
+                    "318050", "318060", "318070", "320100", "ITRECEIVE"
+                };
 
             // 🚩 4. Check สิทธิ์: ต้องเป็น Class 3 และอยู่ในหน่วยงานที่กำหนดเท่านั้น
             if (userClass != "3" || string.IsNullOrEmpty(userSection) || !allowedSections.Contains(userSection))
@@ -177,82 +177,94 @@ namespace report_zycoda.Controllers
         }
         public async Task<IActionResult> ReportSender(string start, string end, string Status)
         {
-
-            // 🚩 ดึงข้อมูลจาก Identity/Claims (ไม่หายแม้ Session จะ Timeout)
             var sessionUser = User.Identity.Name;
             var sessionPass = User.Claims.FirstOrDefault(c => c.Type == "ApiPassword")?.Value;
 
-            // 1. ตั้งค่าวันที่ปัจจุบันเป็น ค.ศ. (yyyy-MM-dd)
-            if (string.IsNullOrEmpty(start))
+            // ข้อมูลจาก Table User (คนอนุมัติ/หัวหน้า)
+            var userClass = User.Claims.FirstOrDefault(c => c.Type == "Class")?.Value;
+            var sectionOption = User.Claims.FirstOrDefault(c => c.Type == "SectionOption")?.Value;
+            var mySection = HttpContext.Session.GetString("Section");
+
+            if (string.IsNullOrEmpty(start)) start = DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            if (string.IsNullOrEmpty(end)) end = DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+            // 1. 🚩 เตรียมลิสต์หน่วยงานที่ "อนุญาต" ให้หัวหน้าเห็น (Hardcode + Table User)
+            var sectioncreate = new List<string>
             {
-                start = DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            }
-            if (string.IsNullOrEmpty(end))
+                "310012", "310013", "310014", "311010", "311020", "311090",
+                "312010", "312020", "312030", "312090", "313010", "313020",
+                "313030", "313040", "313090", "314010", "314020", "314030",
+                "314040", "314041", "314042", "314090"
+            };
+
+            if (!string.IsNullOrEmpty(sectionOption))
             {
-                end = DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+                var options = sectionOption.Split(',').Select(s => s.Trim());
+                sectioncreate.AddRange(options);
+                sectioncreate = sectioncreate.Distinct().ToList();
             }
 
-            ViewBag.Start = start;
-            ViewBag.End = end;
-
-
-
-            // 3. เริ่มสร้าง URL พื้นฐาน
-            var apiUrl = $"https://api.zycoda.com/apimpros/get_job_order?plant=FARMHOUSE&";
-
-            var section = HttpContext.Session.GetString("Section");
-
-            if (!string.IsNullOrEmpty(start)) apiUrl += $"&start={start}";
-            if (!string.IsNullOrEmpty(end)) apiUrl += $"&end={end}";
-            if (!string.IsNullOrEmpty(section)) apiUrl += $"&section={section}";
+            // 2. 🚩 ปรับ URL API: ถ้าเป็น Class 3 ห้ามใส่ &section ใน URL
+            // เพื่อให้ API ส่งงานของ "ทุกหน่วยงาน" มาให้เราเลือกกรองเอง
+            var apiUrl = $"https://api.zycoda.com/apimpros/get_job_order?plant=FARMHOUSE&start={start}&end={end}";
             if (!string.IsNullOrEmpty(Status)) apiUrl += $"&status={Status}";
 
-            // อ่านไฟล์ JSON สำหรับ Dropdown
-            var jsonsection = System.IO.File.ReadAllText("wwwroot/data/section.json");
-            ViewBag.Section = JsonSerializer.Deserialize<List<Models.SectionApiModels>>(jsonsection);
+            if (userClass != "3" && !string.IsNullOrEmpty(mySection))
+            {
+                apiUrl += $"&section={mySection}";
+            }
 
+            // --- ส่วนดึงข้อมูล API ---
             var jsonstatus = System.IO.File.ReadAllText("wwwroot/data/status.json");
-            ViewBag.Status = JsonSerializer.Deserialize<List<Models.StatusApiModels>>(jsonstatus);
+            var statusMasterList = JsonSerializer.Deserialize<List<Models.StatusApiModels>>(jsonstatus);
+            ViewBag.Status = statusMasterList;
 
             List<MaintenanceApiModels> data = new List<MaintenanceApiModels>();
 
             using (HttpClient client = new HttpClient())
             {
-                // 🚩 3. ตรวจสอบว่าพาสเวิร์ดใน Session ยังอยู่ไหม (ถ้าหายอาจต้องเก็บใน Claims ตอน Login ด้วยจะดีกว่า)
-                if (string.IsNullOrEmpty(sessionPass))
-                {
-                    // ถ้า Session Pass หาย ให้ลองดึงจากตั๋ว หรือถ้าไม่มีจริงๆ ค่อยดีดกลับ
-                    return RedirectToAction("Login", "Home");
-                }
-
+                if (string.IsNullOrEmpty(sessionPass)) return RedirectToAction("Login", "Home");
                 client.DefaultRequestHeaders.Add("username", sessionUser);
                 client.DefaultRequestHeaders.Add("password", sessionPass);
 
-
-                // ดึงข้อมูลจาก API
                 var response = await client.GetAsync(apiUrl);
-
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
-
-                    // ใช้ Newtonsoft.Json เพราะรองรับ JSON ก้อนใหญ่และยืดหยุ่นกว่า
                     var allData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<MaintenanceApiModels>>(json) ?? new List<MaintenanceApiModels>();
 
-                    // 🚩 กรองข้อมูลในเครื่อง (In-memory Filter) 
-                    // เผื่อกรณี API คืนมาทั้งหมด แต่เราอยากกรองเพิ่มตาม Dropdown ที่เลือก
-                    var filteredData = allData.AsEnumerable();
-
-                    if (!string.IsNullOrEmpty(Status))
+                    if (userClass == "3")
                     {
-                        filteredData = filteredData.Where(x => string.Equals(x.status, Status, StringComparison.OrdinalIgnoreCase));
+                        data = allData.Where(x => {
+                            // 🚩 ตรวจสอบว่า x.usercreate เป็น Object (JObject) หรือไม่
+                            if (x.usercreate is Newtonsoft.Json.Linq.JObject jo)
+                            {
+                                var sectionOfUser = jo["section"]?.ToString();
+                                // ถ้ามีหน่วยงานในก้อน User ให้เช็คว่าอยู่ในกลุ่มที่อนุญาตไหม
+                                if (!string.IsNullOrEmpty(sectionOfUser) && sectioncreate.Contains(sectionOfUser))
+                                    return true;
+                            }
+
+                            // เช็คจาก section หลักของใบงาน (อันนี้ชัวร์สุด)
+                            if (!string.IsNullOrEmpty(x.section) && sectioncreate.Contains(x.section))
+                                return true;
+
+                            return false;
+                        }).ToList();
                     }
-                    data = filteredData.ToList();
+                    else
+                    {
+                        data = allData;
+                    }
                 }
             }
 
+            ViewBag.Start = start;
+            ViewBag.End = end;
+            ViewBag.CurrentStatus = Status;
             return View(data);
         }
+
         public async Task<IActionResult> PrintReport(int type, string sectionFrom, string sectionTo, string start, string end, string status)
         {
             // 1. ดึงข้อมูลจาก API โดยใช้ Filter ที่ส่งมา (Logic เดียวกับใน ReportReceiver)

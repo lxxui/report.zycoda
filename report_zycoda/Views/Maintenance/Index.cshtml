@@ -209,10 +209,30 @@
                                 </span>
                             </td>
                             <td class="pe-4">
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar-sm-text me-2">@item.usercreate?.Substring(0,1)</div>
-                                    <small class="text-dark fw-medium">@item.usercreate</small>
-                                </div>
+                                @{
+                                    string displayUser = "";
+                                    if (item.usercreate != null)
+                                    {
+                                        // กรณีที่ 1: ถ้ามันมาเป็น String ตรงๆ (เช่น "คุณธนาภรณ์")
+                                        if (item.usercreate is string nameStr)
+                                        {
+                                            displayUser = nameStr;
+                                        }
+                                        // กรณีที่ 2: ถ้ามันมาเป็นก้อน Object (ต้องแปลงเป็น JSON Object ก่อน)
+                                        else
+                                        {
+                                            // ใช้หัวใจการดึงค่าแบบ Dynamic
+                                            var jsonUser = Newtonsoft.Json.Linq.JObject.FromObject(item.usercreate);
+                                            displayUser = jsonUser["name"]?.ToString() ?? "";
+                                        }
+                                    }
+                                }
+
+                                @* ส่วนการแสดงผลพร้อมตัดคำ *@
+                                @if (!string.IsNullOrEmpty(displayUser))
+                                {
+                                    @(displayUser.Length > 10 ? displayUser.Substring(0, 10) + "..." : displayUser)
+                                }
                             </td>
                         </tr>
                     }

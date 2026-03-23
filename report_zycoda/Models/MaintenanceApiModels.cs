@@ -1,81 +1,100 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace report_zycoda.Models
 {
-    // Class หลัก
+    // Class หลักสำหรับรับข้อมูลใบแจ้งงาน
     public class MaintenanceApiModels
     {
-        // --- ส่วนที่ 1: ของเดิม (รักษาไว้) ---
-        public string? id_h { get; set; }
-        public string? detail_h { get; set; }
-        public int downtime_h { get; set; }
-        public string? timecreate { get; set; }
-        public string? tag_abnormal { get; set; }
-        public string? solution { get; set; }
-        public string? problem { get; set; }
-        public string? causes { get; set; }
-        public string? ordertype { get; set; }
-        public string? sectioncreate { get; set; }
-        public string? status { get; set; }
-        public int? timerepair { get; set; }
-        public string? usercreate { get; set; } // แบบ string เดิม
+        // --- ส่วนที่ 1 & 2: รวมร่าง Property (รองรับทั้งระบบเก่าและ JSON Farmhouse) ---
+        public string? id { get; set; }           // จาก farmhouse
+        public string? id_h { get; set; }         // จากระบบเดิม
 
-        // --- ส่วนที่ 2: ของใหม่ (รองรับ JSON farmhouse) ---
-        public string? id { get; set; }
-        public string? detail { get; set; }
+        public string? detail { get; set; }       // จาก farmhouse
+        public string? detail_h { get; set; }     // จากระบบเดิม
+
+        public string? section { get; set; }      // หน่วยงานของ "เครื่องจักร/ใบงาน"
+        public string? sectioncreate { get; set; } // หน่วยงานที่สร้าง (ระบบเดิม)
+
+        public string? status { get; set; }       // เก็บ ID สถานะ (เช่น 20, 30, 40)
+        public string? statustext { get; set; }   // เก็บชื่อสถานะ (เช่น Create, Confirm)
+
+        public string? timecreate { get; set; }
         public string? fl { get; set; }
         public string? fldetail { get; set; }
         public double? downtime { get; set; }
         public string? jobtype { get; set; }
-        public string? section { get; set; }
-        public string? statustext { get; set; }
 
-        // --- ส่วนที่ 3: แบบ Object (แก้ Error CS0246) ---
+        // --- ส่วนที่ 3: แก้ไขจาก string เป็น Object (แก้ Error CS1061) ---
+        // เปลี่ยนจาก public string? usercreate เป็น UserCreateDetail
+        public object? usercreate { get; set; } // เปลี่ยนจาก UserCreateDetail เป็น object
         public StatusDetail? st { get; set; }
-        public UserCreateDetail? usercreate_obj { get; set; }
         public TimeDetail? time { get; set; }
 
-        // --- ส่วนที่ 4: ฟิลด์ที่ใช้ใน Controller (แก้ Error CS1061) ---
-        public string? acceptby { get; set; } // เพิ่มตัวนี้เพื่อให้ Controller เรียกใช้ได้
+        // --- ส่วนที่ 4: ฟิลด์สำหรับ Logic ใน Controller ---
+        public string? acceptby { get; set; }
         public bool IsAccept { get; set; }
         public bool IsAssign { get; set; }
 
-        // --- ส่วนที่ 5: Logic สีสถานะ ---
+        // --- ส่วนที่ 5: Logic สีสถานะ (ปรับให้เช็ค statustext เป็นหลัก) ---
         public string StatusCssClass
         {
             get
             {
+                // ตัดช่องว่างและเช็คค่าว่าง
                 string currentStatus = (statustext ?? status ?? "").Trim();
+
                 return currentStatus switch
                 {
-                    "Create" => "text-danger",
-                    "Pending" => "text-info",
-                    "Accept" => "text-warning",
-                    "Assigned" => "text-primary",
-                    "Finish" => "text-success",
-                    "Confirm" => "text-success",
-                    _ => "text-secondary"
+                    "Create" or "20" => "bg-danger text-white",
+                    "Pending" => "bg-info text-white",
+                    "Accept" or "30" => "bg-warning text-dark",
+                    "Assigned" => "bg-primary text-white",
+                    "Finish" or "Confirm" or "40" => "bg-success text-white",
+                    _ => "bg-secondary text-white"
                 };
             }
         }
+
+        public string UserDisplayName
+        {
+            get
+            {
+                if (usercreate == null) return "-";
+                if (usercreate is string s) return s;
+                try
+                {
+                    var jo = Newtonsoft.Json.Linq.JObject.FromObject(usercreate);
+                    return jo["name"]?.ToString() ?? "-";
+                }
+                catch { return "-"; }
+            }
+        }
+
     }
 
-    // --- ส่วนที่ 6: Class เสริม (ต้องอยู่นอก Class หลักแต่อยู่ใน Namespace เดียวกัน) ---
-    public class StatusDetail
-    {
-        public string? name { get; set; }
-        public string? color { get; set; }
-    }
+
+    // --- ส่วนที่ 6: Class เสริมสำหรับ Nested Objects ---
 
     public class UserCreateDetail
     {
         public string? id { get; set; }
         public string? name { get; set; }
-        public string? section { get; set; }
+        public string? section { get; set; } // แผนกของคนแจ้ง (เช่น 322010)
+    }
+
+    public class StatusDetail
+    {
+        public int state { get; set; }
+        public string? name { get; set; }
+        public string? color { get; set; }
     }
 
     public class TimeDetail
     {
+        // ใช้ object? หรือ string? เพราะ JSON บางทีส่งมาหลายรูปแบบ
         public object? create { get; set; }
+        public object? start { get; set; }
+        public object? end { get; set; }
     }
 }
