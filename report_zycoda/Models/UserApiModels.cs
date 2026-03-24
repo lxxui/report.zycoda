@@ -4,7 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace report_zycoda.Models
 {
     public class UserApiModels
+
     {
+
+        [JsonPropertyName("class")] // ถ้าใช้ System.Text.Json
+        public int @class { get; set; }
+
         [JsonPropertyName("username")] // ระบุให้ชัดเจน
         public string? username { get; set; }
 
@@ -15,14 +20,17 @@ namespace report_zycoda.Models
         public string? firstname { get; set; }
 
         [JsonPropertyName("lastname")]
-        public string? lastname { get; set; }
+        public string? lastname { get; set; } = null;
+
+
+        [JsonPropertyName("sectionoption")]
+        public string? sectionoption { get; set; }
 
         [JsonPropertyName("section")]
         public string? section { get; set; }
 
         [JsonPropertyName("rule")]
         public string? rule { get; set; }
-        public string? sectionoption { get; set; }
         public string? smallgroup { get; set; }
         public string? active { get; set; } // รับค่า "on"
         public string? tel { get; set; }

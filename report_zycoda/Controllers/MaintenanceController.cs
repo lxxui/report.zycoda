@@ -48,10 +48,10 @@ namespace report_zycoda.Controllers
             // 🚩 3. สร้าง URL (ถ้า Class 3 ไม่ส่ง Sectioncreate เพื่อให้ได้ข้อมูลลูกน้องมาทั้งหมด)
             var apiUrl = $"https://api.zycoda.com/apimpros/get_job_order?plant=FARMHOUSE&jobtype={jobtype}&start={start}&end={end}";
 
-            if (userClass != "3" && !string.IsNullOrEmpty(Sectioncreate))
-            {
-                apiUrl += $"&sectioncreate={Sectioncreate}";
-            }
+            //if (userClass != "3" && !string.IsNullOrEmpty(Sectioncreate))
+            //{
+            //    apiUrl += $"&sectioncreate={Sectioncreate}";
+            //}
 
             // อ่าน JSON Master
             var jsonsection = System.IO.File.ReadAllText("wwwroot/data/section.json");
@@ -175,77 +175,93 @@ namespace report_zycoda.Controllers
 
             return View(data);
         }
-        public async Task<IActionResult> ReportSender(string start, string end, string Status)
+        public async Task<IActionResult> ReportSender(string start, string end, string Status, string section)
         {
             var sessionUser = User.Identity.Name;
             var sessionPass = User.Claims.FirstOrDefault(c => c.Type == "ApiPassword")?.Value;
-
             var userClass = User.Claims.FirstOrDefault(c => c.Type == "Class")?.Value;
             var sectionOption = User.Claims.FirstOrDefault(c => c.Type == "SectionOption")?.Value;
-            var mySection = HttpContext.Session.GetString("Section");
+            var mySection = User.Claims.FirstOrDefault(c => c.Type == "UserSectionCode")?.Value;
 
-            if (string.IsNullOrEmpty(start)) start = DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            if (string.IsNullOrEmpty(end)) end = DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            if (string.IsNullOrEmpty(sessionPass)) return RedirectToAction("Login", "Home");
 
-            // 1. 🚩 รวมร่าง Section ทั้งหมด (ทั้ง Hardcode และจาก Profile ของคุณเยาวภา)
-            var allowedList = new List<string>
-    {
-        "310012", "310013", "310014", "311010", "311020", "311090",
-        "312010", "312020", "312030", "312090", "313010", "313020",
-        "313030", "313040", "313090", "314010", "314020", "314030",
-        "314040", "314041", "314042", "314090"
-    };
+            start ??= DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            end ??= DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 
-            if (!string.IsNullOrEmpty(sectionOption))
+            // --- 3. รวมกลุ่มหน่วยงาน (ประกาศที่นี่ที่เดียวจบ) ---
+            string finalSectionsCsv;
+            if (!string.IsNullOrEmpty(section))
             {
-                var options = sectionOption.Split(',').Select(s => s.Trim()).Where(s => !string.IsNullOrEmpty(s));
-                allowedList.AddRange(options);
+                finalSectionsCsv = section;
+            }
+            else
+            {
+                var allowedList = new List<string>();
+                if (!string.IsNullOrEmpty(mySection)) allowedList.Add(mySection);
+
+                if (!string.IsNullOrEmpty(sectionOption))
+                {
+                    var options = sectionOption.Split(',').Select(s => s.Trim()).Where(s => !string.IsNullOrEmpty(s));
+                    allowedList.AddRange(options);
+                }
+
+                if (userClass == "3")
+                {
+                    allowedList.AddRange(new[] {
+                "310012", "310013", "310014", "311010", "311020", "311090",
+                "312010", "312020", "312030", "312090", "313010", "313020",
+                "313030", "313040", "313090", "314010", "314020", "314030",
+                "314040", "314041", "314042", "314090"
+            });
+                }
+                finalSectionsCsv = string.Join(",", allowedList.Distinct());
             }
 
-            // ทำเป็น String ยาวๆ คั่นด้วย comma
-            var finalSectionsCsv = string.Join(",", allowedList.Distinct());
+            // --- 4. สร้าง API URL (ใช้ค่าจากด้านบนมาต่อ URL ทันที) ---
+            var apiUrl = $"https://api.zycoda.com/apimpros/get_job_order?plant=FARMHOUSE&jobtype=EM,CM&v=followup&start={start}&end={end}";
 
-            // 2. 🚩 สร้าง URL API (เน้นส่ง Parameter ให้ครบตาม Swagger)
-            // เพิ่ม jobtype=EM,CM เพื่อให้ดึงงานซ่อมออกมาให้หมด
-            var apiUrl = $"https://api.zycoda.com/apimpros/get_job_order?plant=FARMHOUSE&jobtype=EM,CM&start={start}&end={end}";
+            // 🚩 หัวใจหลัก: ส่ง finalSectionsCsv ไปที่ sectioncreate เพื่อให้คน Approve เห็นงานที่คนในสิทธิ์แจ้งมา
+            apiUrl += $"&section={finalSectionsCsv}";
+            apiUrl += $"&sectioncreate={finalSectionsCsv}";
+            apiUrl += $"&sections={finalSectionsCsv}";
 
             if (!string.IsNullOrEmpty(Status)) apiUrl += $"&status={Status}";
 
-            // 🚩 จุดตาย: ถ้าเป็น Class 3 ต้องส่ง 'sectioncreate' ยาวๆ ไปเลย
-            if (userClass == "3")
-            {
-                apiUrl += $"&sectioncreate={finalSectionsCsv}";
-            }
-            else if (!string.IsNullOrEmpty(mySection))
-            {
-                apiUrl += $"&section={mySection}";
-            }
-
-            // --- ส่วนดึงข้อมูล API ---
-            var jsonstatus = System.IO.File.ReadAllText("wwwroot/data/status.json");
-            ViewBag.Status = System.Text.Json.JsonSerializer.Deserialize<List<Models.StatusApiModels>>(jsonstatus);
+            // --- ส่วนดึงข้อมูล (ใช้ Task.WhenAll เพื่อความเร็ว) ---
+            var statusPath = Path.Combine("wwwroot", "data", "status.json");
+            var sectionPath = Path.Combine("wwwroot", "data", "section.json");
+            var statusTask = System.IO.File.ReadAllTextAsync(statusPath);
+            var sectionTask = System.IO.File.ReadAllTextAsync(sectionPath);
 
             List<MaintenanceApiModels> data = new List<MaintenanceApiModels>();
-
             using (HttpClient client = new HttpClient())
             {
-                if (string.IsNullOrEmpty(sessionPass)) return RedirectToAction("Login", "Home");
                 client.DefaultRequestHeaders.Add("username", sessionUser);
                 client.DefaultRequestHeaders.Add("password", sessionPass);
 
-                var response = await client.GetAsync(apiUrl);
-                if (response.IsSuccessStatusCode)
+                var apiResponseTask = client.GetAsync(apiUrl);
+                await Task.WhenAll(statusTask, sectionTask, apiResponseTask);
+
+                var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                ViewBag.Status = System.Text.Json.JsonSerializer.Deserialize<List<Models.StatusApiModels>>(statusTask.Result, options);
+                ViewBag.Section = System.Text.Json.JsonSerializer.Deserialize<List<Models.SectionApiModels>>(sectionTask.Result, options);
+
+                if (apiResponseTask.Result.IsSuccessStatusCode)
                 {
-                    var json = await response.Content.ReadAsStringAsync();
-                    // ✅ ดึงมา "ทั้งหมด" ที่ API ส่งมาให้ โดยไม่ต้อง .Where ซ้ำในนี้แล้ว
-                    // เพราะถ้า .Where ในนี้ แล้ว Logic JObject ผิด ข้อมูลจะหายเหลือแค่ 4 รายการแบบที่เจอครับ
+                    var json = await apiResponseTask.Result.Content.ReadAsStringAsync();
                     data = Newtonsoft.Json.JsonConvert.DeserializeObject<List<MaintenanceApiModels>>(json) ?? new List<MaintenanceApiModels>();
                 }
             }
 
+            // 5. ส่งค่าไปที่ View
+            ViewBag.DebugUrl = apiUrl;
+            ViewBag.CheckClass = userClass;
+            ViewBag.CheckOption = sectionOption;
             ViewBag.Start = start;
             ViewBag.End = end;
             ViewBag.CurrentStatus = Status;
+            ViewBag.CurrentSection = section;
+
             return View(data);
         }
         public async Task<IActionResult> PrintReport(int type, string sectionFrom, string sectionTo, string start, string end, string status)

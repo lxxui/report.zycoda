@@ -6,6 +6,21 @@
     var end = Context.Request.Query["end"].ToString();
 }
 
+@* --- ส่วน Debug เพื่อเช็คว่าค่ามาไหม --- *@
+<div class="alert alert-info mt-3">
+    <h5><i class="bi bi-bug"></i> Debug Check:</h5>
+    <ul>
+        <li><strong>apiUrl:</strong> <code class="text-break">@ViewBag.DebugUrl</code></li>
+        <li><strong>userClass:</strong> <span class="badge bg-primary">@ViewBag.CheckClass</span></li>
+        <li><strong>sectionOption:</strong> <code class="text-dark">@ViewBag.CheckOption</code></li>
+    </ul>
+    <p class="small text-muted mt-2">
+        * ถ้า <strong>userClass</strong> ว่าง แสดงว่า Login ยังไม่ส่งค่ามา <br />
+        * ถ้า <strong>apiUrl</strong> ไม่มีคำว่า <code>&sectioncreate=...</code> แสดงว่าเงื่อนไข Class 3 ไม่ทำงาน
+    </p>
+</div>
+<hr />
+
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -80,6 +95,18 @@
                             }
                         }
                     </select>
+                </div>
+                  <div class="col-md-3">
+                    <label class="form-label small fw-bold">หน่วยงาน</label>
+                  <select name="section" class="form-select">
+                    <option value="">-- ทั้งหมด --</option>
+                    @foreach (var item in ViewBag.Section)
+                    {
+                        <option value="@item.section" selected="@(item.section == ViewBag.CurrentSection ? "selected" : null)">
+                            @item.name
+                        </option>
+                    }
+                </select>
                 </div>
                 <div class="col-md-3 text-end">
                     <button type="submit" class="btn btn-navy w-100 shadow-sm py-2">
