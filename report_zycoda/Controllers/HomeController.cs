@@ -105,7 +105,8 @@ public class HomeController : Controller
                     // บังคับ Commit Session ทันที
                     await HttpContext.Session.CommitAsync();
 
-                    return RedirectToAction("Index", "Dashboard");
+                    /** เรียกเข้าหน้ารวมเลย **/
+                    return RedirectToAction("Index", "Maintenance");
                 }
             }
         }

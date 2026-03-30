@@ -25,7 +25,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-light main-nav fixed-top shadow-sm">
             <div class="container-fluid px-4">
-                <a class="navbar-brand" asp-area="" asp-controller="Dashboard" asp-action="Index">
+                <a class="navbar-brand" asp-area="" asp-controller="Maintenance" asp-action="Index">
                     <span class="d-none d-sm-inline">ZYCODA REPORT</span>
                 </a>
 
@@ -59,14 +59,14 @@
                                 @* แสดงแผนกหลัก *@
                                 <small class="text-muted">แผนกหลัก: @sectionName</small>
 
-                                @* 🚩 ถ้ามี SectionOption ให้แสดงเพิ่มบรรทัดใหม่ *@
+                                @* 🚩 ถ้ามี SectionOption ให้แสดงเพิ่มบรรทัดใหม่
                                 if (!string.IsNullOrEmpty(sectionoption))
                                 {
                                     <br />
                                     <small class="text-primary" style="font-size: 0.75rem;">
                                         <i class="bi bi-eye"></i> สิทธิ์มองเห็น: @sectionoption
                                     </small>
-                                }
+                                } *@
                             }
                             else
                             {

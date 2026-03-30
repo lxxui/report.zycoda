@@ -39,29 +39,29 @@
 <script>
     // ใช้ฟังก์ชันตรวจสอบความพร้อม
     function initDataTable() {
-        if ($.fn.DataTable) { // ถ้า Library มาแล้ว
-            if (!$.fn.DataTable.isDataTable('#maintenanceTable')) { // ถ้ายังไม่ได้ Init
-            $('#maintenanceTable').DataTable({
-                "pageLength": 15,
-                "lengthMenu": [10, 15, 20, 25],
-                "language": {
-                "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/th.json"
-                    },
-                        "order": [[0, "desc"]],
-                        "columnDefs": [
-                        { "orderable": false, "targets": [2] }
-                    ],
-                // 🚩 ปรับตรงนี้: เพิ่ม class 'px-3 pt-2' เพื่อให้มีระยะห่างจากขอบซ้ายขวาและด้านบน
-                "dom": '<"d-flex justify-content-between align-items-center px-3 pt-2 mb-2"lf>rt<"d-flex justify-content-between align-items-center px-3 pb-3 mt-2"ip>'
-                });
+    if ($.fn.DataTable) { // ถ้า Library มาแล้ว
+    if (!$.fn.DataTable.isDataTable('#maintenanceTable')) { // ถ้ายังไม่ได้ Init
+        $('#maintenanceTable').DataTable({
+        "pageLength": 15,
+        "lengthMenu": [10, 15, 20, 25],
+        "language": {
+        "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/th.json"
+            },
+                "order": [[0, "desc"]],
+                    "columnDefs": [
+                    { "orderable": false, "targets": [2] }
+                        ],
+                                // 🚩 ปรับตรงนี้: เพิ่ม class 'px-3 pt-2' เพื่อให้มีระยะห่างจากขอบซ้ายขวาและด้านบน
+                                "dom": '<"d-flex justify-content-between align-items-center px-3 pt-2 mb-2"lf>rt<"d-flex justify-content-between align-items-center px-3 pb-3 mt-2"ip>'
+                                });
+                            }
+                        } else {
+                    // ถ้ายังไม่มา ให้รอ 100ms แล้วลองใหม่
+                    setTimeout(initDataTable, 100);
                 }
-        } else {
-            // ถ้ายังไม่มา ให้รอ 100ms แล้วลองใหม่
-            setTimeout(initDataTable, 100);
-        }
-    }
+            }
 
-    $(document).ready(function () {
+        $(document).ready(function () {
         initDataTable();
     });
 </script>
@@ -114,38 +114,97 @@
     <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
         <div class="card-body p-4">
             <form method="get" class="row g-3 align-items-end">
+
+                <!-- ประเภทงาน -->
                 <div class="col-md-3">
-                    <label class="form-label small fw-bold text-navy"><i class="bi bi-funnel-fill me-1"></i>ประเภทงาน</label>
+                    <label class="form-label small fw-bold text-navy">
+                        <i class="bi bi-funnel-fill me-1"></i>ประเภทงาน
+                    </label>
                     <select name="jobtype" class="form-select border-light bg-light">
                         <option value="EM,CM" selected="@(jobtype == "EM,CM")">-- ทุกประเภท --</option>
                         <option value="EM" selected="@(jobtype == "EM")">EM (Emergency)</option>
                         <option value="CM" selected="@(jobtype == "CM")">CM (General)</option>
                     </select>
                 </div>
-                <div class="col-md-4">
-                    <label class="form-label small fw-bold text-navy"><i class="bi bi-calendar-range-fill me-1"></i>ช่วงวันที่แจ้ง</label>
+
+                <!-- วันที่ -->
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-navy">
+                        <i class="bi bi-calendar-range-fill me-1"></i>ช่วงวันที่แจ้ง
+                    </label>
                     <div class="input-group">
                         <input type="text" id="startDatePicker" name="start" class="form-control border-light bg-light" value="@start">
                         <span class="input-group-text bg-light border-light text-muted">-</span>
                         <input type="text" id="endDatePicker" name="end" class="form-control border-light bg-light" value="@end">
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label small fw-bold text-navy"><i class="bi bi-check-circle-fill me-1"></i>สถานะ</label>
-                    <select name="status" class="form-select border-light bg-light">
-                        <option value="">-- สถานะทั้งหมด --</option>
-                        @if (ViewBag.Status != null) {
-                            foreach (var stat in (List<report_zycoda.Models.StatusApiModels>)ViewBag.Status) {
-                                <option value="@stat.id" selected="@(status == stat.name)">@stat.name</option>
-                            }
+
+                <!-- สถานะ -->
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-navy">
+                        <i class="bi bi-check-circle-fill me-1"></i>สถานะ
+                    </label>
+                    <select name="Status" class="form-select border-light bg-light">
+                        <option value="">-- ทั้งหมด --</option>
+                        @foreach (var Stat in (List<report_zycoda.Models.StatusApiModels>)ViewBag.Status)
+                        {
+                            <option value="@Stat.id"
+                                    selected="@(ViewBag.CurrentStatus == Stat.id ? "selected" : null)">
+                                @Stat.name
+                            </option>
                         }
                     </select>
                 </div>
+
+                <!-- 🔥 Section -->
                 <div class="col-md-2">
-                    <button type="submit" id="btnSearch" class="btn btn-navy w-100 py-2 fw-bold shadow-sm">
-                        <i class="bi bi-search me-2"></i>ดึงข้อมูล
-                    </button>
+                    <label class="form-label small fw-bold text-navy">
+                        <i class="bi bi-diagram-3-fill me-1"></i>หน่วยงานรับแจ้ง (สำหรับวิศวะ)
+                    </label>
+                    <select name="Sectioncreate" class="form-select border-light bg-light">
+                        <option value="">-- ทั้งหมด --</option>
+
+                        @* <optgroup label="🏭 หน่วยงานผลิต">
+                            <option value="product_lkb">ลาดกระบัง</option>
+                            <option value="product_bc">บางชัน</option>
+                        </optgroup> *@
+
+                        <optgroup label="⚙️ หน่วยงานวิศวกรรม">
+                            <option value="engineer_lkb">ลาดกระบัง</option>
+                            <option value="engineer_bc">บางชัน</option>
+                        </optgroup>
+                    </select>
                 </div>
+
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-navy">
+                        <i class="bi bi-diagram-3-fill me-1"></i>หน่วยงานแจ้งงาน (สำหรับผลิต)
+                    </label>
+                    <select name="Sectioncreate" class="form-select border-light bg-light">
+                        <option value="">-- ทั้งหมด --</option>
+                        <optgroup label="🏭 หน่วยงานผลิต">
+                            <option value="product_lkb">ลาดกระบัง</option>
+                            <option value="product_bc">บางชัน</option>
+                        </optgroup>
+
+                    </select>
+                </div>
+
+                <!-- ปุ่ม -->
+                <div class="col-md-2 d-flex gap-2">
+
+                    <!-- ค้นหา -->
+                    <button type="submit" id="btnSearch" class="btn btn-navy w-100 py-2 fw-bold shadow-sm">
+                        <i class="bi bi-search me-1"></i>ค้นหา
+                    </button>
+
+                    <!-- 🔥 ปริ้น -->
+                    <button type="button" onclick="printReport()" class="btn btn-outline-navy w-100 py-2 fw-bold shadow-sm">
+                        <i class="bi bi-printer me-1"></i>พิมพ์
+                    </button>
+
+                </div>
+
             </form>
         </div>
     </div>
@@ -178,60 +237,103 @@
                 <thead class="bg-light">
                     <tr>
                         <th class="ps-4" style="width: 100px;">Job ID</th>
-                        <th>ข้อมูลเครื่องจักร / อุปกรณ์</th>
-                        <th>รายละเอียดปัญหา</th>
-                        <th class="text-center">Downtime</th>
+                        <th style="width: 140px;">วันที่</th>
+                        <th style="width: 120px;">หน่วยงาน</th>
+                        <th class="text-center">ประเภท</th> <!-- 🔥 เพิ่ม -->
+                        <th>รายละเอียด</th>
+                        @* <th class="text-center">Downtime</th> *@
                         <th class="text-center">สถานะ</th>
-                        <th class="pe-4">ผู้ทำรายการ</th>
+                        <th class="pe-4">ผู้แจ้ง</th>
                     </tr>
                 </thead>
+
                 <tbody class="border-top-0">
-                    @foreach (var item in reports) {
+                    @foreach (var item in reports)
+                    {
                         <tr>
+                            <!-- Job ID -->
                             <td class="ps-4 fw-bold text-navy">#@item.id</td>
+
+                            <!-- วันที่ -->
                             <td>
-                                <div class="fw-bold text-primary">@item.fldetail</div>
-                                <small class="text-muted">Type: @item.jobtype</small>
+                                @if (DateTime.TryParse(item.timecreate, out DateTime dt))
+                                {
+                                    <div class="fw-bold small">@dt.ToString("dd/MM/yyyy")</div>
+                                    <div class="text-muted" style="font-size: 0.7rem;">@dt.ToString("HH:mm") น.</div>
+                                }
+                                else
+                                {
+                                    <span class="small">@item.timecreate</span>
+                                }
                             </td>
+
+                            <!-- หน่วยงาน -->
                             <td>
-                                <div class="text-truncate" style="max-width: 300px;" title="@item.detail">
+                                <span class="badge bg-white text-dark border fw-normal">
+                                    @item.sectioncreate
+                                </span>
+                            </td>
+
+                            <!-- 🔥 ประเภทงาน -->
+                            <td class="text-center">
+                                @item.jobtype
+                            </td>
+
+
+                            <!-- รายละเอียด -->
+                            <td>
+                                <div class="fw-bold text-primary small">
+                                    @item.fl (@item.fldetail)
+                                </div>
+
+                                <div class="text-muted small text-truncate"
+                                     style="max-width: 400px;"
+                                     title="@item.detail">
                                     @item.detail
                                 </div>
                             </td>
-                            <td class="text-center">
-                                <span class="badge bg-light text-dark border-0">
-                                    <i class="bi bi-clock-history me-1 text-primary"></i>@item.downtime m
+
+                            <!-- Downtime -->
+                            @* <td class="text-center">
+                                <span class="badge bg-light text-dark">
+                                    <i class="bi bi-clock-history me-1 text-primary"></i>
+                                    @item.downtime m
                                 </span>
-                            </td>
+                            </td> *@
+
+                            <!-- สถานะ -->
                             <td class="text-center">
-                                <span class="badge rounded-pill @item.StatusCssClass px-3 py-2" style="font-size: 0.75rem;">
+                                <span class="badge rounded-pill @item.StatusCssClass px-3 py-2 small">
                                     @item.status
                                 </span>
                             </td>
+
+                        
+
+                            <!-- ผู้แจ้ง -->
                             <td class="pe-4">
                                 @{
                                     string displayUser = "";
+
                                     if (item.usercreate != null)
                                     {
-                                        // กรณีที่ 1: ถ้ามันมาเป็น String ตรงๆ (เช่น "คุณธนาภรณ์")
                                         if (item.usercreate is string nameStr)
                                         {
                                             displayUser = nameStr;
                                         }
-                                        // กรณีที่ 2: ถ้ามันมาเป็นก้อน Object (ต้องแปลงเป็น JSON Object ก่อน)
                                         else
                                         {
-                                            // ใช้หัวใจการดึงค่าแบบ Dynamic
                                             var jsonUser = Newtonsoft.Json.Linq.JObject.FromObject(item.usercreate);
                                             displayUser = jsonUser["name"]?.ToString() ?? "";
                                         }
                                     }
                                 }
 
-                                @* ส่วนการแสดงผลพร้อมตัดคำ *@
                                 @if (!string.IsNullOrEmpty(displayUser))
                                 {
-                                    @(displayUser.Length > 10 ? displayUser.Substring(0, 10) + "..." : displayUser)
+                                    <span title="@displayUser">
+                                        @(displayUser.Length > 12 ? displayUser.Substring(0, 12) + "..." : displayUser)
+                                    </span>
                                 }
                             </td>
                         </tr>
@@ -241,40 +343,41 @@
         </div>
     </div>
 </div>
-
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    //แปลงเป็น วันเดือนปี
-		const config = {
-		dateFormat: "Y-m-d",
-		altInput: true,
-		altFormat: "d/m/Y",
-		allowInput: true
-	};
-	flatpickr("#start_date", config);
-	flatpickr("#end_date", config);
+
     // ==========================================
-    // 1. เตรียมข้อมูลพื้นฐาน (Raw Data)
+    // 🔹 1. Date Picker
+    // ==========================================
+    const dateConfig = {
+        dateFormat: "Y-m-d",
+        altInput: true,
+        altFormat: "d/m/Y",
+        allowInput: true
+    };
+
+    flatpickr("#startDatePicker", dateConfig);
+    flatpickr("#endDatePicker", dateConfig);
+
+    // ==========================================
+    // 🔹 2. เตรียมข้อมูลสถานะ (Pie Chart)
     // ==========================================
     const statusLabels = ['แจ้งงานใหม่', 'รับงานแล้ว', 'ปิดงาน'];
+
     const statusValues = [
         @reports.Count(x => x.status?.Trim() == "Create"),
         @reports.Count(x => x.status?.Trim() == "Accept"),
         @reports.Count(x => x.status?.Trim() == "Confirm")
     ];
 
-    const dateConfig = { dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y" };
-    flatpickr("#startDatePicker", dateConfig);
-    flatpickr("#endDatePicker", dateConfig);
-
-    // สีหลักสำหรับ Theme (Modern Flat UI)
-    const modernColors = ['#F9A602', '#01C6D9', '#01A182']; // ส้ม, ฟ้า, เขียว
+    const modernColors = ['#F9A602', '#01C6D9', '#01A182'];
     const hoverColors = ['#FDCA5C', '#84EAED', '#03CB98'];
 
     // ==========================================
-    // 2. Doughnut Chart (สรุปสถานะงาน)
+    // 🔹 3. Doughnut Chart
     // ==========================================
     const ctxPie = document.getElementById('maintenancePieChart');
+
     if (ctxPie) {
         new Chart(ctxPie, {
             type: 'doughnut',
@@ -296,7 +399,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 plugins: {
                     legend: {
                         position: 'bottom',
-                        labels: { padding: 20, font: { size: 14, family: 'Tahoma' } }
+                        labels: {
+                            padding: 20,
+                            font: { size: 14, family: 'Tahoma' }
+                        }
                     },
                     tooltip: {
                         callbacks: {
@@ -313,26 +419,27 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ==========================================
-    // 3. Bar Chart (แยกตามเครื่องจักร - พร้อมระบบเรียงลำดับ)
+    // 🔹 4. Bar Chart (Machine Ranking)
     // ==========================================
     const ctxBar = document.getElementById('maintenanceBarChart');
+
     if (ctxBar) {
         const barCanvas = ctxBar.getContext('2d');
-        
+
         // ดึงข้อมูลจาก Razor
         let rawMachineLabels = @Html.Raw(Json.Serialize(machineLabels));
         let rawMachineData = @Html.Raw(Json.Serialize(machineData));
 
-        // --- Logic การเรียงลำดับ (Sort Data) ---
-        // รวม Label และ Data เข้าด้วยกันเพื่อทำการ Sort ตามจำนวนงาน (มากไปน้อย)
-        let sortedMachineList = rawMachineLabels.map((label, index) => {
-            return { label: label, value: rawMachineData[index] };
-        }).sort((a, b) => b.value - a.value); // b - a คือเรียงจากมากไปน้อย
+        // 🔥 รวม + sort มาก → น้อย
+        let sortedMachineList = rawMachineLabels.map((label, index) => ({
+            label: label,
+            value: rawMachineData[index]
+        })).sort((a, b) => b.value - a.value);
 
-        const finalLabels = sortedMachineList.map(item => item.label);
-        const finalData = sortedMachineList.map(item => item.value);
+        const finalLabels = sortedMachineList.map(x => x.label);
+        const finalData = sortedMachineList.map(x => x.value);
 
-        // สร้าง Gradient แนวขวาง (เพราะเราจะใช้ indexAxis: 'y')
+        // gradient
         let gradientBar = barCanvas.createLinearGradient(0, 0, 500, 0);
         gradientBar.addColorStop(0, '#01C6D9');
         gradientBar.addColorStop(1, 'rgba(1, 198, 217, 0.1)');
@@ -352,7 +459,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 }]
             },
             options: {
-                indexAxis: 'y', // แสดงผลแนวนอนเพื่อให้ชื่อเครื่องจักรยาวๆ อ่านง่าย
+                indexAxis: 'y',
                 maintainAspectRatio: false,
                 plugins: {
                     legend: { display: false }
@@ -365,11 +472,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     },
                     y: {
                         grid: { display: false },
-                        ticks: { font: { size: 12, weight: 'bold' } }
+                        ticks: {
+                            font: { size: 12, weight: 'bold' }
+                        }
                     }
                 }
             }
         });
     }
+
 });
 </script>

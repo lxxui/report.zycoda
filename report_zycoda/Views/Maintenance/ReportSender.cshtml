@@ -6,34 +6,11 @@
     var end = Context.Request.Query["end"].ToString();
 }
 
-@* --- ส่วน Debug เพื่อเช็คว่าค่ามาไหม --- *@
-<div class="alert alert-info mt-3">
-    <h5><i class="bi bi-bug"></i> Debug Check:</h5>
-    <ul>
-        <li><strong>apiUrl:</strong> <code class="text-break">@ViewBag.DebugUrl</code></li>
-        <li><strong>userClass:</strong> <span class="badge bg-primary">@ViewBag.CheckClass</span></li>
-        <li><strong>sectionOption:</strong> <code class="text-dark">@ViewBag.CheckOption</code></li>
-    </ul>
-    <p class="small text-muted mt-2">
-        * ถ้า <strong>userClass</strong> ว่าง แสดงว่า Login ยังไม่ส่งค่ามา <br />
-        * ถ้า <strong>apiUrl</strong> ไม่มีคำว่า <code>&sectioncreate=...</code> แสดงว่าเงื่อนไข Class 3 ไม่ทำงาน
-    </p>
-</div>
-<hr />
-
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="fw-bold text-navy mb-0"><i class="bi bi-megaphone-fill me-2"></i>รายงานติดตาม Job (สำหรับผู้แจ้งงาน)</h4>
             <p class="text-muted small mb-0">ตรวจสอบสถานะงานที่คุณแจ้งซ่อมและประวัติการทำรายการ</p>
-        </div>
-        <div class="btn-group shadow-sm">
-            <button type="button" onclick="printReport(1)" class="btn btn-outline-navy bg-white text-navy border-0 px-3">
-                <i class="bi bi-printer me-1"></i> รูปแบบ 1
-            </button>
-            <button type="button" onclick="printReport(2)" class="btn btn-outline-navy bg-white text-navy border-0 px-3 border-start">
-                <i class="bi bi-printer me-1"></i> รูปแบบ 2
-            </button>
         </div>
     </div>
 
@@ -74,49 +51,62 @@
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
-        <div class="card-body bg-light-blue p-3">
-            <form method="get" asp-action="ReportSender" class="row g-3 align-items-end">
-                <div class="col-md-3">
-                    <label class="form-label small fw-bold">วันที่แจ้ง (เริ่ม)</label>
-                    <input type="text" name="start" id="start_date" class="form-control border-0 shadow-sm" value="@ViewBag.Start">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label small fw-bold">วันที่แจ้ง (สิ้นสุด)</label>
-                    <input type="text" name="end" id="end_date" class="form-control border-0 shadow-sm" value="@ViewBag.End">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label small fw-bold">สถานะ</label>
-                    <select name="Status" class="form-select border-0 shadow-sm">
-                        <option value="">-- ทั้งหมด --</option>
-                        @if (ViewBag.Status != null) {
-                            foreach (var Stat in (List<report_zycoda.Models.StatusApiModels>)ViewBag.Status) {
-                                <option value="@Stat.id" selected="@(Status == Stat.name)">@Stat.name</option>
-                            }
+<div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
+    <div class="card-body bg-light-blue p-3">
+        <form method="get" asp-action="ReportSender" class="row g-2 align-items-end">
+
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">วันที่แจ้ง (เริ่ม)</label>
+                <input type="text" name="start" id="start_date" 
+                       class="form-control border-0 shadow-sm" 
+                       value="@ViewBag.Start">
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">วันที่แจ้ง (สิ้นสุด)</label>
+                <input type="text" name="end" id="end_date" 
+                       class="form-control border-0 shadow-sm" 
+                       value="@ViewBag.End">
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">สถานะ</label>
+                <select name="Status" class="form-select border-0 shadow-sm">
+                    <option value="">-- ทั้งหมด --</option>
+                    @if (ViewBag.Status != null) {
+                        foreach (var Stat in (List<report_zycoda.Models.StatusApiModels>)ViewBag.Status) {
+                            <option value="@Stat.id">@Stat.name</option>
                         }
-                    </select>
-                </div>
-                  <div class="col-md-3">
-                    <label class="form-label small fw-bold">หน่วยงาน</label>
-                  <select name="section" class="form-select">
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label small fw-bold">หน่วยงาน</label>
+                <select name="section" class="form-select border-0 shadow-sm">
                     <option value="">-- ทั้งหมด --</option>
                     @foreach (var item in ViewBag.Section)
                     {
-                        <option value="@item.section" selected="@(item.section == ViewBag.CurrentSection ? "selected" : null)">
-                            @item.name
-                        </option>
+                        <option value="@item.section">@item.name</option>
                     }
                 </select>
-                </div>
-                <div class="col-md-3 text-end">
-                    <button type="submit" class="btn btn-navy w-100 shadow-sm py-2">
-                        <i class="bi bi-search me-2"></i>ค้นหาข้อมูล
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+            </div>
 
+            <!-- ปุ่ม -->
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-navy w-100 shadow-sm py-2">
+                    <i class="bi bi-search me-1"></i> ค้นหา
+                </button>
+
+                <button type="button" onclick="printReport(1)" 
+                        class="btn btn-outline-navy bg-white text-navy border-0 w-100">
+                    <i class="bi bi-printer me-1"></i> พิมพ์รายงาน
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
     <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
         <div class="table-responsive py-3">
             <table id="senderTable" class="table table-hover align-middle mb-0 w-100">

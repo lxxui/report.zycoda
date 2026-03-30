@@ -7,6 +7,7 @@ namespace report_zycoda.Models
     public class MaintenanceApiModels
     {
         // --- ส่วนที่ 1 & 2: รวมร่าง Property (รองรับทั้งระบบเก่าและ JSON Farmhouse) ---
+        public string? v { get; set; }
         public string? id { get; set; }           // จาก farmhouse
         public string? id_h { get; set; }         // จากระบบเดิม
 
