@@ -1,0 +1,152 @@
+﻿@model List<report_zycoda.Models.MaintenanceApiModels>
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Print Report - JCS</title>
+    <style>
+            @@page {
+                size: A4 landscape;
+                margin: 1cm;
+            }
+
+            body {
+                font-family: 'Tahoma', sans-serif;
+                font-size: 11px;
+                margin: 0;
+                padding: 0;
+            }
+
+            .report-header {
+                width: 100%;
+                border-bottom: 2px solid #000;
+                padding-bottom: 5px;
+                margin-bottom: 10px;
+            }
+
+            .title {
+                text-align: center;
+                font-size: 16px;
+                font-weight: bold;
+            }
+
+            /* ส่วนข้อมูล Filter */
+            .filter-table {
+                width: 60%;
+                margin: 0 auto 10px auto;
+                border: none;
+            }
+
+                .filter-table td {
+                    padding: 2px;
+                }
+
+            /* ตารางข้อมูลหลัก (ใช้เส้นประตามรูป) */
+            .data-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+                .data-table th, .data-table td {
+                    border: 1px dashed #000; /* เส้นประ */
+                    padding: 4px;
+                    text-align: left;
+                }
+
+                .data-table th {
+                    background-color: #fff;
+                    text-align: center;
+                    font-weight: bold;
+                }
+
+            .text-center {
+                text-align: center;
+            }
+
+            .text-right {
+                text-align: right;
+            }
+
+            @@media print {
+                .no-print {
+                    display: none;
+                }
+            }
+    </style>
+</head>
+<body>
+    <table class="report-header" style="border:none; width:100%;">
+        <tr>
+            <td style="width:25%">RPT_PROGRESS_FOR_RECEIVER<br />2603000753</td>
+            <td class="title">รายงานติดตามความคืบหน้า Job (สำหรับผู้รับแจ้งงานตรวจสอบ)</td>
+            <td style="width:25%" class="text-right">
+                วันที่ : @DateTime.Now.ToString("dd/MM/yyyy")<br />
+                เวลา : @DateTime.Now.ToString("HH:mm:ss")<br />
+                Page : 1
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td class="text-center" style="font-weight:bold;">สำหรับหน่วยงาน 150000 ตรวจสอบ</td>
+            <td></td>
+        </tr>
+    </table>
+
+    <table class="filter-table">
+        <tr>
+            <td>จากหน่วยงานแจ้ง : <b>@ViewBag.SectionFrom</b></td>
+            <td>ถึงหน่วยงาน : <b>@ViewBag.SectionTo</b></td>
+        </tr>
+        <tr>
+            <td>จากวันที่แจ้ง : <b>@ViewBag.StartDate</b></td>
+            <td>ถึงวันที่ : <b>@ViewBag.EndDate</b></td>
+        </tr>
+        <tr>
+            <td colspan="2">สถานะ JOB : <b>@ViewBag.Status</b></td>
+        </tr>
+    </table>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>วันที่แจ้ง</th>
+                <th>Service No.</th>
+                <th>รหัส - แบบฟอร์ม</th>
+                <th>ปัญหา-รายละเอียด</th>
+                <th>รหัส - ชื่อหน่วย</th>
+                <th>ผู้แจ้ง</th>
+                <th>สถานะ</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Count > 0)
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-center">@item.timecreate</td>
+                        <td>@item.id</td>
+                        <td>@item.jobtype</td>
+                        <td>@item.detail</td>
+                        <td>@item.sectioncreate</td>
+                        <td>@item.usercreate</td>
+                        <td class="text-center">@item.status</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="7" class="text-center">-- ไม่พบข้อมูล --</td></tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="no-print" style="position: fixed; bottom: 20px; right: 20px;">
+        <button onclick="window.print()" style="padding: 10px 20px; cursor: pointer;">Print PDF / Paper</button>
+    </div>
+</body>
+</html>

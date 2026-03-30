@@ -1,0 +1,315 @@
+﻿@model List<report_zycoda.Models.MaintenanceApiModels>
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="utf-8" />
+    <title>Zycoda Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #1e3a8a;
+            --secondary-color: #64748b;
+            --border-color: #e2e8f0;
+            --bg-light: #f8fafc;
+        }
+
+        @@page {
+            size: A4 landscape;
+            margin: 1.5cm;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            font-size: 13px;
+            color: #334155;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* Header Section */
+        .report-header {
+            width: 100%;
+            border-bottom: 2px solid var(--primary-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+        }
+
+        .title-main {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--secondary-color);
+            margin-top: 5px;
+        }
+
+        /* Filter Box */
+        .filter-container {
+            background-color: var(--bg-light);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .filter-item b {
+            color: var(--primary-color);
+        }
+
+        /* Table Styling */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .data-table th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 400;
+            text-align: left;
+            padding: 12px 8px;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .data-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        .data-table tr:nth-child(even) {
+            background-color: #fcfcfc;
+        }
+
+        /* Status Badge */
+        .badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            display: inline-block;
+            text-align: center;
+            min-width: 60px;
+        }
+        .badge-status { background: #e0f2fe; color: #0369a1; } /* Blue */
+        .badge-delay { background: #fee2e2; color: #b91c1c; } /* Red */
+
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .font-bold { font-weight: bold; }
+
+        @@media print {
+            .no-print { display: none; }
+            body { margin: 0; }
+            .filter-container { border: 1px solid #ccc; background: none; }
+            .data-table th { background-color: #1e3a8a !important; color: white !important; -webkit-print-color-adjust: exact; }
+        }
+        /* บังคับไม่ให้เกิดการตัดหน้ากระดาษภายในตารางและ Footer */
+        .data-table tr {
+            page-break-inside: avoid;
+        }
+    
+        footer, .report-footer {
+            page-break-before: avoid; /* ห้ามตัดหน้าก่อนถึงส่วนนี้ */
+        }
+
+        /* ลด Margin ของหน้ากระดาษลงเล็กน้อยเพื่อให้มีพื้นที่เพิ่มขึ้น */
+        @@page {
+            size: A4 landscape;
+            margin: 0.8cm; /* จากเดิม 1.5cm ลดลงเพื่อให้พอดีหน้าเดียว */
+        }
+    </style>
+</head>
+<body>
+
+    <table class="report-header">
+        <tr>
+             <td style="width:25%; font-size: 11px; color: var(--secondary-color); line-height: 1.5;">
+                @* CODE อักษรย่อ: RPT-JTR (Job Tracking Report - 0001 (มาจากฉบับแรก)) *@
+                CODE: RPT-JTR-0001<br />
+    
+                @* Logic Ref: [yyMMdd][Section][Random] *@
+                @{
+                    string currentSec = ViewBag.UserSection ?? "000000"; // ดึงรหัสหน่วยงานจาก ViewBag
+                    string datePart = DateTime.Now.ToString("yyMMdd");
+                    string randomPart = new Random().Next(100, 999).ToString(); // เลขสุ่ม 3 หลักกันซ้ำ
+                    string refNo = $"{datePart}{currentSec}{randomPart}";
+                }
+                Ref: @refNo
+            </td>
+
+            <td class="text-center">
+                <h1 class="title-main" style="letter-spacing: 1px;">รายงานติดตามความคืบหน้า Job</h1>
+                <div class="subtitle">
+                    @* ปรับตามที่ Fai อยากได้: (สำหรับผู้แจ้งงานตรวจสอบ) *@
+                    หน่วยงาน: <b>@ViewBag.DepartmentName</b> (สำหรับผู้แจ้งงานตรวจสอบ)
+                </div>
+            </td>
+            <td style="width:25%;" class="text-right subtitle">
+                @* ดึงชื่อผู้พิมพ์จาก Session (เปลี่ยนชื่อ Key ตามที่ Fai ตั้งไว้ใน Controller นะครับ) *@
+                @{
+                    var printerName = Context.Session.GetString("UserName") ?? "System User";
+                    var printerRole = Context.Session.GetString("UserRole") ?? "";
+                }
+    
+                <div class="print-only-info" style="display: none;">
+                    ผู้พิมพ์: @Context.Session.GetString("UserName") 
+                </div>                
+                <div>พิมพ์เมื่อ: <span id="live-print-time">@DateTime.Now.ToString("dd/MM/yy HH:mm:ss")</span></div>
+                <div>หน้า: 1 / 1</div>
+            </td>
+        </tr>
+    </table>
+
+   <div class="filter-container">
+    <div class="filter-item">จากหน่วยงาน: <b>@ViewBag.SectionFrom</b> ถึง <b>@ViewBag.SectionTo</b></div>
+    
+    <div class="filter-item">
+        @{
+            // แปลงวันที่ StartDate
+            string displayStart = "-";
+            if (DateTime.TryParse(ViewBag.StartDate?.ToString(), out DateTime dStart)) {
+                displayStart = dStart.ToString("dd/MM/yy"); // หรือ "dd/MM/yyyy" ตามชอบ
+            }
+
+            // แปลงวันที่ EndDate
+            string displayEnd = "-";
+            if (DateTime.TryParse(ViewBag.EndDate?.ToString(), out DateTime dEnd)) {
+                displayEnd = dEnd.ToString("dd/MM/yy");
+            }
+        }
+        ตั้งแต่วันที่: <b>@displayStart ถึง @displayEnd</b>
+    </div>
+
+    <div class="filter-item">สถานะ JOB: <span class="badge badge-status" style="vertical-align: middle;">@ViewBag.Status</span></div>
+</div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>วันที่แจ้ง</th>
+                <th>Service No.</th>
+                <th style="width: 15%;">ประเภทงาน/แบบฟอร์ม</th>
+                <th style="width: 20%;">รายละเอียดปัญหา</th>
+                <th>หน่วยงานที่แจ้ง</th>
+                <th>ผู้แจ้ง</th>
+                <th>สถานะ</th>
+                <th class="text-center">แผนรับ/เสร็จ</th>
+                <th class="text-center">เริ่ม/เสร็จจริง</th>
+                <th class="text-center">Delay</th>
+            </tr>
+        </thead>
+<tbody>
+    @if (Model != null && Model.Any())
+    {
+        foreach (var item in Model)
+        {
+            <tr>
+                @* 1. วันที่แจ้ง *@
+                <td class="text-center">
+                    @(DateTime.TryParse(item.timecreate, out DateTime dtC) ? dtC.ToString("dd/MM/yy") : "-")
+                </td>
+
+                <td class="fw-bold">@item.id</td>
+                <td>
+                    @{
+                        string displayJobType = item.jobtype;
+                        if (item.jobtype == "CM") {
+                            displayJobType = "ประเภทงานทั่วไป";
+                        } else if (item.jobtype == "EM") {
+                            displayJobType = "ประเภทงานฉุกเฉิน";
+                        }
+                    }
+                    @displayJobType
+                </td>               
+                <td style="font-size: 12px; color: #475569;">@item.detail</td>
+                <td>@item.sectioncreate</td>
+                <td>@item.usercreate</td>
+                
+                <td class="text-center">
+                    <span class="badge badge-status">@item.status</span>
+                </td>
+
+                @* 2. แผนรับ/เสร็จ (ซ่อน ?? "-" ที่กวนใจออก) *@
+                <td class="text-center" style="font-size: 11px;">
+                    @(DateTime.TryParse(item.timestart, out DateTime ts) ? ts.ToString("dd/MM/yy HH:mm") : "-")
+                    <br/>
+                    @(DateTime.TryParse(item.timeend, out DateTime te) ? te.ToString("dd/MM/yy HH:mm") : "-")
+                </td>
+
+                @* 3. เริ่ม/เสร็จจริง *@
+                <td class="text-center" style="font-size: 11px;">
+                    @(DateTime.TryParse(item.timestartrepair, out DateTime trs) ? trs.ToString("dd/MM/yy HH:mm") : "-")
+                    <br/>
+                    @(DateTime.TryParse(item.timeendrepair, out DateTime tre) ? tre.ToString("dd/MM/yy HH:mm") : "-")
+                </td>
+
+                @* 4. DELAY (เช็ค string "0" หรือ null) *@
+                <td class="text-center">
+                    @if (!string.IsNullOrEmpty(item.timedelay) && item.timedelay != "0" && item.timedelay != "00:00:00")
+                    {
+                        <span class="badge badge-delay">@item.timedelay วัน</span>
+                    }
+                    else
+                    {
+                        <span>-</span>
+                    }
+                </td>
+            </tr>
+        }
+    }
+    else
+    {
+        <tr>
+            <td colspan="10" class="text-center" style="padding: 40px;">
+                <i style="color: var(--secondary-color);">-- ไม่พบข้อมูลการแจ้งซ่อมในเครื่องที่ระบุ --</i>
+            </td>
+        </tr>
+    }
+</tbody>    </table>
+
+     <div style="display: flex; justify-content: space-between; margin-top: 10px; padding-top: 5px; border-top: 1px dashed #cbd5e1; font-size: 10px; color: #64748b;">
+        <div class="fw-bold">*** สิ้นสุดรายงาน ***</div>
+    
+        <div style="font-style: italic;">
+            เอกสารนี้ออกโดยระบบอัตโนมัติ (Zycoda Reporting System)
+        </div>
+
+        <div>© President Bakery Public Company Limited.</div>
+    </div>
+
+    <div class="no-print" style="position: fixed; bottom: 30px; right: 30px;">
+        <button onclick="window.print()" style="background: var(--primary-color); color: white; border: none; padding: 12px 25px; border-radius: 30px; cursor: pointer; font-family: 'Sarabun'; box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-weight: bold;">
+             🖨️ พิมพ์รายงาน (PDF)
+        </button>
+    </div>
+
+</body>
+<script>
+    function updatePrintTime() {
+        const now = new Date();
+        const options = { 
+            day: '2-digit', month: '2-digit', year: '2-digit',
+            hour: '2-digit', minute: '2-digit', second: '2-digit',
+            hour12: false 
+        };
+        // พ.ศ. แบบไทย 30/03/69 15:30:05
+        document.getElementById('live-print-time').innerText = now.toLocaleString('th-TH', options);
+    }
+    setInterval(updatePrintTime, 1000);
+    updatePrintTime();
+
+</script>
+</html>

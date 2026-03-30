@@ -79,14 +79,14 @@ namespace report_zycoda.Controllers
             // 🔹 Query Params (ยิงกว้างสุด)
             // -------------------------
             var queryParams = new Dictionary<string, string>
-    {
-        { "plant", "FARMHOUSE" },
-        { "jobtype", jobtype },
-        { "start", start },
-        { "end", end },
-        { "v", v },
-        { "status", "ALL" } // 🔥 ดึงทั้งหมดก่อน
-    };
+            {
+                { "plant", "FARMHOUSE" },
+                { "jobtype", jobtype },
+                { "start", start },
+                { "end", end },
+                { "v", v },
+                { "status", "ALL" } // 🔥 ดึงทั้งหมดก่อน
+            };
 
             var baseUrl = "https://api.zycoda.com/apimpros/get_job_order";
             var apiUrl = QueryHelpers.AddQueryString(baseUrl, queryParams);

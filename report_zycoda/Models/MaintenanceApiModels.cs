@@ -37,6 +37,17 @@ namespace report_zycoda.Models
         public bool IsAccept { get; set; }
         public bool IsAssign { get; set; }
 
+        public string? timestart { get; set; }
+        public string? timeend { get; set; }
+        public string? timestartrepair { get; set; }
+        public string? timeendrepair { get; set; }
+        public string? timedelay { get; set; }
+
+        public string? useraccept { get; set; }
+
+        public string? timefinish { get; set; }
+
+
         // --- ส่วนที่ 5: Logic สีสถานะ (ปรับให้เช็ค statustext เป็นหลัก) ---
         public string StatusCssClass
         {

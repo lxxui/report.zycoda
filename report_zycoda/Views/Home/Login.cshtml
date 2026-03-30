@@ -10,144 +10,192 @@
     <title>Login - Zycoda Report</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link href="~/css/home_login.css" rel="stylesheet">
-</head>
+    </head>
 
-<body>
-    <canvas id="network-canvas"></canvas>
+    <body>
+        <canvas id="network-canvas"></canvas>
 
-    <div class="login-box">
-        <div class="brand-logo">
-            <h1>ZYCODA REPORT</h1>
-            <p style="color: #cbd5e1; font-size: 14px; margin-top: 8px; font-weight: 300; min-height: 20px;">
-                <span id="typing-effect"></span><span class="cursor">|</span>
-            </p>
-        </div>
-
-        <form method="post" asp-controller="Home" asp-action="Login">
-            <div class="form-group">
-                <label>Username</label>
-                <input type="text" name="username" placeholder="ระบุรหัสพนักงาน" required autocomplete="off" />
+        <div class="login-box">
+            <div class="brand-logo">
+                <h1>ZYCODA REPORT</h1>
+                <p style="color: #cbd5e1; font-size: 14px; margin-top: 8px; font-weight: 300; min-height: 20px;">
+                    <span id="typing-effect"></span><span class="cursor">|</span>
+                </p>
             </div>
 
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" name="password" placeholder="ระบุรหัสผ่าน" required />
-            </div>
-
-            @if (ViewBag.ErrorMessage != null)
-            {
-                <div class="error-msg">
-                    @ViewBag.ErrorMessage
+            <form method="post" asp-controller="Home" asp-action="Login">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" name="username" placeholder="ระบุรหัสพนักงาน" required autocomplete="off" />
                 </div>
-            }
 
-            <button type="submit" class="btn-login">Sign In</button>
-        </form>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" placeholder="ระบุรหัสผ่าน" required />
+                </div>
 
-        <div class="footer-text">
-            &copy; 2026 Zycoda. All rights reserved.
+                @if (ViewBag.ErrorMessage != null)
+                {
+                    <div class="error-msg">
+                        @ViewBag.ErrorMessage
+                    </div>
+                }
+
+                <button type="submit" class="btn-login">Sign In</button>
+            </form>
+
+            <div class="footer-text">
+                &copy; 2026 Zycoda. All rights reserved.
+            </div>
         </div>
-    </div>
-   
 
+        <div id="git-loader" class="git-loader" style="display: none;">
+            <div class="git-terminal">
+                <div class="git-line"><span class="git-command">$</span> zycoda report</div>
+                <div id="git-progress"></div>
+                <div class="git-status">กำลังเข้าสู่ระบบ...</div>
+            </div>
+        </div>
 
-    <script>
-        const canvas = document.getElementById('network-canvas');
-        const ctx = canvas.getContext('2d');
-        let dots = [];
-        const dotCount = 80; // จำนวนจุด
-        const maxDistance = 150; // ระยะห่างที่จะเชื่อมเส้น
+        <script>
+                // --- 1. Network Background Animation ---
+                const canvas = document.getElementById('network-canvas');
+                const ctx = canvas.getContext('2d');
+                let dots = [];
+                const dotCount = 80;
+                const maxDistance = 150;
 
-        function init() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            dots = [];
-            for (let i = 0; i < dotCount; i++) {
-                dots.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    vx: (Math.random() - 0.5) * 0.5,
-                    vy: (Math.random() - 0.5) * 0.5,
-                    size: Math.random() * 2 + 1
-                });
-            }
-        }
-
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            for (let i = 0; i < dots.length; i++) {
-                let d = dots[i];
-                d.x += d.vx;
-                d.y += d.vy;
-
-                // สะท้อนขอบจอ
-                if (d.x < 0 || d.x > canvas.width) d.vx *= -1;
-                if (d.y < 0 || d.y > canvas.height) d.vy *= -1;
-
-                ctx.beginPath();
-                ctx.arc(d.x, d.y, d.size, 0, Math.PI * 2);
-                ctx.fillStyle = "rgba(56, 189, 248, 0.5)";
-                ctx.fill();
-
-                // วาดเส้นเชื่อม
-                for (let j = i + 1; j < dots.length; j++) {
-                    let d2 = dots[j];
-                    let dist = Math.hypot(d.x - d2.x, d.y - d2.y);
-                    if (dist < maxDistance) {
-                        ctx.beginPath();
-                        ctx.moveTo(d.x, d.y);
-                        ctx.lineTo(d2.x, d2.y);
-                        ctx.strokeStyle = `rgba(56, 189, 248, ${1 - dist / maxDistance - 0.5})`;
-                        ctx.lineWidth = 0.5;
-                        ctx.stroke();
+                function init() {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                    dots = [];
+                    for (let i = 0; i < dotCount; i++) {
+                        dots.push({
+                            x: Math.random() * canvas.width,
+                            y: Math.random() * canvas.height,
+                            vx: (Math.random() - 0.5) * 0.5,
+                            vy: (Math.random() - 0.5) * 0.5,
+                            size: Math.random() * 2 + 1
+                        });
                     }
                 }
-            }
-            requestAnimationFrame(draw);
-        }
 
-        window.addEventListener('resize', init);
-        init();
-        draw();
+                function draw() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    for (let i = 0; i < dots.length; i++) {
+                        let d = dots[i];
+                        d.x += d.vx;
+                        d.y += d.vy;
+
+                        if (d.x < 0 || d.x > canvas.width) d.vx *= -1;
+                        if (d.y < 0 || d.y > canvas.height) d.vy *= -1;
+
+                        ctx.beginPath();
+                        ctx.arc(d.x, d.y, d.size, 0, Math.PI * 2);
+                        ctx.fillStyle = "rgba(56, 189, 248, 0.4)";
+                        ctx.fill();
+
+                        for (let j = i + 1; j < dots.length; j++) {
+                            let d2 = dots[j];
+                            let dist = Math.hypot(d.x - d2.x, d.y - d2.y);
+                            if (dist < maxDistance) {
+                                ctx.beginPath();
+                                ctx.moveTo(d.x, d.y);
+                                ctx.lineTo(d2.x, d2.y);
+                                ctx.strokeStyle = `rgba(56, 189, 248, ${1 - dist / maxDistance - 0.5})`;
+                                ctx.lineWidth = 0.5;
+                                ctx.stroke();
+                            }
+                        }
+                    }
+                    requestAnimationFrame(draw);
+                }
+
+                window.addEventListener('resize', init);
+                init();
+                draw();
+
+                // --- 2. Typing Effect (Brand Logo) ---
+                const textElement = document.getElementById("typing-effect");
+                const text = "System Maintenance & Analytics";
+                let typeIndex = 0;
+                let isDeleting = false;
+                let typeSpeed = 100;
+
+                function type() {
+                    const currentText = text.substring(0, typeIndex);
+                    if (textElement) textElement.innerHTML = currentText;
+
+                    if (!isDeleting && typeIndex < text.length) {
+                        typeIndex++;
+                        typeSpeed = 100;
+                    } else if (isDeleting && typeIndex > 0) {
+                        typeIndex--;
+                        typeSpeed = 50;
+                    } else if (!isDeleting && typeIndex === text.length) {
+                        isDeleting = true;
+                        typeSpeed = 2000;
+                    } else if (isDeleting && typeIndex === 0) {
+                        isDeleting = false;
+                        typeSpeed = 500;
+                    }
+                    setTimeout(type, typeSpeed);
+                }
+
+                // --- 3. Git Loading Logic (On Submit) ---
+                               // --- 3. Git Loading Logic (ฉบับสมจริงขึ้น) ---
+                const loginForm = document.querySelector('form');
+                if (loginForm) {
+                    loginForm.onsubmit = function(e) {
+                        const loader = document.getElementById('git-loader');
+                        if (loader) loader.style.display = 'flex';
+
+                        const statusText = document.querySelector('.git-status');
+                        const progress = document.getElementById('git-progress');
+        
+                        // ข้อความแบบ Dynamic Git
+                          const messages = [
+                            "remote: Enumerating objects: 42, done.",
+                            "remote: Counting objects: 100% (42/42), done.",
+                            "remote: Compressing objects: 100% (28/28), done.",
+                            "Receiving objects: 100% (42/42), 8.42 KiB | 2.81 MiB/s, done.",
+                            "Resolving deltas: 100% (14/14), done.",
+                            "Verifying credentials...",
+                            "Opening Zycoda session..."
+                        ];
+
+                        let msgIndex = 0;
+                        const msgInterval = setInterval(() => {
+                            if (msgIndex < messages.length) {
+                                // สร้างลูกเล่นเลขวิ่งสุ่มๆ ระหว่างทาง
+                                if (msgIndex === 3) {
+                                    let percent = 11;
+                                    const fastInterval = setInterval(() => {
+                                        percent += Math.floor(Math.random() * 15) + 5;
+                                        if (percent >= 100) {
+                                            statusText.innerText = messages[4];
+                                            clearInterval(fastInterval);
+                                            msgIndex = 5; // ข้ามไปข้อความที่ 5 เลย
+                                        } else {
+                                            statusText.innerText = `Receiving objects: ${percent}% (${Math.floor(percent/2.4)}/42) ...`;
+                                        }
+                                    }, 50); // วิ่งเร็วๆ 50ms
+                                } else {
+                                    statusText.innerText = messages[msgIndex];
+                                    msgIndex++;
+                                }
+                            } else {
+                                clearInterval(msgInterval);
+                            }
+                        }, 600);
+                    };
+                }
+
+                // Start everything on Load
+                document.addEventListener("DOMContentLoaded", type);
+        </script>
 
 
-        //ตอนพิมพ์
-        const textElement = document.getElementById("typing-effect");
-        const text = "System Maintenance & Analytics";
-        let index = 0;
-        let isDeleting = false;
-        let speed = 100; // ความเร็วในการพิมพ์
+    </body>
 
-        function type() {
-            // ตัดคำตาม index ปัจจุบัน
-            const currentText = text.substring(0, index);
-            textElement.innerHTML = currentText;
-
-            if (!isDeleting && index < text.length) {
-                // กำลังพิมพ์
-                index++;
-                speed = 100;
-            } else if (isDeleting && index > 0) {
-                // กำลังลบ
-                index--;
-                speed = 50; // ลบเร็วกว่าพิมพ์นิดนึง
-            } else if (!isDeleting && index === text.length) {
-                // พิมพ์ครบแล้ว รอ 2 วินาทีก่อนเริ่มลบ
-                isDeleting = true;
-                speed = 2000;
-            } else if (isDeleting && index === 0) {
-                // ลบหมดแล้ว เริ่มพิมพ์ใหม่
-                isDeleting = false;
-                speed = 500;
-            }
-
-            setTimeout(type, speed);
-        }
-
-        // เริ่มทำงาน
-        document.addEventListener("DOMContentLoaded", type);
-
-    </script>
-</body>
 </html>

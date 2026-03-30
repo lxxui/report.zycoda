@@ -22,9 +22,10 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 // Session
 builder.Services.AddDistributedMemoryCache();
+// --- ส่วนที่ 3: เพิ่มใน Program.cs (ก่อน builder.Build()) ---
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.IdleTimeout = TimeSpan.FromMinutes(60); // ให้ Session อยู่ได้ 1 ชม.
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });

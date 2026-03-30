@@ -96,16 +96,17 @@ public class HomeController : Controller
                     // 1. เคลียร์ Session เก่าทิ้ง
                     HttpContext.Session.Clear();
 
-                    // 2. ฝากค่าใหม่ลง Session แบบ String สดๆ
                     HttpContext.Session.SetString("UserClass", user.@class.ToString());
                     HttpContext.Session.SetString("FullSectionOption", user.sectionoption ?? "");
                     HttpContext.Session.SetString("UserSectionCode", user.section ?? "");
 
+                    // 🚩 เพิ่ม 2 บรรทัดนี้ เพื่อให้ PrintReport ดึงไปใช้ต่อได้
+                    HttpContext.Session.SetString("ApiUser", user.username ?? "");
+                    HttpContext.Session.SetString("ApiPass", user.password ?? "");
 
                     // บังคับ Commit Session ทันที
                     await HttpContext.Session.CommitAsync();
 
-                    /** เรียกเข้าหน้ารวมเลย **/
                     return RedirectToAction("Index", "Maintenance");
                 }
             }
