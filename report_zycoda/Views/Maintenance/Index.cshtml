@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Http
+@using Newtonsoft.Json
 @inject IHttpContextAccessor HttpContextAccessor
 @model List<report_zycoda.Models.MaintenanceApiModels>
 
@@ -26,6 +27,16 @@
 
     var machineLabels = machineGroups.Select(x => x.Name).ToList();
     var machineData = machineGroups.Select(x => x.Count).ToList();
+
+    /* section */
+   // ดึงข้อมูลมาทำ Mapping
+    var sectionList = (List<report_zycoda.Models.SectionApiModels>)ViewBag.Section;
+    
+    // สร้าง Dictionary โดยบังคับ Key ให้เป็น string และกรองตัวที่เป็น null
+    var sectionDict = sectionList?
+        .Where(x => !string.IsNullOrEmpty(x.section))
+        .ToDictionary(x => x.section!, x => x.name ?? x.section!) 
+        ?? new Dictionary<string, string>();
 }
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
@@ -45,9 +56,51 @@
     .btn-navy { background-color: #001f3f; color: white; }
     .btn-navy:hover { background-color: #002d5c; color: white; }
     .btn-outline-navy { border: 1px solid #001f3f; color: #001f3f; }
+
+
+    /* ปรับปรุงหัวข้อส่วน (Section Header) */
+    .modal-section-title {
+        background: #f8f9fa;
+        border-left: 4px solid #001f3f; /* สี Navy */
+        padding: 8px 15px;
+        font-weight: 700;
+        color: #001f3f;
+        margin: 1rem 0;
+        font-size: 0.95rem;
+    }
+
+    /* สไตล์สำหรับ Label และ Value */
+    .info-label {
+        color: #6c757d;
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-bottom: 2px;
+    }
+    .info-value {
+        color: #212529;
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    /* ตกแต่งกล่องรายละเอียดอาการเสีย */
+    .detail-box {
+        background-color: #f1f3f5;
+        border-radius: 8px;
+        padding: 12px;
+        border: 1px dashed #dee2e6;
+        min-height: 60px;
+    }
+
+    /* Modal Layout */
+    .modal-content {
+        border-radius: 20px !important;
+        overflow: hidden;
+    }
+
+
 </style>
 
-<div class="container-fluid py-4">
+<div class="container-fluid py-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="fw-bold text-navy mb-0">รายงานภาพรวมงานแจ้งซ่อม (Overall Dashboard)</h4>
@@ -191,69 +244,137 @@
                         <th class="pe-4">ผู้แจ้ง</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @foreach (var item in reports)
-                    {
-                        <tr class="job-row" 
-                            data-id="@item.id" 
-                            data-status="@item.status"
-                            data-machine="@item.fl (@item.fldetail)"
-                            data-type="@item.jobtype"
-                            data-detail="@item.detail"
-                            data-user="@item.usercreate"
-                            data-section="@item.sectioncreate"
-                            data-css="@item.StatusCssClass">
-                            <td class="ps-4 fw-bold text-navy">#@item.id</td>
-                            <td>
-                                @if (DateTime.TryParse(item.timecreate, out DateTime dt)) {
-                                    <div class="fw-bold small">@dt.ToString("dd/MM/yyyy")</div>
-                                    <div class="text-muted" style="font-size: 0.7rem;">@dt.ToString("HH:mm") น.</div>
-                                }
-                            </td>
-                            <td><span class="badge bg-white text-dark border">@item.sectioncreate</span></td>
-                            <td class="text-center">@item.jobtype</td>
-                            <td>
-                                <div class="fw-bold text-primary small">@item.fl (@item.fldetail)</div>
-                                <div class="text-muted small text-truncate" style="max-width: 300px;">@item.detail</div>
-                            </td>
-                            <td class="text-center">
-                                <span class="badge rounded-pill @item.StatusCssClass px-3 py-2 small">@item.status</span>
-                            </td>
-                            <td class="pe-4 small">@item.usercreate</td>
-                        </tr>
-                    }
-                </tbody>
+              <tbody>
+            @foreach (var item in reports)
+            {
+                <tr class="job-row" 
+                    data-id="@item.id" 
+                    data-status="@item.status"
+                    data-machine="@item.fl (@item.fldetail)"
+                    data-type="@item.jobtype"
+                    data-detail="@item.detail"
+                    data-user="@item.usercreate"
+                    data-section="@item.sectioncreate"
+                    data-css="@item.StatusCssClass"
+                    data-secreceive="@item.section"
+                    data-uassign="@(item.uassign != null && item.uassign.Any() ? string.Join(", ", item.uassign) : "")"
+                    data-useraccept="@item.useraccept"
+                    data-timecreate="@item.timecreate"
+                    data-timeaccept="@item.timeaccept">
+            
+                    <td class="ps-4 fw-bold text-navy">#@item.id</td>
+                    <td>
+                        @if (DateTime.TryParse(item.timecreate, out DateTime dt)) {
+                            <div class="fw-bold small">@dt.ToString("dd/MM/yyyy")</div>
+                            <div class="text-muted" style="font-size: 0.7rem;">@dt.ToString("HH:mm") น.</div>
+                        }
+                    </td>
+                    <td><span class="badge bg-white text-dark border">@item.sectioncreate</span></td>
+                    <td class="text-center">@item.jobtype</td>
+                    <td>
+                        <div class="fw-bold text-primary small">@item.fl (@item.fldetail)</div>
+                        <div class="text-muted small text-truncate" style="max-width: 300px;">@item.detail</div>
+                    </td>
+                    <td class="text-center">
+                        <span class="badge rounded-pill @item.StatusCssClass px-3 py-2 small">@item.status</span>
+                    </td>
+                    <td class="pe-4 small">@item.usercreate</td>
+                </tr>
+            }
+        </tbody>
             </table>
         </div>
     </div>
 </div>
 
 <div class="modal fade" id="jobDetailModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow" style="border-radius: 15px;">
-            <div class="modal-header bg-navy text-white">
-                <h5 class="modal-title fw-bold">รายละเอียดงาน #<span id="mId"></span></h5>
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-navy text-white py-3">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-file-earmark-text me-2"></i>รายละเอียดงาน #<span id="mId"></span>
+                </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
+            
             <div class="modal-body p-4">
-                <div class="mb-3">
-                    <label class="small text-muted">สถานะ:</label>
-                    <span id="mStatus" class="badge rounded-pill ms-2"></span>
+                <div class="row mb-4 align-items-center">
+                    <div class="col-md-8">
+                        <h4 id="mMachine" class="text-primary fw-bold mb-1">กำลังโหลด...</h4>
+                        <div class="text-muted small">
+                            <i class="bi bi-geo-alt me-1"></i>จากหน่วยงาน: <span id="mSection" class="fw-bold text-dark"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                        <div class="info-label">สถานะปัจจุบัน</div>
+                        <span id="mStatus" class="badge rounded-pill px-3 py-2"></span>
+                    </div>
                 </div>
-                <h6><strong>เครื่องจักร:</strong> <span id="mMachine" class="text-primary"></span></h6>
-                <p><strong>ประเภท:</strong> <span id="mType"></span></p>
-                <div class="bg-light p-3 rounded mb-3">
-                    <strong>อาการเสีย:</strong><br><span id="mDetail"></span>
+
+                <hr class="opacity-10">
+
+                <div class="modal-section-title">ส่วนที่ 1 ข้อมูลการแจ้งงาน</div>
+                <div class="row g-4 px-2">
+                    <div class="col-md-4">
+                        <div class="info-label">ประเภทงาน</div>
+                        <div id="mType" class="info-value text-navy">-</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="info-label">ผู้แจ้งงาน</div>
+                        <div id="mUser" class="info-value">-</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="info-label">เวลาที่แจ้ง</div>
+                        <div id="mTimeCreate" class="info-value text-muted small">-</div>
+                    </div>
+                    <div class="col-12">
+                        <div class="info-label">อาการเสีย / รายละเอียด</div>
+                        <div id="mDetail" class="detail-box mt-1"></div>
+                    </div>
                 </div>
-                <div class="row small">
-                    <div class="col-6"><strong>ผู้แจ้ง:</strong> <span id="mUser"></span></div>
-                    <div class="col-6 text-end"><strong>หน่วยงาน:</strong> <span id="mSection"></span></div>
+
+                <div class="modal-section-title mt-4">ส่วนที่ 2 การมอบหมายและปฏิบัติงาน</div>
+                <div class="row g-4 px-2">
+                    <div class="col-md-6">
+                        <div class="info-label"><i class="bi bi-house-gear me-1"></i>หน่วยงานที่รับผิดชอบ</div>
+                        <div id="mSection" class="info-value text-primary">-</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-label"><i class="bi bi-person-check me-1"></i>ผู้มอบหมายงาน (Assign by)</div>
+                        <div id="mAssign" class="info-value">-</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-label"><i class="bi bi-tools me-1"></i>วิศวกรผู้รับงาน (Accept by)</div>
+                        <div id="mAccept" class="info-value text-muted fw-normal italic">รอดำเนินการ...</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-label"><i class="bi bi-clock me-1"></i>เวลาที่รับงาน</div>
+                        <div id="mTimeAccept" class="info-value text-muted fw-normal">-</div>
+                    </div>
+                    
+                    <div class="col-12">
+                        <div class="alert alert-info border-0 mb-0 d-flex align-items-center" style="border-radius: 10px; background-color: #f0f7ff;">
+                            <i class="bi bi-info-circle-fill fs-4 text-primary me-3"></i>
+                            <div>
+                                <div class="fw-bold text-primary small">หมายเหตุระบบ</div>
+                                <small class="text-muted">ข้อมูลเบื้องต้นสำหรับการติดตามงานเท่านั้น หากต้องการเปลี่ยนผู้รับงานหรือปิด Job โปรดทำในระบบ Zycoda หลัก</small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            </div>
+
+            <div class="modal-footer bg-light border-0 py-3">
+                <button type="button" class="btn btn-light fw-bold px-4" data-bs-dismiss="modal">ปิด</button>
+                <button type="button" class="btn btn-navy px-4 shadow-sm" onclick="printReport('JTR')">
+                    <i class="bi bi-printer me-2"></i>พิมพ์ใบแจ้งซ่อม
+                </button>
             </div>
         </div>
     </div>
 </div>
 
+<!-- ตัวเลือกสำหรับรายงานแต่ละประเภท -->
 <div class="modal fade" id="printSelectModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow" style="border-radius: 15px;">
@@ -266,7 +387,7 @@
                     <button type="button" onclick="printReport('JTR')" class="list-group-item list-group-item-action d-flex align-items-center py-3">
                         <i class="bi bi-file-earmark-text text-primary fs-4 me-3"></i>
                         <div>
-                            <div class="fw-bold">1. รายงานติดตามความคืบหน้า (สำหรับผู้แจ้งงานตรวจสอบ)</div>
+                            <div class="fw-bold">1. รายงานติดตามความคืบหน้า (สำหรับผู้รับงานตรวจสอบ)</div>
                             <small class="text-muted">ตรวจสอบสถานะ Job รายตัวแบบละเอียด</small>
                         </div>
                     </button>
@@ -363,14 +484,65 @@
         flatpickr("#endDatePicker", { dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y" });
 
         // 4. Modal Pop-up
-        $('.job-row').on('click', function() {
-            $('#mId').text($(this).data('id'));
-            $('#mStatus').text($(this).data('status')).removeClass().addClass('badge rounded-pill ' + $(this).data('css'));
-            $('#mMachine').text($(this).data('machine'));
-            $('#mType').text($(this).data('type'));
-            $('#mDetail').text($(this).data('detail'));
-            $('#mUser').text($(this).data('user'));
-            $('#mSection').text($(this).data('section'));
+       $('.job-row').on('click', function() {
+            // ฟังก์ชันช่วย Format วันที่ภายใน Event
+            const formatDT = (dateStr) => {
+                if (!dateStr || dateStr === '-' || dateStr === '0001-01-01T00:00:00') return '-';
+                try {
+                    const d = new Date(dateStr);
+                    if (isNaN(d.getTime())) return dateStr;
+            
+                    // ใช้ Intl จัดการ format ให้สวยงามและง่าย
+                    return new Intl.DateTimeFormat('en-GB', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                    }).format(d).replace(/\//g, '-').replace(',', '');
+                } catch (e) {
+                    return dateStr;
+                }
+            };
+
+            // ดึงค่าจาก data attributes
+            const id = $(this).data('id');
+    
+            // 1. ข้อมูลพื้นฐาน
+            $('#mId').text(id);
+            $('#mMachine').text($(this).data('machine') || '-');
+            $('#mSection').text($(this).data('section') || '-');
+    
+            // ปรับสถานะและสี Badge
+            const status = $(this).data('status');
+            const cssClass = $(this).data('css') || 'bg-secondary';
+            $('#mStatus').text(status).removeClass().addClass('badge rounded-pill ' + cssClass);
+    
+            $('#mType').text($(this).data('type') || '-');
+            $('#mUser').text($(this).data('user') || '-');
+            $('#mDetail').text($(this).data('detail') || '-');
+
+            // 2. ข้อมูลส่วนที่ 2
+            $('#mSectionReceive').text($(this).data('secreceive') || '-'); 
+
+            // ผู้มอบหมายงาน (uassign)
+            const assignData = $(this).data('uassign');
+            // ถ้า API ส่งมาเป็น Array [] Newtonsoft จะ serialize เป็น string "[...]" หรือถ้ามาเป็น List จริงๆ ใน JS จะเห็นเป็น Array
+            if (Array.isArray(assignData)) {
+                $('#mAssign').text(assignData.length > 0 ? assignData.join(', ') : 'ยังไม่มอบหมาย');
+            } else {
+                $('#mAssign').text(assignData && assignData !== "" ? assignData : 'ยังไม่มอบหมาย');
+            }
+
+            // วิศวกรผู้รับงาน (useraccept) 
+            const acceptUser = $(this).data('useraccept');
+            $('#mAccept').text(acceptUser && acceptUser.trim() !== "" ? acceptUser : 'ยังไม่มีผู้รับงาน');
+
+            // --- ส่วนวันที่ Format ใหม่ DD-MM-YYYY HH:mm ---
+            $('#mTimeCreate').text(formatDT($(this).data('timecreate')));
+            $('#mTimeAccept').text(formatDT($(this).data('timeaccept')));
+
             $('#jobDetailModal').modal('show');
         });
 
@@ -457,5 +629,42 @@
     
     // ตั้งให้ทำงานทุกๆ 1 วินาที (1000ms)
     setInterval(updateClock, 1000);
+
+     // ใช้ Newtonsoft.Json แทน เพื่อความชัวร์ในหน้า View
+    const sectionLookup = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(sectionDict));
+    
+    console.log("Check SectionLookup:", sectionLookup); // ลองเปิด F12 ดูใน Console ว่าข้อมูลมาไหม
+
+    function getSectionName(code) {
+        if (!code || code === '-') return '-';
+        
+        // แปลงเป็น String และตัดช่องว่าง เผื่อข้อมูลใน data-attribute มี space
+        const cleanCode = String(code).trim();
+        
+        // คืนค่าจาก Lookup ถ้าไม่เจอให้โชว์เลข Code เดิม
+        return sectionLookup[cleanCode] || code;
+    }
+
+    $('.job-row').on('click', function() {
+        const id = $(this).data('id');
+        const status = $(this).data('status');
+        const cssClass = $(this).data('css');
+
+        $('#mId').text('#' + id);
+        $('#mStatus').text(status).removeClass().addClass('badge rounded-pill ' + cssClass);
+        $('#mMachine').text($(this).data('machine'));
+        $('#mType').text($(this).data('type'));
+        $('#mDetail').text($(this).data('detail'));
+        $('#mUser').text($(this).data('user'));
+
+       // ดึงค่ามาพักไว้ก่อน
+        const sectionCode = $(this).data('section'); 
+        
+        // นำไปใส่ใน Modal (เรียกใช้ฟังก์ชัน getSectionName)
+        $('#mSection').text(getSectionName(sectionCode));
+
+        // ... code ส่วนอื่นๆ ...
+        $('#jobDetailModal').modal('show');
+    });
 
 </script>

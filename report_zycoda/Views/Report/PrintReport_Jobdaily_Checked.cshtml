@@ -19,7 +19,7 @@
         }
 
         @@page {
-            size: A4 landscape;
+            font-size: A4 landscape;
             margin: 1.5cm;
         }
 
@@ -159,18 +159,12 @@
                     หน่วยงาน: <b>@ViewBag.DepartmentName</b> (สำหรับผู้แจ้งงานตรวจสอบ)
                 </div>
             </td>
-            <td style="width:25%;" class="text-right subtitle">
-                @* ดึงชื่อผู้พิมพ์จาก Session (เปลี่ยนชื่อ Key ตามที่ Fai ตั้งไว้ใน Controller นะครับ) *@
-                @{
-                    var printerName = Context.Session.GetString("UserName") ?? "System User";
-                    var printerRole = Context.Session.GetString("UserRole") ?? "";
-                }
-    
-                <div class="print-only-info" style="display: none;">
-                    ผู้พิมพ์: @ViewBag.ApiUser
-                </div>                
-                <div>พิมพ์เมื่อ: <span id="live-print-time">@DateTime.Now.ToString("dd/MM/yy HH:mm:ss")</span></div>
-                <div>หน้า: 1 / 1</div>
+            <td style="width:25%;" class="text-right subtitle">   
+               <td style="width:25%;" class="text-right subtitle">
+                    <div>ผู้จัดทำ: @ViewBag.ApiUser </div>
+                    <div>พิมพ์เมื่อ: <span id="live-print-time">@DateTime.Now.ToString("dd/MM/yy HH:mm:ss")</span></div>
+                    <div>หน้า: 1 / 1</div>
+               </td>
             </td>
         </tr>
     </table>

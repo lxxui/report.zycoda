@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using report_zycoda.Models;
 using System.Security.Claims;
 using System.Text.Json;
@@ -29,6 +30,34 @@ public class HomeController : Controller
         }
         return View();
     }
+
+    [HttpGet]
+    public async Task<IActionResult> GetFirstName(string username)
+    {
+        try
+        {
+            string userPath = Path.Combine(_env.WebRootPath, "data", "user.json");
+            if (System.IO.File.Exists(userPath))
+            {
+                var userJson = await System.IO.File.ReadAllTextAsync(userPath, System.Text.Encoding.UTF8);
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var userList = JsonSerializer.Deserialize<List<UserApiModels>>(userJson, options);
+
+                // ค้นหา User ตามรหัสพนักงาน
+                var user = userList?.FirstOrDefault(u => u.username?.Trim() == username?.Trim());
+
+                if (user != null)
+                {
+                    // ส่งชื่อจริงกลับไปให้ JavaScript
+                    return Json(new { firstName = user.firstname });
+                }
+            }
+        }
+        catch { /* ignored */ }
+
+        return Json(new { firstName = "" });
+    }
+
 
     [HttpPost]
     public async Task<IActionResult> Login(string username, string password)
@@ -73,10 +102,11 @@ public class HomeController : Controller
                     new Claim("FullName", $"{user.firstname} {user.lastname}"),
                     new Claim("Section", displaySectionName),
                     new Claim("ApiPassword", user.password ?? ""),
-                    
                     // 🚩 ยัดค่าเข้า Claims (ต้องใช้ .ToString() และเช็ค null)
                     new Claim("Class", user.@class.ToString()),
                     new Claim("SectionOption", user.sectionoption ?? ""),
+                    new Claim("UserSectionCode", user.section ?? ""),
+                    new Claim("Section", displaySectionName),
                     new Claim("UserSectionCode", user.section ?? "")
                 };
 
@@ -103,6 +133,13 @@ public class HomeController : Controller
                     // 🚩 เพิ่ม 2 บรรทัดนี้ เพื่อให้ PrintReport ดึงไปใช้ต่อได้
                     HttpContext.Session.SetString("ApiUser", user.username ?? "");
                     HttpContext.Session.SetString("ApiPass", user.password ?? "");
+                    HttpContext.Session.SetString("ApiName", $"{user.firstname} {user.lastname}");
+
+                    // --- จัดการ Session ---
+                    HttpContext.Session.SetString("ApiUser", user.username ?? "");
+                    HttpContext.Session.SetString("ApiName", $"{user.firstname} {user.lastname}"); // ชื่อ-นามสกุลสำหรับ Loader
+                    HttpContext.Session.SetString("UserClass", user.@class.ToString());
+                    HttpContext.Session.SetString("UserSectionCode", user.section ?? "");
 
                     // บังคับ Commit Session ทันที
                     await HttpContext.Session.CommitAsync();
@@ -119,10 +156,18 @@ public class HomeController : Controller
         ViewBag.ErrorMessage = "รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง";
         return View();
     }
+
+   
+
     [HttpPost]
-    public IActionResult Logout()
+    public async Task<IActionResult> Logout()
     {
+        // 1. เคลียร์ Cookie การล็อกอิน
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        // 2. เคลียร์ Session ทั้งหมด
         HttpContext.Session.Clear();
+
         return RedirectToAction("Login");
     }
 }

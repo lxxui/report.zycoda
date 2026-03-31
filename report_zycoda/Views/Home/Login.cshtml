@@ -1,4 +1,7 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
     Layout = null;
 }
 
@@ -10,6 +13,39 @@
     <title>Login - Zycoda Report</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link href="~/css/home_login.css" rel="stylesheet">
+
+    <style>
+        /* จังหวะตัวไอคอนเด้ง */
+        .bouncing-container {
+            position: relative;
+            animation: bounce 0.6s cubic-bezier(0.28, 0.84, 0.42, 1) infinite alternate;
+        }
+
+        @@keyframes bounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-30px); }
+        }
+
+        /* เงาที่พื้นเด้งตามจังหวะ */
+        .shadow-pulse {
+            width: 40px;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            margin: 10px auto 0;
+            animation: shadowSize 0.6s cubic-bezier(0.28, 0.84, 0.42, 1) infinite alternate;
+        }
+
+        @@keyframes shadowSize {
+            0% { transform: scale(1); opacity: 0.4; }
+            100% { transform: scale(0.4); opacity: 0.1; }
+        }
+
+        .loading-text {
+            letter-spacing: 1px;
+        }
+    </style>
+
     </head>
 
     <body>
@@ -49,152 +85,164 @@
             </div>
         </div>
 
-        <div id="git-loader" class="git-loader" style="display: none;">
-            <div class="git-terminal">
-                <div class="git-line"><span class="git-command">$</span> zycoda report</div>
-                <div id="git-progress"></div>
-                <div class="git-status">กำลังเข้าสู่ระบบ...</div>
+        <div id="git-loader" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); z-index:9999; flex-direction:column; align-items:center; justify-content:center;">
+            <div class="bouncing-container mb-4">
+                <i class="bi bi-tools text-navy" style="font-size: 3rem;"></i>
+                <div class="shadow-pulse"></div>
+            </div>
+    
+            <div class="loading-text fw-bold text-navy mb-2">กำลังเตรียมข้อมูล...</div>
+    
+            <div class="progress" style="width: 250px; height: 6px; border-radius: 10px; background-color: #e9ecef;">
+                <div id="git-progress" class="progress-bar progress-bar-striped progress-bar-animated bg-navy" style="width: 0%; border-radius: 10px; transition: width 0.3s ease;"></div>
             </div>
         </div>
 
-        <script>
-                // --- 1. Network Background Animation ---
-                const canvas = document.getElementById('network-canvas');
-                const ctx = canvas.getContext('2d');
-                let dots = [];
-                const dotCount = 80;
-                const maxDistance = 150;
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-                function init() {
-                    canvas.width = window.innerWidth;
-                    canvas.height = window.innerHeight;
-                    dots = [];
-                    for (let i = 0; i < dotCount; i++) {
-                        dots.push({
-                            x: Math.random() * canvas.width,
-                            y: Math.random() * canvas.height,
-                            vx: (Math.random() - 0.5) * 0.5,
-                            vy: (Math.random() - 0.5) * 0.5,
-                            size: Math.random() * 2 + 1
-                        });
-                    }
+<script>
+    // --- 1. Network Background --- (Code เดิมของคุณ Fai ทำงานได้ดีครับ)
+    const canvas = document.getElementById('network-canvas');
+    const ctx = canvas.getContext('2d');
+    let dots = [];
+    const dotCount = 80;
+    const maxDistance = 150;
+
+    function init() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        dots = [];
+        for (let i = 0; i < dotCount; i++) {
+            dots.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                size: Math.random() * 2 + 1
+            });
+        }
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < dots.length; i++) {
+            let d = dots[i];
+            d.x += d.vx; d.y += d.vy;
+            if (d.x < 0 || d.x > canvas.width) d.vx *= -1;
+            if (d.y < 0 || d.y > canvas.height) d.vy *= -1;
+            ctx.beginPath();
+            ctx.arc(d.x, d.y, d.size, 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(56, 189, 248, 0.4)";
+            ctx.fill();
+            for (let j = i + 1; j < dots.length; j++) {
+                let d2 = dots[j];
+                let dist = Math.hypot(d.x - d2.x, d.y - d2.y);
+                if (dist < maxDistance) {
+                    ctx.beginPath();
+                    ctx.moveTo(d.x, d.y);
+                    ctx.lineTo(d2.x, d2.y);
+                    ctx.strokeStyle = `rgba(56, 189, 248, ${1 - dist / maxDistance - 0.5})`;
+                    ctx.lineWidth = 0.5;
+                    ctx.stroke();
                 }
+            }
+        }
+        requestAnimationFrame(draw);
+    }
+    window.addEventListener('resize', init);
+    init(); draw();
 
-                function draw() {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    for (let i = 0; i < dots.length; i++) {
-                        let d = dots[i];
-                        d.x += d.vx;
-                        d.y += d.vy;
+    // --- 2. Typing Effect ---
+    const textElement = document.getElementById("typing-effect");
+    const text = "System Maintenance & Analytics";
+    let typeIndex = 0;
+    let isDeleting = false;
 
-                        if (d.x < 0 || d.x > canvas.width) d.vx *= -1;
-                        if (d.y < 0 || d.y > canvas.height) d.vy *= -1;
+    function type() {
+        const currentText = text.substring(0, typeIndex);
+        if (textElement) textElement.innerHTML = currentText;
+        if (!isDeleting && typeIndex < text.length) {
+            typeIndex++;
+            setTimeout(type, 100);
+        } else if (isDeleting && typeIndex > 0) {
+            typeIndex--;
+            setTimeout(type, 50);
+        } else if (!isDeleting && typeIndex === text.length) {
+            isDeleting = true;
+            setTimeout(type, 2000);
+        } else {
+            isDeleting = false;
+            setTimeout(type, 500);
+        }
+    }
 
-                        ctx.beginPath();
-                        ctx.arc(d.x, d.y, d.size, 0, Math.PI * 2);
-                        ctx.fillStyle = "rgba(56, 189, 248, 0.4)";
-                        ctx.fill();
+    // --- 3. Optimized Loading Logic ---
+    window.currentFullName = ""; // ตัวแปรเก็บชื่อ Global
 
-                        for (let j = i + 1; j < dots.length; j++) {
-                            let d2 = dots[j];
-                            let dist = Math.hypot(d.x - d2.x, d.y - d2.y);
-                            if (dist < maxDistance) {
-                                ctx.beginPath();
-                                ctx.moveTo(d.x, d.y);
-                                ctx.lineTo(d2.x, d2.y);
-                                ctx.strokeStyle = `rgba(56, 189, 248, ${1 - dist / maxDistance - 0.5})`;
-                                ctx.lineWidth = 0.5;
-                                ctx.stroke();
-                            }
-                        }
-                    }
-                    requestAnimationFrame(draw);
+    // ฟังก์ชันช่วยดึงชื่อ
+    function fetchName(userCode) {
+        if (!userCode) return;
+        return $.get('@Url.Action("GetFirstName", "Home")', { username: userCode.trim() }, function(data) {
+            if (data && data.firstName) {
+                window.currentFullName = data.firstName;
+            }
+        });
+    }
+
+    // เมื่อพิมพ์รหัสเสร็จแล้วย้ายไปช่องอื่น
+    $('input[name="username"]').on('blur', function() {
+        fetchName($(this).val());
+    });
+
+    const loginForm = document.querySelector('form');
+    if (loginForm) {
+        loginForm.onsubmit = async function(e) {
+            e.preventDefault(); // หยุดการส่งฟอร์มชั่วคราวเพื่อเล่น Animation
+
+            const userCode = $('input[name="username"]').val();
+            
+            // ถ้าชื่อยังไม่มา (กรณีพิมพ์เสร็จแล้วกด Enter ทันที) ให้รอเรียก AJAX อีกรอบ
+            if (!window.currentFullName) {
+                await fetchName(userCode);
+            }
+
+            const displayName = window.currentFullName || "พนักงาน Zycoda";
+            const loader = document.getElementById('git-loader');
+            const statusText = document.querySelector('.loading-text');
+            const progressBar = document.getElementById('git-progress');
+
+            if (loader) loader.style.display = 'flex';
+
+            const statusSteps = [
+                `สวัสดีค่ะคุณ ${displayName}...`,
+                "กำลังจัดเตรียมพื้นที่ทำงานให้คุณ...",
+                "เชื่อมต่อฐานข้อมูล Zycoda...",
+                "ตรวจสอบสิทธิ์การเข้าถึง...",
+                "เรียบร้อยแล้ว! กำลังนำคุณเข้าสู่ระบบ..."
+            ];
+
+            let progressValue = 0;
+            const loadingInterval = setInterval(() => {
+                progressValue += Math.floor(Math.random() * 15) + 5;
+                if (progressValue > 100) progressValue = 100;
+
+                if (progressBar) progressBar.style.width = progressValue + "%";
+
+                let stepIndex = Math.min(Math.floor(progressValue / 21), statusSteps.length - 1);
+                if (statusText) statusText.innerText = statusSteps[stepIndex];
+
+                if (progressValue >= 100) {
+                    clearInterval(loadingInterval);
+                    // เมื่อโหลดครบ 100% ให้ส่งฟอร์มจริงๆ ไปยัง Controller
+                    loginForm.submit();
                 }
+            }, 300);
+        };
+    }
 
-                window.addEventListener('resize', init);
-                init();
-                draw();
-
-                // --- 2. Typing Effect (Brand Logo) ---
-                const textElement = document.getElementById("typing-effect");
-                const text = "System Maintenance & Analytics";
-                let typeIndex = 0;
-                let isDeleting = false;
-                let typeSpeed = 100;
-
-                function type() {
-                    const currentText = text.substring(0, typeIndex);
-                    if (textElement) textElement.innerHTML = currentText;
-
-                    if (!isDeleting && typeIndex < text.length) {
-                        typeIndex++;
-                        typeSpeed = 100;
-                    } else if (isDeleting && typeIndex > 0) {
-                        typeIndex--;
-                        typeSpeed = 50;
-                    } else if (!isDeleting && typeIndex === text.length) {
-                        isDeleting = true;
-                        typeSpeed = 2000;
-                    } else if (isDeleting && typeIndex === 0) {
-                        isDeleting = false;
-                        typeSpeed = 500;
-                    }
-                    setTimeout(type, typeSpeed);
-                }
-
-                // --- 3. Git Loading Logic (On Submit) ---
-                               // --- 3. Git Loading Logic (ฉบับสมจริงขึ้น) ---
-                const loginForm = document.querySelector('form');
-                if (loginForm) {
-                    loginForm.onsubmit = function(e) {
-                        const loader = document.getElementById('git-loader');
-                        if (loader) loader.style.display = 'flex';
-
-                        const statusText = document.querySelector('.git-status');
-                        const progress = document.getElementById('git-progress');
-        
-                        // ข้อความแบบ Dynamic Git
-                          const messages = [
-                            "remote: Enumerating objects: 42, done.",
-                            "remote: Counting objects: 100% (42/42), done.",
-                            "remote: Compressing objects: 100% (28/28), done.",
-                            "Receiving objects: 100% (42/42), 8.42 KiB | 2.81 MiB/s, done.",
-                            "Resolving deltas: 100% (14/14), done.",
-                            "Verifying credentials...",
-                            "Opening Zycoda session..."
-                        ];
-
-                        let msgIndex = 0;
-                        const msgInterval = setInterval(() => {
-                            if (msgIndex < messages.length) {
-                                // สร้างลูกเล่นเลขวิ่งสุ่มๆ ระหว่างทาง
-                                if (msgIndex === 3) {
-                                    let percent = 11;
-                                    const fastInterval = setInterval(() => {
-                                        percent += Math.floor(Math.random() * 15) + 5;
-                                        if (percent >= 100) {
-                                            statusText.innerText = messages[4];
-                                            clearInterval(fastInterval);
-                                            msgIndex = 5; // ข้ามไปข้อความที่ 5 เลย
-                                        } else {
-                                            statusText.innerText = `Receiving objects: ${percent}% (${Math.floor(percent/2.4)}/42) ...`;
-                                        }
-                                    }, 50); // วิ่งเร็วๆ 50ms
-                                } else {
-                                    statusText.innerText = messages[msgIndex];
-                                    msgIndex++;
-                                }
-                            } else {
-                                clearInterval(msgInterval);
-                            }
-                        }, 600);
-                    };
-                }
-
-                // Start everything on Load
-                document.addEventListener("DOMContentLoaded", type);
-        </script>
-
+    document.addEventListener("DOMContentLoaded", type);
+</script>
 
     </body>
 

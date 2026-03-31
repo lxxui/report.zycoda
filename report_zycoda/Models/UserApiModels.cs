@@ -38,5 +38,9 @@ namespace report_zycoda.Models
         public string? userAD { get; set; }
         public object? subUsers { get; set; } // ใช้ object เพราะเป็น List หรือ null
         public string? expire_active { get; set; }
+
+        internal class SectionApiModels
+        {
+        }
     }
 }

@@ -47,6 +47,14 @@ namespace report_zycoda.Models
 
         public string? timefinish { get; set; }
 
+        public List<string>? uassign { get; set; }
+
+
+        public string? timeaccept { get; set; }
+
+
+
+
 
         // --- ส่วนที่ 5: Logic สีสถานะ (ปรับให้เช็ค statustext เป็นหลัก) ---
         public string StatusCssClass
@@ -83,6 +91,7 @@ namespace report_zycoda.Models
             }
         }
 
+        public string? SectionName { get; internal set; }
     }
 
 
@@ -109,4 +118,16 @@ namespace report_zycoda.Models
         public object? start { get; set; }
         public object? end { get; set; }
     }
+
+    public class ReportSummary
+    {
+        public string? SectionName { get; set; }
+        public int CarriedOver { get; set; }
+        public int OpenedToday { get; set; }
+        public int Finished { get; set; }
+        public int RejectedToday { get; set; }
+        public int Pending { get; set; }
+        public int WaitPart { get; set; }
+    }
+
 }

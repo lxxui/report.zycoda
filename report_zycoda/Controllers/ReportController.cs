@@ -1,23 +1,36 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using report_zycoda.Models;
+using System.Text.Json;
+using Newtonsoft.Json;
 
 public class ReportController : Controller
 {
     public async Task<IActionResult> PrintReport(string start, string end, string status, string sectionFrom, string sectionTo, string rptType)
     {
-        // 1. ดึงข้อมูล Auth จาก Session (เหมือนเดิม)
+        // 1. ตรวจสอบ Session
         var sessionUser = HttpContext.Session.GetString("ApiUser");
         var sessionPass = HttpContext.Session.GetString("ApiPass");
+        var sessionName = HttpContext.Session.GetString("ApiName");
 
-        if (string.IsNullOrEmpty(sessionUser)) return Content("Session Expired. Please login again.");
+        if (string.IsNullOrEmpty(sessionUser))
+            return Content("Session Expired. Please login again.");
 
-        // 2. เตรียม Query Params (เหมือนเดิม)
+        // 2. โหลด Master Section
+        var jsonsection = System.IO.File.ReadAllText("wwwroot/data/section.json");
+        var sectionList = System.Text.Json.JsonSerializer.Deserialize<List<SectionApiModels>>(jsonsection)
+                          ?? new List<SectionApiModels>();
+
+        var sectionDict = sectionList
+            .Where(s => !string.IsNullOrEmpty(s.section))
+            .ToDictionary(s => s.section.Trim(), s => s.name ?? s.section);
+
+        // 3. เตรียม API
         var queryParams = new List<string> { "plant=FARMHOUSE", "jobtype=EM,CM" };
         if (!string.IsNullOrEmpty(start)) queryParams.Add($"start={start}");
         if (!string.IsNullOrEmpty(end)) queryParams.Add($"end={end}");
 
         var apiUrl = $"https://api.zycoda.com/apimpros/get_job_order?{string.Join("&", queryParams)}";
-        List<MaintenanceApiModels> data = new List<MaintenanceApiModels>();
+        List<MaintenanceApiModels> rawData = new();
 
         using (HttpClient client = new HttpClient())
         {
@@ -30,72 +43,126 @@ public class ReportController : Controller
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
-                    var allData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<MaintenanceApiModels>>(json) ?? new List<MaintenanceApiModels>();
+                    var allData = JsonConvert.DeserializeObject<List<MaintenanceApiModels>>(json)
+                                  ?? new List<MaintenanceApiModels>();
 
-                    // --- 🚩 กรอง Status ---
+                    // Filter status
                     if (!string.IsNullOrEmpty(status) && status.ToUpper() != "ALL" && status != "ทั้งหมด")
                     {
-                        allData = allData.Where(x => x.status?.Trim().Equals(status.Trim(), StringComparison.OrdinalIgnoreCase) == true).ToList();
+                        allData = allData.Where(x =>
+                            x.status?.Trim().Equals(status.Trim(), StringComparison.OrdinalIgnoreCase) == true
+                        ).ToList();
                     }
 
-                    // --- 🚩 กรอง Section ---
-                    if (!string.IsNullOrEmpty(sectionFrom) && sectionFrom != "ทั้งหมด" && !string.IsNullOrEmpty(sectionTo) && sectionTo != "ทั้งหมด")
+                    // Filter section range
+                    if (!string.IsNullOrEmpty(sectionFrom) && sectionFrom != "ทั้งหมด" &&
+                        !string.IsNullOrEmpty(sectionTo) && sectionTo != "ทั้งหมด")
                     {
-                        data = allData.Where(x => !string.IsNullOrEmpty(x.sectioncreate) &&
+                        rawData = allData.Where(x =>
+                            !string.IsNullOrEmpty(x.sectioncreate) &&
                             string.Compare(x.sectioncreate.Trim(), sectionFrom.Trim()) >= 0 &&
-                            string.Compare(x.sectioncreate.Trim(), sectionTo.Trim()) <= 0).ToList();
+                            string.Compare(x.sectioncreate.Trim(), sectionTo.Trim()) <= 0
+                        ).ToList();
                     }
-                    else { data = allData; }
+                    else
+                    {
+                        rawData = allData;
+                    }
                 }
             }
-            catch (Exception ex) { ViewBag.ErrorMessage = "API Error: " + ex.Message; }
+            catch (Exception ex)
+            {
+                ViewBag.ErrorMessage = "API Error: " + ex.Message;
+            }
         }
 
-        // 3. ส่งค่าไปแสดงที่หัวรายงาน (ViewBag)
+        // 4. Summary
+        var today = DateTime.Now.Date;
+
+        var summaryData = rawData
+            .GroupBy(x => x.sectioncreate?.Trim() ?? "ไม่ระบุแผนก")
+            .Select(g => new
+            {
+                SectionName = sectionDict.TryGetValue(g.Key, out var name) ? name : g.Key,
+
+                CarriedOver = g.Count(x =>
+                    (x.status == "Accept" || x.status == "Assigned") &&
+                    DateTime.TryParse(x.timecreate, out DateTime dt) && dt.Date < today),
+
+                OpenedToday = g.Count(x =>
+                    x.status == "Accept" &&
+                    DateTime.TryParse(x.timecreate, out DateTime dt) && dt.Date == today),
+
+                Finished = g.Count(x => x.status == "Finish" || x.status == "Confirm"),
+
+                RejectedToday = g.Count(x =>
+                    x.status == "Reject" &&
+                    DateTime.TryParse(x.timecreate, out DateTime dt) && dt.Date == today),
+
+                Pending = g.Count(x => x.status == "Accept"),
+
+                WaitPart = g.Count(x => x.status != null && x.status.Contains("Spare"))
+            })
+            .OrderBy(x => x.SectionName)
+            .ToList();
+
+        // 5. ViewBag
         ViewBag.SectionFrom = string.IsNullOrEmpty(sectionFrom) ? "ทั้งหมด" : sectionFrom;
         ViewBag.SectionTo = string.IsNullOrEmpty(sectionTo) ? "ทั้งหมด" : sectionTo;
         ViewBag.StartDate = start;
         ViewBag.EndDate = end;
         ViewBag.Status = string.IsNullOrEmpty(status) ? "ทั้งหมด" : status;
-        ViewBag.ReportType = rptType;
-
-        // กำหนดค่ากลางก่อน
+        ViewBag.ApiUser = sessionName ?? sessionUser;
         ViewBag.PrintDate = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
         ViewBag.RefNo = "RE-ZY-" + DateTime.Now.ToString("yyyyMMdd-HHmm");
 
-        // แยกรายละเอียดตามประเภท (rptType)
+        // 6. Title & CodeForm (เหมือนเดิม)
         switch (rptType?.ToUpper())
         {
+            case "JTR":
+                ViewBag.Title = "รายงานติดตามความคืบหน้า (สำหรับผู้รับงานตรวจสอบ)";
+                ViewBag.CodeForm = "FM-ENG-001";
+                break;
+            case "JTR_INTERNAL":
+                ViewBag.Title = "รายงานติดตามความคืบหน้า (สำหรับผู้แจ้งงานตรวจสอบ)";
+                ViewBag.CodeForm = "FM-ENG-002";
+                break;
             case "HOTLINE":
                 ViewBag.Title = "รายงานตรวจสอบงานแจ้งซ่อม (Hot Line)";
-                ViewBag.CodeForm = "FM-ENG-014"; // เลขฟอร์มของ Hotline
+                ViewBag.CodeForm = "FM-ENG-003";
                 break;
-
             case "PM":
                 ViewBag.Title = "รายงานแผนการบำรุงรักษาเชิงป้องกัน (PM)";
-                ViewBag.CodeForm = "FM-ENG-015"; // เลขฟอร์มของ PM
+                ViewBag.CodeForm = "FM-ENG-004";
                 break;
-
             case "MONTHLY":
                 ViewBag.Title = "รายงานสรุปงานซ่อมบำรุงประจำเดือน";
-                ViewBag.CodeForm = "FM-ENG-020"; // เลขฟอร์มของ Monthly
+                ViewBag.CodeForm = "FM-ENG-005";
                 break;
-
             default:
                 ViewBag.Title = "รายงานตรวจสอบของผู้รับแจ้งงาน";
                 ViewBag.CodeForm = "FM-ENG-XXX";
                 break;
         }
 
-        // --- 🚩 จบส่วนแยกหัวข้อ ---
-
-        // จากนั้นค่อยส่งไปที่ View ตามเดิม
-        return View(rptType switch
+        // 7. Return View - ระบุ View Name และส่ง summaryData ที่เป็น List<MaintenanceApiModels>
+        string viewPath = rptType switch
         {
+            "JTR" => "PrintReport_Receiver_Checked",
+            "JTR_INTERNAL" => "PrintReport_Jobdaily_Checked",
             "HOTLINE" => "PrintHotlineReport",
             "PM" => "PrintPMReport",
             "MONTHLY" => "PrintMonthlyReport",
             _ => "PrintReport_Receiver_Checked"
-        }, data);
+        };
+
+        if (rptType == "JTR" || rptType == "JTR_INTERNAL")
+        {
+            return View(viewPath, rawData); // 👈 ใช้ list จริง
+        }
+        else
+        {
+            return View(viewPath, summaryData); // 👈 ใช้ group
+        }
     }
 }

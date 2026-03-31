@@ -1,549 +1,555 @@
 ﻿[
-    {
-        "section": "140200",
-        "plant": "FARMHOUSE",
-        "name": "แผนกพัฒนาระบบ (SD MIS)",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "310012",
-        "plant": "FARMHOUSE",
-        "name": "คลังวัตถุดิบ (Stock 2) ฝ่ายผลิต ลาดกระบัง1",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "310013",
-        "plant": "FARMHOUSE",
-        "name": "คลังวัตถุดิบ (Stock 3) ฝ่ายผลิต ลาดกระบัง1",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "310014",
-        "plant": "FARMHOUSE",
-        "name": "แผนก Stock ส่วนวางแผนและควบคุม ฝ่ายผลิต ลาดกระบัง2",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-
-    {
-        "section": "310089",
-        "plant": "FARMHOUSE",
-        "name": "เทคนิคบริการ ส่วนบำรุงรักษาอาคาร บางชัน",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "310098",
-        "plant": "FARMHOUSE",
-        "name": "แผนกความปลอดภัยฯ ฝ่ายบำรุงรักษาอาคารฯ",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "310099",
-        "plant": "FARMHOUSE",
-        "name": "เทคนิคบริการ ส่วนบำรุงรักษาอาคาร ลาดกระบัง",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "311010",
-        "plant": "FARMHOUSE",
-        "name": "แผนกผลิต 5 ส่วนการผลิต 3 ฝ่ายผลิต ลาดกระบัง1",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "311020",
-        "plant": "FARMHOUSE",
-        "name": "แผนกผลิต 6 ส่วนการผลิต 3 ฝ่ายผลิต ลาดกระบัง1",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "311090",
-        "plant": "FARMHOUSE",
-        "name": "ควบคุมคุณภาพ (QC 1) ฝ่ายผลิต ลาดกระบัง1",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "312010",
-        "plant": "FARMHOUSE",
-        "name": "แผนกผลิต 1 ส่วนการผลิต 2 ฝ่ายผลิต ลาดกระบัง1",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "312020",
-        "plant": "FARMHOUSE",
-        "name": "แผนกผลิต 2 ส่วนการผลิต 2 ฝ่ายผลิต ลาดกระบัง1",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "312030",
-        "plant": "FARMHOUSE",
-        "name": "แผนกผลิต 3 ส่วนการผลิต 2 ฝ่ายผลิต ลาดกระบัง1",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "312090",
-        "plant": "FARMHOUSE",
-        "name": "ควบคุมคุณภาพ (QC 2) ฝ่ายผลิต ลาดกระบัง1",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "313010",
-        "plant": "FARMHOUSE",
-        "name": "แผนกผลิต 1 ส่วนการผลิต 3 ฝ่ายผลิต ลาดกระบัง1",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "313020",
-        "plant": "FARMHOUSE",
-        "name": "แผนกผลิต 2 ส่วนการผลิต 3 ฝ่ายผลิต ลาดกระบัง1",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "313030",
-        "plant": "FARMHOUSE",
-        "name": "แผนกผลิต 3 ส่วนการผลิต 3 ฝ่ายผลิต ลาดกระบัง1",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "313040",
-        "plant": "FARMHOUSE",
-        "name": "แผนกผลิต 4 ส่วนการผลิต 3 ฝ่ายผลิต ลาดกระบัง1",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "313090",
-        "plant": "FARMHOUSE",
-        "name": "ควบคุมคุณภาพ (QC 3) ฝ่ายผลิต ลาดกระบัง1",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "314010",
-        "plant": "FARMHOUSE",
-        "name": "แผนกผลิต 1 ส่วนการผลิต B ฝ่ายผลิต ลาดกระบัง2",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "314020",
-        "plant": "FARMHOUSE",
-        "name": "แผนกผลิต 2 ส่วนการผลิต A ฝ่ายผลิต ลาดกระบัง2",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "314030",
-        "plant": "FARMHOUSE",
-        "name": "แผนกผลิต 3 ส่วนการผลิต A ฝ่ายผลิต ลาดกระบัง2",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "314040",
-        "plant": "FARMHOUSE",
-        "name": "แผนกผลิต 4 ส่วนการผลิต A ฝ่ายผลิต ลาดกระบัง2",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "314041",
-        "plant": "FARMHOUSE",
-        "name": "แผนกผลิต 5 ส่วนการผลิต B ฝ่ายผลิต ลาดกระบัง2",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "314042",
-        "plant": "FARMHOUSE",
-        "name": "แผนกผลิต 6 ส่วนการผลิต A ฝ่ายผลิต ลาดกระบัง2",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "314090",
-        "plant": "FARMHOUSE",
-        "name": "Qc Line ส่วนวางแผนและควบคุม ฝ่ายผลิต ลาดกระบัง2",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "317020",
-        "plant": "FARMHOUSE",
-        "name": "แผนกปรับอากาศ ลาดกระบัง ฝ่ายวิศวกรรม",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "317030",
-        "plant": "FARMHOUSE",
-        "name": "แผนกวิศวกรรมเครื่องกล ลาดกระบัง ฝ่ายวิศวกรรม",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "317040",
-        "plant": "FARMHOUSE",
-        "name": "แผนกไฟฟ้า ลาดกระบัง ฝ่ายวิศวกรรม",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "317050",
-        "plant": "FARMHOUSE",
-        "name": "แผนกทำควมเย็นลาดกระบัง ฝ่ายวิศวกรรม",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "317110",
-        "plant": "FARMHOUSE",
-        "name": "แผนกเทคนิคการผลิต1 ลาดกระบัง1 ฝ่ายวิศวกรรม",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "317120",
-        "plant": "FARMHOUSE",
-        "name": "แผนกเทคนิคการผลิต2 ลาดกระบัง1 ฝ่ายวิศวกรรม",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "317130",
-        "plant": "FARMHOUSE",
-        "name": "แผนกเทคนิคการผลิต3 ลาดกระบัง1 ฝ่ายวิศวกรรม",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "317140",
-        "plant": "FARMHOUSE",
-        "name": "แผนกเทคนิคการผลิต4 ลาดกระบัง2 ฝ่ายวิศวกรรม",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "317150",
-        "plant": "FARMHOUSE",
-        "name": "แผนกเทคนิค5 ฝ่ายวิศวกรรม",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "317210",
-        "plant": "FARMHOUSE",
-        "name": "แผนกซ่อมบำรุง1 ลาดกระบัง1 ฝ่ายวิศวกรรม",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "317220",
-        "plant": "FARMHOUSE",
-        "name": "แผนกซ่อมบำรุง2 ลาดกระบัง2 ฝ่ายวิศวกรรม",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "317230",
-        "plant": "FARMHOUSE",
-        "name": "แผนกซ่อมบำรุง3 ฝ่ายวิศวกรรม",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "317240",
-        "plant": "FARMHOUSE",
-        "name": "แผนกซ่อมบำรุง4 ฝ่ายวิศวกรรม",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "317310",
-        "plant": "FARMHOUSE",
-        "name": "แผนกไฟฟ้าและสื่อสาร บางชัน",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "317320",
-        "plant": "FARMHOUSE",
-        "name": "แผนกวิศวกรรมเครื่องกล บางชัน ฝ่ายวิศวกรรม",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "317330",
-        "plant": "FARMHOUSE",
-        "name": "แผนกกลางวิศวกรรม บางชัน",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "317340",
-        "plant": "FARMHOUSE",
-        "name": "แผนกซ่อมบำรุง บางชัน ฝ่ายวิศวกรรม",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "317350",
-        "plant": "FARMHOUSE",
-        "name": "แผนกเทคนิคการผลิต 1 บางชัน ฝ่ายวิศวกรรม",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "317360",
-        "plant": "FARMHOUSE",
-        "name": "แผนกเทคนิคการผลิต 2 บางชัน ฝ่ายวิศวกรรม",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "317371",
-        "plant": "FARMHOUSE",
-        "name": "แผนกบำรุงรักษาระบบสุขาภิบาลและเครื่องกล(บางชัน)",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "317372",
-        "plant": "FARMHOUSE",
-        "name": "แผนกปรับอากาศบางชัน",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "317374",
-        "plant": "FARMHOUSE",
-        "name": "แผนกทำความเย็นบางชัน",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "317375",
-        "plant": "FARMHOUSE",
-        "name": "แผนกบำรุงรักษาระบบสุขาภิบาลและเครื่องกล(ลาดกระบัง)",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "317380",
-        "plant": "FARMHOUSE",
-        "name": "แผนกประสานงานวิศวกรรม ลาดกระบัง",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "317381",
-        "plant": "FARMHOUSE",
-        "name": "แผนกควบคุมงานก่อสร้างและบำรุงรักษาอาคารและDC",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "318010",
-        "plant": "FARMHOUSE",
-        "name": "แผนก QC ฝ่ายวิจัยพัฒนาฯ",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "318020",
-        "plant": "FARMHOUSE",
-        "name": "แผนก RD ฝ่ายวิจัยพัฒนาฯ",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "318030",
-        "plant": "FARMHOUSE",
-        "name": "แผนกวิเคราะห์ด้านเคมี ฝ่ายวิจัยพัฒนาฯ",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "318040",
-        "plant": "FARMHOUSE",
-        "name": "แผนกวิเคราะห์ด้านจุลชีววิทยา ฝ่ายวิจัยพัฒนาฯ",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "318050",
-        "plant": "FARMHOUSE",
-        "name": "ระบบบำบัดน้ำเสีย บางชัน",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "318060",
-        "plant": "FARMHOUSE",
-        "name": "ระบบบำบัดน้ำเสียลาดกระบัง1,2",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "318070",
-        "plant": "FARMHOUSE",
-        "name": "ระบบบำบัดน้ำเสีย จัดการกากอุตสาหรรม",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "320100",
-        "plant": "FARMHOUSE",
-        "name": "ส่วนบำรุงรักษาอาคารและงานระบบ(รง.บางชัน)",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "321000",
-        "plant": "FARMHOUSE",
-        "name": "ส่วนการผลิต ฝ่ายผลิต โรงงานบางชัน",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "321010",
-        "plant": "FARMHOUSE",
-        "name": "แผนกผลิต1 ส่วนการผลิตบางชัน 1 ฝ่ายผลิต บางชัน",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "321020",
-        "plant": "FARMHOUSE",
-        "name": "แผนกผลิต2 ส่วนการผลิตบางชัน 2 ฝ่ายผลิต บางชัน",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "321030",
-        "plant": "FARMHOUSE",
-        "name": "แผนกผลิต3 ส่วนการผลิตบางชัน 1 ฝ่ายผลิต บางชัน",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "321040",
-        "plant": "FARMHOUSE",
-        "name": "แผนกผลิต4 ส่วนการผลิตบางชัน 2 ฝ่ายผลิต บางชัน",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "321050",
-        "plant": "FARMHOUSE",
-        "name": "แผนกผลิต5 ส่วนการผลิตบางชัน 2 ฝ่ายผลิต บางชัน",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "321060",
-        "plant": "FARMHOUSE",
-        "name": "แผนกผลิต6 ส่วนการผลิตบางชัน 1 ฝ่ายผลิต บางชัน",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "321070",
-        "plant": "FARMHOUSE",
-        "name": "แผนกผลิต7 ส่วนการผลิตบางชัน 2 ฝ่ายผลิต บางชัน",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "321080",
-        "plant": "FARMHOUSE",
-        "name": "แผนกผลิต8 ส่วนการผลิตบางชัน 3 ฝ่ายผลิต บางชัน",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "321090",
-        "plant": "FARMHOUSE",
-        "name": "แผนกผลิต9 ส่วนการผลิตบางชัน 3 ฝ่ายผลิต บางชัน",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "321100",
-        "plant": "FARMHOUSE",
-        "name": "แผนกผลิต10 ส่วนการผลิตบางชัน 3 ฝ่ายผลิต บางชัน",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "321110",
-        "plant": "FARMHOUSE",
-        "name": "แผนกผลิต11 ส่วนการผลิตบางชัน 3 ฝ่ายผลิต บางชัน",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "322000",
-        "plant": "FARMHOUSE",
-        "name": "ส่วนวางแผนและควบคุมคุณภาพ โรงงานบางชัน",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "322010",
-        "plant": "FARMHOUSE",
-        "name": "คลังวัตถุดิบ1 โรงงานบางชัน ส่วนวางแผนและควบคุม",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "322011",
-        "plant": "FARMHOUSE",
-        "name": "คลังวัตถุดิบ2 โรงงานบางชัน ส่วนวางแผนและควบคุม",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "322020",
-        "plant": "FARMHOUSE",
-        "name": "ประกันคุณภาพ โรงงานบางชัน ส่วนวางแผนและควบคุม",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "322030",
-        "plant": "FARMHOUSE",
-        "name": "ล้างถาดบางชัน ส่วนกลางโรงงาน ฝ่ายสนับสนุนการผลิต",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "ITRECEIVE",
-        "plant": "FARMHOUSE",
-        "name": "IT TEST (รับงาน)",
-        "permitrequest": 0,
-        "workcenter": ""
-    },
-    {
-        "section": "ITTEST",
-        "plant": "FARMHOUSE",
-        "name": "IT TEST",
-        "permitrequest": 0,
-        "workcenter": ""
-    }
+  {
+    "section": "140200",
+    "plant": "FARMHOUSE",
+    "name": "แผนกพัฒนาระบบ (SD MIS)",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "310012",
+    "plant": "FARMHOUSE",
+    "name": "คลังวัตถุดิบ (Stock 2) ฝ่ายผลิต ลาดกระบัง1",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "310013",
+    "plant": "FARMHOUSE",
+    "name": "คลังวัตถุดิบ (Stock 3) ฝ่ายผลิต ลาดกระบัง1",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "310014",
+    "plant": "FARMHOUSE",
+    "name": "แผนก Stock ส่วนวางแผนและควบคุม ฝ่ายผลิต ลาดกระบัง2",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "310015",
+    "plant": "FARMHOUSE",
+    "name": "ส่วนกลางโรงงาน แผนกกลางลาดกระบัง",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "310016",
+    "plant": "FARMHOUSE",
+    "name": "แผนกล้างถาดลาดกระบัง ส่วนกลางฝ่ายโรงงาน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "310089",
+    "plant": "FARMHOUSE",
+    "name": "เทคนิคบริการ ส่วนบำรุงรักษาอาคาร บางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "310098",
+    "plant": "FARMHOUSE",
+    "name": "แผนกความปลอดภัยฯ ฝ่ายบำรุงรักษาอาคารฯ",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "310099",
+    "plant": "FARMHOUSE",
+    "name": "เทคนิคบริการ ส่วนบำรุงรักษาอาคาร ลาดกระบัง",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "311010",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต 5 ส่วนการผลิต 3 ฝ่ายผลิต ลาดกระบัง1",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "311020",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต 6 ส่วนการผลิต 3 ฝ่ายผลิต ลาดกระบัง1",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "311090",
+    "plant": "FARMHOUSE",
+    "name": "ควบคุมคุณภาพ (QC 1) ฝ่ายผลิต ลาดกระบัง1",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "312010",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต 1 ส่วนการผลิต 2 ฝ่ายผลิต ลาดกระบัง1",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "312020",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต 2 ส่วนการผลิต 2 ฝ่ายผลิต ลาดกระบัง1",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "312030",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต 3 ส่วนการผลิต 2 ฝ่ายผลิต ลาดกระบัง1",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "312090",
+    "plant": "FARMHOUSE",
+    "name": "ควบคุมคุณภาพ (QC 2) ฝ่ายผลิต ลาดกระบัง1",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "313010",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต 1 ส่วนการผลิต 3 ฝ่ายผลิต ลาดกระบัง1",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "313020",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต 2 ส่วนการผลิต 3 ฝ่ายผลิต ลาดกระบัง1",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "313030",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต 3 ส่วนการผลิต 3 ฝ่ายผลิต ลาดกระบัง1",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "313040",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต 4 ส่วนการผลิต 3 ฝ่ายผลิต ลาดกระบัง1",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "313090",
+    "plant": "FARMHOUSE",
+    "name": "ควบคุมคุณภาพ (QC 3) ฝ่ายผลิต ลาดกระบัง1",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "314010",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต 1 ส่วนการผลิต B ฝ่ายผลิต ลาดกระบัง2",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "314020",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต 2 ส่วนการผลิต A ฝ่ายผลิต ลาดกระบัง2",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "314030",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต 3 ส่วนการผลิต A ฝ่ายผลิต ลาดกระบัง2",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "314040",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต 4 ส่วนการผลิต A ฝ่ายผลิต ลาดกระบัง2",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "314041",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต 5 ส่วนการผลิต B ฝ่ายผลิต ลาดกระบัง2",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "314042",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต 6 ส่วนการผลิต A ฝ่ายผลิต ลาดกระบัง2",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "314090",
+    "plant": "FARMHOUSE",
+    "name": "Qc Line ส่วนวางแผนและควบคุม ฝ่ายผลิต ลาดกระบัง2",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "317020",
+    "plant": "FARMHOUSE",
+    "name": "แผนกปรับอากาศ ลาดกระบัง ฝ่ายวิศวกรรม",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "317030",
+    "plant": "FARMHOUSE",
+    "name": "แผนกวิศวกรรมเครื่องกล ลาดกระบัง ฝ่ายวิศวกรรม",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "317040",
+    "plant": "FARMHOUSE",
+    "name": "แผนกไฟฟ้า ลาดกระบัง ฝ่ายวิศวกรรม",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "317050",
+    "plant": "FARMHOUSE",
+    "name": "แผนกทำควมเย็นลาดกระบัง ฝ่ายวิศวกรรม",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "317110",
+    "plant": "FARMHOUSE",
+    "name": "แผนกเทคนิคการผลิต1 ลาดกระบัง1 ฝ่ายวิศวกรรม",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "317120",
+    "plant": "FARMHOUSE",
+    "name": "แผนกเทคนิคการผลิต2 ลาดกระบัง1 ฝ่ายวิศวกรรม",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "317130",
+    "plant": "FARMHOUSE",
+    "name": "แผนกเทคนิคการผลิต3 ลาดกระบัง1 ฝ่ายวิศวกรรม",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "317140",
+    "plant": "FARMHOUSE",
+    "name": "แผนกเทคนิคการผลิต4 ลาดกระบัง2 ฝ่ายวิศวกรรม",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "317150",
+    "plant": "FARMHOUSE",
+    "name": "แผนกเทคนิค5 ฝ่ายวิศวกรรม",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "317210",
+    "plant": "FARMHOUSE",
+    "name": "แผนกซ่อมบำรุง1 ลาดกระบัง1 ฝ่ายวิศวกรรม",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "317220",
+    "plant": "FARMHOUSE",
+    "name": "แผนกซ่อมบำรุง2 ลาดกระบัง2 ฝ่ายวิศวกรรม",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "317230",
+    "plant": "FARMHOUSE",
+    "name": "แผนกซ่อมบำรุง3 ฝ่ายวิศวกรรม",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "317240",
+    "plant": "FARMHOUSE",
+    "name": "แผนกซ่อมบำรุง4 ฝ่ายวิศวกรรม",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "317310",
+    "plant": "FARMHOUSE",
+    "name": "แผนกไฟฟ้าและสื่อสาร บางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "317320",
+    "plant": "FARMHOUSE",
+    "name": "แผนกวิศวกรรมเครื่องกล บางชัน ฝ่ายวิศวกรรม",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "317330",
+    "plant": "FARMHOUSE",
+    "name": "แผนกกลางวิศวกรรม บางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "317340",
+    "plant": "FARMHOUSE",
+    "name": "แผนกซ่อมบำรุง บางชัน ฝ่ายวิศวกรรม",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "317350",
+    "plant": "FARMHOUSE",
+    "name": "แผนกเทคนิคการผลิต 1 บางชัน ฝ่ายวิศวกรรม",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "317360",
+    "plant": "FARMHOUSE",
+    "name": "แผนกเทคนิคการผลิต 2 บางชัน ฝ่ายวิศวกรรม",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "317371",
+    "plant": "FARMHOUSE",
+    "name": "แผนกบำรุงรักษาระบบสุขาภิบาลและเครื่องกล(บางชัน)",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "317372",
+    "plant": "FARMHOUSE",
+    "name": "แผนกปรับอากาศบางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "317374",
+    "plant": "FARMHOUSE",
+    "name": "แผนกทำความเย็นบางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "317375",
+    "plant": "FARMHOUSE",
+    "name": "แผนกบำรุงรักษาระบบสุขาภิบาลและเครื่องกล(ลาดกระบัง)",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "317380",
+    "plant": "FARMHOUSE",
+    "name": "แผนกประสานงานวิศวกรรม ลาดกระบัง",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "317381",
+    "plant": "FARMHOUSE",
+    "name": "แผนกควบคุมงานก่อสร้างและบำรุงรักษาอาคารและDC",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "317390",
+    "plant": "FARMHOUSE",
+    "name": "แผนกส่วนกลางวิศวกรรม ลาดกระบัง",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "318010",
+    "plant": "FARMHOUSE",
+    "name": "แผนก QC ฝ่ายวิจัยพัฒนาฯ",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "318020",
+    "plant": "FARMHOUSE",
+    "name": "แผนก RD ฝ่ายวิจัยพัฒนาฯ",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "318030",
+    "plant": "FARMHOUSE",
+    "name": "แผนกวิเคราะห์ด้านเคมี ฝ่ายวิจัยพัฒนาฯ",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "318040",
+    "plant": "FARMHOUSE",
+    "name": "แผนกวิเคราะห์ด้านจุลชีววิทยา ฝ่ายวิจัยพัฒนาฯ",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "318050",
+    "plant": "FARMHOUSE",
+    "name": "ระบบบำบัดน้ำเสีย บางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "318060",
+    "plant": "FARMHOUSE",
+    "name": "ระบบบำบัดน้ำเสียลาดกระบัง1,2",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "318070",
+    "plant": "FARMHOUSE",
+    "name": "ระบบบำบัดน้ำเสีย จัดการกากอุตสาหรรม",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "320100",
+    "plant": "FARMHOUSE",
+    "name": "ส่วนบำรุงรักษาอาคารและงานระบบ(รง.บางชัน)",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "321000",
+    "plant": "FARMHOUSE",
+    "name": "ส่วนการผลิต ฝ่ายผลิต โรงงานบางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "321010",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต1 ส่วนการผลิตบางชัน 1 ฝ่ายผลิต บางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "321020",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต2 ส่วนการผลิตบางชัน 2 ฝ่ายผลิต บางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "321030",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต3 ส่วนการผลิตบางชัน 1 ฝ่ายผลิต บางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "321040",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต4 ส่วนการผลิตบางชัน 2 ฝ่ายผลิต บางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "321050",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต5 ส่วนการผลิตบางชัน 2 ฝ่ายผลิต บางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "321060",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต6 ส่วนการผลิตบางชัน 1 ฝ่ายผลิต บางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "321070",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต7 ส่วนการผลิตบางชัน 2 ฝ่ายผลิต บางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "321080",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต8 ส่วนการผลิตบางชัน 3 ฝ่ายผลิต บางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "321090",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต9 ส่วนการผลิตบางชัน 3 ฝ่ายผลิต บางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "321100",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต10 ส่วนการผลิตบางชัน 3 ฝ่ายผลิต บางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "321110",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต11 ส่วนการผลิตบางชัน 3 ฝ่ายผลิต บางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "322000",
+    "plant": "FARMHOUSE",
+    "name": "ส่วนวางแผนและควบคุมคุณภาพ โรงงานบางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "322010",
+    "plant": "FARMHOUSE",
+    "name": "คลังวัตถุดิบ1 โรงงานบางชัน ส่วนวางแผนและควบคุม",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "322011",
+    "plant": "FARMHOUSE",
+    "name": "คลังวัตถุดิบ2 โรงงานบางชัน ส่วนวางแผนและควบคุม",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "322020",
+    "plant": "FARMHOUSE",
+    "name": "ประกันคุณภาพ โรงงานบางชัน ส่วนวางแผนและควบคุม",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "322030",
+    "plant": "FARMHOUSE",
+    "name": "แผนกล้างถาดบางชัน ส่วนกลางโรงงาน ฝ่ายสนับสนุนการผลิต",
+    "permitrequest": 0,
+    "workcenter": ""
+  }
 ]
