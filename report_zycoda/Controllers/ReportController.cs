@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using report_zycoda.Models;
 using System.Text.Json;
-using Newtonsoft.Json;
 
 public class ReportController : Controller
 {
@@ -76,37 +77,55 @@ public class ReportController : Controller
             }
         }
 
-        // 4. Summary
-        var today = DateTime.Now.Date;
+        // 4. Summary Logic (ปรับปรุงตาม Logic เก่าที่ฟายให้มา)
+        var atDate = DateTime.Now.Date; // กำหนดค่า vdate_at
 
         var summaryData = rawData
-            .GroupBy(x => x.sectioncreate?.Trim() ?? "ไม่ระบุแผนก")
-            .Select(g => new
-            {
-                SectionName = sectionDict.TryGetValue(g.Key, out var name) ? name : g.Key,
+        .GroupBy(x => x.sectioncreate?.Trim() ?? "ไม่ระบุแผนก")
+        .Select(g => new ReportSummary
+        {
+            SectionName = sectionDict.TryGetValue(g.Key, out var name) ? name : g.Key,
 
-                CarriedOver = g.Count(x =>
-                    (x.status == "Accept" || x.status == "Assigned") &&
-                    DateTime.TryParse(x.timecreate, out DateTime dt) && dt.Date < today),
+            // 1. ยกมา: แจ้งก่อนวันนี้ และ (ยังไม่ปิดงาน หรือ ปิดงานตั้งแต่วันนี้เป็นต้นไป)
+            // และมีสถานะเป็น Create หรือ Accept หรือ Assign
+            CarriedOver = g.Count(x =>
+                ParseDate(x.timecreate) < atDate &&
+                (string.IsNullOrEmpty(x.timeclose) || ParseDate(x.timeclose) >= atDate) &&
+                (x.status == "Create" || x.status == "Accept" || x.status == "Assign")
+),
 
-                OpenedToday = g.Count(x =>
-                    x.status == "Accept" &&
-                    DateTime.TryParse(x.timecreate, out DateTime dt) && dt.Date == today),
+            // 2. เปิดเพิ่ม: ใบงานที่เปิด "วันนี้" และสถานะยังเป็น Create
+            OpenedToday = g.Count(x =>
+                ParseDate(x.timecreate) == atDate &&
+                x.status == "Create"
+            ),
 
-                Finished = g.Count(x => x.status == "Finish" || x.status == "Confirm"),
+            // 3. กำลังซ่อม: งานที่ถูก Assign หรือ Accept ไปแล้ว แต่ยังซ่อมไม่เสร็จ
+            Repair = g.Count(x =>
+                (x.status == "Assign") &&
+                string.IsNullOrEmpty(x.timeclose)
+            ),
 
-                RejectedToday = g.Count(x =>
-                    x.status == "Reject" &&
-                    DateTime.TryParse(x.timecreate, out DateTime dt) && dt.Date == today),
+            // 4. เสร็จสิ้น: งานที่สถานะเป็น Finish และปิดงานวันนี้
+            Finished = g.Count(x =>
+                x.status == "Finish" &&
+                !string.IsNullOrEmpty(x.timeclose) &&
+                ParseDate(x.timeclose) == atDate
+            ),
 
-                Pending = g.Count(x => x.status == "Accept"),
+            // 5. ยกเลิก: ใบงานที่โดน Reject
+            RejectedToday = g.Count(x => x.status == "Reject"),
 
-                WaitPart = g.Count(x => x.status != null && x.status.Contains("Spare"))
-            })
-            .OrderBy(x => x.SectionName)
-            .ToList();
+            // 6. รออะไหล่: ดักจากคำว่า Spare หรือ อะไหล่
+            WaitPart = g.Count(x =>
+                (x.status != null && x.status.Contains("Spare")) ||
+                (x.statustext != null && x.statustext.Contains("อะไหล่"))
+            )
+        })
+        .OrderBy(x => x.SectionName)
+        .ToList();
 
-        // 5. ViewBag
+        // 5. ViewBag Setup
         ViewBag.SectionFrom = string.IsNullOrEmpty(sectionFrom) ? "ทั้งหมด" : sectionFrom;
         ViewBag.SectionTo = string.IsNullOrEmpty(sectionTo) ? "ทั้งหมด" : sectionTo;
         ViewBag.StartDate = start;
@@ -116,7 +135,7 @@ public class ReportController : Controller
         ViewBag.PrintDate = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
         ViewBag.RefNo = "RE-ZY-" + DateTime.Now.ToString("yyyyMMdd-HHmm");
 
-        // 6. Title & CodeForm (เหมือนเดิม)
+        // 6. Report Type Mapping
         switch (rptType?.ToUpper())
         {
             case "JTR":
@@ -145,8 +164,8 @@ public class ReportController : Controller
                 break;
         }
 
-        // 7. Return View - ระบุ View Name และส่ง summaryData ที่เป็น List<MaintenanceApiModels>
-        string viewPath = rptType switch
+        // 7. View Dispatcher
+        string viewPath = rptType?.ToUpper() switch
         {
             "JTR" => "PrintReport_Receiver_Checked",
             "JTR_INTERNAL" => "PrintReport_Jobdaily_Checked",
@@ -158,11 +177,22 @@ public class ReportController : Controller
 
         if (rptType == "JTR" || rptType == "JTR_INTERNAL")
         {
-            return View(viewPath, rawData); // 👈 ใช้ list จริง
+            return View(viewPath, rawData);
         }
         else
         {
-            return View(viewPath, summaryData); // 👈 ใช้ group
+            return View(viewPath, summaryData);
         }
+    }
+
+    // Helper Method สำหรับจัดการวันที่ใน JSON (ISO Format)
+    private DateTime? ParseDate(string dateStr)
+    {
+        if (string.IsNullOrEmpty(dateStr)) return null;
+        if (DateTime.TryParse(dateStr, out DateTime dt))
+        {
+            return dt.Date; // เอาเฉพาะวันที่มาเทียบ
+        }
+        return null;
     }
 }

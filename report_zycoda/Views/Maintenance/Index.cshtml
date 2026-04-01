@@ -27,16 +27,18 @@
 
     var machineLabels = machineGroups.Select(x => x.Name).ToList();
     var machineData = machineGroups.Select(x => x.Count).ToList();
+}
 
-    /* section */
-   // ดึงข้อมูลมาทำ Mapping
+@{
     var sectionList = (List<report_zycoda.Models.SectionApiModels>)ViewBag.Section;
     
-    // สร้าง Dictionary โดยบังคับ Key ให้เป็น string และกรองตัวที่เป็น null
+    // สร้าง Lookup Table: Key = "310012", Value = "คลังวัตถุดิบ..."
     var sectionDict = sectionList?
         .Where(x => !string.IsNullOrEmpty(x.section))
-        .ToDictionary(x => x.section!, x => x.name ?? x.section!) 
-        ?? new Dictionary<string, string>();
+        .ToDictionary(
+            x => x.section!.Trim(), 
+            x => !string.IsNullOrEmpty(x.name) ? x.name : x.section!
+        ) ?? new Dictionary<string, string>();
 }
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
@@ -97,6 +99,171 @@
         overflow: hidden;
     }
 
+    /* หัว Modal แบบโปร่งแสงและสะอาดตา */
+    .modal-header-modern {
+        border-bottom: 1px solid #edf2f7;
+        padding: 1.5rem 2rem;
+        background: #fff;
+        border-radius: 24px 24px 0 0 !important;
+    }
+
+    /* ตกแต่ง Job ID ให้ดูเหมือน Serial Number */
+    .job-id-label {
+        background: #f1f5f9;
+        color: #475569;
+        padding: 4px 12px;
+        border-radius: 8px;
+        font-family: 'Monaco', 'Consolas', monospace;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    /* Badge สถานะแบบมีมิติ */
+    .status-indicator {
+        padding: 8px 20px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .btn-close-modern {
+        background-color: #f8fafc;
+        border-radius: 50%;
+        padding: 10px;
+        opacity: 0.8;
+        transition: all 0.2s;
+    }
+    .btn-close-modern:hover {
+        background-color: #f1f5f9;
+        opacity: 1;
+    }
+
+        /* คลีนอัพ Modal ให้ดูแพงขึ้น */
+    .modal-content-modern {
+        border-radius: 24px !important;
+        border: none;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+    }
+
+    .modal-header-custom {
+        background: linear-gradient(135deg, #001f3f 0%, #003366 100%);
+        padding: 1.5rem 2rem;
+        border-bottom: none;
+    }
+
+    .job-status-pill {
+        padding: 0.5rem 1.2rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .info-card {
+        background: #ffffff;
+        border: 1px solid #edf2f7;
+        border-radius: 16px;
+        padding: 1.25rem;
+        transition: all 0.2s ease;
+    }
+
+    .info-card:hover {
+        border-color: #cbd5e0;
+        transform: translateY(-2px);
+    }
+
+    .detail-section-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #a0aec0;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .detail-section-label i { margin-right: 8px; font-size: 1rem; color: #001f3f; }
+
+    .timeline-mini {
+        border-left: 2px dashed #e2e8f0;
+        margin-left: 10px;
+        padding-left: 20px;
+        position: relative;
+    }
+
+    .timeline-dot {
+        width: 12px; height: 12px;
+        background: #001f3f;
+        border-radius: 50%;
+        position: absolute;
+        left: -7px; top: 5px;
+    }
+
+    /* ตกแต่ง Logo ZYCODA ให้ดู Modern */
+    .zycoda-logo-text {
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        font-weight: 800;
+        letter-spacing: 2px;
+        background: linear-gradient(135deg, #001f3f 0%, #004080 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 1.4rem;
+    }
+
+    .zycoda-badge {
+        background-color: #001f3f;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.65rem;
+        vertical-align: middle;
+        margin-left: 5px;
+        letter-spacing: 1px;
+    }
+
+    .modal-header-modern {
+        border-bottom: 1px solid #f1f5f9;
+        padding: 1.25rem 2rem;
+        background: #ffffff;
+    }
+
+        /* ตกแต่ง List Group ให้ดูเป็น Card */
+    .print-option-item {
+        border-radius: 12px !important;
+        border: 1px solid #f1f5f9 !important;
+        margin-bottom: 10px;
+        transition: all 0.2s ease;
+        background: #fff;
+    }
+
+    .print-option-item:hover {
+        border-color: #001f3f !important;
+        background-color: #f8fafc !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .print-icon-box {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        flex-shrink: 0;
+    }
+
+    /* สีเฉพาะกลุ่มรายงาน */
+    .bg-soft-primary { background-color: #e0e7ff; color: #4338ca; }
+    .bg-soft-warning { background-color: #fef3c7; color: #b45309; }
+    .bg-soft-info { background-color: #e0f2fe; color: #0369a1; }
+    .bg-soft-danger { background-color: #fee2e2; color: #b91c1c; }
+    .bg-soft-success { background-color: #dcfce7; color: #15803d; }
+
+
 
 </style>
 
@@ -114,39 +281,88 @@
         </div>
     </div>
 
-    <div class="row g-3 mb-4 text-center">
-        <div class="col-md">
-            <div class="card border-0 shadow-sm p-3 h-100" style="border-top: 4px solid #6c757d;">
+<div class="row g-3 mb-4 text-center">
+    <div class="col-md-3 col-lg-1-5">
+        <div class="card border-0 shadow-sm p-3 h-100 bg-light" style="border-left: 5px solid #6c757d;">
+            <div class="d-flex justify-content-between align-items-center">
                 <small class="text-muted fw-bold text-uppercase">งานทั้งหมด</small>
-                <h2 class="fw-bold mb-0 mt-2">@reports.Count</h2>
+                <i class="bi bi-list-task text-muted fs-5"></i>
             </div>
-        </div>
-        <div class="col-md">
-            <div class="card border-0 shadow-sm p-3 h-100" style="border-top: 4px solid #dc3545;">
-                <small class="text-danger fw-bold text-uppercase">Pending / Create</small>
-                <h2 class="fw-bold mb-0 mt-2">@reports.Count(x => x.status == "Pending" || x.status == "Create")</h2>
-            </div>
-        </div>
-        <div class="col-md">
-            <div class="card border-0 shadow-sm p-3 h-100" style="border-top: 4px solid #ffc107;">
-                <small class="text-warning fw-bold text-uppercase">Accepted</small>
-                <h2 class="fw-bold mb-0 mt-2">@reports.Count(x => x.status == "Accept")</h2>
-            </div>
-        </div>
-        <div class="col-md">
-            <div class="card border-0 shadow-sm p-3 h-100" style="border-top: 4px solid #0d6efd;">
-                <small class="text-primary fw-bold text-uppercase">Assigned</small>
-                <h2 class="fw-bold mb-0 mt-2">@reports.Count(x => x.status == "Assigned")</h2>
-            </div>
-        </div>
-        <div class="col-md">
-            <div class="card border-0 shadow-sm p-3 h-100" style="border-top: 4px solid #198754;">
-                <small class="text-success fw-bold text-uppercase">Finished</small>
-                <h2 class="fw-bold mb-0 mt-2">@reports.Count(x => x.status == "Finish" || x.status == "Confirm")</h2>
-            </div>
+            <h2 class="fw-bold mb-0 mt-2 text-dark">@reports.Count</h2>
         </div>
     </div>
 
+    <div class="col-md-3 col-lg-1-5">
+        <div class="card border-0 shadow-sm p-3 h-100" style="border-left: 5px solid #dc3545; background-color: #fff5f5;">
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-danger fw-bold text-uppercase">Pending / Create</small>
+                <span class="badge bg-danger rounded-pill">Wait</span>
+            </div>
+            <h2 class="fw-bold mb-0 mt-2 text-danger">
+                @(reports.Count(x => x.status == "Pending") + reports.Count(x => x.status == "Create"))
+            </h2>
+            <small class="text-muted" style="font-size: 0.7rem;">P:@reports.Count(x => x.status == "Pending") | C:@reports.Count(x => x.status == "Create")</small>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-lg-1-5">
+        <div class="card border-0 shadow-sm p-3 h-100" style="border-left: 5px solid #ffc107; background-color: #fffdf5;">
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-warning fw-bold text-uppercase">Accepted</small>
+                <i class="bi bi-check2-circle text-warning fs-5"></i>
+            </div>
+            <h2 class="fw-bold mb-0 mt-2 text-warning">@reports.Count(x => x.status == "Accept")</h2>
+            <small class="text-muted" style="font-size: 0.7rem;">รับงานแล้ว</small>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-lg-1-5">
+        <div class="card border-0 shadow-sm p-3 h-100" style="border-left: 5px solid #0d6efd; background-color: #f5f9ff;">
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-primary fw-bold text-uppercase">Assigned</small>
+                <i class="bi bi-person-badge text-primary fs-5"></i>
+            </div>
+            <h2 class="fw-bold mb-0 mt-2 text-primary">@reports.Count(x => x.status == "Assign")</h2>
+            <small class="text-muted" style="font-size: 0.7rem;">มอบหมายงานแล้ว</small>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-lg-1-5">
+        <div class="card border-0 shadow-sm p-3 h-100" style="border-left: 5px solid #198754; background-color: #f5fff9;">
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-success fw-bold text-uppercase">Success</small>
+                <i class="bi bi-clipboard-check text-success fs-5"></i>
+            </div>
+            <h2 class="fw-bold mb-0 mt-2 text-success">
+                @(reports.Count(x => x.status == "Finish") + reports.Count(x => x.status == "Confirm"))
+            </h2>
+            <small class="text-muted" style="font-size: 0.7rem;">F:@reports.Count(x => x.status == "Finish") | C:@reports.Count(x => x.status == "Confirm")</small>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-lg-1-5">
+        <div class="card border-0 shadow-sm p-3 h-100 bg-light" style="border-left: 5px solid #212529;">
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted fw-bold text-uppercase">Rejected</small>
+                <i class="bi bi-x-octagon text-dark fs-5"></i>
+            </div>
+            <h2 class="fw-bold mb-0 mt-2">@reports.Count(x => x.status == "Reject")</h2>
+            <small class="text-muted" style="font-size: 0.7rem;">ยกเลิกงาน</small>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Custom Responsive Grid สำหรับ 6 คอลัมน์ */
+    @@media (min-width: 1200px) {
+        .col-lg-1-5 {
+            flex: 0 0 auto;
+            width: 16.66666667%;
+        }
+    }
+    .card { transition: transform 0.2s; cursor: default; }
+    .card:hover { transform: translateY(-5px); }
+</style>
     <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
         <div class="card-body p-4">
 <form method="get" class="row g-3 align-items-end" id="filterForm">
@@ -179,7 +395,7 @@
         </select>
     </div>
 
-    <div class="col-md-2">
+    @* <div class="col-md-2">
         <label class="form-label small fw-bold text-navy">หน่วยงานรับแจ้ง</label>
         <select name="sectionReceive" id="secReceive" class="form-select border-light bg-light">
             <option value="">-- ทั้งหมด --</option>
@@ -199,7 +415,7 @@
                 <option value="product_bc" selected="@(Context.Request.Query["sectionRequest"] == "product_bc")">ผลิต บางชัน</option>
             </optgroup>
         </select>
-    </div>
+    </div> *@
 
     <div class="col-md-1 d-flex gap-2">
         <button type="submit" class="btn btn-navy p-2 flex-fill shadow-sm" title="ค้นหา">
@@ -236,7 +452,7 @@
                 <thead class="bg-light">
                     <tr>
                         <th class="ps-4">Job ID</th>
-                        <th>วันที่</th>
+                        <th>วันที่แจ้ง</th>
                         <th>หน่วยงาน</th>
                         <th class="text-center">ประเภท</th>
                         <th>รายละเอียด</th>
@@ -254,9 +470,10 @@
                     data-type="@item.jobtype"
                     data-detail="@item.detail"
                     data-user="@item.usercreate"
-                    data-section="@item.sectioncreate"
+                    @* แก้ไขตรงนี้: ให้ส่งค่า section ที่มาจาก API *@
+                    data-sectioncreate ="@item.sectioncreate" 
+                    data-section="@item.section" 
                     data-css="@item.StatusCssClass"
-                    data-secreceive="@item.section"
                     data-uassign="@(item.uassign != null && item.uassign.Any() ? string.Join(", ", item.uassign) : "")"
                     data-useraccept="@item.useraccept"
                     data-timecreate="@item.timecreate"
@@ -269,7 +486,16 @@
                             <div class="text-muted" style="font-size: 0.7rem;">@dt.ToString("HH:mm") น.</div>
                         }
                     </td>
-                    <td><span class="badge bg-white text-dark border">@item.sectioncreate</span></td>
+                    <td>
+                        <span class="badge text-dark">
+                            @{
+                                var sCode = item.sectioncreate?.Trim() ?? "";
+                                // ถ้ามีใน Dictionary ให้โชว์ชื่อ ถ้าไม่มีให้โชว์รหัสเดิม
+                                var sName = sectionDict.ContainsKey(sCode) ? sectionDict[sCode] : sCode;
+                            }
+                            @sName
+                        </span>
+                    </td>                    
                     <td class="text-center">@item.jobtype</td>
                     <td>
                         <div class="fw-bold text-primary small">@item.fl (@item.fldetail)</div>
@@ -289,187 +515,227 @@
 
 <div class="modal fade" id="jobDetailModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header bg-navy text-white py-3">
-                <h5 class="modal-title fw-bold">
-                    <i class="bi bi-file-earmark-text me-2"></i>รายละเอียดงาน #<span id="mId"></span>
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <div class="modal-content modal-content-modern">
+        <div class="modal-header modal-header-modern align-items-center">
+                <div class="d-flex align-items-center">
+                    <div class="me-3 border-end pe-3">
+                        <span class="zycoda-logo-text">ZYCODA</span>
+                        <span class="zycoda-badge">REPORT</span>
+                    </div>
+                    <div>
+                        <div class="text-muted small fw-bold">SERVICE TICKET</div>
+                        <h5 class="fw-bold text-navy mb-0">#<span id="mId"></span></h5>
+                    </div>
+                </div>
+                
+                <div class="ms-auto d-flex align-items-center gap-3">
+                    <span id="mStatus" class="status-indicator badge shadow-none"></span>
+                    <button type="button" class="btn-close btn-close-modern" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
             </div>
             
-            <div class="modal-body p-4">
-                <div class="row mb-4 align-items-center">
-                    <div class="col-md-8">
-                        <h4 id="mMachine" class="text-primary fw-bold mb-1">กำลังโหลด...</h4>
-                        <div class="text-muted small">
-                            <i class="bi bi-geo-alt me-1"></i>จากหน่วยงาน: <span id="mSection" class="fw-bold text-dark"></span>
+            <div class="modal-body p-4 bg-light bg-opacity-50">
+                <div class="info-card mb-4 shadow-sm">
+                    <div class="row align-items-center">
+                        <div class="col-md-7">
+                            <h3 id="mMachine" class="fw-bold text-navy mb-2">...</h3>
+                            <div class="d-flex align-items-center text-muted">
+                                <i class="bi bi-geo-alt-fill text-danger me-2"></i>
+                                <span>จากหน่วยงาน: </span>
+                                <span id="mSectionCreateName" class="fw-bold text-dark ms-1"></span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                        <div class="info-label">สถานะปัจจุบัน</div>
-                        <span id="mStatus" class="badge rounded-pill px-3 py-2"></span>
-                    </div>
-                </div>
-
-                <hr class="opacity-10">
-
-                <div class="modal-section-title">ส่วนที่ 1 ข้อมูลการแจ้งงาน</div>
-                <div class="row g-4 px-2">
-                    <div class="col-md-4">
-                        <div class="info-label">ประเภทงาน</div>
-                        <div id="mType" class="info-value text-navy">-</div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="info-label">ผู้แจ้งงาน</div>
-                        <div id="mUser" class="info-value">-</div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="info-label">เวลาที่แจ้ง</div>
-                        <div id="mTimeCreate" class="info-value text-muted small">-</div>
-                    </div>
-                    <div class="col-12">
-                        <div class="info-label">อาการเสีย / รายละเอียด</div>
-                        <div id="mDetail" class="detail-box mt-1"></div>
-                    </div>
-                </div>
-
-                <div class="modal-section-title mt-4">ส่วนที่ 2 การมอบหมายและปฏิบัติงาน</div>
-                <div class="row g-4 px-2">
-                    <div class="col-md-6">
-                        <div class="info-label"><i class="bi bi-house-gear me-1"></i>หน่วยงานที่รับผิดชอบ</div>
-                        <div id="mSection" class="info-value text-primary">-</div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="info-label"><i class="bi bi-person-check me-1"></i>ผู้มอบหมายงาน (Assign by)</div>
-                        <div id="mAssign" class="info-value">-</div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="info-label"><i class="bi bi-tools me-1"></i>วิศวกรผู้รับงาน (Accept by)</div>
-                        <div id="mAccept" class="info-value text-muted fw-normal italic">รอดำเนินการ...</div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="info-label"><i class="bi bi-clock me-1"></i>เวลาที่รับงาน</div>
-                        <div id="mTimeAccept" class="info-value text-muted fw-normal">-</div>
-                    </div>
-                    
-                    <div class="col-12">
-                        <div class="alert alert-info border-0 mb-0 d-flex align-items-center" style="border-radius: 10px; background-color: #f0f7ff;">
-                            <i class="bi bi-info-circle-fill fs-4 text-primary me-3"></i>
-                            <div>
-                                <div class="fw-bold text-primary small">หมายเหตุระบบ</div>
-                                <small class="text-muted">ข้อมูลเบื้องต้นสำหรับการติดตามงานเท่านั้น หากต้องการเปลี่ยนผู้รับงานหรือปิด Job โปรดทำในระบบ Zycoda หลัก</small>
+                        <div class="col-md-5 mt-3 mt-md-0">
+                            <div class="timeline-mini">
+                                <div class="timeline-dot"></div>
+                                <div class="small text-muted">เวลาแจ้งงาน</div>
+                                <div id="mTimeCreate" class="fw-bold text-navy">...</div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="modal-footer bg-light border-0 py-3">
-                <button type="button" class="btn btn-light fw-bold px-4" data-bs-dismiss="modal">ปิด</button>
-                <button type="button" class="btn btn-navy px-4 shadow-sm" onclick="printReport('JTR')">
-                    <i class="bi bi-printer me-2"></i>พิมพ์ใบแจ้งซ่อม
-                </button>
+                <div class="row g-4">
+                    <div class="col-md-7">
+                        <div class="detail-section-label">
+                            <i class="bi bi-chat-left-dots-fill"></i> Description & Detail
+                        </div>
+                        <div class="info-card h-100">
+                            <div class="info-label mb-2">ประเภทงาน: <span id="mType" class="badge bg-navy-soft text-navy ms-2">-</span></div>
+                            <div id="mDetail" class="text-dark py-2" style="font-size: 1.05rem; line-height: 1.6; white-space: pre-wrap;">-</div>
+                            <hr>
+                            <div class="d-flex align-items-center mt-3">
+                                <div class="bg-light rounded-circle p-2 me-3">
+                                    <i class="bi bi-person-fill text-muted"></i>
+                                </div>
+                                <div>
+                                    <div class="info-label">ผู้แจ้งงาน</div>
+                                    <div id="mUser" class="fw-bold text-dark">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-5">
+                        <div class="detail-section-label">
+                            <i class="bi bi-person-gear"></i> Assignment & Action
+                        </div>
+                        <div class="info-card h-100 bg-white">
+                            <div class="mb-4">
+                                <div class="info-label"><i class="bi bi-building me-1"></i> หน่วยงานรับผิดชอบ</div>
+                                <div id="mSection" class="fw-bold text-primary fs-5">-</div>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="info-label"><i class="bi bi-shield-check me-1"></i> ผู้มอบหมาย (Assignor)</div>
+                                <div id="mAssign" class="fw-bold">-</div>
+                            </div>
+
+                            <div class="p-3 rounded-3" style="background: #f8fafc; border: 1px solid #edf2f7;">
+                                <div class="info-label text-success"><i class="bi bi-person-badge-fill me-1"></i> วิศวกรผู้ดูแล (Engineer)</div>
+                                <div id="mAccept" class="fw-bold fs-6 text-dark mt-1">...</div>
+                                <div class="text-muted mt-1" style="font-size: 0.8rem;">
+                                    <i class="bi bi-clock-history me-1"></i> รับงานเมื่อ: <span id="mTimeAccept">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <div class="alert alert-warning border-0 shadow-sm d-flex align-items-start mb-0" style="border-radius: 12px;">
+                        <i class="bi bi-exclamation-triangle-fill fs-5 me-3 mt-1 text-warning"></i>
+                        <div>
+                            <div class="fw-bold text-dark small">Zycoda Report</div>
+                            <div class="text-muted" style="font-size: 0.8rem;">หากต้องการปรับเปลี่ยน กรุณาจัดการผ่านระบบหลัก</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
 <!-- ตัวเลือกสำหรับรายงานแต่ละประเภท -->
 <div class="modal fade" id="printSelectModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow" style="border-radius: 15px;">
-            <div class="modal-header bg-navy text-white">
-                <h5 class="modal-title fw-bold"><i class="bi bi-printer me-2"></i>เลือกประเภทรายงานที่ต้องการพิมพ์</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            
+            <div class="modal-header border-0 pt-4 px-4 pb-2">
+                <div>
+                    <h5 class="modal-title fw-bold text-navy"><i class="bi bi-printer-fill me-2"></i>เลือกรายงานที่ต้องการ</h5>
+                    <p class="text-muted small mb-0">ระบบ ZYCODA จะสร้างไฟล์ PDF ตามประเภทที่คุณเลือก</p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
+
             <div class="modal-body p-4">
-                <div class="list-group">
-                    <button type="button" onclick="printReport('JTR')" class="list-group-item list-group-item-action d-flex align-items-center py-3">
-                        <i class="bi bi-file-earmark-text text-primary fs-4 me-3"></i>
-                        <div>
-                            <div class="fw-bold">1. รายงานติดตามความคืบหน้า (สำหรับผู้รับงานตรวจสอบ)</div>
-                            <small class="text-muted">ตรวจสอบสถานะ Job รายตัวแบบละเอียด</small>
+                <div class="list-group list-group-flush border-0">
+                    
+                    <button type="button" onclick="printReport('JTR')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3">
+                        <div class="print-icon-box bg-soft-primary me-3">
+                            <i class="bi bi-file-earmark-text-fill fs-4"></i>
                         </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold text-dark">รายงานความคืบหน้า (สำหรับตรวจสอบ)</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">ตรวจสอบสถานะ Job รายตัวแบบละเอียด</div>
+                        </div>
+                        <i class="bi bi-chevron-right text-muted"></i>
                     </button>
 
-                    <button type="button" onclick="printReport('PM')" class="list-group-item list-group-item-action d-flex align-items-center py-3">
-                        <i class="bi bi-tools text-warning fs-4 me-3"></i>
-                        <div>
-                            <div class="fw-bold">2. รายงานการซ่อมเครื่องจักร PM</div>
-                            <small class="text-muted">สรุปงานบำรุงรักษาเชิงป้องกันประจำงวด</small>
+                    <button type="button" onclick="printReport('PM')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3">
+                        <div class="print-icon-box bg-soft-warning me-3">
+                            <i class="bi bi-tools fs-4"></i>
                         </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold text-dark">รายงานการซ่อมเครื่องจักร PM</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">สรุปงานบำรุงรักษาเชิงป้องกันประจำงวด</div>
+                        </div>
+                        <i class="bi bi-chevron-right text-muted"></i>
                     </button>
 
-                    <button type="button" onclick="printReport('JTR_INTERNAL')" class="list-group-item list-group-item-action d-flex align-items-center py-3">
-                        <i class="bi bi-person-check text-info fs-4 me-3"></i>
-                        <div>
-                            <div class="fw-bold">3. รายงานติดตามความคืบหน้า (ผู้แจ้งงานตรวจสอบ)</div>
-                            <small class="text-muted">เวอร์ชันสรุปสำหรับหน่วยงานภายใน</small>
+                    <button type="button" onclick="printReport('JTR_INTERNAL')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3">
+                        <div class="print-icon-box bg-soft-info me-3">
+                            <i class="bi bi-person-check-fill fs-4"></i>
                         </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold text-dark">รายงานสำหรับหน่วยงานภายใน</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">เวอร์ชันสรุปสำหรับผู้แจ้งงาน</div>
+                        </div>
+                        <i class="bi bi-chevron-right text-muted"></i>
                     </button>
 
-                    <button type="button" onclick="printReport('HOTLINE')" class="list-group-item list-group-item-action d-flex align-items-center py-3">
-                        <i class="bi bi-telephone-outbound text-danger fs-4 me-3"></i>
-                        <div>
-                            <div class="fw-bold">4. Hot Line รายงานรวมจำนวนทั้งหมด</div>
-                            <small class="text-muted">รับงาน / กำลังทำ / ส่งมอบ (สรุปยอดรวม)</small>
+                    <button type="button" onclick="printReport('HOTLINE')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3">
+                        <div class="print-icon-box bg-soft-danger me-3">
+                            <i class="bi bi-telephone-fill fs-4"></i>
                         </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold text-dark">Hot Line (สรุปยอดรวม)</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">รับงาน / กำลังทำ / ส่งมอบ ทั้งหมด</div>
+                        </div>
+                        <i class="bi bi-chevron-right text-muted"></i>
                     </button>
 
-                    <button type="button" onclick="printReport('MONTHLY')" class="list-group-item list-group-item-action d-flex align-items-center py-3">
-                        <i class="bi bi-calendar-check text-success fs-4 me-3"></i>
-                        <div>
-                            <div class="fw-bold">5. รายงานติดตามความคืบหน้าแบบรายเดือน</div>
-                            <small class="text-muted">สรุปภาพรวม Performance ประจำเดือน</small>
+                    <button type="button" onclick="printReport('MONTHLY')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3">
+                        <div class="print-icon-box bg-soft-success me-3">
+                            <i class="bi bi-calendar2-check-fill fs-4"></i>
                         </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold text-dark">สรุป Performance รายเดือน</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">ภาพรวมประสิทธิภาพการซ่อมบำรุง</div>
+                        </div>
+                        <i class="bi bi-chevron-right text-muted"></i>
                     </button>
+
                 </div>
             </div>
-            <div class="modal-footer border-0">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">ยกเลิก</button>
+
+            <div class="modal-footer border-0 pb-4 justify-content-center">
+                <button type="button" class="btn btn-link text-muted fw-bold text-decoration-none" data-bs-dismiss="modal">ยกเลิกการพิมพ์</button>
             </div>
         </div>
     </div>
 </div>
 
-
 <script>
-   // 1. ฟังก์ชัน Print Report (เปลี่ยนชื่อเป็น printReport ให้ตรงกับปุ่มใน Modal)
+    // 1. ฟังก์ชัน Print Report
     function printReport(reportType) {
-        // ดึงค่าจาก Element ID ให้ตรงกับที่ประกาศไว้ใน Form
         var start = document.getElementById("startDatePicker").value;
         var end = document.getElementById("endDatePicker").value;
         var status = document.getElementById("filterStatus").value;
-    
-        // Mapping ID: secReceive -> sectionTo, secRequest -> sectionFrom 
-        // (หรือตาม Logic ที่ Fai วางไว้ใน Controller)
         var secTo = document.getElementById("secReceive").value;
         var secFrom = document.getElementById("secRequest").value;
         var jobType = document.getElementById("filterJobType").value;
 
-        // พื้นฐาน URL ไปที่ Controller หลักที่เราแก้ไว้
         var baseUrl = '/Report/PrintReport';
-
-        // สร้าง Query String
         var url = baseUrl
             + '?start=' + encodeURIComponent(start)
             + '&end=' + encodeURIComponent(end)
             + '&status=' + encodeURIComponent(status)
-            + '&sectionFrom=' + encodeURIComponent(secFrom) // เปลี่ยนให้ตรงกับ Parameter ใน Controller
-            + '&sectionTo=' + encodeURIComponent(secTo)     // เปลี่ยนให้ตรงกับ Parameter ใน Controller
+            + '&sectionFrom=' + encodeURIComponent(secFrom)
+            + '&sectionTo=' + encodeURIComponent(secTo)
             + '&jobType=' + encodeURIComponent(jobType)
             + '&rptType=' + reportType;
 
-        // เปิดหน้าต่างใหม่เพื่อพิมพ์
         window.open(url, '_blank');
-
-        // ปิด Modal
         $('#printSelectModal').modal('hide');
     }
 
+    // ฟังก์ชัน Realtime Clock (ปี พ.ศ.)
+    function updateClock() {
+        const now = new Date();
+        const options = {
+            day: '2-digit', month: '2-digit', year: '2-digit',
+            hour: '2-digit', minute: '2-digit', second: '2-digit',
+            hour12: false
+        };
+        const clockElement = document.getElementById('realtime-clock');
+        if (clockElement) {
+            clockElement.innerText = now.toLocaleString('th-TH', options);
+        }
+    }
 
     $(document).ready(function () {
-        // 2. DataTable
+        // 2. Setup Plugins
         if (!$.fn.DataTable.isDataTable('#maintenanceTable')) {
             $('#maintenanceTable').DataTable({
                 "pageLength": 15,
@@ -479,105 +745,144 @@
             });
         }
 
-        // 3. Flatpickr
         flatpickr("#startDatePicker", { dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y" });
         flatpickr("#endDatePicker", { dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y" });
 
-        // 4. Modal Pop-up
-       $('.job-row').on('click', function() {
-            // ฟังก์ชันช่วย Format วันที่ภายใน Event
-            const formatDT = (dateStr) => {
-                if (!dateStr || dateStr === '-' || dateStr === '0001-01-01T00:00:00') return '-';
-                try {
-                    const d = new Date(dateStr);
-                    if (isNaN(d.getTime())) return dateStr;
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // 3. เตรียม Lookup สำหรับชื่อหน่วยงาน
+        const sectionLookup = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(sectionDict));
+        
+        function getSectionName(code) {
+            if (!code || code === '-') return '-';
+            const cleanCode = String(code).trim();
+            return sectionLookup[cleanCode] || cleanCode;
+        }
+
+        // 4. Format Date Helper
+        const formatDT = (dateStr) => {
+            if (!dateStr || dateStr === '-' || dateStr === '0001-01-01T00:00:00') return '-';
+            try {
+                const d = new Date(dateStr);
+                if (isNaN(d.getTime())) return dateStr;
+                return new Intl.DateTimeFormat('en-GB', {
+                    day: '2-digit', month: '2-digit', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit', hour12: false
+                }).format(d).replace(/\//g, '-');
+            } catch (e) { return dateStr; }
+        };
+
+        // 5. Single Click Event (รวมทุกอย่างไว้ที่นี่)
+        $('.job-row').on('click', function() {
+            const $el = $(this);
             
-                    // ใช้ Intl จัดการ format ให้สวยงามและง่าย
-                    return new Intl.DateTimeFormat('en-GB', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: false
-                    }).format(d).replace(/\//g, '-').replace(',', '');
-                } catch (e) {
-                    return dateStr;
-                }
-            };
+            // ข้อมูลพื้นฐาน
+            $('#mId').text($el.data('id'));
+            $('#mMachine').text($el.data('machine') || '-');
+            $('#mType').text($el.data('type') || '-');
+            $('#mUser').text($el.data('user') || '-');
+            $('#mDetail').text($el.data('detail') || '-');
 
-            // ดึงค่าจาก data attributes
-            const id = $(this).data('id');
-    
-            // 1. ข้อมูลพื้นฐาน
-            $('#mId').text(id);
-            $('#mMachine').text($(this).data('machine') || '-');
-            $('#mSection').text($(this).data('section') || '-');
-    
-            // ปรับสถานะและสี Badge
-            const status = $(this).data('status');
-            const cssClass = $(this).data('css') || 'bg-secondary';
+            // สถานะและ CSS
+            const status = $el.data('status');
+            const cssClass = $el.data('css') || 'bg-secondary';
             $('#mStatus').text(status).removeClass().addClass('badge rounded-pill ' + cssClass);
-    
-            $('#mType').text($(this).data('type') || '-');
-            $('#mUser').text($(this).data('user') || '-');
-            $('#mDetail').text($(this).data('detail') || '-');
 
-            // 2. ข้อมูลส่วนที่ 2
-            $('#mSectionReceive').text($(this).data('secreceive') || '-'); 
+            // จัดการชื่อหน่วยงาน (คนแจ้ง & รับผิดชอบ)
+            const secCreateCode = $el.data('sectioncreate');
+            const secTargetCode = $el.data('section');
 
-            // ผู้มอบหมายงาน (uassign)
-            const assignData = $(this).data('uassign');
-            // ถ้า API ส่งมาเป็น Array [] Newtonsoft จะ serialize เป็น string "[...]" หรือถ้ามาเป็น List จริงๆ ใน JS จะเห็นเป็น Array
-            if (Array.isArray(assignData)) {
-                $('#mAssign').text(assignData.length > 0 ? assignData.join(', ') : 'ยังไม่มอบหมาย');
-            } else {
-                $('#mAssign').text(assignData && assignData !== "" ? assignData : 'ยังไม่มอบหมาย');
-            }
+            // แสดงชื่อหน่วยงานคนแจ้ง (ใส่ใน ID ที่ประกาศไว้ใน Modal)
+            $('#mSectionCreateName').text(getSectionName(secCreateCode)); 
+            $('#mSectionCreateCode').text(secCreateCode); // ถ้าอยากโชว์รหัสด้วย
 
-            // วิศวกรผู้รับงาน (useraccept) 
-            const acceptUser = $(this).data('useraccept');
+            // ส่วนหน่วยงานรับผิดชอบ (ส่วนที่ 2)
+            $('#mSection').text(getSectionName(secTargetCode));
+
+            // ผู้มอบหมาย & ผู้รับงาน
+            const assignData = $el.data('uassign');
+            $('#mAssign').text(assignData && assignData !== "" ? assignData : 'ยังไม่มอบหมาย');
+            
+            const acceptUser = $el.data('useraccept');
             $('#mAccept').text(acceptUser && acceptUser.trim() !== "" ? acceptUser : 'ยังไม่มีผู้รับงาน');
 
-            // --- ส่วนวันที่ Format ใหม่ DD-MM-YYYY HH:mm ---
-            $('#mTimeCreate').text(formatDT($(this).data('timecreate')));
-            $('#mTimeAccept').text(formatDT($(this).data('timeaccept')));
+            // เวลา
+            $('#mTimeCreate').text(formatDT($el.data('timecreate')));
+            $('#mTimeAccept').text(formatDT($el.data('timeaccept')));
 
             $('#jobDetailModal').modal('show');
         });
 
-        // 5. Chart.js Implementation
-        const commonFont = { size: 13, family: 'Sarabun, sans-serif' };
+        // ใช้โทนสี Zycoda: Navy, Cyan, และ Soft Teal แทนสีจราจร
+        const zycodaPalette = {
+            pending: '#F43F5E', // Rose (แดงที่ดูแพงกว่า)
+            accept: '#F59E0B',  // Amber (ส้มเหลืองนวลๆ)
+            finish: '#10B981',  // Emerald (เขียวมรกต)
+            primary: '#001f3f', // Navy หลัก
+            accent: '#06B6D4'   // Cyan สดใส
+        };
 
-        // Pie Chart
-        const ctxPie = document.getElementById('maintenancePieChart');
+        const commonFont = { 
+            size: 12, 
+            family: "'Sarabun', 'Inter', sans-serif",
+            weight: '500'
+        };
+
+       const ctxPie = document.getElementById('maintenancePieChart');
         if (ctxPie) {
             new Chart(ctxPie, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Pending/Create', 'Accept', 'Finish/Confirm'],
+                    labels: ['รอดำเนินการ', 'กำลังแก้ไข', 'เสร็จสิ้น'],
                     datasets: [{
                         data: [
                             @reports.Count(x => x.status == "Create" || x.status == "Pending"),
                             @reports.Count(x => x.status == "Accept"),
                             @reports.Count(x => x.status == "Finish" || x.status == "Confirm")
                         ],
-                        backgroundColor: ['#dc3545', '#ffc107', '#198754'],
-                        borderWidth: 2,
-                        borderRadius: 5
+                        backgroundColor: [zycodaPalette.pending, zycodaPalette.accept, zycodaPalette.finish],
+                        hoverOffset: 10,
+                        borderWidth: 0, // เอาเส้นขอบออกเพื่อให้ดู Clean
+                        borderRadius: 8,
+                        spacing: 5 // เพิ่มช่องว่างระหว่างส่วน
                     }]
                 },
                 options: {
                     maintainAspectRatio: false,
-                    cutout: '65%',
-                    plugins: { legend: { position: 'bottom', labels: { font: commonFont } } }
+                    cutout: '75%', // ทำให้วงแหวนบางลง ดูทันสมัยขึ้น
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { 
+                                usePointStyle: true, // ใช้จุดวงกลมแทนสี่เหลี่ยม
+                                pointStyle: 'circle',
+                                padding: 20,
+                                font: commonFont 
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#fff',
+                            titleColor: '#001f3f',
+                            bodyColor: '#64748b',
+                            borderColor: '#e2e8f0',
+                            borderWidth: 1,
+                            padding: 12,
+                            displayColors: true,
+                            boxPadding: 5
+                        }
+                    }
                 }
             });
         }
 
-        // Bar Chart
         const ctxBar = document.getElementById('maintenanceBarChart');
         if (ctxBar) {
+            // สร้าง Gradient สำหรับแท่งกราฟ
+            const gradient = ctxBar.getContext('2d').createLinearGradient(0, 0, 400, 0);
+            gradient.addColorStop(0, '#001f3f'); // Navy
+            gradient.addColorStop(1, '#06B6D4'); // Cyan
+
             new Chart(ctxBar, {
                 type: 'bar',
                 data: {
@@ -585,86 +890,32 @@
                     datasets: [{
                         label: 'จำนวนครั้ง',
                         data: @Html.Raw(Json.Serialize(machineData)),
-                        backgroundColor: '#01C6D9',
-                        borderRadius: 5
+                        backgroundColor: gradient,
+                        borderRadius: 6, // มนเฉพาะปลายแท่ง
+                        barThickness: 18, // กำหนดความหนาให้ดูพอดี
+                        hoverBackgroundColor: '#06B6D4'
                     }]
                 },
                 options: {
                     indexAxis: 'y',
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: { cornerRadius: 8 }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: { display: false }, // ซ่อนเส้นแนวตั้ง
+                            ticks: { stepSize: 1, font: { size: 11 } }
+                        },
+                        y: {
+                            grid: { color: '#f1f5f9' }, // เส้นแนวนอนจางๆ
+                            ticks: { font: commonFont }
+                        }
+                    }
                 }
             });
         }
     });
-
-
-    function updateClock() {
-        const now = new Date();
-        
-        // แปลงเป็นวันที่แบบไทย (พ.ศ.)
-        // รูปแบบ: วันที่ 30 มี.ค. 2569 15:30:05
-        const options = {
-            day: '2-digit',
-            month: '2-digit',
-            year: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false
-        };
-
-        // ใช้ th-TH เพื่อให้เป็น ปี พ.ศ. โดยอัตโนมัติ
-        const thaiTime = now.toLocaleString('th-TH', options);
-        
-        const clockElement = document.getElementById('realtime-clock');
-        if (clockElement) {
-            clockElement.innerText = thaiTime;
-        }
-    }
-
-    // เรียกทำงานทันทีที่โหลดหน้า
-    updateClock();
-    
-    // ตั้งให้ทำงานทุกๆ 1 วินาที (1000ms)
-    setInterval(updateClock, 1000);
-
-     // ใช้ Newtonsoft.Json แทน เพื่อความชัวร์ในหน้า View
-    const sectionLookup = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(sectionDict));
-    
-    console.log("Check SectionLookup:", sectionLookup); // ลองเปิด F12 ดูใน Console ว่าข้อมูลมาไหม
-
-    function getSectionName(code) {
-        if (!code || code === '-') return '-';
-        
-        // แปลงเป็น String และตัดช่องว่าง เผื่อข้อมูลใน data-attribute มี space
-        const cleanCode = String(code).trim();
-        
-        // คืนค่าจาก Lookup ถ้าไม่เจอให้โชว์เลข Code เดิม
-        return sectionLookup[cleanCode] || code;
-    }
-
-    $('.job-row').on('click', function() {
-        const id = $(this).data('id');
-        const status = $(this).data('status');
-        const cssClass = $(this).data('css');
-
-        $('#mId').text('#' + id);
-        $('#mStatus').text(status).removeClass().addClass('badge rounded-pill ' + cssClass);
-        $('#mMachine').text($(this).data('machine'));
-        $('#mType').text($(this).data('type'));
-        $('#mDetail').text($(this).data('detail'));
-        $('#mUser').text($(this).data('user'));
-
-       // ดึงค่ามาพักไว้ก่อน
-        const sectionCode = $(this).data('section'); 
-        
-        // นำไปใส่ใน Modal (เรียกใช้ฟังก์ชัน getSectionName)
-        $('#mSection').text(getSectionName(sectionCode));
-
-        // ... code ส่วนอื่นๆ ...
-        $('#jobDetailModal').modal('show');
-    });
-
 </script>

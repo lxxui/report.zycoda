@@ -5,6 +5,7 @@ using report_zycoda.Models;
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
+using static System.Collections.Specialized.BitVector32;
 
 
 namespace report_zycoda.Controllers
@@ -95,6 +96,8 @@ namespace report_zycoda.Controllers
             // -------------------------
             // 🔹 โหลด master
             // -------------------------
+            var jsonsectioncreate = System.IO.File.ReadAllText("wwwroot/data/section.json");
+            ViewBag.Sectioncreate = JsonSerializer.Deserialize<List<Models.SectionApiModels>>(jsonsectioncreate);
             var jsonsection = System.IO.File.ReadAllText("wwwroot/data/section.json");
             ViewBag.Section = JsonSerializer.Deserialize<List<Models.SectionApiModels>>(jsonsection);
 
@@ -143,18 +146,22 @@ namespace report_zycoda.Controllers
             }
 
             // -------------------------
-            // 🧪 Debug
+            // 🧪 Debug & View State
             // -------------------------
             ViewBag.DebugUrl = apiUrl;
-            ViewBag.CurrentStatus = Status;
-            ViewBag.CurrentSection = Sectioncreate;
+            ViewBag.SelectedStatus = Status;         // เก็บค่า Status ที่เลือกล่าสุด
+            ViewBag.SelectedSectionGroup = Sectioncreate; // เก็บค่า Group หรือ Section ที่เลือกล่าสุด
 
-            Console.WriteLine($"API URL: {apiUrl}");
-            Console.WriteLine($"Section Group: {Sectioncreate}");
-            Console.WriteLine($"Section Count: {selectedSections.Count}");
-            Console.WriteLine($"Final Data Count: {data.Count}");
+            // แก้ไขการโหลด Master Data (โหลดครั้งเดียวพอ)
+            var jsonRaw = System.IO.File.ReadAllText("wwwroot/data/section.json");
+            var sectionMaster = JsonSerializer.Deserialize<List<Models.SectionApiModels>>(jsonRaw);
+
+            ViewBag.SectionList = sectionMaster; // สำหรับแสดงใน Dropdown ทั้งหมด
+            ViewBag.StatusList = JsonSerializer.Deserialize<List<Models.StatusApiModels>>(System.IO.File.ReadAllText("wwwroot/data/status.json"));
 
             return View(data);
+
+
         }
 
         [Authorize] // 🚩 1. เพิ่มเพื่อให้ระบบเช็คตั๋ว (Cookie) ก่อนเข้า
@@ -199,6 +206,8 @@ namespace report_zycoda.Controllers
             // โหลด Dropdown
             var jsonsectioncreate = System.IO.File.ReadAllText("wwwroot/data/section.json");
             ViewBag.Section = JsonSerializer.Deserialize<List<Models.SectionApiModels>>(jsonsectioncreate);
+            var jsonsection = System.IO.File.ReadAllText("wwwroot/data/section.json");
+            ViewBag.Section = JsonSerializer.Deserialize<List<Models.SectionApiModels>>(jsonsection);
             var jsonstatus = System.IO.File.ReadAllText("wwwroot/data/status.json");
             ViewBag.Status = JsonSerializer.Deserialize<List<Models.StatusApiModels>>(jsonstatus);
 
@@ -228,8 +237,6 @@ namespace report_zycoda.Controllers
 
             return View(data);
         }
-
-
         public async Task<IActionResult> ReportSender(string start, string end, string Status, string section)
         {
             var sessionUser = User.Identity.Name;

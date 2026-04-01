@@ -43,6 +43,8 @@ namespace report_zycoda.Models
         public string? timeendrepair { get; set; }
         public string? timedelay { get; set; }
 
+        public string? timeclose { get; set; }
+
         public string? useraccept { get; set; }
 
         public string? timefinish { get; set; }
@@ -126,7 +128,7 @@ namespace report_zycoda.Models
         public int OpenedToday { get; set; }
         public int Finished { get; set; }
         public int RejectedToday { get; set; }
-        public int Pending { get; set; }
+        public int Repair { get; set; }
         public int WaitPart { get; set; }
     }
 
