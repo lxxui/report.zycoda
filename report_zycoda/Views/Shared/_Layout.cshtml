@@ -73,15 +73,13 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-light main-nav fixed-top shadow-sm">
+        <nav class="navbar navbar-expand-sm navbar-light main-nav fixed-top shadow-sm bg-white py-2">
             <div class="container-fluid px-4">
-                <a class="navbar-brand" asp-area="" asp-controller="Maintenance" asp-action="Index">
+                <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Maintenance" asp-action="Index">
                     <div class="me-3 border-end pe-3">
-                        <span class="zycoda-logo-text">ZYCODA</span>
-                        <span class="zycoda-badge">REPORT</span>
+                        <span class="zycoda-logo-text" style="font-size: 1.6rem; letter-spacing: 3px;">ZYCODA</span>
+                        <span class="zycoda-badge shadow-sm" style="background: #001f3f; padding: 3px 10px;">REPORT</span>
                     </div>
-
-                    @* <span class="d-none d-sm-inline">ZYCODA REPORT</span> *@
                 </a>
 
                 <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
@@ -89,69 +87,118 @@
                 </button>
 
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <div class="d-flex align-items-center ms-auto ps-md-4 border-start d-none d-md-flex">
+                    <div class="d-flex align-items-center ms-auto">
+                    
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            var fullName = User.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value;
+                            var sectionName = User.Claims.FirstOrDefault(c => c.Type == "Section")?.Value;
+                            var userClass = User.Claims.FirstOrDefault(c => c.Type == "Class")?.Value;
 
-                        <div class="text-end me-3">
-                            @if (User.Identity.IsAuthenticated)
-                            {
-                                // 1. ดึงข้อมูลจาก Claims
-                                var fullName = User.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value;
-                                var sectionName = User.Claims.FirstOrDefault(c => c.Type == "Section")?.Value;
-        
-                                // 🚩 ดึง SectionOption มาแสดง
-                                var sectionoption = User.Claims.FirstOrDefault(c => c.Type == "SectionOption")?.Value;
+                            <div class="d-flex align-items-center me-3 pe-3 border-end">
+                                <div class="text-end me-3">
+                                    <div class="d-flex align-items-center justify-content-end mb-0">
+                                        @if (User.IsInRole("Administrator") || userClass == "9")
+                                        {
+                                            <a asp-controller="Master" asp-action="Index"
+                                                   class="btn btn-sm btn-master-setup me-2 shadow-sm">
+                                                <i class="bi bi-shield-lock-fill me-1"></i> MASTER
+                                            </a>
+                                            <span class="fw-bold text-navy" style="font-size: 0.95rem;">@fullName</span>
+                                            <span class="badge rounded-pill bg-danger ms-2" style="font-size: 0.6rem; letter-spacing: 1px;">ADMIN</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="fw-bold text-navy" style="font-size: 0.95rem;">@fullName</span>
+                                        }
+                                    </div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">
+                                        <i class="bi bi-geo-alt-fill me-1"></i>@sectionName
+                                    </div>
+                                </div>
 
-                                if (User.IsInRole("Administrator"))
-                                {
-                                    <span class="fw-bold text-danger">Admin: @fullName</span>
-                                }
-                                else
-                                {
-                                    <span class="fw-bold">User: @fullName</span>
-                                }
-
-                                <br />
-                                @* แสดงแผนกหลัก *@
-                                <small class="text-muted">แผนกหลัก: @sectionName</small>
-
-                                @* 🚩 ถ้ามี SectionOption ให้แสดงเพิ่มบรรทัดใหม่
-                                if (!string.IsNullOrEmpty(sectionoption))
-                                {
-                                    <br />
-                                    <small class="text-primary" style="font-size: 0.75rem;">
-                                        <i class="bi bi-eye"></i> สิทธิ์มองเห็น: @sectionoption
-                                    </small>
-                                } *@
-                            }
-                            else
-                            {
-                                <span class="text-muted">Guest User</span>
-                            }
-                        </div>
-
-                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm" style="width:38px; height:38px;">
-                            <i class="bi bi-person-fill"></i>
-                        </div>
+                                <div class="bg-navy-gradient text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+                                     style="width:42px; height:42px; border: 2px solid #f8f9fa;">
+                                    <i class="bi bi-person-fill fs-5"></i>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="me-4 text-muted small fw-bold">
+                                <i class="bi bi-person-circle me-1"></i> Guest User
+                            </div>
+                        }
 
                         <form asp-controller="Home" asp-action="Logout" method="post" id="logoutForm" class="d-inline">
                             @Html.AntiForgeryToken()
                             <button type="button"
-                                    class="btn btn-logout-modern border-0 d-flex align-items-center"
+                                    class="btn-logout-modern-v2"
                                     onclick="showLogoutAlert()"
-                                    title="ออกจากระบบ Zycoda Report">
-        
-                                <div class="position-relative d-flex align-items-center">
-                                    <i class="bi bi-power me-2"></i> <span class="d-none d-lg-inline">ออกจากระบบ</span>
-                                </div>
-        
+                                    title="ออกจากระบบ">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span class="d-none d-lg-inline ms-2">Logout</span>
                             </button>
                         </form>
+
                     </div>
                 </div>
             </div>
         </nav>
     </header>
 
+    <style>
+        /* CSS เพิ่มเติมเพื่อให้ UI ดูดีขึ้น */
+        .bg-navy-gradient {
+        background: linear-gradient(135deg, #001f3f 0%, #004080 100%);
+        }
+
+        .text-navy {
+        color: #001f3f;
+        }
+
+        /* ปุ่ม Master Setup แบบใหม่ */
+        .btn-master-setup {
+        background-color: #fff;
+        color: #001f3f;
+        border: 1.5px solid #001f3f;
+        font-size: 0.65rem;
+        font-weight: 800;
+        padding: 4px 12px;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+        }
+
+        .btn-master-setup:hover {
+        background-color: #001f3f;
+        color: #fff;
+        transform: translateY(-1px);
+        }
+
+        /* ปุ่ม Logout แบบ Minimal */
+        .btn-logout-modern-v2 {
+        background: none;
+        border: none;
+        color: #94a3b8;
+        font-weight: 700;
+        font-size: 0.9rem;
+        padding: 8px 15px;
+        border-radius: 10px;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        }
+
+        .btn-logout-modern-v2:hover {
+        color: #ef4444;
+        background-color: #fef2f2;
+        }
+
+        .main-nav {
+        backdrop-filter: blur(10px); /* ทำให้พื้นหลังเบลอแบบ iOS */
+        background-color: rgba(255, 255, 255, 0.9) !important;
+        }
+    </style>
     <div class="container-fluid px-4 content-wrapper">
         <main role="main" class="pb-3">
             <br />
@@ -230,6 +277,28 @@
                 }
             });
     }
+
+    function deleteSection(id) {
+    Swal.fire({
+        title: 'ยืนยันการลบ?',
+        text: "คุณกำลังจะลบหน่วยงานรหัส " + id,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'ลบเลย!',
+        cancelButtonText: 'ยกเลิก'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // สร้าง Form จำลองเพื่อส่งค่า POST ไปลบ
+            var form = $('<form action="/Master/DeleteSection" method="post">' +
+                         '<input type="hidden" name="id" value="' + id + '" />' +
+                         '</form>');
+            $('body').append(form);
+            form.submit();
+        }
+    });
+}
+
     </script>
 
 

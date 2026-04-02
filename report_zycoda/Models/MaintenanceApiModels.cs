@@ -129,6 +129,7 @@ namespace report_zycoda.Models
         public int Finished { get; set; }
         public int RejectedToday { get; set; }
         public int Repair { get; set; }
+        public int AcceptJob { get; set; }
         public int WaitPart { get; set; }
     }
 

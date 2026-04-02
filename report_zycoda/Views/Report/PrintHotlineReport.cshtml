@@ -113,11 +113,12 @@
                 <tr>
                     <th rowspan="2" style="width: 25px;">#</th>
                     <th rowspan="2" style="text-align: left; padding-left: 5px;">สายการผลิต / แผนก</th>
-                    <th colspan="6">สถานะใบแจ้งซ่อม (Work Order Status)</th>
+                    <th colspan="7">สถานะใบแจ้งซ่อม (Work Order Status)</th>
                 </tr>
                 <tr>
                     <th style="width: 55px;">ยกมา</th>
                     <th style="width: 55px;">เปิดเพิ่ม</th>
+                    <th style="width: 55px;">รับงานแล้ว</th>
                     <th style="width: 55px;">กำลังซ่อม</th>
                     <th style="width: 55px;">เสร็จสิ้น</th>
                     <th style="width: 55px;">ยกเลิก</th>
@@ -139,6 +140,10 @@
                             <td class="text-muted">@(item.CarriedOver > 0 ? item.CarriedOver.ToString() : "-")</td>
                 
                             <td class="fw-bold">@(item.OpenedToday > 0 ? item.OpenedToday.ToString() : "-")</td>
+
+                            <td style="background-color: #e7f1ff; color: #0d6efd;" class="fw-bold">
+                                @(item.AcceptJob > 0 ? item.AcceptJob.ToString() : "-")
+                            </td>
                 
                             <td style="background-color: #e7f1ff; color: #0d6efd;" class="fw-bold">
                                 @(item.Repair > 0 ? item.Repair.ToString() : "-")
@@ -159,6 +164,7 @@
                 <td colspan="2" class="text-end pe-2">GRAND TOTAL</td>
                 <td class="text-center">@Model.Sum(x => (int)x.CarriedOver)</td>
                 <td class="text-center">@Model.Sum(x => (int)x.OpenedToday)</td>
+                <td class="text-center">@Model.Sum(x => (int)x.AcceptJob)</td>
                 <td class="text-center">@Model.Sum(x => (int)x.Repair)</td>
                 <td class="text-center">@Model.Sum(x => (int)x.Finished)</td>
                 <td class="text-center">@Model.Sum(x => (int)x.RejectedToday)</td>
