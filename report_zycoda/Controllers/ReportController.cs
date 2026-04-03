@@ -9,9 +9,10 @@ using static System.Collections.Specialized.BitVector32;
 public class ReportController : Controller
 {
     [HttpGet] // 👈 บังคับให้เป็น Get
+    [HttpGet]
     public async Task<IActionResult> PrintReport(string start, string end, string status, string sectionFrom, string sectionTo, string jobtype, string rptType)
     {
-        // 1. ดึงข้อมูลจาก Identity (ให้ตรงกับหน้า Index)
+        // 1. Authentication & Session
         if (User.Identity == null || !User.Identity.IsAuthenticated)
             return RedirectToAction("Login", "Home");
 
@@ -19,7 +20,7 @@ public class ReportController : Controller
         var sessionPass = User.Claims.FirstOrDefault(c => c.Type == "ApiPassword")?.Value;
         var sessionName = User.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value ?? sessionUser;
 
-        // 2. โหลด Master Section สำหรับแปลง รหัส -> ชื่อ
+        // 2. Load Master Section (Map: ID -> Name)
         var jsonsection = System.IO.File.ReadAllText("wwwroot/data/section.json");
         var sectionList = System.Text.Json.JsonSerializer.Deserialize<List<report_zycoda.Models.SectionApiModels>>(jsonsection)
                           ?? new List<report_zycoda.Models.SectionApiModels>();
@@ -28,7 +29,7 @@ public class ReportController : Controller
             .Where(s => !string.IsNullOrEmpty(s.section))
             .ToDictionary(s => s.section.Trim(), s => s.name ?? s.section);
 
-        // 3. เตรียม API และดึงข้อมูล
+        // 3. API Data Fetching
         if (string.IsNullOrEmpty(start)) start = DateTime.Now.ToString("yyyy-MM-dd");
         if (string.IsNullOrEmpty(end)) end = DateTime.Now.ToString("yyyy-MM-dd");
 
@@ -41,9 +42,7 @@ public class ReportController : Controller
         { "status", "ALL" }
     };
 
-        var baseUrl = "https://api.zycoda.com/apimpros/get_job_order";
-        var apiUrl = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString(baseUrl, queryParams);
-
+        var apiUrl = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString("https://api.zycoda.com/apimpros/get_job_order", queryParams);
         List<MaintenanceApiModels> rawData = new();
 
         using (HttpClient client = new HttpClient())
@@ -57,32 +56,33 @@ public class ReportController : Controller
                 var json = await response.Content.ReadAsStringAsync();
                 var allData = JsonConvert.DeserializeObject<List<MaintenanceApiModels>>(json) ?? new();
 
-                // --- 🔥 [Logic Update] Filter Section Range ---
+                // --- 🔥 Logic Filter Section (ปรับให้เสถียรขึ้น) ---
                 rawData = allData.Where(x =>
                 {
-                    var target = (x.sectioncreate ?? x.section ?? "").Trim();
+                    var target = (x.sectioncreate ?? x.section ?? "").Trim().ToUpper();
+                    var sFrom = (sectionFrom ?? "").Trim().ToUpper();
+                    var sTo = (sectionTo ?? "").Trim().ToUpper();
 
-                    // กรอง Status (ถ้าไม่ใช่ ALL)
+                    // กรอง Status
                     bool matchStatus = string.IsNullOrEmpty(status) || status == "ทั้งหมด" || status == "ALL" ||
                                        x.status?.Trim().Equals(status.Trim(), StringComparison.OrdinalIgnoreCase) == true;
 
-                    // กรอง Section From
+                    // กรอง Range ของ Section
                     bool matchFrom = string.IsNullOrEmpty(sectionFrom) || sectionFrom == "ทั้งหมด" ||
-                                     string.Compare(target, sectionFrom.Trim()) >= 0;
+                                     string.Compare(target, sFrom) >= 0;
 
-                    // กรอง Section To
                     bool matchTo = string.IsNullOrEmpty(sectionTo) || sectionTo == "ทั้งหมด" ||
-                                   string.Compare(target, sectionTo.Trim()) <= 0;
+                                   string.Compare(target, sTo) <= 0;
 
                     return matchStatus && matchFrom && matchTo;
                 }).ToList();
             }
         }
 
-        // 4. Summary Logic (Hotline / Monthly / PM)
+        // 4. Summary Logic for HOTLINE/PM/MONTHLY
         var atDate = DateTime.Now.Date;
         var summaryData = rawData
-            .GroupBy(x => x.sectioncreate?.Trim() ?? "ไม่ระบุแผนก")
+            .GroupBy(x => (x.sectioncreate ?? x.section ?? "N/A").Trim())
             .Select(g => new ReportSummary
             {
                 SectionName = sectionDict.TryGetValue(g.Key, out var name) ? name : g.Key,
@@ -93,42 +93,23 @@ public class ReportController : Controller
                 Finished = g.Count(x => x.status == "Finish" && !string.IsNullOrEmpty(x.timeclose) && ParseDate(x.timeclose) == atDate),
                 RejectedToday = g.Count(x => x.status == "Reject"),
                 WaitPart = g.Count(x => (x.status != null && x.status.Contains("Spare")) || (x.statustext != null && x.statustext.Contains("อะไหล่")))
-
-
-
             })
             .OrderBy(x => x.SectionName).ToList();
 
-
-
-
-        // 5. ViewBag สำหรับ Header รายงาน
-        ViewBag.SectionFrom = string.IsNullOrEmpty(sectionFrom) ? "ทั้งหมด" : sectionFrom;
-        ViewBag.SectionTo = string.IsNullOrEmpty(sectionTo) ? "ทั้งหมด" : sectionTo;
+        // 5. ViewBag Setup (ทำทีเดียวให้ครบ)
+        ViewBag.SectionFrom = (string.IsNullOrEmpty(sectionFrom) || sectionFrom == "ทั้งหมด") ? "ทั้งหมด" : (sectionDict.TryGetValue(sectionFrom.Trim(), out var fName) ? fName : sectionFrom);
+        ViewBag.SectionTo = (string.IsNullOrEmpty(sectionTo) || sectionTo == "ทั้งหมด") ? "ทั้งหมด" : (sectionDict.TryGetValue(sectionTo.Trim(), out var tName) ? tName : sectionTo);
         ViewBag.StartDate = start;
         ViewBag.EndDate = end;
         ViewBag.Status = string.IsNullOrEmpty(status) ? "ทั้งหมด" : status;
         ViewBag.ApiUser = sessionName;
         ViewBag.PrintDate = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
-
-        // --- 5. ViewBag สำหรับ Header รายงาน ---
-
-        // แปลงรหัส Section From เป็นชื่อ
-        ViewBag.SectionFrom = (string.IsNullOrEmpty(sectionFrom) || sectionFrom == "ทั้งหมด")
-            ? "ทั้งหมด"
-            : (sectionDict.TryGetValue(sectionFrom.Trim(), out var fName) ? fName : sectionFrom);
-
-        // แปลงรหัส Section To เป็นชื่อ
-        ViewBag.SectionTo = (string.IsNullOrEmpty(sectionTo) || sectionTo == "ทั้งหมด")
-            ? "ทั้งหมด"
-            : (sectionDict.TryGetValue(sectionTo.Trim(), out var tName) ? tName : sectionTo);
-        // เพิ่มส่วนนี้เพื่อให้หน้า View มีข้อมูล Section ทั้งหมดไปทำ Lookup
+        ViewBag.RefNo = $"{DateTime.Now:yyMMdd}-{new Random().Next(100, 999)}";
         ViewBag.Section = sectionList;
 
+        SetReportMetadata(rptType);
 
-        // 6. Report Type Mapping & View Path
-        SetReportMetadata(rptType); // แยกไปเขียนเป็น Private Method เพื่อความสะอาด
-
+        // 6. View Selection
         string viewName = rptType?.ToUpper() switch
         {
             "JTR" => "PrintReport_Receiver_Checked",
@@ -144,7 +125,6 @@ public class ReportController : Controller
 
         return View(viewName, summaryData);
     }
-
     // --- 🛠️ Helper Methods ---
 
     private DateTime ParseDate(string? dateStr)

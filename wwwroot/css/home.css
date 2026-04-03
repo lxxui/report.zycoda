@@ -1,0 +1,67 @@
+﻿    .text-navy { color: #002d5b; }
+    .btn-navy { background-color: #002d5b; color: white; border: none; }
+    .btn-navy:hover { background-color: #001f3f; color: white; }
+    .bg-primary-soft { background-color: #e7f1ff; }
+    .stat-card h2 { font-size: 1.8rem; color: #333; }
+    .table thead th { 
+        font-size: 0.8rem; 
+        text-transform: uppercase; 
+        letter-spacing: 0.5px;
+        color: #6c757d;
+        border: none;
+    }
+    .avatar-sm-text {
+        width: 24px;
+        height: 24px;
+        background: #eee;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: bold;
+    }
+
+.text-navy {
+    color: #002d5b;
+}
+
+.btn-navy {
+    background-color: #002d5b;
+    color: white;
+    border: none;
+}
+
+    .btn-navy:hover {
+        background-color: #001f3f;
+        color: white;
+    }
+
+.bg-primary-soft {
+    background-color: #e7f1ff;
+}
+
+.stat-card h2 {
+    font-size: 1.8rem;
+    color: #333;
+}
+
+.table thead th {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6c757d;
+    border: none;
+}
+
+.avatar-sm-text {
+    width: 24px;
+    height: 24px;
+    background: #eee;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+}

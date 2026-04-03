@@ -1,0 +1,79 @@
+﻿
+:root {
+    --nav-blue: #0052cc;
+    --body-bg: #f4f7fa;
+}
+
+body {
+    background-color: var(--body-bg);
+    color: #334155;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    color: var(--nav-blue) !important;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.brand-logo {
+    height: 40px; /* ปรับขนาดความสูงโลโก้ตรงนี้ */
+    width: auto;
+    object-fit: contain;
+}
+
+.nav-link {
+    font-weight: 500;
+    color: #64748b !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+    .nav-link:hover {
+        color: var(--nav-blue) !important;
+        background: #f0f7ff;
+    }
+
+    .nav-link.active {
+        color: var(--nav-blue) !important;
+        background: #e0f0ff;
+    }
+
+/* Content Area */
+.content-wrapper {
+    min-height: calc(100vh - 160px);
+    padding-top: 20px;
+}
+
+/* Footer */
+footer {
+    background: white;
+    padding: 20px 0;
+    border-top: 1px solid #e2e8f0;
+    margin-top: 50px;
+    font-size: 0.85rem;
+}
+
+
+/* navbar fixed */
+.main-nav.fixed-top {
+    /* มั่นใจว่า Navbar อยู่ชั้นบนสุดเสมอ */
+    z-index: 1050;
+    /* เพิ่มพื้นหลังสีขาวกันโปร่งใสเวลาเลื่อนทับตัวหนังสือ */
+    background-color: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(10px); /* เพิ่ม Effect กระจกฝ้าให้ดูแพง */
+}
+
+.main-nav {
+    transition: all 0.3s ease-in-out;
+}
+
+    /* ถ้าอยากให้ Navbar เล็กลงนิดนึงเวลาเลื่อน (ต้องใช้ JS ช่วยเพิ่มคลาส 'scrolled') */
+.main-nav.scrolled {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        background-color: #fff !important;
+        /*box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;*/
+}

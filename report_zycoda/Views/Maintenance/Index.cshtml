@@ -278,6 +278,28 @@
         .card { transition: transform 0.2s; cursor: default; }
         .card:hover { transform: translateY(-5px); }
 
+        #loader-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6); /* พื้นหลังสีดำจางๆ */
+            z-index: 9999; /* ให้อยู่หน้าสุดเสมอ */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loader-container {
+            text-align: center;
+            color: white;
+        }
+
+        /* ปรับแต่ง Spinner ให้สีเข้มตามแบรนด์คุณ (ถ้าต้องการ) */
+        .text-primary {
+            color: #1e3a8a !important; /* สี Navy ตามธีมรายงานคุณ */
+        }
 </style>
 
 
@@ -803,6 +825,58 @@
         </div>
     </div>
 </div>
+<div id="loader-wrapper" style="display:none;">
+    <div class="loader-container">
+        @* <img src="~/images/loading.gif" alt="Loading..." /> *@
+        
+        <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <h5 class="mt-3 text-white">กำลังประมวลผลข้อมูล...</h5>
+    </div>
+</div>
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
+    <div id="newJobToast" class="toast hide shadow-lg" role="alert" aria-live="assertive" aria-atomic="true" style="border-radius: 15px; overflow: hidden; border: none; min-width: 300px;">
+        <div class="toast-header bg-navy text-white p-3">
+            <i class="bi bi-bell-fill me-2 animate-ring"></i>
+            <strong class="me-auto">ZYCODA SYSTEM</strong>
+            <small class="text-white-50">Just now</small>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body p-3 bg-white">
+            <div class="d-flex align-items-center">
+                <div class="flex-shrink-0">
+                    <div class="bg-soft-warning p-2 rounded-circle">
+                        <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+                    </div>
+                </div>
+                <div class="ms-3">
+                    <h6 class="mb-1 fw-bold text-navy">มีรายการแจ้งซ่อมใหม่!</h6>
+                    <p class="mb-0 small text-muted">ระบบอัปเดตข้อมูลให้คุณเรียบร้อยแล้ว</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* ทำไอคอนกระดิ่งให้สั่นเวลามีงานเข้า */
+    .animate-ring {
+        animation: ring 2s infinite;
+    }
+    @@keyframes ring {
+        0% { transform: rotate(0); }
+        10% { transform: rotate(30deg); }
+        20% { transform: rotate(-28deg); }
+        30% { transform: rotate(34deg); }
+        40% { transform: rotate(-32deg); }
+        50% { transform: rotate(30deg); }
+        60% { transform: rotate(-28deg); }
+        100% { transform: rotate(0); }
+    }
+</style>
+
+
 
 <script>
     // --------------------------------------------------
@@ -960,4 +1034,103 @@
             });
         }
     });
+
+    $(document).ready(function () {
+
+        // สั่งให้ทำงานทุก 60 วินาที
+            setInterval(refreshDashboard, 60000);
+
+    $('form').on('submit', function () {
+        // เช็คก่อนว่าฟอร์มผ่าน Validation ไหม (ถ้ามี)
+        // if ($(this).valid()) { 
+            
+            // แสดง Loader กลางหน้าจอ
+            $('#loader-wrapper').fadeIn(200); // หรือใช้ .show()
+            
+            // ปิดปุ่มค้นหาเพื่อกันกดซ้ำ
+            $('button[type="submit"]').prop('disabled', true);
+
+            
+            
+        // }
+    });
+});
+
+function refreshDashboard() {
+    // ดึงค่า Query String ปัจจุบัน (เพื่อให้ค้นหาตามเงื่อนไขที่เลือกค้างไว้ได้)
+    const params = new URLSearchParams(window.location.search);
+    
+    // ใช้ jQuery Load หรือ Fetch ไปดึงข้อมูล (ในที่นี้แนะนำให้เรียก API ที่คุณมีอยู่แล้ว)
+    // หรือถ้าเอาแบบกำปั้นทุบดิน คือสั่ง reload เฉพาะส่วน table และ card
+    $.get(window.location.href, function(data) {
+        // หาเฉพาะส่วนของ Content มาเปลี่ยน
+        const newHtml = $(data);
+        $('.row.g-3.mb-4.text-center').html(newHtml.find('.row.g-3.mb-4.text-center').html()); // อัปเดต Card ตัวเลข
+        $('#maintenanceTable').html(newHtml.find('#maintenanceTable').html()); // อัปเดตตาราง
+        
+        // ถ้ามีกราฟ ต้องสั่งทำลายกราฟเก่าแล้ววาดใหม่ด้วย (Chart.js .destroy())
+        console.log("Dashboard Updated: " + new Date().toLocaleTimeString());
+    });
+}
+
+    // ตัวแปรเก็บ Job ID ล่าสุดที่มีในหน้าจอตอนนี้
+    let lastJobId = 0;
+
+    $(document).ready(function() {
+        // หา ID ที่สูงที่สุดในตารางตอนโหลดหน้าครั้งแรก
+        updateLastJobId();
+        
+        // ตั้งเวลาเช็คทุก 1 นาที (60000 ms)
+        setInterval(checkNewJob, 60000);
+    });
+
+    function updateLastJobId() {
+        // ดึงตัวเลขจากคอลัมน์ Job ID (ที่เขียนว่า #12345)
+        $('.job-row').each(function() {
+            let id = parseInt($(this).data('id'));
+            if (id > lastJobId) lastJobId = id;
+        });
+    }
+
+    function checkNewJob() {
+        const currentUrl = window.location.href;
+
+        $.get(currentUrl, function(data) {
+            const newHtml = $(data);
+            let hasNewJob = false;
+
+            // เช็คว่าในข้อมูลใหม่ มี ID ที่มากกว่า lastJobId ไหม
+            newHtml.find('.job-row').each(function() {
+                let id = parseInt($(this).data('id'));
+                if (id > lastJobId) {
+                    hasNewJob = true;
+                    return false; // ออกจาก loop
+                }
+            });
+
+            if (hasNewJob) {
+                // 1. แสดง Toast แจ้งเตือน
+                $('#newJobToast').toast({ delay: 5000 }); // แสดง 5 วินาที
+                $('#newJobToast').toast('show');
+                
+                // 2. เล่นเสียงแจ้งเตือน (Optional - ถ้าอยากให้มีเสียง)
+                // playNotificationSound();
+
+                // 3. อัปเดตข้อมูลในหน้าจอ (เรียกฟังก์ชันเดิม)
+                refreshDashboard();
+                
+                // 4. อัปเดต lastJobId เป็นค่าใหม่ล่าสุด
+                setTimeout(updateLastJobId, 2000);
+            }
+        });
+    }
+
+    function refreshDashboard() {
+        $.get(window.location.href, function(data) {
+            const newHtml = $(data);
+            $('.row.g-3.mb-4.text-center').html(newHtml.find('.row.g-3.mb-4.text-center').html());
+            $('#maintenanceTable tbody').html(newHtml.find('#maintenanceTable tbody').html());
+            // ถ้ามีกราฟ อย่าลืมอัปเดตกราฟที่นี่ด้วยครับ
+        });
+    }
 </script>

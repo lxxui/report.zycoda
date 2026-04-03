@@ -3,6 +3,10 @@
 
 @{
     Layout = null;
+    var version = "1.0.0";
+    // ดึงเวลาที่ Build หรือเวลาที่ไฟล์ DLL แก้ไขล่าสุด
+    var assemblyPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+    var buildDate = System.IO.File.GetLastWriteTime(assemblyPath).ToString("dd/MM/yyyy HH:mm");
 }
 
 <!DOCTYPE html>
@@ -80,8 +84,11 @@
                 <button type="submit" class="btn-login">Sign In</button>
             </form>
 
-            <div class="footer-text">
-                &copy; 2026 Zycoda. All rights reserved.
+           <div class="footer-text">
+                &copy; 2026 Zycoda. All rights reserved. <br />
+                <small style="opacity: 0.7; font-weight: 300; letter-spacing: 0.5px;">
+                    v.@version | Last Build: @buildDate
+                </small>
             </div>
         </div>
 

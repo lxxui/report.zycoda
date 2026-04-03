@@ -1,0 +1,87 @@
+[
+  {
+    "section": "321000",
+    "name": "ส่วนการผลิต ฝ่ายผลิต โรงงานบางชัน"
+  },
+  {
+    "section": "321010",
+    "name": "แผนกผลิต1 ส่วนการผลิตบางชัน 1 ฝ่ายผลิต บางชัน"
+  },
+  {
+    "section": "321010",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต1 ส่วนการผลิตบางชัน 1 ฝ่ายผลิต บางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "321020",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต2 ส่วนการผลิตบางชัน 2 ฝ่ายผลิต บางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "321030",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต3 ส่วนการผลิตบางชัน 1 ฝ่ายผลิต บางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "321040",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต4 ส่วนการผลิตบางชัน 2 ฝ่ายผลิต บางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "321050",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต5 ส่วนการผลิตบางชัน 2 ฝ่ายผลิต บางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "321060",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต6 ส่วนการผลิตบางชัน 1 ฝ่ายผลิต บางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "321070",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต7 ส่วนการผลิตบางชัน 2 ฝ่ายผลิต บางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "321080",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต8 ส่วนการผลิตบางชัน 3 ฝ่ายผลิต บางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "321090",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต9 ส่วนการผลิตบางชัน 3 ฝ่ายผลิต บางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "321100",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต10 ส่วนการผลิตบางชัน 3 ฝ่ายผลิต บางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  },
+  {
+    "section": "321110",
+    "plant": "FARMHOUSE",
+    "name": "แผนกผลิต11 ส่วนการผลิตบางชัน 3 ฝ่ายผลิต บางชัน",
+    "permitrequest": 0,
+    "workcenter": ""
+  }
+]

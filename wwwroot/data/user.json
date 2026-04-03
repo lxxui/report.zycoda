@@ -1,0 +1,49 @@
+﻿[
+  {
+    "class": 3,
+    "email": "narirat.jun1@pbplc.co.th",
+    "firstname": "คุณนารีรัตน์",
+    "id": "0M1751609393",
+    "password": "3582",
+    "lastname": "จันทา",
+    "planner_group": null,
+    "plant": "FARMHOUSE",
+    "position": null,
+    "rule": "Administrator,User,FL",
+    "section": "ITRECEIVE",
+    "sectionoption": null,
+    "smallgroup": null,
+    "username": "723582",
+    "active": "on",
+    "tel": null,
+    "work_center": null,
+    "userAD": null,
+    "subUsers": null,
+    "expire_active": null
+  },
+  {
+    "class": 3,
+    "email": "yaowapa.klu@pbplc.co.th",
+    "firstname": "คุณเยาวภา",
+    "id": "0M000007",
+    "password": "8768",
+    "lastname": "กล่ำกลาย",
+    "planner_group": null,
+    "plant": "FARMHOUSE",
+    "position": null,
+    "rule": "User,PMMaster",
+    "section": "321040",
+    "sectionoption": "321010,321020,321030,321040,321050,321060,321070,321080,321090,321100,321110",
+    "smallgroup": null,
+    "username": "188768",
+    "active": "on",
+    "tel": null,
+    "work_center": null,
+    "userAD": null,
+    "subUsers": null,
+    "expire_active": null
+  }
+]
+
+
+

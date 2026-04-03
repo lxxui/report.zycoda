@@ -132,6 +132,59 @@
             size: A4 landscape;
             margin: 0.8cm; /* จากเดิม 1.5cm ลดลงเพื่อให้พอดีหน้าเดียว */
         }
+
+                /* Filter Box ใหม่ - เน้นความโปร่งและสะอาด */
+.filter-container {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.filter-group {
+    display: flex;
+    gap: 30px; /* เว้นระยะห่างระหว่างกลุ่มข้อมูล */
+}
+
+.filter-item {
+    display: flex;
+    flex-direction: column; /* จัด Label ไว้บน Data ไว้ล่าง */
+    gap: 4px;
+}
+
+.filter-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--secondary-color);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.filter-value {
+    font-size: 14px;
+    color: #1e293b;
+    font-weight: 500;
+}
+
+.filter-value b {
+    color: var(--primary-color);
+}
+
+/* ปรับแต่ง Badge สถานะใน Filter ให้เด่นขึ้น */
+.filter-status-badge {
+    background: #eff6ff;
+    color: #1d4ed8;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-weight: 700;
+    border: 1px solid #dbeafe;
+}
+
     </style>
 </head>
 <body>
@@ -175,28 +228,45 @@
         </tr>
     </table>
 
-   <div class="filter-container">
-    <div class="filter-item">จากหน่วยงาน: <b>@ViewBag.SectionFrom</b> ถึง <b>@ViewBag.SectionTo</b></div>
-    
-    <div class="filter-item">
-        @{
-            // แปลงวันที่ StartDate
-            string displayStart = "-";
-            if (DateTime.TryParse(ViewBag.StartDate?.ToString(), out DateTime dStart)) {
-                displayStart = dStart.ToString("dd/MM/yy"); // หรือ "dd/MM/yyyy" ตามชอบ
-            }
+    <div class="filter-container">
+    <div class="filter-group">
+        <div class="filter-item">
+            <span class="filter-label">🌐 ขอบเขตหน่วยงาน (Section)</span>
+            <span class="filter-value">
+                <b>@ViewBag.SectionFrom</b> 
+                <span style="color: #cbd5e1; margin: 0 8px;">→</span> 
+                <b>@ViewBag.SectionTo</b>
+            </span>
+        </div>
 
-            // แปลงวันที่ EndDate
-            string displayEnd = "-";
-            if (DateTime.TryParse(ViewBag.EndDate?.ToString(), out DateTime dEnd)) {
-                displayEnd = dEnd.ToString("dd/MM/yy");
-            }
-        }
-        ตั้งแต่วันที่: <b>@displayStart ถึง @displayEnd</b>
+        <div class="filter-item">
+            <span class="filter-label">📅 ช่วงเวลาที่เลือก (Period)</span>
+            <span class="filter-value">
+                @{
+                    string displayStart = "-";
+                    if (DateTime.TryParse(ViewBag.StartDate?.ToString(), out DateTime dStart)) {
+                        displayStart = dStart.ToString("dd/MM/yyyy");
+                    }
+                    string displayEnd = "-";
+                    if (DateTime.TryParse(ViewBag.EndDate?.ToString(), out DateTime dEnd)) {
+                        displayEnd = dEnd.ToString("dd/MM/yyyy");
+                    }
+                }
+                @displayStart <span style="color: #cbd5e1; margin: 0 5px;">-</span> @displayEnd
+            </span>
+        </div>
     </div>
 
-    <div class="filter-item">สถานะ JOB: <span class="badge badge-status" style="vertical-align: middle;">@ViewBag.Status</span></div>
+    <div class="filter-item text-right">
+        <span class="filter-label">สถานะงาน (Status)</span>
+        <div style="margin-top: 4px;">
+            <span class="filter-status-badge">
+                @(string.IsNullOrEmpty(ViewBag.Status?.ToString()) ? "ทั้งหมด" : ViewBag.Status)
+            </span>
+        </div>
+    </div>
 </div>
+
     <table class="data-table">
         <thead>
             <tr>
