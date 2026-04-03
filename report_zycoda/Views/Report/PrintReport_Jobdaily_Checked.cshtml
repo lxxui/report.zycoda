@@ -1,5 +1,4 @@
-﻿@* @model List<report_zycoda.Models.MaintenanceApiModels> *@
-@model IEnumerable<dynamic>
+﻿@model IEnumerable<dynamic>
 @{
     Layout = null;
 }
@@ -155,41 +154,55 @@
             <td class="text-center">
                 <h1 class="title-main" style="letter-spacing: 1px;">รายงานติดตามความคืบหน้า Job</h1>
                 <div class="subtitle">
-                    @* ปรับตามที่ Fai อยากได้: (สำหรับผู้แจ้งงานตรวจสอบ) *@
-                    หน่วยงาน: <b>@ViewBag.DepartmentName</b> (สำหรับผู้แจ้งงานตรวจสอบ)
+                    <b>สำหรับผู้แจ้งงานตรวจสอบ</b>
+                    @* หน่วยงาน: <b>@ViewBag.DepartmentName</b> (สำหรับผู้แจ้งงานตรวจสอบ) *@
                 </div>
             </td>
-            <td style="width:25%;" class="text-right subtitle">   
                <td style="width:25%;" class="text-right subtitle">
                     <div>ผู้จัดทำ: @ViewBag.ApiUser </div>
                     <div>พิมพ์เมื่อ: <span id="live-print-time">@DateTime.Now.ToString("dd/MM/yy HH:mm:ss")</span></div>
                     <div>หน้า: 1 / 1</div>
                </td>
-            </td>
         </tr>
     </table>
 
-   <div class="filter-container">
-    <div class="filter-item">จากหน่วยงาน: <b>@ViewBag.SectionFrom</b> ถึง <b>@ViewBag.SectionTo</b></div>
-    
-    <div class="filter-item">
-        @{
-            // แปลงวันที่ StartDate
-            string displayStart = "-";
-            if (DateTime.TryParse(ViewBag.StartDate?.ToString(), out DateTime dStart)) {
-                displayStart = dStart.ToString("dd/MM/yy"); // หรือ "dd/MM/yyyy" ตามชอบ
-            }
+  <div class="filter-container">
+    <div class="filter-group">
+        <div class="filter-item">
+            <span class="filter-label">🌐 ขอบเขตหน่วยงาน (Section)</span>
+            <span class="filter-value">
+                <b>@ViewBag.SectionFrom</b> 
+                <span style="color: #cbd5e1; margin: 0 8px;">→</span> 
+                <b>@ViewBag.SectionTo</b>
+            </span>
+        </div>
 
-            // แปลงวันที่ EndDate
-            string displayEnd = "-";
-            if (DateTime.TryParse(ViewBag.EndDate?.ToString(), out DateTime dEnd)) {
-                displayEnd = dEnd.ToString("dd/MM/yy");
-            }
-        }
-        ตั้งแต่วันที่: <b>@displayStart ถึง @displayEnd</b>
+        <div class="filter-item">
+            <span class="filter-label">📅 ช่วงเวลาที่เลือก (Period)</span>
+            <span class="filter-value">
+                @{
+                    string displayStart = "-";
+                    if (DateTime.TryParse(ViewBag.StartDate?.ToString(), out DateTime dStart)) {
+                        displayStart = dStart.ToString("dd/MM/yyyy");
+                    }
+                    string displayEnd = "-";
+                    if (DateTime.TryParse(ViewBag.EndDate?.ToString(), out DateTime dEnd)) {
+                        displayEnd = dEnd.ToString("dd/MM/yyyy");
+                    }
+                }
+                @displayStart <span style="color: #cbd5e1; margin: 0 5px;">-</span> @displayEnd
+            </span>
+        </div>
     </div>
 
-    <div class="filter-item">สถานะ JOB: <span class="badge badge-status" style="vertical-align: middle;">@ViewBag.Status</span></div>
+    <div class="filter-item text-right">
+        <span class="filter-label">สถานะงาน (Status)</span>
+        <div style="margin-top: 4px;">
+            <span class="filter-status-badge">
+                @(string.IsNullOrEmpty(ViewBag.Status?.ToString()) ? "ทั้งหมด" : ViewBag.Status)
+            </span>
+        </div>
+    </div>
 </div>
     <table class="data-table">
         <thead>

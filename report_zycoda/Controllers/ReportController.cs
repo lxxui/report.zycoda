@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using report_zycoda.Models;
 using System.Reflection.Metadata;
 using System.Text.Json;
+using static System.Collections.Specialized.BitVector32;
 
 public class ReportController : Controller
 {
@@ -92,8 +93,14 @@ public class ReportController : Controller
                 Finished = g.Count(x => x.status == "Finish" && !string.IsNullOrEmpty(x.timeclose) && ParseDate(x.timeclose) == atDate),
                 RejectedToday = g.Count(x => x.status == "Reject"),
                 WaitPart = g.Count(x => (x.status != null && x.status.Contains("Spare")) || (x.statustext != null && x.statustext.Contains("อะไหล่")))
+
+
+
             })
             .OrderBy(x => x.SectionName).ToList();
+
+
+
 
         // 5. ViewBag สำหรับ Header รายงาน
         ViewBag.SectionFrom = string.IsNullOrEmpty(sectionFrom) ? "ทั้งหมด" : sectionFrom;
@@ -103,6 +110,21 @@ public class ReportController : Controller
         ViewBag.Status = string.IsNullOrEmpty(status) ? "ทั้งหมด" : status;
         ViewBag.ApiUser = sessionName;
         ViewBag.PrintDate = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+
+        // --- 5. ViewBag สำหรับ Header รายงาน ---
+
+        // แปลงรหัส Section From เป็นชื่อ
+        ViewBag.SectionFrom = (string.IsNullOrEmpty(sectionFrom) || sectionFrom == "ทั้งหมด")
+            ? "ทั้งหมด"
+            : (sectionDict.TryGetValue(sectionFrom.Trim(), out var fName) ? fName : sectionFrom);
+
+        // แปลงรหัส Section To เป็นชื่อ
+        ViewBag.SectionTo = (string.IsNullOrEmpty(sectionTo) || sectionTo == "ทั้งหมด")
+            ? "ทั้งหมด"
+            : (sectionDict.TryGetValue(sectionTo.Trim(), out var tName) ? tName : sectionTo);
+        // เพิ่มส่วนนี้เพื่อให้หน้า View มีข้อมูล Section ทั้งหมดไปทำ Lookup
+        ViewBag.Section = sectionList;
+
 
         // 6. Report Type Mapping & View Path
         SetReportMetadata(rptType); // แยกไปเขียนเป็น Private Method เพื่อความสะอาด
