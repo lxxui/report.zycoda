@@ -47,6 +47,8 @@ namespace report_zycoda.Models
 
         public string? useraccept { get; set; }
 
+        public string? userfinish { get; set; }
+
         public string? timefinish { get; set; }
 
         public List<string>? uassign { get; set; }

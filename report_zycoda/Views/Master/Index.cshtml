@@ -1,219 +1,231 @@
-﻿<div class="container-fluid mt-5 px-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-navy fw-bold mb-0">
-            <i class="bi bi-gear-fill me-2"></i>ระบบจัดการข้อมูล Master
-        </h2>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a asp-controller="Maintenance" asp-action="Index" class="text-decoration-none">Home</a></li>
-                <li class="breadcrumb-item active">Master Setup</li>
-            </ol>
-        </nav>
-    </div>
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div class="container-fluid mt-5 px-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-navy fw-bold mb-0">
+                <i class="bi bi-gear-fill me-2"></i>ระบบจัดการข้อมูล Master
+            </h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a asp-controller="Maintenance" asp-action="Index" class="text-decoration-none">Home</a></li>
+                    <li class="breadcrumb-item active">Master Setup</li>
+                </ol>
+            </nav>
+        </div>
 
-    <ul class="nav nav-tabs border-0 mb-3" id="masterTab" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active fw-bold border-0 text-navy" id="section-tab" data-bs-toggle="tab" data-bs-target="#section-panel" type="button">
-                <i class="bi bi-building me-2"></i>จัดการหน่วยงาน
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link fw-bold border-0 text-navy" id="user-tab" data-bs-toggle="tab" data-bs-target="#user-panel" type="button">
-                <i class="bi bi-people me-2"></i>จัดการผู้ใช้งาน
-            </button>
-        </li>
-    </ul>
-
-    <div class="tab-content shadow-sm rounded-3 bg-white p-4" id="masterTabContent">
-        
-        <div class="tab-pane fade show active" id="section-panel" role="tabpanel">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="text-navy fw-bold mb-0"><i class="bi bi-list-ul me-2"></i>รายชื่อหน่วยงาน</h5>
-                <button class="btn btn-navy btn-sm px-3 rounded-pill shadow-sm" onclick="addSection()">
-                    <i class="bi bi-plus-circle me-1"></i> เพิ่มหน่วยงาน
+        <ul class="nav nav-tabs border-0 mb-3" id="masterTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active fw-bold border-0 text-navy" id="section-tab" data-bs-toggle="tab" data-bs-target="#section-panel" type="button">
+                    <i class="bi bi-building me-2"></i>จัดการหน่วยงาน
                 </button>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-hover align-middle datatable w-100">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="py-3">รหัสหน่วยงาน</th>
-                            <th class="py-3">ชื่อหน่วยงาน</th>
-                            <th class="py-3 text-center" style="width: 150px;">จัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in (List<report_zycoda.Models.SectionApiModels>)ViewBag.Sections)
-                        {
-                            <tr>
-                                <td class="fw-bold">@item.section</td>
-                                <td>@item.name</td>
-                                <td class="text-center">
-                                    <button class="btn btn-sm btn-outline-primary rounded-pill me-1" onclick="editSection('@item.section', '@item.name')">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger rounded-pill">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="tab-pane fade" id="user-panel" role="tabpanel">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="text-navy fw-bold mb-0"><i class="bi bi-person-badge me-2"></i>รายชื่อผู้ใช้งาน</h5>
-                <button class="btn btn-navy btn-sm px-3 rounded-pill shadow-sm" onclick="addUser()">
-                    <i class="bi bi-person-plus me-1"></i> เพิ่มผู้ใช้
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold border-0 text-navy" id="user-tab" data-bs-toggle="tab" data-bs-target="#user-panel" type="button">
+                    <i class="bi bi-people me-2"></i>จัดการผู้ใช้งาน
                 </button>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-hover align-middle datatable w-100">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="py-3">Username</th>
-                            <th class="py-3">ชื่อ-นามสกุล</th>
-                            <th class="py-3">สิทธิ์</th>
-                            <th class="py-3 text-center" style="width: 150px;">จัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var user in (List<report_zycoda.Models.UserApiModels>)ViewBag.Users)
-                        {
+            </li>
+        </ul>
+
+        <div class="tab-content shadow-sm rounded-3 bg-white p-4" id="masterTabContent">
+
+            <div class="tab-pane fade show active" id="section-panel" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="text-navy fw-bold mb-0"><i class="bi bi-list-ul me-2"></i>รายชื่อหน่วยงาน</h5>
+                    <button class="btn btn-navy btn-sm px-3 rounded-pill shadow-sm" onclick="addSection()">
+                        <i class="bi bi-plus-circle me-1"></i> เพิ่มหน่วยงาน
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle datatable w-100">
+                        <thead class="table-light">
                             <tr>
-                                <td><span class="badge bg-light text-dark border p-2">@user.work_center</span></td>
-                                <td>@user.firstname @user.lastname</td>
-                                <td>
-                                    @if (user.rule == "Administrator")
-                                    {
-                                        <span class="badge bg-danger rounded-pill">Administrator</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-info rounded-pill">User</span>
-                                    }
-                                </td>
-                                <td class="text-center">
-                                    <button class="btn btn-sm btn-outline-primary rounded-pill me-1">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger rounded-pill">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </td>
+                                <th class="py-3">รหัสหน่วยงาน</th>
+                                <th class="py-3">ชื่อหน่วยงาน</th>
+                                <th class="py-3 text-center" style="width: 150px;">จัดการ</th>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in (List<report_zycoda.Models.SectionApiModels>)ViewBag.Sections)
+                            {
+                                <tr>
+                                    <td class="fw-bold">@item.section</td>
+                                    <td>@item.name</td>
+                                    <td class="text-center">
+                                        <button class="btn btn-sm btn-outline-primary rounded-pill me-1" onclick="editSection('@item.section', '@item.name')">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger rounded-pill">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="user-panel" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="text-navy fw-bold mb-0"><i class="bi bi-person-badge me-2"></i>รายชื่อผู้ใช้งาน</h5>
+                    <button class="btn btn-navy btn-sm px-3 rounded-pill shadow-sm" onclick="addUser()">
+                        <i class="bi bi-person-plus me-1"></i> เพิ่มผู้ใช้
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle datatable w-100">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="py-3">Username</th>
+                                <th class="py-3">ชื่อ-นามสกุล</th>
+                                <th class="py-3">สิทธิ์</th>
+                                <th class="py-3 text-center" style="width: 150px;">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in (List<report_zycoda.Models.UserApiModels>)ViewBag.Users)
+                            {
+                                <tr>
+                                    <td><span class="badge bg-light text-dark border p-2">@user.work_center</span></td>
+                                    <td>@user.firstname @user.lastname</td>
+                                    <td>
+                                        @if (user.rule == "Administrator")
+                                        {
+                                            <span class="badge bg-danger rounded-pill">Administrator</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-info rounded-pill">User</span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-sm btn-outline-primary rounded-pill me-1">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger rounded-pill">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="modal fade" id="sectionModal" data-bs-backdrop="static" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <form asp-controller="Master" asp-action="SaveSection" method="post">
+                    <div class="modal-header bg-navy text-white">
+                        <h5 class="modal-title" id="sectionModalTitle"><i class="bi bi-plus-lg me-2"></i>เพิ่มหน่วยงาน</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">รหัสหน่วยงาน</label>
+                            <input type="text" name="section" id="inSectionCode" class="form-control form-control-lg border-light bg-light" placeholder="ระบุรหัสหน่วยงาน" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ชื่อหน่วยงาน</label>
+                            <input type="text" name="name" id="inSectionName" class="form-control form-control-lg border-light bg-light" placeholder="ระบุชื่อหน่วยงาน" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">ยกเลิก</button>
+                        <button type="submit" class="btn btn-navy px-4 rounded-pill">บันทึกข้อมูล</button>
+                    </div>
+                </form>
             </div>
         </div>
-
     </div>
-</div>
-
-<div class="modal fade" id="sectionModal" data-bs-backdrop="static" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <form asp-controller="Master" asp-action="SaveSection" method="post">
-                <div class="modal-header bg-navy text-white">
-                    <h5 class="modal-title" id="sectionModalTitle"><i class="bi bi-plus-lg me-2"></i>เพิ่มหน่วยงาน</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">รหัสหน่วยงาน</label>
-                        <input type="text" name="section" id="inSectionCode" class="form-control form-control-lg border-light bg-light" placeholder="ระบุรหัสหน่วยงาน" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">ชื่อหน่วยงาน</label>
-                        <input type="text" name="name" id="inSectionName" class="form-control form-control-lg border-light bg-light" placeholder="ระบุชื่อหน่วยงาน" required>
-                    </div>
-                </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">ยกเลิก</button>
-                    <button type="submit" class="btn btn-navy px-4 rounded-pill">บันทึกข้อมูล</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-@section Scripts {
-    <script>
-        $(document).ready(function() {
-            // 1. สั่งให้ตารางทำงานแบบ DataTable (ค้นหา/แบ่งหน้า)
-            $('.datatable').DataTable({
-                "language": {
-                    "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/th.json"
-                }
+    @section Scripts {
+        <script>
+            $(document).ready(function() {
+                // 1. สั่งให้ตารางทำงานแบบ DataTable (ค้นหา/แบ่งหน้า)
+                $('.datatable').DataTable({
+                    "language": {
+                        "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/th.json"
+                    }
+                });
             });
-        });
 
-        // ==========================================
-        // 🏢 ฟังก์ชันสำหรับ SECTION
-        // ==========================================
+            // ==========================================
+            // 🏢 ฟังก์ชันสำหรับ SECTION
+            // ==========================================
 
-        function addSection() {
-            $('#sectionModalTitle').html('<i class="bi bi-plus-lg me-2"></i>เพิ่มหน่วยงาน');
-            $('#inSectionCode').val('').attr('readonly', false); // เคลียร์ค่า และให้กรอกรหัสได้
-            $('#inSectionName').val('');
-            $('#sectionModal').modal('show');
-        }
+            function addSection() {
+                $('#sectionModalTitle').html('<i class="bi bi-plus-lg me-2"></i>เพิ่มหน่วยงาน');
+                $('#inSectionCode').val('').attr('readonly', false); // เคลียร์ค่า และให้กรอกรหัสได้
+                $('#inSectionName').val('');
+                $('#sectionModal').modal('show');
+            }
 
-        function editSection(code, name) {
-            $('#sectionModalTitle').html('<i class="bi bi-pencil me-2"></i>แก้ไขหน่วยงาน');
-            $('#inSectionCode').val(code).attr('readonly', true); // ใส่รหัสเดิม และล็อคไว้ห้ามแก้
-            $('#inSectionName').val(name); // ใส่ชื่อเดิมให้แก้ไข
-            $('#sectionModal').modal('show');
-        }
+            function editSection(code, name) {
+                $('#sectionModalTitle').html('<i class="bi bi-pencil me-2"></i>แก้ไขหน่วยงาน');
+                $('#inSectionCode').val(code).attr('readonly', true); // ใส่รหัสเดิม และล็อคไว้ห้ามแก้
+                $('#inSectionName').val(name); // ใส่ชื่อเดิมให้แก้ไข
+                $('#sectionModal').modal('show');
+            }
 
-        // ==========================================
-        // 👥 ฟังก์ชันสำหรับ USER
-        // ==========================================
+            // ==========================================
+            // 👥 ฟังก์ชันสำหรับ USER
+            // ==========================================
 
-        function addUser() {
-            $('#userModalTitle').html('<i class="bi bi-person-plus me-2"></i>เพิ่มผู้ใช้งาน');
-            $('#inUsername').val('').attr('readonly', false);
-            $('#inLastname').val('');
-            $('#inRule').val('');
-            $('#userModal').modal('show'); // อย่าลืมสร้าง Modal User แยกอีกลูกนะครับ
-        }
+            function addUser() {
+                $('#userModalTitle').html('<i class="bi bi-person-plus me-2"></i>เพิ่มผู้ใช้งาน');
+                $('#inUsername').val('').attr('readonly', false);
+                $('#inLastname').val('');
+                $('#inRule').val('');
+                $('#userModal').modal('show'); // อย่าลืมสร้าง Modal User แยกอีกลูกนะครับ
+            }
 
-        function editUser(username, lastname, rule) {
-            $('#userModalTitle').html('<i class="bi bi-pencil me-2"></i>แก้ไขผู้ใช้งาน');
-            $('#inUsername').val(username).attr('readonly', true);
-            $('#inLastname').val(lastname);
-            $('#inRule').val(rule);
-            $('#userModal').modal('show');
-        }
+            function editUser(username, lastname, rule) {
+                $('#userModalTitle').html('<i class="bi bi-pencil me-2"></i>แก้ไขผู้ใช้งาน');
+                $('#inUsername').val(username).attr('readonly', true);
+                $('#inLastname').val(lastname);
+                $('#inRule').val(rule);
+                $('#userModal').modal('show');
+            }
 
-        // ==========================================
-        // 🗑️ ฟังก์ชันลบ (ใช้ SweetAlert2)
-        // ==========================================
-        function deleteData(type, id) {
-            Swal.fire({
-                title: 'ยืนยันการลบ?',
-                text: "ข้อมูลนี้จะถูกลบออกจากไฟล์ " + type + ".json",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc3545',
-                confirmButtonText: 'ยืนยัน ลบเลย',
-                cancelButtonText: 'ยกเลิก',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // สร้าง Form ชั่วคราวเพื่อส่งค่า POST ไปที่ Controller
-                    let actionName = type === 'section' ? 'DeleteSection' : 'DeleteUser';
-                    let form = $('<form action="/Master/' + actionName + '" method="post">' +
-                        '<input type="hidden" name="id" value="' + id + '" />' +
-                        '</form>');
-                    $('body').append(form);
-                    form.submit();
-                }
-            });
-        }
-    </script>
-}
+            // ==========================================
+            // 🗑️ ฟังก์ชันลบ (ใช้ SweetAlert2)
+            // ==========================================
+            function deleteData(type, id) {
+                Swal.fire({
+                    title: 'ยืนยันการลบ?',
+                    text: "ข้อมูลนี้จะถูกลบออกจากไฟล์ " + type + ".json",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    confirmButtonText: 'ยืนยัน ลบเลย',
+                    cancelButtonText: 'ยกเลิก',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // สร้าง Form ชั่วคราวเพื่อส่งค่า POST ไปที่ Controller
+                        let actionName = type === 'section' ? 'DeleteSection' : 'DeleteUser';
+                        let form = $('<form action="/Master/' + actionName + '" method="post">' +
+                            '<input type="hidden" name="id" value="' + id + '" />' +
+                            '</form>');
+                        $('body').append(form);
+                        form.submit();
+                    }
+                });
+            }
+        </script>
+    }
+</body>
+</html>
+
+
+
+
