@@ -713,12 +713,12 @@
                                     data-type="@item.jobtype"
                                     data-detail="@item.detail"
                                     data-user="@item.usercreate"
-                                    @* แก้ไขตรงนี้: ให้ส่งค่า section ที่มาจาก API *@
                                     data-sectioncreate="@item.sectioncreate"
                                     data-section="@item.section"
                                     data-css="@item.StatusCssClass"
                                     data-uassign="@(item.uassign != null && item.uassign.Any() ? string.Join(", ", item.uassign) : "")"
                                     data-useraccept="@item.useraccept"
+                                    data-userfinish="@item.userfinish"
                                     data-timecreate="@item.timecreate"
                                     data-timeaccept="@item.timeaccept">
 
@@ -837,8 +837,7 @@
 
                                     <div class="p-3 rounded-3" style="background: #f8fafc; border: 1px solid #edf2f7;">
                                         <div class="info-label text-success"><i class="bi bi-person-badge-fill me-1"></i> วิศวกรผู้ดูแล (Engineer)</div>
-                                         <div id="mAccept" class="fw-bold fs-6 text-dark mt-1">...</div>
-                                        <div id="mFinish" class="fw-bold fs-6 text-dark mt-1">...</div>
+                                        <div id="mFinish" class="fw-bold fs-6 text-dark mt-1">-</div>
                                         <div class="text-muted mt-1" style="font-size: 0.8rem;">
                                             <i class="bi bi-clock-history me-1"></i> รับงานเมื่อ: <span id="mTimeAccept">-</span>
                                         </div>
@@ -1086,7 +1085,7 @@
 
                     const acceptUser = $el.data('useraccept');
                     const finishUser = $el.data('userfinish');
-                    $('#mfinish').text(finishUser || 'ยังไม่มีผู้รับงาน');
+                    $('#mFinish').text(finishUser || 'ยังไม่มีผู้รับงาน');
                     // มี accept / finish 
                     $('#mAccept').text(acceptUser || 'ยังไม่มีผู้รับงาน');
 
