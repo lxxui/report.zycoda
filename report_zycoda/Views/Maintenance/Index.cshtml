@@ -1055,9 +1055,28 @@
                     });
                 }
 
-                // DatePickers
-                flatpickr("#startDatePicker", { dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y" });
-                flatpickr("#endDatePicker", { dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y" });
+                // คำนวณช่วงวันที่
+                const today = new Date();
+                const minDate = new Date();
+                minDate.setFullYear(today.getFullYear() - 2);
+
+                // Start Date
+                flatpickr("#startDatePicker", {
+                    dateFormat: "Y-m-d",
+                    altInput: true,
+                    altFormat: "d/m/Y",
+                    minDate: minDate,
+                    maxDate: today
+                });
+
+                // End Date
+                flatpickr("#endDatePicker", {
+                    dateFormat: "Y-m-d",
+                    altInput: true,
+                    altFormat: "d/m/Y",
+                    minDate: minDate,
+                    maxDate: today
+                });
 
                 // Click Row เพื่อดู Modal
                 $('.job-row').on('click', function() {
