@@ -59,6 +59,20 @@ public class ApiService
         }
     }
 
+    public async Task<List<StatusApiModels>> GetStatusesFromApiAsync()
+    {
+        try
+        {
+            return await _context.Statuses.AsNoTracking().ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"🚩 DB Status Error: {ex.Message}");
+            return new List<StatusApiModels>();
+        }
+    }
+
+
     // ✅ 3. ดึงงานซ่อม (Maintenance): เรียกผ่าน External API 
     public async Task<List<MaintenanceApiModels>> GetJobs(string jobtype, string start, string end, string? user = null, string? pwd = null)
     {

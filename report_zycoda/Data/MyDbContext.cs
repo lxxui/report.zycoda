@@ -9,6 +9,7 @@ namespace report_zycoda.Data
 
         public DbSet<UserApiModels> Users { get; set; } = null!;
         public DbSet<SectionApiModels> Sections { get; set; } = null!;
+        public DbSet<StatusApiModels> Statuses { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

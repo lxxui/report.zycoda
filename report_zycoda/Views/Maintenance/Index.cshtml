@@ -527,7 +527,7 @@
                             <option value="">-- ทั้งหมด --</option>
                             @foreach (var Stat in (List<report_zycoda.Models.StatusApiModels>)ViewBag.StatusList)
                             {
-                                <option value="@Stat.id" selected="@(ViewBag.CurrentStatus == Stat.id ? "selected" : null)">@Stat.name</option>
+                                <option value="@Stat.StatusId" selected="@(ViewBag.CurrentStatus == Stat.StatusId ? "selected" : null)">@Stat.StatusName</option>
                             }
                         </select>
                     </div>

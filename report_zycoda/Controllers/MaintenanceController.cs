@@ -55,16 +55,13 @@ namespace report_zycoda.Controllers
 
             // --- ส่วนที่ 4 ใน MaintenanceController ---
 
-            // 1. ดึง Section จาก API (ตามที่เราคุยกันไว้ ว่าไม่เอาไฟล์)
+            // 1. ดึง Section จาก API 
             var sectionMaster = await _apiService.GetSectionsFromApiAsync();
             ViewBag.SectionList = sectionMaster.OrderBy(x => x.Sections).ToList();
 
-            // 2. ส่วนของ Status (ถ้ายังต้องใช้ไฟล์ status.json อยู่)
-            var jsonStatus = await System.IO.File.ReadAllTextAsync("wwwroot/data/status.json");
+            var statusMaster = await _apiService.GetStatusesFromApiAsync();
+            ViewBag.StatusList = statusMaster.OrderBy(x => x.StatusId).ToList();
 
-            // ✅ เปลี่ยนมาใช้ Newtonsoft.Json (JsonConvert) แทน JsonSerializer ของเดิมครับ
-            // วิธีนี้จะช่วยข้าม Error "Cannot get the value of a token type 'Null' as a number" ได้ทันที
-            ViewBag.StatusList = JsonConvert.DeserializeObject<List<StatusApiModels>>(jsonStatus) ?? new();
 
             // 5. เรียก API เพื่อดึงข้อมูล Job Order
             var queryParams = new Dictionary<string, string?>
