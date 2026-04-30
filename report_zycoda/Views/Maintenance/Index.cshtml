@@ -535,7 +535,7 @@
                     <div class="col-md-2">
                         <label class="form-label small fw-bold text-navy">จากหน่วยงาน</label>
                         <select name="sectionFrom" id="secFrom" class="form-select border-light bg-light shadow-sm">
-                            <option value="">-- เลือกหน่วยงานเริ่มต้น --</option>
+                            <option value="">-- เลือกหน่วยงานทั้งหมด --</option>
 
                             @{
                                 var allSections = (List<report_zycoda.Models.SectionApiModels>)ViewBag.SectionList;
@@ -601,7 +601,7 @@
                     <div class="col-md-2">
                         <label class="form-label small fw-bold text-navy">ถึงหน่วยงาน</label>
                         <select name="sectionTo" id="secTo" class="form-select border-light bg-light shadow-sm">
-                            <option value="">-- สิ้นสุด --</option>
+                            <option value="">-- สิ้นสุดหน่วยงานทั้งหมด --</option>
 
                             @{
                                 var allSectionsTo = (List<report_zycoda.Models.SectionApiModels>)ViewBag.SectionList;
@@ -1046,12 +1046,13 @@
                 updateClock();
 
                 // DataTable
-                if (!$.fn.DataTable.isDataTable('#maintenanceTable')) {
+              if (!$.fn.DataTable.isDataTable('#maintenanceTable')) {
                     $('#maintenanceTable').DataTable({
-                        "pageLength": 15,
+                        "pageLength": 10,
+                        "lengthMenu": [[10, 15, 25, 50, 100], [10, 15, 25, 50, 100]],
                         "language": { "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/th.json" },
                         "order": [[0, "desc"]],
-                        "dom": '<"d-flex justify-content-between align-items-center px-3 pt-2 mb-2"lf>rt<"d-flex justify-content-between align-items-center px-3 pb-3 mt-2"ip>'
+                        "dom": '<"d-flex justify-content-between align-items-center px-3 pt-2 mb-2"l f>rt<"d-flex justify-content-between align-items-center px-3 pb-3 mt-2"i p>'
                     });
                 }
 

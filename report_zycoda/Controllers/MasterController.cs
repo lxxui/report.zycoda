@@ -64,13 +64,13 @@ namespace report_zycoda.Controllers
         public IActionResult SaveUser(UserApiModels model)
         {
             var list = GetList<UserApiModels>(_userPath);
-            var existing = list.FirstOrDefault(x => x.username == model.username);
+            var existing = list.FirstOrDefault(x => x.Username == model.Username);
 
             if (existing != null)
             {
                 // อัพเดทข้อมูลอื่นๆ (username เป็น Key ห้ามเปลี่ยน)
-                existing.lastname = model.lastname;
-                existing.rule = model.rule;
+                existing.LastName = model.LastName;
+                existing.Rule = model.Rule;
                 // existing.section = model.section; // ถ้าจะอัพเดทแผนกด้วย
             }
             else
@@ -86,7 +86,7 @@ namespace report_zycoda.Controllers
         public IActionResult DeleteUser(string id)
         {
             var list = GetList<UserApiModels>(_userPath);
-            var item = list.FirstOrDefault(x => x.username == id);
+            var item = list.FirstOrDefault(x => x.Username == id);
             if (item != null)
             {
                 list.Remove(item);

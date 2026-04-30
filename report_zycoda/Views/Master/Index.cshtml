@@ -91,10 +91,10 @@
                             @foreach (var user in (List<report_zycoda.Models.UserApiModels>)ViewBag.Users)
                             {
                                 <tr>
-                                    <td><span class="badge bg-light text-dark border p-2">@user.work_center</span></td>
-                                    <td>@user.firstname @user.lastname</td>
+                                    <td><span class="badge bg-light text-dark border p-2">@user.Work_center</span></td>
+                                    <td>@user.FirstName @user.LastName</td>
                                     <td>
-                                        @if (user.rule == "Administrator")
+                                        @if (user.Rule == "Administrator")
                                         {
                                             <span class="badge bg-danger rounded-pill">Administrator</span>
                                         }

@@ -1,24 +1,18 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using report_zycoda.Models;
 using System.Security.Claims;
-using System.Text.Json;
-using System.Xml.Linq;
 
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    private readonly IWebHostEnvironment _env;
     private readonly ApiService _apiService;
 
-    // แก้ไข Constructor ให้รับค่า env จากระบบ
-    public HomeController(ILogger<HomeController> logger, ApiService apiService, IWebHostEnvironment env)
+    public HomeController(ILogger<HomeController> logger, ApiService apiService)
     {
         _logger = logger;
         _apiService = apiService;
-        _env = env; // ตอนนี้ _env จะไม่เป็น null แล้วครับ
     }
 
     [HttpGet]
@@ -31,143 +25,70 @@ public class HomeController : Controller
         return View();
     }
 
+    [HttpPost]
+    public async Task<IActionResult> Login(string username, string password)
+    {
+        var debugLogs = new List<string>();
+        try
+        {
+            debugLogs.Add($"🔍 เริ่มต้นตรวจสอบสำหรับ: {username}");
+
+            // 1. ลองดึงข้อมูลทั้งหมดมาดูจำนวน
+            var allUsers = await _apiService.GetUsersFromApiAsync();
+            debugLogs.Add($"✅ เชื่อมต่อ DB สำเร็จ: พบพนักงานทั้งหมด {allUsers.Count} คน");
+
+            // 2. ลองหา User ที่ Username ตรงกัน (ยังไม่เช็ค Pass)
+            var findUser = allUsers.FirstOrDefault(u => u.Username?.Trim().ToLower() == username?.Trim().ToLower());
+
+            if (findUser != null)
+            {
+                debugLogs.Add($"✅ เจอ Username นี้ในระบบ!");
+                debugLogs.Add($"📝 ข้อมูลใน DB: Name='{findUser.FirstName}', Active='{findUser.Active}', PassInDB='{findUser.Password}'");
+
+                // 3. ตรวจสอบรหัสผ่านและสถานะ Active
+                var user = await _apiService.LoginAsync(username, password);
+                if (user != null)
+                {
+                    // ... ส่วนการสร้าง Claims และ Session (เหมือนเดิม) ...
+                    return RedirectToAction("Index", "Maintenance");
+                }
+                else
+                {
+                    debugLogs.Add($"❌ Login ไม่ผ่าน: รหัสผ่านไม่ตรง หรือ Active ไม่เป็น true");
+                }
+            }
+            else
+            {
+                debugLogs.Add($"❌ ไม่พบ Username '{username}' ในรายชื่อ {allUsers.Count} คนที่ดึงมา");
+            }
+        }
+        catch (Exception ex)
+        {
+            debugLogs.Add($"🚩 Error: {ex.Message}");
+        }
+
+        ViewBag.DebugLog = debugLogs;
+        ViewBag.ErrorMessage = "ตรวจสอบสถานะจาก Log ด้านล่าง";
+        return View();
+    }
+    [HttpPost]
+    public async Task<IActionResult> Logout()
+    {
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        HttpContext.Session.Clear();
+        return RedirectToAction("Login");
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetFirstName(string username)
     {
         try
         {
-            string userPath = Path.Combine(_env.WebRootPath, "data", "user.json");
-            if (System.IO.File.Exists(userPath))
-            {
-                var userJson = await System.IO.File.ReadAllTextAsync(userPath, System.Text.Encoding.UTF8);
-                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                var userList = JsonSerializer.Deserialize<List<UserApiModels>>(userJson, options);
-
-                // ค้นหา User ตามรหัสพนักงาน
-                var user = userList?.FirstOrDefault(u => u.username?.Trim() == username?.Trim());
-
-                if (user != null)
-                {
-                    // ส่งชื่อจริงกลับไปให้ JavaScript
-                    return Json(new { firstName = user.firstname });
-                }
-            }
+            var users = await _apiService.GetUsersFromApiAsync();
+            var user = users?.FirstOrDefault(u => u.Username?.Trim() == username?.Trim());
+            if (user != null) return Json(new { firstName = user.FirstName });
         }
         catch { /* ignored */ }
-
         return Json(new { firstName = "" });
-    }
-
-
-    [HttpPost]
-    public async Task<IActionResult> Login(string username, string password)
-    {
-        try
-        {
-            string userPath = Path.Combine(_env.WebRootPath, "data", "user.json");
-
-            if (System.IO.File.Exists(userPath))
-            {
-                var userJson = await System.IO.File.ReadAllTextAsync(userPath, System.Text.Encoding.UTF8);
-
-                // 🚩 ปรับ Option ให้ CaseInsensitive (ไม่สนตัวเล็กตัวใหญ่)
-                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                var userList = JsonSerializer.Deserialize<List<UserApiModels>>(userJson, options);
-
-                var user = userList?.FirstOrDefault(u =>
-                    u.username?.Trim() == username?.Trim() &&
-                    u.password?.Trim() == password?.Trim());
-
-                if (user != null)
-                {
-                    // --- ส่วนการหาชื่อแผนก (เหมือนเดิมแต่ย้ายมาข้างล่างเพื่อความสะอาด) ---
-                    string displaySectionName = user.section ?? "N/A";
-                    try
-                    {
-                        string sectionPath = Path.Combine(_env.WebRootPath, "data", "section.json");
-                        if (System.IO.File.Exists(sectionPath))
-                        {
-                            var sectionJson = await System.IO.File.ReadAllTextAsync(sectionPath, System.Text.Encoding.UTF8);
-                            var sectionList = JsonSerializer.Deserialize<List<SectionApiModels>>(sectionJson, options);
-                            var match = sectionList?.FirstOrDefault(s => s.section == user.section);
-                            if (match != null) displaySectionName = match.name;
-                        }
-                    }
-                    catch { /* ignored */ }
-
-                    // --- 🚩 สร้าง Claims (จุดสำคัญที่ต้องแก้) ---
-                    var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, user.username ?? ""),
-                    new Claim("FullName", $"{user.firstname} {user.lastname}"),
-                    new Claim("Section", displaySectionName),
-                    new Claim("ApiPassword", user.password ?? ""),
-                    // 🚩 ยัดค่าเข้า Claims (ต้องใช้ .ToString() และเช็ค null)
-                    new Claim("Class", user.@class.ToString()),
-                    new Claim("SectionOption", user.sectionoption ?? ""),
-                    new Claim("UserSectionCode", user.section ?? ""),
-                    new Claim("Section", displaySectionName),
-                    new Claim("UserSectionCode", user.section ?? "")
-                };
-
-                    // จัดการ Role
-                    if (!string.IsNullOrEmpty(user.rule))
-                    {
-                        foreach (var role in user.rule.Split(','))
-                            claims.Add(new Claim(ClaimTypes.Role, role.Trim()));
-                    }
-
-                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-                    // 🚩 เคลียร์ Cookie เก่าก่อน Sign-In ใหม่
-                    await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-
-                    // 1. เคลียร์ Session เก่าทิ้ง
-                    HttpContext.Session.Clear();
-
-                    HttpContext.Session.SetString("UserClass", user.@class.ToString());
-                    HttpContext.Session.SetString("FullSectionOption", user.sectionoption ?? "");
-                    HttpContext.Session.SetString("UserSectionCode", user.section ?? "");
-
-                    // 🚩 เพิ่ม 2 บรรทัดนี้ เพื่อให้ PrintReport ดึงไปใช้ต่อได้
-                    HttpContext.Session.SetString("ApiUser", user.username ?? "");
-                    HttpContext.Session.SetString("ApiPass", user.password ?? "");
-                    HttpContext.Session.SetString("ApiName", $"{user.firstname} {user.lastname}");
-
-                    // --- จัดการ Session ---
-                    HttpContext.Session.SetString("ApiUser", user.username ?? "");
-                    HttpContext.Session.SetString("ApiName", $"{user.firstname} {user.lastname}"); // ชื่อ-นามสกุลสำหรับ Loader
-                    HttpContext.Session.SetString("UserClass", user.@class.ToString());
-                    HttpContext.Session.SetString("UserSectionCode", user.section ?? "");
-
-                    // บังคับ Commit Session ทันที
-                    await HttpContext.Session.CommitAsync();
-
-                    return RedirectToAction("Index", "Maintenance");
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Login Error");
-        }
-
-        ViewBag.ErrorMessage = "รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง";
-        return View();
-    }
-
-   
-
-    [HttpPost]
-    public async Task<IActionResult> Logout()
-    {
-        // 1. เคลียร์ Cookie การล็อกอิน
-        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-        // 2. เคลียร์ Session ทั้งหมด
-        HttpContext.Session.Clear();
-
-        return RedirectToAction("Login");
     }
 }

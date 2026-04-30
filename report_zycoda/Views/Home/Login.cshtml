@@ -74,14 +74,21 @@
                     <input type="password" name="password" placeholder="ระบุรหัสผ่าน" required />
                 </div>
 
-                @if (ViewBag.ErrorMessage != null)
+               @if (ViewBag.DebugLog != null)
                 {
-                    <div class="error-msg">
-                        @ViewBag.ErrorMessage
+                    <div class="alert alert-secondary mt-3" style="font-family: 'Courier New', Courier, monospace; font-size: 12px;">
+                        <h6>🛠 Debug Log:</h6>
+                        <ul class="list-unstyled">
+                            @foreach (var log in ViewBag.DebugLog)
+                            {
+                                <li>@log</li>
+                            }
+                        </ul>
                     </div>
                 }
 
                 <button type="submit" class="btn-login">Sign In</button>
+
             </form>
 
            <div class="footer-text">

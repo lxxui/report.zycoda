@@ -1,46 +1,62 @@
-﻿using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Mvc;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace report_zycoda.Models
 {
+    [Table("User")] // ระบุให้ตรงกับ [dbo].[User] ใน SQL
     public class UserApiModels
-
     {
+        [Key]
+        public int Id { get; set; }
 
-        [JsonPropertyName("class")] // ถ้าใช้ System.Text.Json
-        public int @class { get; set; }
+        public string? Id_Zy { get; set; }
 
-        [JsonPropertyName("username")] // ระบุให้ชัดเจน
-        public string? username { get; set; }
+        public string? Plant { get; set; }
 
-        [JsonPropertyName("password")]
-        public string? password { get; set; }
+        public string? FirstName { get; set; }
 
-        [JsonPropertyName("firstname")]
-        public string? firstname { get; set; }
+        public string? LastName { get; set; }
 
-        [JsonPropertyName("lastname")]
-        public string? lastname { get; set; } = null;
+        public string? Email { get; set; }
+
+        public string? Username { get; set; }
+
+        public string? Password { get; set; }
+
+        public string? Position { get; set; }
+
+        public string? Section { get; set; }
+
+        public string? PlannerGroup { get; set; }
+
+        public string? SectionOption { get; set; }
+
+        public string? Class { get; set; }
+
+        public string? Rule { get; set; }
+
+        public bool Active { get; set; }
+
+        public string? Smallgroup { get; set; }
+
+        public string? Tel { get; set; }
+
+        public string? Work_center { get; set; }
+
+        public string? UserAD { get; set; }
+
+        public string? SubUsers { get; set; }
+
+        public string? Expire_active { get; set; }
+
+        public string? LaborRateId { get; set; }
+
+        public string? Last_modify { get; set; }
+
+        public string? Workpremit_class { get; set; }
+
+        public string? Plantoption { get; set; }
 
 
-        [JsonPropertyName("sectionoption")]
-        public string? sectionoption { get; set; }
-
-        [JsonPropertyName("section")]
-        public string? section { get; set; }
-
-        [JsonPropertyName("rule")]
-        public string? rule { get; set; }
-        public string? smallgroup { get; set; }
-        public string? active { get; set; } // รับค่า "on"
-        public string? tel { get; set; }
-        public string? work_center { get; set; }
-        public string? userAD { get; set; }
-        public object? subUsers { get; set; } // ใช้ object เพราะเป็น List หรือ null
-        public string? expire_active { get; set; }
-
-        internal class SectionApiModels
-        {
-        }
     }
 }
