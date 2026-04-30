@@ -1,53 +1,73 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.EntityFrameworkCore; // 🚩 เพิ่มตัวนี้
-using report_zycoda.Data;           // 🚩 เปลี่ยนเป็น Namespace ของ AppDbContext ฝ้าย
+using Microsoft.EntityFrameworkCore;
+using report_zycoda.Data;
 using report_zycoda.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ----------------------
-// Services
-// ----------------------
-
-// 1. เชื่อมต่อ Database (ใช้ ConnectionString เดียวกับ API)
+// ------------------------------------------------------------------
+// 1. Database Connection
+// ------------------------------------------------------------------
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddControllersWithViews();
 
-// 2. Authentication Service
+// ------------------------------------------------------------------
+// 2. Authentication (สำคัญ: ตรวจสอบการตั้งค่า Cookie)
+// ------------------------------------------------------------------
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/Home/Login";
+        options.LoginPath = "/Home/Login";          // หน้าสำหรับ Login
+        options.LogoutPath = "/Home/Logout";        // หน้าสำหรับ Logout
         options.AccessDeniedPath = "/Home/AccessDenied";
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(60); // ปรับให้เท่ากับ Session
+        options.SlidingExpiration = true;           // ต่ออายุอัตโนมัติเมื่อมีการใช้งาน
+        options.Cookie.Name = "ZycodaAuthCookie";    // ตั้งชื่อ Cookie ให้ชัดเจน
     });
 
-// 3. Session
+// ------------------------------------------------------------------
+// 3. Session Configuration
+// ------------------------------------------------------------------
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(60);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
+    options.Cookie.Name = "ZycodaSession";         // ตั้งชื่อแยกกับ Auth Cookie
 });
 
-// 4. HttpContext & Api Service
+// 4. DI Services
 builder.Services.AddHttpContextAccessor();
-
-// 🚩 ปรับการลงทะเบียน ApiService ให้รองรับการฉีด AppDbContext
 builder.Services.AddHttpClient<ApiService>();
 builder.Services.AddScoped<ApiService>();
 
 var app = builder.Build();
 
-// ----------------------
-// Middleware (ลำดับสำคัญมาก!)
-// ----------------------
+// ✅ Database Connection Check (เก็บไว้เหมือนเดิมเพื่อความชัวร์)
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        if (context.Database.CanConnect())
+        {
+            Console.WriteLine("✅ [DATABASE STATUS]: CONNECTION SUCCESS!");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"🚩 [DATABASE ERROR]: {ex.Message}");
+    }
+}
+
+// ------------------------------------------------------------------
+// 5. Middleware Pipeline (ลำดับห้ามสลับ!)
+// ------------------------------------------------------------------
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -56,16 +76,14 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
 app.UseRouting();
 
-// ลำดับ: Session -> Authentication -> Authorization
+// 🚩 ลำดับต้องเป็น: Session -> Authentication -> Authorization
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// ----------------------
-// Routing
-// ----------------------
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Login}/{id?}");

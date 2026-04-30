@@ -209,16 +209,21 @@
         fetchName($(this).val());
     });
 
-    const loginForm = document.querySelector('form');
+const loginForm = document.querySelector('form');
     if (loginForm) {
         loginForm.onsubmit = async function(e) {
-            e.preventDefault(); // หยุดการส่งฟอร์มชั่วคราวเพื่อเล่น Animation
+            // 1. หยุดฟอร์มไว้ก่อนเพื่อเล่น Animation
+            e.preventDefault(); 
 
             const userCode = $('input[name="username"]').val();
             
-            // ถ้าชื่อยังไม่มา (กรณีพิมพ์เสร็จแล้วกด Enter ทันที) ให้รอเรียก AJAX อีกรอบ
+            // 2. ดึงชื่อ (ถ้ายังไม่มี)
             if (!window.currentFullName) {
-                await fetchName(userCode);
+                try {
+                    await fetchName(userCode);
+                } catch (err) {
+                    console.log("Fetch name error, continue anyway.");
+                }
             }
 
             const displayName = window.currentFullName || "พนักงาน Zycoda";
@@ -238,7 +243,7 @@
 
             let progressValue = 0;
             const loadingInterval = setInterval(() => {
-                progressValue += Math.floor(Math.random() * 15) + 5;
+                progressValue += Math.floor(Math.random() * 20) + 10; // ปรับให้เร็วขึ้นนิดนึง
                 if (progressValue > 100) progressValue = 100;
 
                 if (progressBar) progressBar.style.width = progressValue + "%";
@@ -248,10 +253,12 @@
 
                 if (progressValue >= 100) {
                     clearInterval(loadingInterval);
-                    // เมื่อโหลดครบ 100% ให้ส่งฟอร์มจริงๆ ไปยัง Controller
-                    loginForm.submit();
+                    
+                    // ✅ วิธีแก้: ใช้ HTMLFormElement.prototype.submit เพื่อเลี่ยงการติด Loop
+                    // หรือเรียกใช้ผ่านฟอร์มโดยตรงแบบไม่ผ่านตัวแปรที่ผูก Event ไว้
+                    document.forms[0].submit(); 
                 }
-            }, 300);
+            }, 250);
         };
     }
 

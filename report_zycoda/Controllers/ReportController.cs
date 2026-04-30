@@ -26,8 +26,8 @@ public class ReportController : Controller
                           ?? new List<report_zycoda.Models.SectionApiModels>();
 
         var sectionDict = sectionList
-            .Where(s => !string.IsNullOrEmpty(s.section))
-            .ToDictionary(s => s.section.Trim(), s => s.name ?? s.section);
+            .Where(s => !string.IsNullOrEmpty(s.Sections))
+            .ToDictionary(s => s.Sections.Trim(), s => s.Name ?? s.Sections);
 
         // 3. API Data Fetching
         if (string.IsNullOrEmpty(start)) start = DateTime.Now.ToString("yyyy-MM-dd");

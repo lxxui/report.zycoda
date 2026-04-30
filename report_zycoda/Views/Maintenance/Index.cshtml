@@ -38,10 +38,10 @@
     
     // สร้าง Lookup Table: Key = "310012", Value = "คลังวัตถุดิบ..."
     var sectionDict = sectionList?
-        .Where(x => !string.IsNullOrEmpty(x.section))
+        .Where(x => !string.IsNullOrEmpty(x.Sections))
         .ToDictionary(
-            x => x.section!.Trim(), 
-            x => !string.IsNullOrEmpty(x.name) ? x.name : x.section!
+            x => x.Sections!.Trim(), 
+            x => !string.IsNullOrEmpty(x.Name) ? x.Name : x.Sections!
         ) ?? new Dictionary<string, string>();
 }
 
@@ -548,49 +548,49 @@
                             @if (allSections != null)
                             {
                                 <optgroup label="🏭 ฝ่ายผลิต - ลาดกระบัง (LKB)">
-                                    @foreach (var sec in allSections.Where(x => x.name != null && (x.name.Contains("ลาดกระบัง") || x.name.Contains("(LKB)")) && IsProduction(x.name)))
+                                    @foreach (var sec in allSections.Where(x => x.Name != null && (x.Name.Contains("ลาดกระบัง") || x.Name.Contains("(LKB)")) && IsProduction(x.Name)))
                                     {
-                                        <option value="@sec.section" selected="@(currentFrom == sec.section)">
-                                            @sec.section - @sec.name
+                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">
+                                            @sec.Sections - @sec.Name
                                         </option>
                                     }
                                 </optgroup>
 
                                 <optgroup label="🏭 ฝ่ายผลิต - บางชัน (BC)">
-                                    @foreach (var sec in allSections.Where(x => x.name != null && (x.name.Contains("บางชัน") || x.name.Contains("(BC)")) && IsProduction(x.name)))
+                                    @foreach (var sec in allSections.Where(x => x.Name != null && (x.Name.Contains("บางชัน") || x.Name.Contains("(BC)")) && IsProduction(x.Name)))
                                     {
-                                        <option value="@sec.section" selected="@(currentFrom == sec.section)">
-                                            @sec.section - @sec.name
+                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">
+                                            @sec.Sections - @sec.Name
                                         </option>
                                     }
                                 </optgroup>
 
                                 <hr />
                                 <optgroup label="🏢 สำนักงาน/อื่นๆ - ลาดกระบัง (LKB)">
-                                    @foreach (var sec in allSections.Where(x => x.name != null && (x.name.Contains("ลาดกระบัง") || x.name.Contains("(LKB)")) && !IsProduction(x.name)))
+                                    @foreach (var sec in allSections.Where(x => x.Name != null && (x.Name.Contains("ลาดกระบัง") || x.Name.Contains("(LKB)")) && !IsProduction(x.Name)))
                                     {
-                                        <option value="@sec.section" selected="@(currentFrom == sec.section)">
-                                            @sec.section - @sec.name
+                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">
+                                            @sec.Sections - @sec.Name
                                         </option>
                                     }
                                 </optgroup>
 
                                 <optgroup label="🏢 สำนักงาน/อื่นๆ - บางชัน (BC)">
-                                    @foreach (var sec in allSections.Where(x => x.name != null && (x.name.Contains("บางชัน") || x.name.Contains("(BC)")) && !IsProduction(x.name)))
+                                    @foreach (var sec in allSections.Where(x => x.Name != null && (x.Name.Contains("บางชัน") || x.Name.Contains("(BC)")) && !IsProduction(x.Name)))
                                     {
-                                        <option value="@sec.section" selected="@(currentFrom == sec.section)">
-                                            @sec.section - @sec.name
+                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">
+                                            @sec.Sections - @sec.Name
                                         </option>
                                     }
                                 </optgroup>
 
                                 <optgroup label="🌐 หน่วยงานอื่นๆ">
-                                    @foreach (var sec in allSections.Where(x => x.name != null &&
-                                                                    !x.name.Contains("ลาดกระบัง") && !x.name.Contains("(LKB)") &&
-                                                                    !x.name.Contains("บางชัน") && !x.name.Contains("(BC)")))
+                                    @foreach (var sec in allSections.Where(x => x.Name != null &&
+                                                                    !x.Name.Contains("ลาดกระบัง") && !x.Name.Contains("(LKB)") &&
+                                                                    !x.Name.Contains("บางชัน") && !x.Name.Contains("(BC)")))
                                     {
-                                        <option value="@sec.section" selected="@(currentFrom == sec.section)">
-                                            @sec.section - @sec.name
+                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">
+                                            @sec.Sections - @sec.Name
                                         </option>
                                     }
                                 </optgroup>
@@ -614,48 +614,48 @@
                             @if (allSectionsTo != null)
                             {
                                 <optgroup label="🏭 ฝ่ายผลิต - ลาดกระบัง (LKB)">
-                                    @foreach (var sec in allSectionsTo.Where(x => x.name != null && (x.name.Contains("ลาดกระบัง") || x.name.Contains("(LKB)")) && IsProd(x.name)))
+                                    @foreach (var sec in allSectionsTo.Where(x => x.Name != null && (x.Name.Contains("ลาดกระบัง") || x.Name.Contains("(LKB)")) && IsProd(x.Name)))
                                     {
-                                        <option value="@sec.section" selected="@(currentTo == sec.section)">
-                                            @sec.section - @sec.name
+                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">
+                                            @sec.Sections - @sec.Name
                                         </option>
                                     }
                                 </optgroup>
 
                                 <optgroup label="🏭 ฝ่ายผลิต - บางชัน (BC)">
-                                    @foreach (var sec in allSectionsTo.Where(x => x.name != null && (x.name.Contains("บางชัน") || x.name.Contains("(BC)")) && IsProd(x.name)))
+                                    @foreach (var sec in allSectionsTo.Where(x => x.Name != null && (x.Name.Contains("บางชัน") || x.Name.Contains("(BC)")) && IsProd(x.Name)))
                                     {
-                                        <option value="@sec.section" selected="@(currentTo == sec.section)">
-                                            @sec.section - @sec.name
+                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">
+                                            @sec.Sections - @sec.Name
                                         </option>
                                     }
                                 </optgroup>
 
                                 <optgroup label="🏢 สำนักงาน/อื่นๆ - ลาดกระบัง (LKB)">
-                                    @foreach (var sec in allSectionsTo.Where(x => x.name != null && (x.name.Contains("ลาดกระบัง") || x.name.Contains("(LKB)")) && !IsProd(x.name)))
+                                    @foreach (var sec in allSectionsTo.Where(x => x.Name != null && (x.Name.Contains("ลาดกระบัง") || x.Name.Contains("(LKB)")) && !IsProd(x.Name)))
                                     {
-                                        <option value="@sec.section" selected="@(currentTo == sec.section)">
-                                            @sec.section - @sec.name
+                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">
+                                            @sec.Sections - @sec.Name
                                         </option>
                                     }
                                 </optgroup>
 
                                 <optgroup label="🏢 สำนักงาน/อื่นๆ - บางชัน (BC)">
-                                    @foreach (var sec in allSectionsTo.Where(x => x.name != null && (x.name.Contains("บางชัน") || x.name.Contains("(BC)")) && !IsProd(x.name)))
+                                    @foreach (var sec in allSectionsTo.Where(x => x.Name != null && (x.Name.Contains("บางชัน") || x.Name.Contains("(BC)")) && !IsProd(x.Name)))
                                     {
-                                        <option value="@sec.section" selected="@(currentTo == sec.section)">
-                                            @sec.section - @sec.name
+                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">
+                                            @sec.Sections - @sec.Name
                                         </option>
                                     }
                                 </optgroup>
 
                                 <optgroup label="🌐 หน่วยงานอื่นๆ">
-                                    @foreach (var sec in allSectionsTo.Where(x => x.name != null &&
-                                                                    !x.name.Contains("ลาดกระบัง") && !x.name.Contains("(LKB)") &&
-                                                                    !x.name.Contains("บางชัน") && !x.name.Contains("(BC)")))
+                                    @foreach (var sec in allSectionsTo.Where(x => x.Name != null &&
+                                                                    !x.Name.Contains("ลาดกระบัง") && !x.Name.Contains("(LKB)") &&
+                                                                    !x.Name.Contains("บางชัน") && !x.Name.Contains("(BC)")))
                                     {
-                                        <option value="@sec.section" selected="@(currentTo == sec.section)">
-                                            @sec.section - @sec.name
+                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">
+                                            @sec.Sections - @sec.Name
                                         </option>
                                     }
                                 </optgroup>
@@ -981,7 +981,7 @@
             {
                     foreach (var item in (List<report_zycoda.Models.SectionApiModels>)ViewBag.SectionList)
                     {
-                            <text>sectionLookup["@item.section?.Trim()"] = "@Html.Raw(item.name?.Replace("\"", "\\\""))";</text>
+                            <text>sectionLookup["@item.Sections?.Trim()"] = "@Html.Raw(item.Name?.Replace("\"", "\\\""))";</text>
                     }
             }
 

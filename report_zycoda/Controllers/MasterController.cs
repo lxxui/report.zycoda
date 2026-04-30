@@ -31,11 +31,11 @@ namespace report_zycoda.Controllers
         public IActionResult SaveSection(SectionApiModels model)
         {
             var list = GetList<SectionApiModels>(_sectionPath);
-            var existing = list.FirstOrDefault(x => x.section == model.section);
+            var existing = list.FirstOrDefault(x => x.Sections == model.Sections);
 
             if (existing != null)
             {
-                existing.name = model.name; // อัพเดทชื่อ
+                existing.Name = model.Name; // อัพเดทชื่อ
             }
             else
             {
@@ -50,7 +50,7 @@ namespace report_zycoda.Controllers
         public IActionResult DeleteSection(string id)
         {
             var list = GetList<SectionApiModels>(_sectionPath);
-            var item = list.FirstOrDefault(x => x.section == id);
+            var item = list.FirstOrDefault(x => x.Sections == id);
             if (item != null)
             {
                 list.Remove(item);

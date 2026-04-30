@@ -53,10 +53,10 @@
                             @foreach (var item in (List<report_zycoda.Models.SectionApiModels>)ViewBag.Sections)
                             {
                                 <tr>
-                                    <td class="fw-bold">@item.section</td>
-                                    <td>@item.name</td>
+                                    <td class="fw-bold">@item.Sections</td>
+                                    <td>@item.Name</td>
                                     <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-primary rounded-pill me-1" onclick="editSection('@item.section', '@item.name')">
+                                        <button class="btn btn-sm btn-outline-primary rounded-pill me-1" onclick="editSection('@item.Sections', '@item.Name')">
                                             <i class="bi bi-pencil"></i>
                                         </button>
                                         <button class="btn btn-sm btn-outline-danger rounded-pill">

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using report_zycoda.Models;
 using System.Security.Claims;
+using Newtonsoft.Json; // 🚩 อย่าลืมเช็คว่าติดตั้ง NuGet นี้หรือยังครับ
 
 public class HomeController : Controller
 {
@@ -18,57 +19,48 @@ public class HomeController : Controller
     [HttpGet]
     public IActionResult Login()
     {
+        // ถ้าเคย Login ค้างไว้แล้ว ให้ข้ามไปหน้า Maintenance เลย
         if (!string.IsNullOrEmpty(HttpContext.Session.GetString("ApiUser")))
         {
-            return RedirectToAction("Index", "Maintenance");
+            return RedirectToAction("Index", "Maintenance"); // ส่งไป Maintenance
         }
         return View();
     }
 
     [HttpPost]
+    [HttpPost]
     public async Task<IActionResult> Login(string username, string password)
     {
-        var debugLogs = new List<string>();
         try
         {
-            debugLogs.Add($"🔍 เริ่มต้นตรวจสอบสำหรับ: {username}");
+            var user = await _apiService.LoginAsync(username, password);
 
-            // 1. ลองดึงข้อมูลทั้งหมดมาดูจำนวน
-            var allUsers = await _apiService.GetUsersFromApiAsync();
-            debugLogs.Add($"✅ เชื่อมต่อ DB สำเร็จ: พบพนักงานทั้งหมด {allUsers.Count} คน");
-
-            // 2. ลองหา User ที่ Username ตรงกัน (ยังไม่เช็ค Pass)
-            var findUser = allUsers.FirstOrDefault(u => u.Username?.Trim().ToLower() == username?.Trim().ToLower());
-
-            if (findUser != null)
+            if (user != null)
             {
-                debugLogs.Add($"✅ เจอ Username นี้ในระบบ!");
-                debugLogs.Add($"📝 ข้อมูลใน DB: Name='{findUser.FirstName}', Active='{findUser.Active}', PassInDB='{findUser.Password}'");
-
-                // 3. ตรวจสอบรหัสผ่านและสถานะ Active
-                var user = await _apiService.LoginAsync(username, password);
-                if (user != null)
-                {
-                    // ... ส่วนการสร้าง Claims และ Session (เหมือนเดิม) ...
-                    return RedirectToAction("Index", "Maintenance");
-                }
-                else
-                {
-                    debugLogs.Add($"❌ Login ไม่ผ่าน: รหัสผ่านไม่ตรง หรือ Active ไม่เป็น true");
-                }
-            }
-            else
+                var claims = new List<Claim>
             {
-                debugLogs.Add($"❌ ไม่พบ Username '{username}' ในรายชื่อ {allUsers.Count} คนที่ดึงมา");
+                new Claim(ClaimTypes.Name, user.Username ?? ""),
+                new Claim("FullName", user.FirstName ?? ""),
+                new Claim("UserRole", user.Rule ?? "User"),
+                new Claim("Section", user.Section ?? ""),
+                // ✅ ต้องเก็บ password ไว้ใน Claim เพื่อให้หน้า Maintenance เอาไปใช้เรียก API
+                new Claim("ApiPassword", password)
+            };
+
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(claimsIdentity), new AuthenticationProperties { IsPersistent = true });
+
+                HttpContext.Session.SetString("ApiUser", JsonConvert.SerializeObject(user));
+
+                return RedirectToAction("Index", "Maintenance");
             }
+            ViewBag.ErrorMessage = "Username หรือ Password ไม่ถูกต้อง";
         }
         catch (Exception ex)
         {
-            debugLogs.Add($"🚩 Error: {ex.Message}");
+            ViewBag.ErrorMessage = $"เกิดข้อผิดพลาด: {ex.Message}";
         }
-
-        ViewBag.DebugLog = debugLogs;
-        ViewBag.ErrorMessage = "ตรวจสอบสถานะจาก Log ด้านล่าง";
         return View();
     }
     [HttpPost]
@@ -84,6 +76,7 @@ public class HomeController : Controller
     {
         try
         {
+            // ใช้ FirstOrDefault เพื่อความเร็วในการค้นหาชื่อตอนพิมพ์ Username
             var users = await _apiService.GetUsersFromApiAsync();
             var user = users?.FirstOrDefault(u => u.Username?.Trim() == username?.Trim());
             if (user != null) return Json(new { firstName = user.FirstName });
