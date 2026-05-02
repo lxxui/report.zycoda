@@ -3,8 +3,7 @@
 
 @{
     Layout = null;
-    var version = "1.0.0";
-    // ดึงเวลาที่ Build หรือเวลาที่ไฟล์ DLL แก้ไขล่าสุด
+    var version = "1.1.0";
     var assemblyPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
     var buildDate = System.IO.File.GetLastWriteTime(assemblyPath).ToString("dd/MM/yyyy HH:mm");
 }
@@ -15,256 +14,408 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - Zycoda Report</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    <link href="~/css/home_login.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
-        /* จังหวะตัวไอคอนเด้ง */
+        :root {
+            --primary: #38bdf8;
+            --primary-glow: rgba(56, 189, 248, 0.3);
+            --bg-dark: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --input-bg: rgba(15, 23, 42, 0.6);
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- Network Canvas Background --- */
+        #network-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* --- Login Card Container --- */
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 28px;
+            padding: 45px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .brand-logo {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+            .brand-logo h1 {
+                font-size: 32px;
+                font-weight: 700;
+                letter-spacing: -1px;
+                margin: 0;
+                background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+
+        .typing-container {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 8px;
+            min-height: 20px;
+            font-weight: 300;
+        }
+
+        /* --- Form Elements --- */
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+            .form-group label {
+                display: block;
+                font-size: 13px;
+                font-weight: 500;
+                color: var(--text-muted);
+                margin-bottom: 8px;
+                margin-left: 4px;
+            }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+            .input-wrapper i {
+                position: absolute;
+                left: 16px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--text-muted);
+                font-size: 18px;
+            }
+
+        input {
+            width: 100%;
+            padding: 14px 16px 14px 48px;
+            background: var(--input-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            color: #fff;
+            font-size: 15px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-sizing: border-box;
+        }
+
+            input:focus {
+                outline: none;
+                border-color: var(--primary);
+                background: rgba(15, 23, 42, 0.8);
+                box-shadow: 0 0 0 4px var(--primary-glow);
+            }
+
+        .btn-login {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            border: none;
+            border-radius: 14px;
+            color: #0f172a;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+            .btn-login:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px -5px var(--primary-glow);
+                filter: brightness(1.1);
+            }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 35px;
+            color: var(--text-muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* --- Loading Overly (Dark Theme) --- */
+        #git-loader {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
         .bouncing-container {
             position: relative;
-            animation: bounce 0.6s cubic-bezier(0.28, 0.84, 0.42, 1) infinite alternate;
+            animation: bounce 0.8s cubic-bezier(0.28, 0.84, 0.42, 1) infinite alternate;
+            color: var(--primary);
         }
 
         @@keyframes bounce {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(-30px); }
+            0% {
+                transform: translateY(0);
+            }
+
+            100% {
+                transform: translateY(-25px);
+            }
         }
 
-        /* เงาที่พื้นเด้งตามจังหวะ */
-        .shadow-pulse {
-            width: 40px;
-            height: 8px;
-            background: rgba(0, 0, 0, 0.1);
-            border-radius: 50%;
-            margin: 10px auto 0;
-            animation: shadowSize 0.6s cubic-bezier(0.28, 0.84, 0.42, 1) infinite alternate;
+        .progress-container {
+            width: 280px;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            margin-top: 25px;
+            overflow: hidden;
         }
 
-        @@keyframes shadowSize {
-            0% { transform: scale(1); opacity: 0.4; }
-            100% { transform: scale(0.4); opacity: 0.1; }
+        #git-progress {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.4s ease;
+            box-shadow: 0 0 15px var(--primary);
         }
 
-        .loading-text {
-            letter-spacing: 1px;
+        .cursor {
+            animation: blink 1s infinite;
+        }
+
+        @@keyframes blink {
+            50% {
+                opacity: 0;
+            }
         }
     </style>
+</head>
+<body>
 
-    </head>
+    <canvas id="network-canvas"></canvas>
 
-    <body>
-        <canvas id="network-canvas"></canvas>
-
-        <div class="login-box">
+    <div class="login-container">
+        <div class="login-card">
             <div class="brand-logo">
                 <h1>ZYCODA REPORT</h1>
-                <p style="color: #cbd5e1; font-size: 14px; margin-top: 8px; font-weight: 300; min-height: 20px;">
+                <div class="typing-container">
                     <span id="typing-effect"></span><span class="cursor">|</span>
-                </p>
+                </div>
             </div>
 
             <form method="post" asp-controller="Home" asp-action="Login">
                 <div class="form-group">
                     <label>Username</label>
-                    <input type="text" name="username" placeholder="ระบุรหัสพนักงาน" required autocomplete="off" />
+                    <div class="input-wrapper">
+                        <i class="bi bi-person"></i>
+                        <input type="text" name="username" placeholder="รหัสพนักงาน" required autocomplete="off" />
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" name="password" placeholder="ระบุรหัสผ่าน" required />
+                    <div class="input-wrapper">
+                        <i class="bi bi-lock"></i>
+                        <input type="password" name="password" placeholder="รหัสผ่าน" required />
+                    </div>
                 </div>
 
-               @if (ViewBag.DebugLog != null)
-                {
-                    <div class="alert alert-secondary mt-3" style="font-family: 'Courier New', Courier, monospace; font-size: 12px;">
-                        <h6>🛠 Debug Log:</h6>
-                        <ul class="list-unstyled">
-                            @foreach (var log in ViewBag.DebugLog)
-                            {
-                                <li>@log</li>
-                            }
-                        </ul>
-                    </div>
-                }
-
                 <button type="submit" class="btn-login">Sign In</button>
-
             </form>
 
-           <div class="footer-text">
-                &copy; 2026 Zycoda. All rights reserved. <br />
-                <small style="opacity: 0.7; font-weight: 300; letter-spacing: 0.5px;">
-                    v.@version | Last Build: @buildDate
-                </small>
+            <div class="footer-text">
+                &copy; 2026 Zycoda Analytics. All rights reserved.<br />
+                <span style="opacity: 0.6; font-size: 11px;">v.@version | Build: @buildDate</span>
             </div>
         </div>
+    </div>
 
-        <div id="git-loader" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); z-index:9999; flex-direction:column; align-items:center; justify-content:center;">
-            <div class="bouncing-container mb-4">
-                <i class="bi bi-tools text-navy" style="font-size: 3rem;"></i>
-                <div class="shadow-pulse"></div>
-            </div>
-    
-            <div class="loading-text fw-bold text-navy mb-2">กำลังเตรียมข้อมูล...</div>
-    
-            <div class="progress" style="width: 250px; height: 6px; border-radius: 10px; background-color: #e9ecef;">
-                <div id="git-progress" class="progress-bar progress-bar-striped progress-bar-animated bg-navy" style="width: 0%; border-radius: 10px; transition: width 0.3s ease;"></div>
-            </div>
+    <!-- Modern Loader Overlay -->
+    <div id="git-loader">
+        <div class="bouncing-container">
+            <i class="bi bi-cpu" style="font-size: 3.5rem;"></i>
         </div>
+        <div class="loading-text" style="margin-top: 20px; font-weight: 500; letter-spacing: 0.5px;">กำลังเตรียมข้อมูล...</div>
+        <div class="progress-container">
+            <div id="git-progress"></div>
+        </div>
+    </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // 1. Network Background Logic
+        const canvas = document.getElementById('network-canvas');
+        const ctx = canvas.getContext('2d');
+        let dots = [];
+        const dotCount = 100;
 
-<script>
-    // --- 1. Network Background --- (Code เดิมของคุณ Fai ทำงานได้ดีครับ)
-    const canvas = document.getElementById('network-canvas');
-    const ctx = canvas.getContext('2d');
-    let dots = [];
-    const dotCount = 80;
-    const maxDistance = 150;
-
-    function init() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        dots = [];
-        for (let i = 0; i < dotCount; i++) {
-            dots.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                vx: (Math.random() - 0.5) * 0.5,
-                vy: (Math.random() - 0.5) * 0.5,
-                size: Math.random() * 2 + 1
-            });
-        }
-    }
-
-    function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        for (let i = 0; i < dots.length; i++) {
-            let d = dots[i];
-            d.x += d.vx; d.y += d.vy;
-            if (d.x < 0 || d.x > canvas.width) d.vx *= -1;
-            if (d.y < 0 || d.y > canvas.height) d.vy *= -1;
-            ctx.beginPath();
-            ctx.arc(d.x, d.y, d.size, 0, Math.PI * 2);
-            ctx.fillStyle = "rgba(56, 189, 248, 0.4)";
-            ctx.fill();
-            for (let j = i + 1; j < dots.length; j++) {
-                let d2 = dots[j];
-                let dist = Math.hypot(d.x - d2.x, d.y - d2.y);
-                if (dist < maxDistance) {
-                    ctx.beginPath();
-                    ctx.moveTo(d.x, d.y);
-                    ctx.lineTo(d2.x, d2.y);
-                    ctx.strokeStyle = `rgba(56, 189, 248, ${1 - dist / maxDistance - 0.5})`;
-                    ctx.lineWidth = 0.5;
-                    ctx.stroke();
-                }
+        function init() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            dots = [];
+            for (let i = 0; i < dotCount; i++) {
+                dots.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.4,
+                    vy: (Math.random() - 0.5) * 0.4,
+                    size: Math.random() * 1.5 + 0.5
+                });
             }
         }
-        requestAnimationFrame(draw);
-    }
-    window.addEventListener('resize', init);
-    init(); draw();
 
-    // --- 2. Typing Effect ---
-    const textElement = document.getElementById("typing-effect");
-    const text = "System Maintenance & Analytics";
-    let typeIndex = 0;
-    let isDeleting = false;
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "rgba(56, 189, 248, 0.3)";
+            for (let i = 0; i < dots.length; i++) {
+                let d = dots[i];
+                d.x += d.vx; d.y += d.vy;
+                if (d.x < 0 || d.x > canvas.width) d.vx *= -1;
+                if (d.y < 0 || d.y > canvas.height) d.vy *= -1;
+                ctx.beginPath();
+                ctx.arc(d.x, d.y, d.size, 0, Math.PI * 2);
+                ctx.fill();
 
-    function type() {
-        const currentText = text.substring(0, typeIndex);
-        if (textElement) textElement.innerHTML = currentText;
-        if (!isDeleting && typeIndex < text.length) {
-            typeIndex++;
-            setTimeout(type, 100);
-        } else if (isDeleting && typeIndex > 0) {
-            typeIndex--;
-            setTimeout(type, 50);
-        } else if (!isDeleting && typeIndex === text.length) {
-            isDeleting = true;
-            setTimeout(type, 2000);
-        } else {
-            isDeleting = false;
-            setTimeout(type, 500);
+                for (let j = i + 1; j < dots.length; j++) {
+                    let d2 = dots[j];
+                    let dist = Math.hypot(d.x - d2.x, d.y - d2.y);
+                    if (dist < 150) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(56, 189, 248, ${0.15 - dist/1000})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(d.x, d.y);
+                        ctx.lineTo(d2.x, d2.y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(draw);
         }
-    }
+        window.addEventListener('resize', init);
+        init(); draw();
 
-    // --- 3. Optimized Loading Logic ---
-    window.currentFullName = ""; // ตัวแปรเก็บชื่อ Global
+        // 2. Typing Effect
+        const textElement = document.getElementById("typing-effect");
+        const phrases = ["System Maintenance & Analytics", "Real-time Data Processing", "Secure Cloud Infrastructure"];
+        let phraseIdx = 0;
+        let charIdx = 0;
+        let isDeleting = false;
 
-    // ฟังก์ชันช่วยดึงชื่อ
-    function fetchName(userCode) {
-        if (!userCode) return;
-        return $.get('@Url.Action("GetFirstName", "Home")', { username: userCode.trim() }, function(data) {
-            if (data && data.firstName) {
-                window.currentFullName = data.firstName;
+        function type() {
+            const currentPhrase = phrases[phraseIdx];
+            if (isDeleting) {
+                textElement.textContent = currentPhrase.substring(0, charIdx - 1);
+                charIdx--;
+            } else {
+                textElement.textContent = currentPhrase.substring(0, charIdx + 1);
+                charIdx++;
+            }
+
+            let typeSpeed = isDeleting ? 50 : 100;
+            if (!isDeleting && charIdx === currentPhrase.length) {
+                typeSpeed = 2000;
+                isDeleting = true;
+            } else if (isDeleting && charIdx === 0) {
+                isDeleting = false;
+                phraseIdx = (phraseIdx + 1) % phrases.length;
+                typeSpeed = 500;
+            }
+            setTimeout(type, typeSpeed);
+        }
+        type();
+
+        // 3. Login & Loader Logic
+        window.currentFullName = "";
+
+        $('input[name="username"]').on('blur', function() {
+            const val = $(this).val();
+            if(val) {
+                $.get('@Url.Action("GetFirstName", "Home")', { username: val.trim() }, function(data) {
+                    if (data && data.firstName) window.currentFullName = data.firstName;
+                });
             }
         });
-    }
 
-    // เมื่อพิมพ์รหัสเสร็จแล้วย้ายไปช่องอื่น
-    $('input[name="username"]').on('blur', function() {
-        fetchName($(this).val());
-    });
-
-const loginForm = document.querySelector('form');
-    if (loginForm) {
+        const loginForm = document.querySelector('form');
         loginForm.onsubmit = async function(e) {
-            // 1. หยุดฟอร์มไว้ก่อนเพื่อเล่น Animation
-            e.preventDefault(); 
-
-            const userCode = $('input[name="username"]').val();
-            
-            // 2. ดึงชื่อ (ถ้ายังไม่มี)
-            if (!window.currentFullName) {
-                try {
-                    await fetchName(userCode);
-                } catch (err) {
-                    console.log("Fetch name error, continue anyway.");
-                }
-            }
-
-            const displayName = window.currentFullName || "พนักงาน Zycoda";
+            e.preventDefault();
             const loader = document.getElementById('git-loader');
             const statusText = document.querySelector('.loading-text');
             const progressBar = document.getElementById('git-progress');
 
-            if (loader) loader.style.display = 'flex';
+            loader.style.display = 'flex';
+            const displayName = window.currentFullName || "User";
 
-            const statusSteps = [
-                `สวัสดีค่ะคุณ ${displayName}...`,
-                "กำลังจัดเตรียมพื้นที่ทำงานให้คุณ...",
-                "เชื่อมต่อฐานข้อมูล Zycoda...",
-                "ตรวจสอบสิทธิ์การเข้าถึง...",
-                "เรียบร้อยแล้ว! กำลังนำคุณเข้าสู่ระบบ..."
+            const steps = [
+                `ยินดีต้อนรับคุณ ${displayName}`,
+                "กำลังยืนยันตัวตน...",
+                "เชื่อมต่อ Secure Gateway...",
+                "เรียบร้อย! กำลังพาคุณเข้าสู่ระบบ..."
             ];
 
-            let progressValue = 0;
-            const loadingInterval = setInterval(() => {
-                progressValue += Math.floor(Math.random() * 20) + 10; // ปรับให้เร็วขึ้นนิดนึง
-                if (progressValue > 100) progressValue = 100;
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.floor(Math.random() * 15) + 5;
+                if (progress > 100) progress = 100;
 
-                if (progressBar) progressBar.style.width = progressValue + "%";
+                progressBar.style.width = progress + "%";
+                let stepIdx = Math.min(Math.floor(progress / 26), steps.length - 1);
+                statusText.innerText = steps[stepIdx];
 
-                let stepIndex = Math.min(Math.floor(progressValue / 21), statusSteps.length - 1);
-                if (statusText) statusText.innerText = statusSteps[stepIndex];
-
-                if (progressValue >= 100) {
-                    clearInterval(loadingInterval);
-                    
-                    // ✅ วิธีแก้: ใช้ HTMLFormElement.prototype.submit เพื่อเลี่ยงการติด Loop
-                    // หรือเรียกใช้ผ่านฟอร์มโดยตรงแบบไม่ผ่านตัวแปรที่ผูก Event ไว้
-                    document.forms[0].submit(); 
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    document.forms[0].submit();
                 }
-            }, 250);
+            }, 200);
         };
-    }
-
-    document.addEventListener("DOMContentLoaded", type);
-</script>
-
-    </body>
-
+    </script>
+</body>
 </html>

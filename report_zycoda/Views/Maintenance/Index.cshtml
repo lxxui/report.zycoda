@@ -664,9 +664,6 @@
                     </div>
 
                     <div class="col-md-1 d-flex gap-2">
-                        <button type="submit" class="btn btn-navy p-2 flex-fill shadow-sm" title="ค้นหา">
-                            <i class="bi bi-search"></i>
-                        </button>
                         <button type="button" data-bs-toggle="modal" data-bs-target="#printSelectModal" class="btn btn-outline-navy p-2 flex-fill shadow-sm" title="พิมพ์">
                             <i class="bi bi-printer"></i>
                         </button>
@@ -1250,6 +1247,19 @@
                     // ถ้ามีกราฟ อย่าลืมอัปเดตกราฟที่นี่ด้วยครับ
                 });
             }
+
+            $(document).ready(function () {
+                const filterElements = '#filterJobType, #filterStatus, #secFrom, #secTo, #startDatePicker, #endDatePicker';
+
+                $(filterElements).on('change', function () {
+                    // แสดง Loader หรือทำให้ฟอร์มดูเหมือนกำลังโหลด (Optional)
+                    $(this).closest('form').css('opacity', '0.6');
+        
+                    // ส่งฟอร์มทันที
+                    $('#filterForm').submit();
+                });
+
+            });
     </script>
 </body>
 

@@ -88,48 +88,46 @@
 
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <div class="d-flex align-items-center ms-auto">
-                    
+
                         @if (User.Identity.IsAuthenticated)
                         {
-                            var fullName = User.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value;
-                            var sectionName = User.Claims.FirstOrDefault(c => c.Type == "Section")?.Value;
-                            var userClass = User.Claims.FirstOrDefault(c => c.Type == "Class")?.Value;
+                            // 1. ดึงข้อมูลจาก ViewBag และ Claims
+                            var allSections = ViewBag.SectionList as List<report_zycoda.Models.SectionApiModels>;
+                            var sectionIdFromClaim = User.Claims.FirstOrDefault(c => c.Type == "Section")?.Value;
 
-                            <div class="d-flex align-items-center me-3 pe-3 border-end">
+                            // 2. ค้นหาข้อมูล Section ที่ตรงกับ User คนนี้
+                            // โดยหาว่า Id_Zy ในลิสต์ ตรงกับ Section ใน Claim หรือไม่
+                            var userSection = allSections?.FirstOrDefault(s => s.Id_Zy == sectionIdFromClaim);
+
+                            // 3. กำหนดชื่อที่จะแสดง (ถ้าหาไม่เจอให้ใช้ ID เดิม)
+                            var displaySectionName = userSection != null ? userSection.Name : sectionIdFromClaim;
+
+                            <div class="user-nav-wrapper d-flex align-items-center px-3 py-1 me-3">
                                 <div class="text-end me-3">
-                                    <div class="d-flex align-items-center justify-content-end mb-0">
-                                        @if (User.IsInRole("Administrator") || userClass == "9")
+                                    <div class="d-flex align-items-center justify-content-end lh-1 mb-1">
+                                        <span class="fw-bold text-dark me-2" style="font-size: 0.95rem;">
+                                            @User.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value
+                                            @User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value
+                                        </span>
+                                        @if (User.IsInRole("Administrator") || User.Claims.FirstOrDefault(c => c.Type == "Class")?.Value == "9")
                                         {
-                                            <a asp-controller="Master" asp-action="Index"
-                                                   class="btn btn-sm btn-master-setup me-2 shadow-sm">
-                                                <i class="bi bi-shield-lock-fill me-1"></i> MASTER
-                                            </a>
-                                            <span class="fw-bold text-navy" style="font-size: 0.95rem;">@fullName</span>
-                                            <span class="badge rounded-pill bg-danger ms-2" style="font-size: 0.6rem; letter-spacing: 1px;">ADMIN</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="fw-bold text-navy" style="font-size: 0.95rem;">@fullName</span>
+                                            <span class="badge-admin-status">ADMIN</span>
                                         }
                                     </div>
-                                    <div class="text-muted" style="font-size: 0.75rem;">
-                                        <i class="bi bi-geo-alt-fill me-1"></i>@sectionName
+                                    <div class="text-muted d-flex align-items-center justify-content-end" style="font-size: 0.75rem;">
+                                        <i class="bi bi-geo-alt-fill me-1 text-primary-light"></i>
+                                        <!-- แสดงชื่อที่หาได้จาก List -->
+                                        <span>@displaySectionName</span>
                                     </div>
                                 </div>
-
-                                <div class="bg-navy-gradient text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm"
-                                     style="width:42px; height:42px; border: 2px solid #f8f9fa;">
-                                    <i class="bi bi-person-fill fs-5"></i>
+                                <div class="position-relative">
+                                    <div class="avatar-box shadow-sm">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+                                    <span class="status-indicator online"></span>
                                 </div>
                             </div>
                         }
-                        else
-                        {
-                            <div class="me-4 text-muted small fw-bold">
-                                <i class="bi bi-person-circle me-1"></i> Guest User
-                            </div>
-                        }
-
                         <form asp-controller="Home" asp-action="Logout" method="post" id="logoutForm" class="d-inline">
                             @Html.AntiForgeryToken()
                             <button type="button"

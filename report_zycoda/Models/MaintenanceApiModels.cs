@@ -135,4 +135,6 @@ namespace report_zycoda.Models
         public int WaitPart { get; set; }
     }
 
+
+
 }
