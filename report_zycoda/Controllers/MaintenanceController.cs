@@ -16,7 +16,7 @@ namespace report_zycoda.Controllers
             _apiService = apiService;
         }
 
-        public async Task<IActionResult> Index(string jobtype, string start, string end, string sectionFrom, string sectionTo, string Status, string v = "all")
+        public async Task<IActionResult> Index(string jobtype, string start, string end, string sectionFrom, string sectionTo, string Status, string v = "all", string view = "followup")
         {
             // 1. Authentication Check
             if (User.Identity == null || !User.Identity.IsAuthenticated)
@@ -55,6 +55,7 @@ namespace report_zycoda.Controllers
                 { "start", start },
                 { "end", end },
                 { "v", v },
+                { "view", "followup" },
                 { "status", "ALL" }
             };
 
