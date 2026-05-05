@@ -1,15 +1,15 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using report_zycoda.Data;
 using report_zycoda.Models;
-using System.Reflection.Metadata;
-using System.Text.Json;
-using static System.Collections.Specialized.BitVector32;
 
-public class ReportController : Controller
+public class ReportController(ApiService apiService) : Controller
 {
+    private readonly ApiService _apiService = apiService; // ✅ อย่าลืม Inject service เข้ามาใช้งาน
+
+
     [HttpGet] // 👈 บังคับให้เป็น Get
-    [HttpGet]
+
     public async Task<IActionResult> PrintReport(string start, string end, string status, string sectionFrom, string sectionTo, string jobtype, string rptType)
     {
         // 1. Authentication & Session
@@ -21,11 +21,19 @@ public class ReportController : Controller
         var sessionName = User.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value ?? sessionUser;
 
         // 2. Load Master Section (Map: ID -> Name)
-        var jsonsection = System.IO.File.ReadAllText("wwwroot/data/section.json");
-        var sectionList = System.Text.Json.JsonSerializer.Deserialize<List<report_zycoda.Models.SectionApiModels>>(jsonsection)
-                          ?? new List<report_zycoda.Models.SectionApiModels>();
+        //var jsonsection = System.IO.File.ReadAllText("wwwroot/data/section.json");
+        //var sectionList = System.Text.Json.JsonSerializer.Deserialize<List<report_zycoda.Models.SectionApiModels>>(jsonsection)
+        //                  ?? new List<report_zycoda.Models.SectionApiModels>();
 
-        var sectionDict = sectionList
+        // 1. ดึง Section จาก API 
+        var statusMaster = await _apiService.GetStatusesFromApiAsync();
+        ViewBag.StatusList = statusMaster.OrderBy(x => x.StatusId).ToList();
+
+        var sectionMaster = await _apiService.GetSectionsFromApiAsync();
+        ViewBag.SectionList = sectionMaster.OrderBy(x => x.Id_Zy).ToList();
+
+
+        var sectionDict = sectionMaster
             .Where(s => !string.IsNullOrEmpty(s.Sections))
             .ToDictionary(s => s.Sections.Trim(), s => s.Name ?? s.Sections);
 
@@ -105,7 +113,7 @@ public class ReportController : Controller
         ViewBag.ApiUser = sessionName;
         ViewBag.PrintDate = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
         ViewBag.RefNo = $"{DateTime.Now:yyMMdd}-{new Random().Next(100, 999)}";
-        ViewBag.Section = sectionList;
+        ViewBag.Section = sectionMaster;
 
         SetReportMetadata(rptType);
 
@@ -125,6 +133,7 @@ public class ReportController : Controller
 
         return View(viewName, summaryData);
     }
+
     // --- 🛠️ Helper Methods ---
 
     private DateTime ParseDate(string? dateStr)

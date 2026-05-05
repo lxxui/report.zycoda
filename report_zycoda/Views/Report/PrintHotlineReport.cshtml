@@ -135,8 +135,9 @@
                     {
                         <tr>
                             <td class="text-center">@i</td>
-                            <td style="text-align: left; padding-left: 10px;">@item.SectionName</td>
-                
+                            <td style="text-align: left; padding-left: 10px;">
+                                @(string.IsNullOrEmpty(item.SectionName) ? "ไม่ระบุแผนก" : item.SectionName)
+                            </td>                
                             <td class="text-muted">@(item.CarriedOver > 0 ? item.CarriedOver.ToString() : "-")</td>
                 
                             <td class="fw-bold">@(item.OpenedToday > 0 ? item.OpenedToday.ToString() : "-")</td>
@@ -159,18 +160,19 @@
                     }
                 }
             </tbody>
-         <tfoot class="fw-bold" style="background-color: #f8f9fa; border-top: 2px solid #002d5b;">
-            <tr>
-                <td colspan="2" class="text-end pe-2">GRAND TOTAL</td>
-                <td class="text-center">@Model.Sum(x => (int)x.CarriedOver)</td>
-                <td class="text-center">@Model.Sum(x => (int)x.OpenedToday)</td>
-                <td class="text-center">@Model.Sum(x => (int)x.AcceptJob)</td>
-                <td class="text-center">@Model.Sum(x => (int)x.Repair)</td>
-                <td class="text-center">@Model.Sum(x => (int)x.Finished)</td>
-                <td class="text-center">@Model.Sum(x => (int)x.RejectedToday)</td>
-                <td class="text-center">@Model.Sum(x => (int)x.WaitPart)</td>
-            </tr>
-        </tfoot>
+           <tfoot class="fw-bold" style="background-color: #f8f9fa; border-top: 2px solid #002d5b;">
+                <tr>
+                    <td colspan="2" class="text-end pe-2">GRAND TOTAL</td>
+                    <!-- ใช้ (int?) เพื่อรองรับ null และ ?? 0 เพื่อเปลี่ยน null เป็นเลข 0 -->
+                    <td class="text-center">@Model.Sum(x => (int?)(x.CarriedOver) ?? 0)</td>
+                    <td class="text-center">@Model.Sum(x => (int?)(x.OpenedToday) ?? 0)</td>
+                    <td class="text-center">@Model.Sum(x => (int?)(x.AcceptJob) ?? 0)</td>
+                    <td class="text-center">@Model.Sum(x => (int?)(x.Repair) ?? 0)</td>
+                    <td class="text-center">@Model.Sum(x => (int?)(x.Finished) ?? 0)</td>
+                    <td class="text-center">@Model.Sum(x => (int?)(x.RejectedToday) ?? 0)</td>
+                    <td class="text-center">@Model.Sum(x => (int?)(x.WaitPart) ?? 0)</td>
+                </tr>
+            </tfoot>
         </table>
 
         <div class="row sig-box text-center g-0">

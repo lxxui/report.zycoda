@@ -28,7 +28,6 @@ public class HomeController : Controller
     }
 
     [HttpPost]
-    [HttpPost]
     public async Task<IActionResult> Login(string username, string password)
     {
         try
@@ -41,6 +40,7 @@ public class HomeController : Controller
             {
                 new Claim(ClaimTypes.Name, user.Username ?? ""),
                 new Claim("FullName", user.FirstName ?? ""),
+                new Claim("LastName", user.LastName ?? ""), // 🚩 เพิ่มบรรทัดนี้ครับ!
                 new Claim("UserRole", user.Rule ?? "User"),
                 new Claim("Section", user.Section ?? ""),
                 // ✅ ต้องเก็บ password ไว้ใน Claim เพื่อให้หน้า Maintenance เอาไปใช้เรียก API

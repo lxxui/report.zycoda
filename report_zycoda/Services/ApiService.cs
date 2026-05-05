@@ -125,4 +125,9 @@ public class ApiService
             return new List<UserApiModels>();
         }
     }
+
+    internal async Task<dynamic> GetSectionsAsync()
+    {
+        throw new NotImplementedException();
+    }
 }

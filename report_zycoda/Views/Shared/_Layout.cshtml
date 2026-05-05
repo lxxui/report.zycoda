@@ -69,83 +69,6 @@
         vertical-align: middle;
         }
 
-    </style>
-</head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-light main-nav fixed-top shadow-sm bg-white py-2">
-            <div class="container-fluid px-4">
-                <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Maintenance" asp-action="Index">
-                    <div class="me-3 border-end pe-3">
-                        <span class="zycoda-logo-text" style="font-size: 1.6rem; letter-spacing: 3px;">ZYCODA</span>
-                        <span class="zycoda-badge shadow-sm" style="background: #001f3f; padding: 3px 10px;">REPORT</span>
-                    </div>
-                </a>
-
-                <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <div class="d-flex align-items-center ms-auto">
-
-                        @if (User.Identity.IsAuthenticated)
-                        {
-                            // 1. ดึงข้อมูลจาก ViewBag และ Claims
-                            var allSections = ViewBag.SectionList as List<report_zycoda.Models.SectionApiModels>;
-                            var sectionIdFromClaim = User.Claims.FirstOrDefault(c => c.Type == "Section")?.Value;
-
-                            // 2. ค้นหาข้อมูล Section ที่ตรงกับ User คนนี้
-                            // โดยหาว่า Id_Zy ในลิสต์ ตรงกับ Section ใน Claim หรือไม่
-                            var userSection = allSections?.FirstOrDefault(s => s.Id_Zy == sectionIdFromClaim);
-
-                            // 3. กำหนดชื่อที่จะแสดง (ถ้าหาไม่เจอให้ใช้ ID เดิม)
-                            var displaySectionName = userSection != null ? userSection.Name : sectionIdFromClaim;
-
-                            <div class="user-nav-wrapper d-flex align-items-center px-3 py-1 me-3">
-                                <div class="text-end me-3">
-                                    <div class="d-flex align-items-center justify-content-end lh-1 mb-1">
-                                        <span class="fw-bold text-dark me-2" style="font-size: 0.95rem;">
-                                            @User.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value
-                                            @User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value
-                                        </span>
-                                        @if (User.IsInRole("Administrator") || User.Claims.FirstOrDefault(c => c.Type == "Class")?.Value == "9")
-                                        {
-                                            <span class="badge-admin-status">ADMIN</span>
-                                        }
-                                    </div>
-                                    <div class="text-muted d-flex align-items-center justify-content-end" style="font-size: 0.75rem;">
-                                        <i class="bi bi-geo-alt-fill me-1 text-primary-light"></i>
-                                        <!-- แสดงชื่อที่หาได้จาก List -->
-                                        <span>@displaySectionName</span>
-                                    </div>
-                                </div>
-                                <div class="position-relative">
-                                    <div class="avatar-box shadow-sm">
-                                        <i class="bi bi-person-fill"></i>
-                                    </div>
-                                    <span class="status-indicator online"></span>
-                                </div>
-                            </div>
-                        }
-                        <form asp-controller="Home" asp-action="Logout" method="post" id="logoutForm" class="d-inline">
-                            @Html.AntiForgeryToken()
-                            <button type="button"
-                                    class="btn-logout-modern-v2"
-                                    onclick="showLogoutAlert()"
-                                    title="ออกจากระบบ">
-                                <i class="bi bi-box-arrow-right"></i>
-                                <span class="d-none d-lg-inline ms-2">Logout</span>
-                            </button>
-                        </form>
-
-                    </div>
-                </div>
-            </div>
-        </nav>
-    </header>
-
-    <style>
         /* CSS เพิ่มเติมเพื่อให้ UI ดูดีขึ้น */
         .bg-navy-gradient {
         background: linear-gradient(135deg, #001f3f 0%, #004080 100%);
@@ -197,6 +120,87 @@
         background-color: rgba(255, 255, 255, 0.9) !important;
         }
     </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-light main-nav fixed-top shadow-sm bg-white py-2">
+            <div class="container-fluid px-4">
+                <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Maintenance" asp-action="Index">
+                    <div class="me-3 border-end pe-3">
+                        <span class="zycoda-logo-text" style="font-size: 1.6rem; letter-spacing: 3px;">ZYCODA</span>
+                        <span class="zycoda-badge shadow-sm" style="background: #001f3f; padding: 3px 10px;">REPORT</span>
+                    </div>
+                </a>
+
+                <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <div class="d-flex align-items-center ms-auto">
+
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            // 1. ดึง List (ใส่ Check เผื่อ ViewBag เป็น Null)
+                            var allSections = ViewBag.SectionList as List<report_zycoda.Models.SectionApiModels>;
+    
+                            // 2. ดึงรหัสแผนกจาก Claim
+                            var sectionIdFromClaim = User.Claims.FirstOrDefault(c => c.Type == "Section")?.Value;
+
+                            // 3. ทำการ Matching (เพิ่ม StringComparison ให้แม่นยำขึ้น)
+                            var userSection = allSections?.FirstOrDefault(s =>
+                                string.Equals(s.Sections?.Trim(), sectionIdFromClaim?.Trim(), StringComparison.OrdinalIgnoreCase));
+
+                            // 4. สรุปชื่อที่จะใช้แสดง
+                            string displaySectionName;
+                            if (allSections == null)
+                            {
+                                displaySectionName = "ระบบไม่ได้โหลดรายการหน่วยงาน (" + sectionIdFromClaim + ")";
+                            }
+                            else if (userSection == null)
+                            {
+                                displaySectionName = "ไม่พบชื่อหน่วยงานรหัส " + sectionIdFromClaim;
+                            }
+                            else
+                            {
+                                displaySectionName = userSection.Name;
+                            }
+
+                            <div class="user-nav-wrapper d-flex align-items-center px-3 py-1 me-3">
+                                <div class="text-end me-3">
+                                    <div class="d-flex align-items-center justify-content-end lh-1 mb-1">
+                                        <span class="fw-bold text-dark me-2" style="font-size: 0.95rem;">
+                                            @User.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value
+                                            @User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value
+                                        </span>
+                                    </div>
+                                    <div class="text-muted d-flex align-items-center justify-content-end" style="font-size: 0.75rem;">
+                                        <i class="bi bi-geo-alt-fill me-1 text-primary"></i>
+                                        <span title="Matching Status: @(userSection != null ? "Found" : "Not Found")">
+                                            @displaySectionName
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <form asp-controller="Home" asp-action="Logout" method="post" id="logoutForm" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="button"
+                                    class="btn-logout-modern-v2"
+                                    onclick="showLogoutAlert()"
+                                    title="ออกจากระบบ">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span class="d-none d-lg-inline ms-2">Logout</span>
+                            </button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+
     <div class="container-fluid px-4 content-wrapper">
         <main role="main" class="pb-3">
             <br />

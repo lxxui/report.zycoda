@@ -54,24 +54,19 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
-
     <!-- JS (เรียงตาม dependency) -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-
     <!-- Bootstrap (ต้องมาก่อน DataTables bootstrap) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
     <!-- DataTables -->
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-
     <!-- Chart -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <!-- Date Picker -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
     <style>
         .job-row:hover {
             background-color: rgba(0,0,0,0.02) !important;
@@ -353,61 +348,91 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6); /* พื้นหลังสีดำจางๆ */
-            z-index: 9999; /* ให้อยู่หน้าสุดเสมอ */
-            display: flex;
+            width: 100vw;  /* เต็มความกว้างหน้าจอ */
+            height: 100vh; /* เต็มความสูงหน้าจอ */
+            background: rgba(15, 23, 42, 0.8); /* สีน้ำเงินเข้มโปร่งแสง */
+            backdrop-filter: blur(12px);     /* เอฟเฟกต์กระจกฝ้า */
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 10000;
+    
+            /* หัวใจหลักของการจัดกึ่งกลาง */
+            display: none; 
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-        }
-
-        .loader-container {
-            text-align: center;
+    
             color: white;
+            font-family: 'Sarabun', sans-serif;
         }
 
-        /* ปรับแต่ง Spinner ให้สีเข้มตามแบรนด์คุณ (ถ้าต้องการ) */
-        .text-primary {
-            color: #1e3a8a !important; /* สี Navy ตามธีมรายงานคุณ */
-        }
-        /* ทำไอคอนกระดิ่งให้สั่นเวลามีงานเข้า */
-        .animate-ring {
-            animation: ring 2s infinite;
+        .loader-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
-        @@keyframes ring {
-            0% {
-                transform: rotate(0);
-            }
+        /* เอฟเฟกต์เรืองแสงรอบไอคอน */
+        .icon-wrapper {
+            position: relative;
+            font-size: 4.5rem;
+            color: #22d3ee;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 0 15px rgba(34, 211, 238, 0.4));
+        }
 
-            10% {
-                transform: rotate(30deg);
-            }
+        /* เส้นสแกนที่ดูทันสมัยขึ้น */
+        .scanner-line {
+            position: absolute;
+            top: 0;
+            left: -10%;
+            width: 120%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #fff, transparent);
+            box-shadow: 0 0 10px #fff;
+            animation: scan-vertical 2s ease-in-out infinite;
+        }
 
-            20% {
-                transform: rotate(-28deg);
-            }
+        @@keyframes scan-vertical {
+            0% { top: 0%; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
 
-            30% {
-                transform: rotate(34deg);
-            }
+        .loading-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 0.2rem;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
 
-            40% {
-                transform: rotate(-32deg);
-            }
+        .loading-text span {
+            display: inline-block;
+            animation: wave 1.5s infinite ease-in-out;
+        }
 
-            50% {
-                transform: rotate(30deg);
-            }
+        /* หน่วงเวลาแต่ละตัวอักษรให้เป็นคลื่น */
+        .loading-text span:nth-child(1) { animation-delay: 0.1s; }
+        .loading-text span:nth-child(2) { animation-delay: 0.2s; }
+        .loading-text span:nth-child(3) { animation-delay: 0.3s; }
+        .loading-text span:nth-child(4) { animation-delay: 0.4s; }
+        .loading-text span:nth-child(5) { animation-delay: 0.5s; }
+        .loading-text span:nth-child(6) { animation-delay: 0.6s; }
+        .loading-text span:nth-child(7) { animation-delay: 0.7s; }
+        .loading-text span:nth-child(8) { animation-delay: 0.8s; }
+        .loading-text span:nth-child(9) { animation-delay: 0.9s; }
+        .loading-text span:nth-child(10) { animation-delay: 1.0s; }
 
-            60% {
-                transform: rotate(-28deg);
-            }
+        @@keyframes wave {
+            0%, 100% { transform: translateY(0); opacity: 0.3; }
+            50% { transform: translateY(-5px); opacity: 1; color: #06B6D4; }
+        }
 
-            100% {
-                transform: rotate(0);
-            }
+        .sub-text {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.9rem;
+            margin-top: 10px;
         }
 
     </style>
@@ -449,7 +474,7 @@
                     <h2 class="fw-bold mb-0 mt-2 text-danger">
                         @(reports.Count(x => x.status == "Pending") + reports.Count(x => x.status == "Create"))
                     </h2>
-                    <small class="text-muted" style="font-size: 0.7rem;">P:@reports.Count(x => x.status == "Pending") | C:@reports.Count(x => x.status == "Create")</small>
+                    <small class="text-muted" style="font-size: 0.7rem;">รออนุมัติ:@reports.Count(x => x.status == "Pending") | รอรับงาน:@reports.Count(x => x.status == "Create")</small>
                 </div>
             </div>
 
@@ -503,16 +528,16 @@
         <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
             <div class="card-body p-4">
                 <form method="get" class="row g-3 align-items-end" id="filterForm">
-                    <div class="col-md-2">
+                    <div class="col-md-1">
                         <label class="form-label small fw-bold text-navy">ประเภทงาน</label>
                         <select name="jobtype" id="filterJobType" class="form-select border-light bg-light">
-                            <option value="EM,CM" selected="@(jobtype == "EM,CM")">-- ทุกประเภท --</option>
+                            <option value="EM,CM" selected="@(jobtype == "EM,CM")">- ทั้งหมด -</option>
                             <option value="EM" selected="@(jobtype == "EM")">EM (Emergency)</option>
                             <option value="CM" selected="@(jobtype == "CM")">CM (General)</option>
                         </select>
                     </div>
 
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="form-label small fw-bold text-navy">ช่วงวันที่แจ้ง</label>
                         <div class="input-group">
                             <input type="text" id="startDatePicker" name="start" class="form-control border-light bg-light" value="@start">
@@ -521,10 +546,10 @@
                         </div>
                     </div>
 
-                    <div class="col-md-2">
+                    <div class="col-md-1">
                         <label class="form-label small fw-bold text-navy">สถานะ</label>
                         <select name="Status" id="filterStatus" class="form-select border-light bg-light">
-                            <option value="">-- ทั้งหมด --</option>
+                            <option value="">- ทั้งหมด -</option>
                             @foreach (var Stat in (List<report_zycoda.Models.StatusApiModels>)ViewBag.StatusList)
                             {
                                 <option value="@Stat.StatusId" selected="@(ViewBag.CurrentStatus == Stat.StatusId ? "selected" : null)">@Stat.StatusName</option>
@@ -532,10 +557,10 @@
                         </select>
                     </div>
 
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label class="form-label small fw-bold text-navy">จากหน่วยงาน</label>
                         <select name="sectionFrom" id="secFrom" class="form-select border-light bg-light shadow-sm">
-                            <option value="">-- เลือกหน่วยงานทั้งหมด --</option>
+                            <option value="">- ทั้งหมด -</option>
 
                             @{
                                 var allSections = (List<report_zycoda.Models.SectionApiModels>)ViewBag.SectionList;
@@ -598,10 +623,10 @@
                         </select>
                     </div>
 
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label class="form-label small fw-bold text-navy">ถึงหน่วยงาน</label>
                         <select name="sectionTo" id="secTo" class="form-select border-light bg-light shadow-sm">
-                            <option value="">-- สิ้นสุดหน่วยงานทั้งหมด --</option>
+                            <option value="">- ทั้งหมด -</option>
 
                             @{
                                 var allSectionsTo = (List<report_zycoda.Models.SectionApiModels>)ViewBag.SectionList;
@@ -663,9 +688,14 @@
                         </select>
                     </div>
 
-                    <div class="col-md-1 d-flex gap-2">
-                        <button type="button" data-bs-toggle="modal" data-bs-target="#printSelectModal" class="btn btn-outline-navy p-2 flex-fill shadow-sm" title="พิมพ์">
-                            <i class="bi bi-printer"></i>
+                   <div class="col-md-2 d-flex gap-2 align-items-end"> <!-- align-items-end ให้ปุ่มวางระดับเดียวกับ input -->
+                        <button type="submit" class="btn btn-primary shadow-sm w-100 py-2">
+                            <i class="fas fa-search fa-lg"></i>
+                        </button>
+
+                        <button type="button" class="btn btn-light border text-secondary shadow-sm w-100 py-2"
+                                onclick="$('#printSelectModal').modal('show')">
+                            <i class="fas fa-print fa-lg"></i>
                         </button>
                     </div>
                 </form>
@@ -938,14 +968,28 @@
             </div>
         </div>
     </div>
-    <div id="loader-wrapper" style="display:none;">
+    @* <div id="loader-wrapper" style="display:none;">
         <div class="loader-container">
             <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>
             <h5 class="mt-3 text-white">กำลังประมวลผลข้อมูล...</h5>
         </div>
+    </div> *@
+
+    <div id="loader-wrapper">
+    <div class="loader-content">
+        <div class="icon-wrapper">
+            <i class="bi bi-cpu-fill"></i>
+            <div class="scanner-line"></div>
+        </div>
+        <div class="loading-text">
+            <span>G</span><span>E</span><span>N</span><span>E</span><span>R</span><span>A</span><span>T</span><span>I</span><span>N</span><span>G</span>
+        </div>
+        <p class="sub-text">ระบบกำลังประมวลผลข้อมูล...</p>
     </div>
+</div>
+
     <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
         <div id="newJobToast" class="toast hide shadow-lg" role="alert" aria-live="assertive" aria-atomic="true" style="border-radius: 15px; overflow: hidden; border: none; min-width: 300px;">
             <div class="toast-header bg-navy text-white p-3">
@@ -1159,7 +1203,7 @@
                 // if ($(this).valid()) {
 
                     // แสดง Loader กลางหน้าจอ
-                    $('#loader-wrapper').fadeIn(200); // หรือใช้ .show()
+                    $('#loader-wrapper').css('display', 'flex').hide().fadeIn(400); // หรือใช้ .show()
 
                     // ปิดปุ่มค้นหาเพื่อกันกดซ้ำ
                     $('button[type="submit"]').prop('disabled', true);
@@ -1253,10 +1297,10 @@
 
                 $(filterElements).on('change', function () {
                     // แสดง Loader หรือทำให้ฟอร์มดูเหมือนกำลังโหลด (Optional)
-                    $(this).closest('form').css('opacity', '0.6');
+                    // $(this).closest('form').css('opacity', '0.6');
         
                     // ส่งฟอร์มทันที
-                    $('#filterForm').submit();
+                    // $('#filterForm').submit();
                 });
 
             });
