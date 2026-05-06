@@ -8,6 +8,8 @@ namespace report_zycoda.Models
     {
         // --- ส่วนที่ 1 & 2: รวมร่าง Property (รองรับทั้งระบบเก่าและ JSON Farmhouse) ---
         public string? v { get; set; }
+        public string? job_no { get; set; }
+
         public string? id { get; set; }           // จาก farmhouse
         public string? id_h { get; set; }         // จากระบบเดิม
 
@@ -55,6 +57,15 @@ namespace report_zycoda.Models
 
 
         public string? timeaccept { get; set; }
+
+        public string? workby { get; set; }
+
+        public string? createby { get; set; }
+
+        public string? assign_to { get; set; }
+
+        public string? view { get; set; }
+
 
 
 
@@ -133,6 +144,8 @@ namespace report_zycoda.Models
         public int Repair { get; set; }
         public int AcceptJob { get; set; }
         public int WaitPart { get; set; }
+
+        public string? rptType { get; set; }
     }
 
 

@@ -14,8 +14,10 @@
     var start = Context.Request.Query["start"].ToString();
     var end = Context.Request.Query["end"].ToString();
 
-    if (string.IsNullOrEmpty(start)) start = DateTime.Now.ToString("yyyy-MM-dd", culture);
-    if (string.IsNullOrEmpty(end)) end = DateTime.Now.ToString("yyyy-MM-dd", culture);
+    // if (string.IsNullOrEmpty(start)) start = DateTime.Now.ToString("yyyy-MM-dd", culture);
+    // if (string.IsNullOrEmpty(end)) end = DateTime.Now.ToString("yyyy-MM-dd", culture);
+    start = string.IsNullOrEmpty(start) ? "" : start;
+    end = string.IsNullOrEmpty(end) ? "" : end;
 
         // ประกาศตัวแปรเพื่อดึงค่าจาก URL มาแสดงใน Dropdown
     var sectionFrom = Context.Request.Query["sectionFrom"].ToString();
@@ -435,6 +437,24 @@
             margin-top: 10px;
         }
 
+        /* ปรับแต่ง Radio Button ให้ดูโมเดิร์นขึ้น */
+        .btn-check:checked + .btn-outline-primary {
+            background-color: #0d6efd;
+            color: white;
+            box-shadow: inset 0 3px 5px rgba(0,0,0,0.125);
+        }
+        .btn-outline-primary {
+            border-color: #dee2e6;
+            color: #6c757d;
+            background-color: #f8f9fa;
+        }
+        .btn-outline-primary:hover {
+            background-color: #e9ecef;
+            color: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+
     </style>
 
 
@@ -451,8 +471,13 @@
                     <i class="bi bi-clock-history me-2"></i>
                     <span id="realtime-clock" class="fw-bold">กำลังโหลดเวลา...</span>
                 </div>
+                @*  <div class="text-muted">
+                    <i class="fa fa-sync-alt"></i> อัปเดตล่าสุดจาก API: 
+                    <span class="badge badge-info">@ViewBag.LastSync</span>
+                </div> *@
             </div>
         </div>
+ 
 
         <div class="row g-3 mb-4 text-center">
             <div class="col-md-3 col-lg-1-5">
@@ -528,6 +553,7 @@
         <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
             <div class="card-body p-4">
                 <form method="get" class="row g-3 align-items-end" id="filterForm">
+                    <!-- 1. ประเภทงาน -->
                     <div class="col-md-1">
                         <label class="form-label small fw-bold text-navy">ประเภทงาน</label>
                         <select name="jobtype" id="filterJobType" class="form-select border-light bg-light">
@@ -537,6 +563,7 @@
                         </select>
                     </div>
 
+                    <!-- 2. ช่วงวันที่แจ้ง -->
                     <div class="col-md-2">
                         <label class="form-label small fw-bold text-navy">ช่วงวันที่แจ้ง</label>
                         <div class="input-group">
@@ -546,153 +573,92 @@
                         </div>
                     </div>
 
+                    <!-- 3. สถานะ -->
                     <div class="col-md-1">
                         <label class="form-label small fw-bold text-navy">สถานะ</label>
                         <select name="Status" id="filterStatus" class="form-select border-light bg-light">
                             <option value="">- ทั้งหมด -</option>
                             @foreach (var Stat in (List<report_zycoda.Models.StatusApiModels>)ViewBag.StatusList)
                             {
-                                <option value="@Stat.StatusId" selected="@(ViewBag.CurrentStatus == Stat.StatusId ? "selected" : null)">@Stat.StatusName</option>
+                                <option value="@Stat.StatusId" selected="@(ViewBag.CurrentStatus == Stat.StatusId)">@Stat.StatusName</option>
                             }
                         </select>
                     </div>
 
-                    <div class="col-md-3">
+                    <!-- 4. จากหน่วยงาน -->
+                    <div class="col-md-2">
                         <label class="form-label small fw-bold text-navy">จากหน่วยงาน</label>
                         <select name="sectionFrom" id="secFrom" class="form-select border-light bg-light shadow-sm">
                             <option value="">- ทั้งหมด -</option>
-
                             @{
                                 var allSections = (List<report_zycoda.Models.SectionApiModels>)ViewBag.SectionList;
                                 var currentFrom = Context.Request.Query["sectionFrom"].ToString();
-
-                                // ฟังก์ชันช่วยเช็คว่าเป็นฝ่ายผลิตหรือไม่ (ใส่ Keyword เพิ่มได้ตามความจริง)
                                 bool IsProduction(string name) => name != null && (name.Contains("ผลิต") || name.Contains("Production") || name.Contains("PD"));
                             }
-
                             @if (allSections != null)
                             {
-                                <optgroup label="🏭 ฝ่ายผลิต - ลาดกระบัง (LKB)">
-                                    @foreach (var sec in allSections.Where(x => x.Name != null && (x.Name.Contains("ลาดกระบัง") || x.Name.Contains("(LKB)")) && IsProduction(x.Name)))
+                                <optgroup label="🏭 ฝ่ายผลิต">
+                                    @foreach (var sec in allSections.Where(x => IsProduction(x.Name)))
                                     {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">
-                                            @sec.Sections - @sec.Name
-                                        </option>
+                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-
-                                <optgroup label="🏭 ฝ่ายผลิต - บางชัน (BC)">
-                                    @foreach (var sec in allSections.Where(x => x.Name != null && (x.Name.Contains("บางชัน") || x.Name.Contains("(BC)")) && IsProduction(x.Name)))
+                                <optgroup label="🏢 อื่นๆ">
+                                    @foreach (var sec in allSections.Where(x => !IsProduction(x.Name)))
                                     {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">
-                                            @sec.Sections - @sec.Name
-                                        </option>
-                                    }
-                                </optgroup>
-
-                                <hr />
-                                <optgroup label="🏢 สำนักงาน/อื่นๆ - ลาดกระบัง (LKB)">
-                                    @foreach (var sec in allSections.Where(x => x.Name != null && (x.Name.Contains("ลาดกระบัง") || x.Name.Contains("(LKB)")) && !IsProduction(x.Name)))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">
-                                            @sec.Sections - @sec.Name
-                                        </option>
-                                    }
-                                </optgroup>
-
-                                <optgroup label="🏢 สำนักงาน/อื่นๆ - บางชัน (BC)">
-                                    @foreach (var sec in allSections.Where(x => x.Name != null && (x.Name.Contains("บางชัน") || x.Name.Contains("(BC)")) && !IsProduction(x.Name)))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">
-                                            @sec.Sections - @sec.Name
-                                        </option>
-                                    }
-                                </optgroup>
-
-                                <optgroup label="🌐 หน่วยงานอื่นๆ">
-                                    @foreach (var sec in allSections.Where(x => x.Name != null &&
-                                                                    !x.Name.Contains("ลาดกระบัง") && !x.Name.Contains("(LKB)") &&
-                                                                    !x.Name.Contains("บางชัน") && !x.Name.Contains("(BC)")))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">
-                                            @sec.Sections - @sec.Name
-                                        </option>
+                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
                             }
                         </select>
                     </div>
 
-                    <div class="col-md-3">
+                    <!-- 5. ถึงหน่วยงาน -->
+                    <div class="col-md-2">
                         <label class="form-label small fw-bold text-navy">ถึงหน่วยงาน</label>
                         <select name="sectionTo" id="secTo" class="form-select border-light bg-light shadow-sm">
                             <option value="">- ทั้งหมด -</option>
-
-                            @{
-                                var allSectionsTo = (List<report_zycoda.Models.SectionApiModels>)ViewBag.SectionList;
-                                var currentTo = Context.Request.Query["sectionTo"].ToString();
-
-                                // ใช้ Logic เดียวกับอันแรก เพื่อความสม่ำเสมอ
-                                bool IsProd(string name) => name != null && (name.Contains("ผลิต") || name.Contains("Production") || name.Contains("PD"));
-                            }
-
-                            @if (allSectionsTo != null)
+                            @if (allSections != null)
                             {
-                                <optgroup label="🏭 ฝ่ายผลิต - ลาดกระบัง (LKB)">
-                                    @foreach (var sec in allSectionsTo.Where(x => x.Name != null && (x.Name.Contains("ลาดกระบัง") || x.Name.Contains("(LKB)")) && IsProd(x.Name)))
+                                <optgroup label="🏭 ฝ่ายผลิต">
+                                    @foreach (var sec in allSections.Where(x => IsProduction(x.Name)))
                                     {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">
-                                            @sec.Sections - @sec.Name
-                                        </option>
+                                        <option value="@sec.Sections" selected="@(Context.Request.Query["sectionTo"] == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-
-                                <optgroup label="🏭 ฝ่ายผลิต - บางชัน (BC)">
-                                    @foreach (var sec in allSectionsTo.Where(x => x.Name != null && (x.Name.Contains("บางชัน") || x.Name.Contains("(BC)")) && IsProd(x.Name)))
+                                <optgroup label="🏢 อื่นๆ">
+                                    @foreach (var sec in allSections.Where(x => !IsProduction(x.Name)))
                                     {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">
-                                            @sec.Sections - @sec.Name
-                                        </option>
-                                    }
-                                </optgroup>
-
-                                <optgroup label="🏢 สำนักงาน/อื่นๆ - ลาดกระบัง (LKB)">
-                                    @foreach (var sec in allSectionsTo.Where(x => x.Name != null && (x.Name.Contains("ลาดกระบัง") || x.Name.Contains("(LKB)")) && !IsProd(x.Name)))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">
-                                            @sec.Sections - @sec.Name
-                                        </option>
-                                    }
-                                </optgroup>
-
-                                <optgroup label="🏢 สำนักงาน/อื่นๆ - บางชัน (BC)">
-                                    @foreach (var sec in allSectionsTo.Where(x => x.Name != null && (x.Name.Contains("บางชัน") || x.Name.Contains("(BC)")) && !IsProd(x.Name)))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">
-                                            @sec.Sections - @sec.Name
-                                        </option>
-                                    }
-                                </optgroup>
-
-                                <optgroup label="🌐 หน่วยงานอื่นๆ">
-                                    @foreach (var sec in allSectionsTo.Where(x => x.Name != null &&
-                                                                    !x.Name.Contains("ลาดกระบัง") && !x.Name.Contains("(LKB)") &&
-                                                                    !x.Name.Contains("บางชัน") && !x.Name.Contains("(BC)")))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">
-                                            @sec.Sections - @sec.Name
-                                        </option>
+                                        <option value="@sec.Sections" selected="@(Context.Request.Query["sectionTo"] == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
                             }
                         </select>
                     </div>
 
-                   <div class="col-md-2 d-flex gap-2 align-items-end"> <!-- align-items-end ให้ปุ่มวางระดับเดียวกับ input -->
+                    <!-- 6. มุมมองข้อมูล (แบบ Radio Button Group) -->
+                    <div class="col-md-2">
+                        <label class="form-label small fw-bold text-navy">มุมมองข้อมูล</label>
+                        <div class="btn-group w-100 shadow-sm" role="group">
+                            <input type="radio" class="btn-check" name="view" id="viewFollowup" value="followup" 
+                                   autocomplete="off" @(Context.Request.Query["view"] == "followup" || string.IsNullOrEmpty(Context.Request.Query["view"]) ? "checked" : "")>
+                            <label class="btn btn-outline-primary small fw-bold py-2" for="viewFollowup">
+                                <i class="fas fa-search me-1"></i> Follow Up
+                            </label>
+
+                            <input type="radio" class="btn-check" name="view" id="viewMyjob" value="myjob" 
+                                   autocomplete="off" @(Context.Request.Query["view"] == "myjob" ? "checked" : "")>
+                            <label class="btn btn-outline-primary small fw-bold py-2" for="viewMyjob">
+                                <i class="fas fa-tools me-1"></i> My Job
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 7. ปุ่มค้นหาและพิมพ์ -->
+                    <div class="col-md-2 d-flex gap-2 align-items-end">
                         <button type="submit" class="btn btn-primary shadow-sm w-100 py-2">
                             <i class="fas fa-search fa-lg"></i>
                         </button>
-
                         <button type="button" class="btn btn-light border text-secondary shadow-sm w-100 py-2"
                                 onclick="$('#printSelectModal').modal('show')">
                             <i class="fas fa-print fa-lg"></i>
@@ -700,7 +666,6 @@
                     </div>
                 </form>
             </div>
-
             <div class="row g-3 mb-4">
                 <div class="col-md-5">
                     <div class="card border-0 shadow-sm h-100 p-3" style="border-radius: 15px;">
@@ -1063,16 +1028,19 @@
             // --------------------------------------------------
             // 3. ฟังก์ชัน Print Report
             // --------------------------------------------------
-            function PrintReport(reportType) {
+          function PrintReport(reportType) {
                 const start = document.getElementById("startDatePicker")?.value || "";
                 const end = document.getElementById("endDatePicker")?.value || "";
                 const status = document.getElementById("filterStatus")?.value || "";
                 const jobType = document.getElementById("filterJobType")?.value || "";
                 const sFrom = document.getElementById("secFrom")?.value || document.getElementById("sectionFrom")?.value || "";
                 const sTo = document.getElementById("secTo")?.value || document.getElementById("sectionTo")?.value || "";
+    
+                // 🚩 แก้ไขบรรทัดนี้: ดึงค่าจาก Radio Button ที่เลือกอยู่
+                const view = document.querySelector('input[name="view"]:checked')?.value || "followup";
 
                 const baseUrl = '/Report/PrintReport';
-                const url = `${baseUrl}?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}&status=${encodeURIComponent(status)}&sectionFrom=${encodeURIComponent(sFrom)}&sectionTo=${encodeURIComponent(sTo)}&jobtype=${encodeURIComponent(jobType)}&rptType=${reportType}`;
+                const url = `${baseUrl}?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}&status=${encodeURIComponent(status)}&sectionFrom=${encodeURIComponent(sFrom)}&sectionTo=${encodeURIComponent(sTo)}&jobtype=${encodeURIComponent(jobType)}&view=${encodeURIComponent(view)}&rptType=${reportType}`;
 
                 window.open(url, '_blank');
                 $('#printSelectModal').modal('hide');

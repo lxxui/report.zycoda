@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using report_zycoda.Data;
 using report_zycoda.Models;
+using report_zycoda.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 // 1. Database Connection
 // ------------------------------------------------------------------
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<AppDbContext>(options =>
+builder.Services.AddDbContext<myDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddControllersWithViews();
@@ -40,10 +41,11 @@ builder.Services.AddSession(options =>
     options.Cookie.Name = "ZycodaSession";         // ตั้งชื่อแยกกับ Auth Cookie
 });
 
-// 4. DI Services
+// แก้ตรงส่วน DI Services ให้เป็นแบบนี้:
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddHttpClient<ApiService>();
+builder.Services.AddHttpClient(); // ใช้ตัวนี้แทน AddHttpClient<ApiService>() ถ้าไม่ได้ตั้งค่าพิเศษ
 builder.Services.AddScoped<ApiService>();
+//builder.Services.AddHostedService<JobSyncService>();
 
 var app = builder.Build();
 
@@ -53,7 +55,7 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     try
     {
-        var context = services.GetRequiredService<AppDbContext>();
+        var context = services.GetRequiredService<myDbContext>();
         if (context.Database.CanConnect())
         {
             Console.WriteLine("✅ [DATABASE STATUS]: CONNECTION SUCCESS!");
