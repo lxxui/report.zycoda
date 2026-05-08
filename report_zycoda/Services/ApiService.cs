@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using report_zycoda.Models;
+using System.Linq;
 
 public class ApiService
 {
@@ -125,6 +126,22 @@ public class ApiService
             return new List<UserApiModels>();
         }
     }
+
+    public async Task<UserApiModels> GetUsersFromApiAsync(string username)
+    {
+        try
+        {
+            // ต้องมั่นใจว่า _context.Users เป็น DbSet และใช้ FirstOrDefaultAsync ของ EF Core
+            return await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Username == username); // 👈 ถ้าไม่มี using ตัวแดงจะมาลงตรงนี้
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"🚩 DB Error: {ex.Message}");
+            return null;
+        }
+    }
+
+
 
     internal async Task<dynamic> GetSectionsAsync()
     {

@@ -32,37 +32,65 @@ public class HomeController : Controller
     {
         try
         {
+            // สมมติว่า _apiService มี Method สำหรับดึงข้อมูล User ตามชื่อนะจ๊ะ
+            var checkUser = await _apiService.GetUsersFromApiAsync(username);
+
+            if (checkUser == null)
+            {
+                // เคสที่ 1: ไม่พบ Username เลยตั้งแต่แรก
+                TempData["ErrorMessage"] = "ไม่พบชื่อผู้ใช้งานในระบบ กรุณาติดต่อฝ่ายไอทีเพื่อลงทะเบียน";
+                return View();
+            }
+
+            // ❌ ไม่มี username
+            if (checkUser == null)
+            {
+                TempData["ErrorMessage"] = "ไม่พบชื่อผู้ใช้งานนี้ในระบบ กรุณาติดต่อไอที";
+                return View();
+            }
+
+            // ❌ password ผิด
             var user = await _apiService.LoginAsync(username, password);
 
-            if (user != null)
+            if (user == null)
             {
-                var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.Username ?? ""),
-                new Claim("FullName", user.FirstName ?? ""),
-                new Claim("LastName", user.LastName ?? ""), // 🚩 เพิ่มบรรทัดนี้ครับ!
-                new Claim("UserRole", user.Rule ?? "User"),
-                new Claim("Section", user.Section ?? ""),
-                // ✅ ต้องเก็บ password ไว้ใน Claim เพื่อให้หน้า Maintenance เอาไปใช้เรียก API
-                new Claim("ApiPassword", password)
-            };
-
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
-                    new ClaimsPrincipal(claimsIdentity), new AuthenticationProperties { IsPersistent = true });
-
-                HttpContext.Session.SetString("ApiUser", JsonConvert.SerializeObject(user));
-
-                return RedirectToAction("Index", "Maintenance");
+                TempData["ErrorMessage"] = "รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง";
+                return View();
             }
-            ViewBag.ErrorMessage = "Username หรือ Password ไม่ถูกต้อง";
+
+            // ✅ success
+            var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name, user.Username ?? ""),
+            new Claim("FullName", $"{user.FirstName} {user.LastName}"),
+            new Claim("UserRole", user.Rule ?? "User"),
+            new Claim("Section", user.Section ?? ""),
+            new Claim("ApiPassword", password)
+        };
+
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(identity),
+                new AuthenticationProperties
+                {
+                    IsPersistent = true,
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
+                });
+
+            HttpContext.Session.SetString("ApiUser", JsonConvert.SerializeObject(user));
+
+            return RedirectToAction("Index", "Maintenance");
         }
         catch (Exception ex)
         {
-            ViewBag.ErrorMessage = $"เกิดข้อผิดพลาด: {ex.Message}";
+            TempData["ErrorMessage"] = "ระบบขัดข้อง: " + ex.Message;
+            return View();
         }
-        return View();
     }
+
+
     [HttpPost]
     public async Task<IActionResult> Logout()
     {
