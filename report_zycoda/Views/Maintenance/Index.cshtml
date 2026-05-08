@@ -40,23 +40,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- CSS ก่อน -->
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <!-- FIX: bootstrap-icons (กัน 404) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
     <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
-    <!-- JS (เรียงตาม dependency) -->
+    <!-- JS -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <!-- Bootstrap (ต้องมาก่อน DataTables bootstrap) -->
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- DataTables -->
+
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-    <!-- Chart -->
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Date Picker -->
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <!-- FIX สำคัญ: ใช้ version stable -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13"></script>
+
+
     <style>
         .job-row:hover {
             background-color: rgba(0,0,0,0.02) !important;
@@ -414,6 +423,50 @@
         .loading-text span:nth-child(9) { animation-delay: 0.9s; }
         .loading-text span:nth-child(10) { animation-delay: 1.0s; }
 
+        #loader-wrapper {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background-color: rgba(255, 255, 255, 0.9); /* พื้นหลังขาวจางๆ ให้เห็นข้างหลังนิดหน่อย */
+        display: flex;
+        justify-content: center; /* จัดกลางแนวนอน */
+        align-items: center;     /* จัดกลางแนวตั้ง */
+        z-index: 9999;           /* ให้อยู่ชั้นบนสุดของทุกอย่าง */
+        }
+
+        .loader-content {
+            text-align: center;      /* จัดตัวอักษรข้างในให้ตรงกลาง */
+        }
+
+        /* ตกแต่ง Icon เพิ่มเติมเพื่อให้ดู Modern */
+        .icon-wrapper {
+            position: relative;
+            font-size: 4rem;
+            color: #001f3f; /* สี Navy ของฝ้าย */
+            margin-bottom: 20px;
+        }
+
+        /* ตัวอย่างการทำ Animation ให้ตัวอักษรค่อยๆ เด้ง */
+        .loading-text span {
+            display: inline-block;
+            font-weight: 800;
+            letter-spacing: 5px;
+            color: #001f3f;
+            animation: pulse 1.5s infinite;
+        }
+
+        @@keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        /* หน่วงเวลาให้ตัวอักษรแต่ละตัวเต้นไม่พร้อมกัน */
+        .loading-text span:nth-child(1) { animation-delay: 0.1s; }
+        .loading-text span:nth-child(2) { animation-delay: 0.2s; }
+        .loading-text span:nth-child(3) { animation-delay: 0.3s; }
+
         @@keyframes wave {
             0%, 100% { transform: translateY(0); opacity: 0.3; }
             50% { transform: translateY(-5px); opacity: 1; color: #06B6D4; }
@@ -504,7 +557,7 @@
                         <small class="text-primary fw-bold text-uppercase">Assigned</small>
                         <i class="bi bi-person-badge text-primary fs-5"></i>
                     </div>
-                    <h2 class="fw-bold mb-0 mt-2 text-primary">@reports.Count(x => x.status == "Assign")</h2>
+                    <h2 class="fw-bold mb-0 mt-2 text-primary">@reports.Count(x => x.status == "Assigned")</h2>
                     <small class="text-muted" style="font-size: 0.7rem;">มอบหมายงานแล้ว</small>
                 </div>
             </div>
@@ -536,123 +589,196 @@
 
         <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
             <div class="card-body p-4">
-                <form method="get" class="row g-3 align-items-end" id="filterForm">
-                    <!-- 1. ประเภทงาน -->
-                    <div class="col-md-1">
-                        <label class="form-label small fw-bold text-navy">ประเภทงาน</label>
-                        <select name="jobtype" id="filterJobType" class="form-select border-light bg-light">
-                            <option value="EM,CM" selected="@(jobtype == "EM,CM")">- ทั้งหมด -</option>
-                            <option value="EM" selected="@(jobtype == "EM")">EM (Emergency)</option>
-                            <option value="CM" selected="@(jobtype == "CM")">CM (General)</option>
-                        </select>
-                    </div>
+            <form method="get" class="row g-3 align-items-end" id="filterForm">
 
-                    <div class="col-md-2">
-                        <label class="form-label small fw-bold text-navy">ช่วงวันที่แจ้ง</label>
-                        <div class="input-group">
-                         <!-- เปลี่ยน type="date" เป็น type="text" -->
-                            <input type="text" id="startDatePicker" name="start" 
-                                   class="form-control border-light bg-light" 
-                                   value="@ViewBag.CurrentStart" readonly />
-                            <span class="input-group-text bg-light border-light text-muted">-</span>
-                            <input type="text" id="endDatePicker" name="end" 
-                                   class="form-control border-light bg-light" 
-                                   value="@(ViewBag.CurrentEnd)" />
-                        </div>
-                    </div>
+                <!-- ประเภทงาน -->
+                <div class="col-md-1">
+                    <label class="form-label small fw-bold text-navy">ประเภทงาน</label>
+                    <select name="jobtype" id="filterJobType"
+                            class="form-select border-light bg-light">
 
-                    <!-- 3. สถานะ -->
-                    <div class="col-md-1">
-                        <label class="form-label small fw-bold text-navy">สถานะ</label>
-                        <select name="Status" id="filterStatus" class="form-select border-light bg-light">
-                            <option value="">- ทั้งหมด -</option>
-                            @foreach (var Stat in (List<report_zycoda.Models.StatusApiModels>)ViewBag.StatusList)
+                        <option value="EM,CM"
+                            selected="@(ViewBag.CurrentJobType == "EM,CM")">
+                            - ทั้งหมด -
+                        </option>
+
+                        <option value="EM"
+                            selected="@(ViewBag.CurrentJobType == "EM")">
+                            EM (Emergency)
+                        </option>
+
+                        <option value="CM"
+                            selected="@(ViewBag.CurrentJobType == "CM")">
+                            CM (General)
+                        </option>
+                    </select>
+                </div>
+
+                <!-- วันที่ -->
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-navy">ช่วงวันที่แจ้ง</label>
+                    <div class="input-group">
+
+                        <input type="text"
+                               id="startDatePicker"
+                               name="start"
+                               class="form-control"
+                               data-default="@ViewBag.CurrentStart" />
+
+                        <input type="text"
+                               id="endDatePicker"
+                               name="end"
+                               class="form-control"
+                               data-default="@ViewBag.CurrentEnd" />
+
+                    </div>
+                </div>
+
+                <!-- สถานะ -->
+                <div class="col-md-1">
+                    <label class="form-label small fw-bold text-navy">สถานะ</label>
+                      <select name="Status" id="filterStatus" class="form-select border-light bg-light">
+                        <option value="">- ทั้งหมด -</option>
+
+                        @if (ViewBag.StatusList != null)
+                        {
+                            foreach (var stat in (IEnumerable<dynamic>)ViewBag.StatusList)
                             {
-                                <option value="@Stat.StatusId" selected="@(ViewBag.CurrentStatus == Stat.StatusId)">@Stat.StatusName</option>
+                                <option value="@stat.StatusId">@stat.StatusName</option>
                             }
-                        </select>
-                    </div>
+                        }
+                    </select>
+                </div>
 
-                    <!-- 4. จากหน่วยงาน -->
-                    <div class="col-md-2">
-                        <label class="form-label small fw-bold text-navy">จากหน่วยงาน</label>
-                        <select name="sectionFrom" id="secFrom" class="form-select border-light bg-light shadow-sm">
-                            <option value="">- ทั้งหมด -</option>
-                            @{
-                                var allSections = (List<report_zycoda.Models.SectionApiModels>)ViewBag.SectionList;
-                                var currentFrom = Context.Request.Query["sectionFrom"].ToString();
-                                bool IsProduction(string name) => name != null && (name.Contains("ผลิต") || name.Contains("Production") || name.Contains("PD"));
-                            }
-                            @if (allSections != null)
-                            {
-                                <optgroup label="🏭 ฝ่ายผลิต">
-                                    @foreach (var sec in allSections.Where(x => IsProduction(x.Name)))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="🏢 อื่นๆ">
-                                    @foreach (var sec in allSections.Where(x => !IsProduction(x.Name)))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                            }
-                        </select>
-                    </div>
+                <!-- หน่วยงาน FROM -->
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-navy">จากหน่วยงาน</label>
 
-                    <!-- 5. ถึงหน่วยงาน -->
-                    <div class="col-md-2">
-                        <label class="form-label small fw-bold text-navy">ถึงหน่วยงาน</label>
-                        <select name="sectionTo" id="secTo" class="form-select border-light bg-light shadow-sm">
-                            <option value="">- ทั้งหมด -</option>
-                            @if (allSections != null)
-                            {
-                                <optgroup label="🏭 ฝ่ายผลิต">
-                                    @foreach (var sec in allSections.Where(x => IsProduction(x.Name)))
-                                    {
-                                        <option value="@sec.Sections" selected="@(Context.Request.Query["sectionTo"] == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="🏢 อื่นๆ">
-                                    @foreach (var sec in allSections.Where(x => !IsProduction(x.Name)))
-                                    {
-                                        <option value="@sec.Sections" selected="@(Context.Request.Query["sectionTo"] == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                            }
-                        </select>
-                    </div>
+                    <select name="sectionFrom" id="secFrom"
+                            class="form-select border-light bg-light shadow-sm">
 
-                    <!-- 6. มุมมองข้อมูล (แบบ Radio Button Group) -->
-                    <div class="col-md-2">
-                        <label class="form-label small fw-bold text-navy">มุมมองข้อมูล</label>
-                        <div class="btn-group w-100 shadow-sm" role="group">
-                            <input type="radio" class="btn-check" name="view" id="viewFollowup" value="followup" 
-                                   autocomplete="off" @(Context.Request.Query["view"] == "followup" || string.IsNullOrEmpty(Context.Request.Query["view"]) ? "checked" : "")>
-                            <label class="btn btn-outline-primary small fw-bold py-2" for="viewFollowup">
-                                <i class="fas fa-search me-1"></i> Follow Up
-                            </label>
+                        <option value=""
+                            selected="@(string.IsNullOrEmpty(ViewBag.CurrentSectionFrom?.ToString()))">
+                            - ทั้งหมด -
+                        </option>
 
-                            <input type="radio" class="btn-check" name="view" id="viewMyjob" value="myjob" 
-                                   autocomplete="off" @(Context.Request.Query["view"] == "myjob" ? "checked" : "")>
-                            <label class="btn btn-outline-primary small fw-bold py-2" for="viewMyjob">
-                                <i class="fas fa-tools me-1"></i> My Job
-                            </label>
-                        </div>
-                    </div>
+                        @{
+                            var allSections = (List<SectionApiModels>)ViewBag.SectionList;
+                            var currentFrom = ViewBag.CurrentSectionFrom?.ToString();
+                            bool IsProduction(string name) =>
+                                name != null &&
+                                (name.Contains("ผลิต") || name.Contains("Production") || name.Contains("PD"));
+                        }
 
-                    <!-- 7. ปุ่มค้นหาและพิมพ์ -->
-                    <div class="col-md-2 d-flex gap-2 align-items-end">
-                        <button type="submit" class="btn btn-primary shadow-sm w-100 py-2">
-                            <i class="fas fa-search fa-lg"></i>
-                        </button>
-                        <button type="button" class="btn btn-light border text-secondary shadow-sm w-100 py-2"
-                                onclick="$('#printSelectModal').modal('show')">
-                            <i class="fas fa-print fa-lg"></i>
-                        </button>
+                        @if (allSections != null)
+                        {
+                            <optgroup label="🏭 ฝ่ายผลิต">
+                                @foreach (var sec in allSections.Where(x => IsProduction(x.Name)))
+                                {
+                                    <option value="@sec.Sections"
+                                        selected="@(currentFrom == sec.Sections)">
+                                        @sec.Sections - @sec.Name
+                                    </option>
+                                }
+                            </optgroup>
+
+                            <optgroup label="🏢 อื่นๆ">
+                                @foreach (var sec in allSections.Where(x => !IsProduction(x.Name)))
+                                {
+                                    <option value="@sec.Sections"
+                                        selected="@(currentFrom == sec.Sections)">
+                                        @sec.Sections - @sec.Name
+                                    </option>
+                                }
+                            </optgroup>
+                        }
+                    </select>
+                </div>
+
+                <!-- หน่วยงาน TO -->
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-navy">ถึงหน่วยงาน</label>
+
+                    <select name="sectionTo" id="secTo"
+                            class="form-select border-light bg-light shadow-sm">
+
+                        <option value=""
+                            selected="@(string.IsNullOrEmpty(ViewBag.CurrentSectionTo?.ToString()))">
+                            - ทั้งหมด -
+                        </option>
+
+                        @if (allSections != null)
+                        {
+                            <optgroup label="🏭 ฝ่ายผลิต">
+                                @foreach (var sec in allSections.Where(x => IsProduction(x.Name)))
+                                {
+                                    <option value="@sec.Sections"
+                                        selected="@(ViewBag.CurrentSectionTo?.ToString() == sec.Sections)">
+                                        @sec.Sections - @sec.Name
+                                    </option>
+                                }
+                            </optgroup>
+
+                            <optgroup label="🏢 อื่นๆ">
+                                @foreach (var sec in allSections.Where(x => !IsProduction(x.Name)))
+                                {
+                                    <option value="@sec.Sections"
+                                        selected="@(ViewBag.CurrentSectionTo?.ToString() == sec.Sections)">
+                                        @sec.Sections - @sec.Name
+                                    </option>
+                                }
+                            </optgroup>
+                        }
+                    </select>
+                </div>
+
+                <!-- VIEW -->
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-navy">มุมมองข้อมูล</label>
+
+                    <div class="btn-group w-100 shadow-sm" role="group">
+
+                        <input type="radio"
+                               class="btn-check"
+                               name="view"
+                               value="followup"
+                               id="viewFollowup"
+                               checked="@(ViewBag.CurrentView == "followup" || string.IsNullOrEmpty(ViewBag.CurrentView))" />
+
+                        <label class="btn btn-outline-primary small fw-bold py-2"
+                               for="viewFollowup">
+                            Follow Up
+                        </label>
+
+                        <input type="radio"
+                               class="btn-check"
+                               name="view"
+                               value="myjob"
+                               id="viewMyjob"
+                               checked="@(ViewBag.CurrentView == "myjob")" />
+
+                        <label class="btn btn-outline-primary small fw-bold py-2"
+                               for="viewMyjob">
+                            My Job
+                        </label>
+
                     </div>
-                </form>
+                </div>
+
+                <!-- BUTTON -->
+                <div class="col-md-2 d-flex gap-2 align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i>
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-light border w-100"
+                            onclick="$('#printSelectModal').modal('show')">
+                        <i class="fas fa-print"></i>
+                    </button>
+                </div>
+
+            </form>            
             </div>
             <div class="row g-3 mb-4">
                 <div class="col-md-5">
@@ -923,369 +1049,373 @@
     </div>
 
     <div id="loader-wrapper">
-    <div class="loader-content">
-        <div class="icon-wrapper">
-            <i class="bi bi-cpu-fill"></i>
-            <div class="scanner-line"></div>
+        <div class="loader-content">
+            <div class="icon-wrapper">
+                <i class="bi bi-cpu-fill"></i>
+                <div class="scanner-line"></div>
+            </div>
+            <div class="loading-text">
+                <span>G</span><span>E</span><span>N</span><span>E</span><span>R</span><span>A</span><span>T</span><span>I</span><span>N</span><span>G</span>
+            </div>
+            <p class="sub-text">ระบบกำลังประมวลผลข้อมูล...</p>
         </div>
-        <div class="loading-text">
-            <span>G</span><span>E</span><span>N</span><span>E</span><span>R</span><span>A</span><span>T</span><span>I</span><span>N</span><span>G</span>
-        </div>
-        <p class="sub-text">ระบบกำลังประมวลผลข้อมูล...</p>
     </div>
-</div>
-   
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+    @section Scripts {
     <script>
-            // --------------------------------------------------
-            // 1. เตรียม Lookup Data (ประกาศไว้นอกสุดเพื่อให้ทุกฟังก์ชันเห็น)
-            // --------------------------------------------------
-            const sectionLookup = {};
-            @if (ViewBag.SectionList != null)
-            {
-                    foreach (var item in (List<report_zycoda.Models.SectionApiModels>)ViewBag.SectionList)
-                    {
-                            <text>sectionLookup["@item.Sections?.Trim()"] = "@Html.Raw(item.Name?.Replace("\"", "\\\""))";</text>
+        $(document).ready(function () {
+            // 1. Pie Chart: สัดส่วนสถานะงานซ่อม
+            const pieCtx = document.getElementById('maintenancePieChart').getContext('2d');
+            new Chart(pieCtx, {
+                type: 'doughnut', // ใช้ doughnut จะดู modern กว่า pie ปกติครับ
+                data: {
+                    labels: ['รอดำเนินการ', 'กำลังซ่อม', 'เสร็จสิ้น', 'ยกเลิก'],
+                    datasets: [{
+                        data: [15, 25, 50, 10], // ใส่ข้อมูลจาก View @ViewBag หรือ Model ตรงนี้
+                        backgroundColor: [
+                            '#f87171', // Red (Pending)
+                            '#fbbf24', // Amber (In Progress)
+                            '#34d399', // Emerald (Completed)
+                            '#94a3b8'  // Slate (Cancelled)
+                        ],
+                        hoverOffset: 10,
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                font: { family: 'Segoe UI', size: 12 }
+                            }
+                        }
+                    },
+                    cutout: '70%' // ทำให้วงกลมดูบางลงแบบ Dashboard สมัยใหม่
+                }
+            });
+
+            // 2. Bar Chart: Top 10 เครื่องจักรที่แจ้งซ่อมบ่อย
+            const barCtx = document.getElementById('maintenanceBarChart').getContext('2d');
+            new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['M-001', 'M-002', 'M-003', 'M-004', 'M-005', 'M-006', 'M-007', 'M-008', 'M-009', 'M-010'],
+                    datasets: [{
+                        label: 'จำนวนครั้งที่ซ่อม',
+                        data: [45, 38, 32, 28, 24, 20, 18, 15, 12, 10],
+                        backgroundColor: 'rgba(0, 31, 63, 0.8)', // สี Navy ของฝ้าย
+                        hoverBackgroundColor: '#001f3f',
+                        borderRadius: 8, // ปรับขอบแท่งให้มน
+                        barThickness: 25
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    indexAxis: 'y', // เปลี่ยนเป็นกราฟแนวนอนเพื่อให้ดูรายชื่อเครื่องจักรได้ง่าย
+                    plugins: {
+                        legend: { display: false } // ปิด Legend เพราะมี label บอกอยู่แล้ว
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            beginAtZero: true
+                        },
+                        y: {
+                            grid: { strokeDashArray: [5, 5] }, // เส้นประแนวนอน
+                            ticks: {
+                                font: { family: 'Segoe UI', weight: '600' }
+                            }
+                        }
                     }
-            }
-
-            // --------------------------------------------------
-            // 2. ฟังก์ชัน Helper (ประกาศแบบ Global)
-            // --------------------------------------------------
-            function getSectionName(code) {
-                if (!code || code === '-') return '-';
-                const cleanCode = String(code).trim();
-                return sectionLookup[cleanCode] || cleanCode;
-            }
-
-            function formatDT(dateStr) {
-                if (!dateStr || dateStr === '-' || dateStr === '0001-01-01T00:00:00') return '-';
-                try {
-                    const d = new Date(dateStr);
-                    if (isNaN(d.getTime())) return dateStr;
-                    return new Intl.DateTimeFormat('en-GB', {
-                        day: '2-digit', month: '2-digit', year: 'numeric',
-                        hour: '2-digit', minute: '2-digit', hour12: false
-                    }).format(d).replace(/\//g, '-');
-                } catch (e) { return dateStr; }
-            }
-
-            function updateClock() {
-                const now = new Date();
-                const options = {
-                    day: '2-digit', month: '2-digit', year: '2-digit',
-                    hour: '2-digit', minute: '2-digit', second: '2-digit',
-                    hour12: false
-                };
-                const clockElement = document.getElementById('realtime-clock');
-                if (clockElement) {
-                    clockElement.innerText = now.toLocaleString('th-TH', options);
                 }
-            }
-
-            // --------------------------------------------------
-            // 3. ฟังก์ชัน Print Report
-            // --------------------------------------------------
-         function PrintReport(reportType) {
-            // ดึงค่าโดยเช็ค ID หลายๆ แบบที่ฝ้ายน่าจะตั้งไว้
-            const start = document.getElementById("startDatePicker")?.value || document.getElementById("start")?.value || "";
-            const end = document.getElementById("endDatePicker")?.value || document.getElementById("end")?.value || "";
-    
-            // สำคัญ: ฝ้ายต้องเช็คว่า ID ของ Dropdown/Input ในหน้า View ชื่ออะไรกันแน่
-            const status = document.getElementById("filterStatus")?.value || document.getElementById("Status")?.value || "";
-            const jobType = document.getElementById("filterJobType")?.value || document.getElementById("jobtype")?.value || "";
-    
-            const sFrom = document.getElementById("secFrom")?.value || document.getElementById("sectionFrom")?.value || "";
-            const sTo = document.getElementById("secTo")?.value || document.getElementById("sectionTo")?.value || "";
- 
-            const view = document.querySelector('input[name="view"]:checked')?.value || "followup";
-
-            // ตรวจสอบความถูกต้องของ URL
-            const baseUrl = '/Report/PrintReport';
-            const params = new URLSearchParams({
-                start: start,
-                end: end,
-                status: status,
-                sectionFrom: sFrom,
-                sectionTo: sTo,
-                jobtype: jobType,
-                view: view,
-                rptType: reportType
-            });
-
-            const url = `${baseUrl}?${params.toString()}`;
-    
-            console.log("Redirecting to:", url); // ไว้เช็ค Link ก่อนเปิดจริง
-    
-            window.open(url, '_blank');
-            $('#printSelectModal').modal('hide');
-        }
-
-            // --------------------------------------------------
-            // 4. ทำงานเมื่อ Document พร้อม
-            // --------------------------------------------------
-            $(document).ready(function () {
-                // นาฬิกา
-                setInterval(updateClock, 1000);
-                updateClock();
-
-                // DataTable
-              if (!$.fn.DataTable.isDataTable('#maintenanceTable')) {
-                    $('#maintenanceTable').DataTable({
-                        "pageLength": 10,
-                        "lengthMenu": [[10, 15, 25, 50, 100], [10, 15, 25, 50, 100]],
-                        "language": { "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/th.json" },
-                        "order": [[0, "desc"]],
-                        "dom": '<"d-flex justify-content-between align-items-center px-3 pt-2 mb-2"l f>rt<"d-flex justify-content-between align-items-center px-3 pb-3 mt-2"i p>'
-                    });
-                }
-
-                // คำนวณช่วงวันที่
-                const today = new Date();
-                const minDate = new Date();
-                minDate.setFullYear(today.getFullYear() - 2);
-
-                // Start Date
-                flatpickr("#startDatePicker", {
-                    dateFormat: "Y-m-d",
-                    altInput: true,
-                    altFormat: "d/m/Y",
-                    minDate: minDate,
-                    maxDate: today
-                });
-
-                // End Date
-                flatpickr("#endDatePicker", {
-                    dateFormat: "Y-m-d",
-                    altInput: true,
-                    altFormat: "d/m/Y",
-                    minDate: minDate,
-                    maxDate: today
-                });
-
-                // Click Row เพื่อดู Modal
-                $('.job-row').on('click', function() {
-                    const $el = $(this);
-
-                    $('#mId').text($el.data('id'));
-                    $('#mMachine').text($el.data('machine') || '-');
-                    $('#mType').text($el.data('type') || '-');
-                    $('#mUser').text($el.data('user') || '-');
-                    $('#mDetail').text($el.data('detail') || '-');
-
-                    const status = $el.data('status');
-                    const cssClass = $el.data('css') || 'bg-secondary';
-                    $('#mStatus').text(status).removeClass().addClass('badge rounded-pill ' + cssClass);
-
-                    const secCreateCode = $el.data('sectioncreate');
-                    const secTargetCode = $el.data('section');
-
-                    $('#mSectionCreateName').text(getSectionName(secCreateCode));
-                    $('#mSectionCreateCode').text(secCreateCode);
-                    $('#mSection').text(getSectionName(secTargetCode));
-
-                    const assignData = $el.data('uassign');
-                    $('#mAssign').text(assignData || 'ยังไม่มอบหมาย');
-
-                    const acceptUser = $el.data('useraccept');
-                    const finishUser = $el.data('userfinish');
-                    $('#mFinish').text(finishUser || 'ยังไม่มีผู้รับงาน');
-                    // มี accept / finish 
-                    $('#mAccept').text(acceptUser || 'ยังไม่มีผู้รับงาน');
-
-                    $('#mTimeCreate').text(formatDT($el.data('timecreate')));
-                    $('#mTimeAccept').text(formatDT($el.data('timeaccept')));
-
-                    $('#jobDetailModal').modal('show');
-                });
-
-                // --------------------------------------------------
-                // 5. Chart Setup (ย่อโค้ดเพื่อความสะอาด)
-                // --------------------------------------------------
-                const zycodaPalette = { pending: '#F43F5E', accept: '#F59E0B', finish: '#10B981', primary: '#001f3f', accent: '#06B6D4' };
-                const commonFont = { size: 12, family: "'Sarabun', sans-serif", weight: '500' };
-
-                const ctxPie = document.getElementById('maintenancePieChart');
-                if (ctxPie) {
-                    new Chart(ctxPie, {
-                        type: 'doughnut',
-                        data: {
-                            labels: ['รอดำเนินการ', 'กำลังแก้ไข', 'เสร็จสิ้น'],
-                            datasets: [{
-                                data: [@reports.Count(x => x.status == "Create" || x.status == "Pending"), @reports.Count(x => x.status == "Accept"), @reports.Count(x => x.status == "Finish" || x.status == "Confirm")],
-                                backgroundColor: [zycodaPalette.pending, zycodaPalette.accept, zycodaPalette.finish],
-                                cutout: '75%', borderRadius: 8, spacing: 5
-                            }]
-                        },
-                        options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, font: commonFont } } } }
-                    });
-                }
-
-                const ctxBar = document.getElementById('maintenanceBarChart');
-                if (ctxBar) {
-                    const gradient = ctxBar.getContext('2d').createLinearGradient(0, 0, 400, 0);
-                    gradient.addColorStop(0, '#001f3f'); gradient.addColorStop(1, '#06B6D4');
-                    new Chart(ctxBar, {
-                        type: 'bar',
-                        data: {
-                            labels: @Html.Raw(Json.Serialize(machineLabels)),
-                            datasets: [{ label: 'จำนวนครั้ง', data: @Html.Raw(Json.Serialize(machineData)), backgroundColor: gradient, borderRadius: 6, barThickness: 18 }]
-                        },
-                        options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } }, y: { ticks: { font: commonFont } } } }
-                    });
-                }
-            });
-
-            $(document).ready(function () {
-
-                // สั่งให้ทำงานทุก 60 วินาที
-                    setInterval(refreshDashboard, 60000);
-
-            $('form').on('submit', function () {
-                // เช็คก่อนว่าฟอร์มผ่าน Validation ไหม (ถ้ามี)
-                // if ($(this).valid()) {
-
-                    // แสดง Loader กลางหน้าจอ
-                    $('#loader-wrapper').css('display', 'flex').hide().fadeIn(400); // หรือใช้ .show()
-
-                    // ปิดปุ่มค้นหาเพื่อกันกดซ้ำ
-                    $('button[type="submit"]').prop('disabled', true);
-
-
-
-                // }
             });
         });
-
-        function refreshDashboard() {
-            // ดึงค่า Query String ปัจจุบัน (เพื่อให้ค้นหาตามเงื่อนไขที่เลือกค้างไว้ได้)
-            const params = new URLSearchParams(window.location.search);
-
-            // ใช้ jQuery Load หรือ Fetch ไปดึงข้อมูล (ในที่นี้แนะนำให้เรียก API ที่คุณมีอยู่แล้ว)
-            // หรือถ้าเอาแบบกำปั้นทุบดิน คือสั่ง reload เฉพาะส่วน table และ card
-            $.get(window.location.href, function(data) {
-                // หาเฉพาะส่วนของ Content มาเปลี่ยน
-                const newHtml = $(data);
-                $('.row.g-3.mb-4.text-center').html(newHtml.find('.row.g-3.mb-4.text-center').html()); // อัปเดต Card ตัวเลข
-                $('#maintenanceTable').html(newHtml.find('#maintenanceTable').html()); // อัปเดตตาราง
-
-                // ถ้ามีกราฟ ต้องสั่งทำลายกราฟเก่าแล้ววาดใหม่ด้วย (Chart.js .destroy())
-                console.log("Dashboard Updated: " + new Date().toLocaleTimeString());
-            });
-        }
-
-            // ตัวแปรเก็บ Job ID ล่าสุดที่มีในหน้าจอตอนนี้
-            let lastJobId = 0;
-
-            $(document).ready(function() {
-                // หา ID ที่สูงที่สุดในตารางตอนโหลดหน้าครั้งแรก
-                updateLastJobId();
-
-                // ตั้งเวลาเช็คทุก 1 นาที (60000 ms)
-                setInterval(checkNewJob, 60000);
-            });
-
-            function updateLastJobId() {
-                // ดึงตัวเลขจากคอลัมน์ Job ID (ที่เขียนว่า #12345)
-                $('.job-row').each(function() {
-                    let id = parseInt($(this).data('id'));
-                    if (id > lastJobId) lastJobId = id;
-                });
-            }
-
-            function checkNewJob() {
-                const currentUrl = window.location.href;
-
-                $.get(currentUrl, function(data) {
-                    const newHtml = $(data);
-                    let hasNewJob = false;
-
-                    // เช็คว่าในข้อมูลใหม่ มี ID ที่มากกว่า lastJobId ไหม
-                    newHtml.find('.job-row').each(function() {
-                        let id = parseInt($(this).data('id'));
-                        if (id > lastJobId) {
-                            hasNewJob = true;
-                            return false; // ออกจาก loop
-                        }
-                    });
-
-                    if (hasNewJob) {
-                        // 1. แสดง Toast แจ้งเตือน
-                        $('#newJobToast').toast({ delay: 5000 }); // แสดง 5 วินาที
-                        $('#newJobToast').toast('show');
-
-                        // 2. เล่นเสียงแจ้งเตือน (Optional - ถ้าอยากให้มีเสียง)
-                        // playNotificationSound();
-
-                        // 3. อัปเดตข้อมูลในหน้าจอ (เรียกฟังก์ชันเดิม)
-                        refreshDashboard();
-
-                        // 4. อัปเดต lastJobId เป็นค่าใหม่ล่าสุด
-                        setTimeout(updateLastJobId, 2000);
-                    }
-                });
-            }
-
-            function refreshDashboard() {
-                $.get(window.location.href, function(data) {
-                    const newHtml = $(data);
-                    $('.row.g-3.mb-4.text-center').html(newHtml.find('.row.g-3.mb-4.text-center').html());
-                    $('#maintenanceTable tbody').html(newHtml.find('#maintenanceTable tbody').html());
-                    // ถ้ามีกราฟ อย่าลืมอัปเดตกราฟที่นี่ด้วยครับ
-                });
-            }
-
-            $(document).ready(function () {
-                const filterElements = '#filterJobType, #filterStatus, #secFrom, #secTo, #startDatePicker, #endDatePicker';
-
-                $(filterElements).on('change', function () {
-                    // แสดง Loader หรือทำให้ฟอร์มดูเหมือนกำลังโหลด (Optional)
-                    // $(this).closest('form').css('opacity', '0.6');
-        
-                    // ส่งฟอร์มทันที
-                    // $('#filterForm').submit();
-                });
-
-            });
     </script>
+<script>
+    // ==================================================
+    // 1. GLOBAL VARIABLES
+    // ==================================================
+    let lastKnownJob = null;
+    let lastJobId = 0;
+    const sectionLookup = {};
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        let lastKnownJob = null;
+    @if (ViewBag.SectionList != null)
+    {
+        foreach (var item in (List<report_zycoda.Models.SectionApiModels>)ViewBag.SectionList)
+        {
+            <text>
+                sectionLookup["@item.Sections?.Trim()"] =
+                "@Html.Raw(item.Name?.Replace("\"", "\\\""))";
+            </text>
+        }
+    }
 
-        function checkUpdates() {
-            $.get('/Maintenance/GetStatusUpdate', function(data) {
-                if (data && data.length > 0) {
-                    let newest = data[0]; // ใบงานบนสุด
+    // ==================================================
+    // 2. HELPERS
+    // ==================================================
+    function getSectionName(code) {
+        if (!code || code === '-') return '-';
+        return sectionLookup[String(code).trim()] || code;
+    }
 
-                    // ถ้าครั้งแรกที่รัน ให้จำค่าไว้ก่อน
-                    if (lastKnownJob === null) {
-                        lastKnownJob = newest.jobNo;
-                        return;
-                    }
+    function formatDT(dateStr) {
+        if (!dateStr || dateStr === '-' || dateStr === '0001-01-01T00:00:00') return '-';
+        try {
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return dateStr;
 
-                    // ถ้า Job No ใหม่กว่าที่เคยรู้ หรือ สถานะเปลี่ยนไป
-                    if (newest.jobNo !== lastKnownJob) {
-                        Swal.fire({
-                            title: 'มีใบงานใหม่! 🆕',
-                            text: `ใบงานเลขที่: ${newest.jobNo} (${newest.status})`,
-                            icon: 'info',
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 5000
-                        });
-                    
-                        lastKnownJob = newest.jobNo;
-                        // ถ้าน้องอยากให้ตารางอัปเดตอัตโนมัติด้วย ให้สั่งโหลดตารางใหม่ตรงนี้
-                        location.reload(); // แบบง่ายที่สุด
-                    }
-                }
+            return new Intl.DateTimeFormat('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            }).format(d).replace(/\//g, '-');
+        } catch {
+            return dateStr;
+        }
+    }
+
+    function updateClock() {
+        const el = document.getElementById('realtime-clock');
+        if (!el) return;
+
+        const now = new Date();
+        el.innerText = now.toLocaleString('th-TH', {
+            day: '2-digit',
+            month: '2-digit',
+            year: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        });
+    }
+
+    // ==================================================
+    // 3. STATE
+    // ==================================================
+    function updateLastJobId() {
+        $('.job-row').each(function () {
+            const id = parseInt($(this).data('id'));
+            if (id > lastJobId) lastJobId = id;
+        });
+    }
+
+    // ==================================================
+    // 4. FLATPICKR CONFIG (FIXED)
+    // ==================================================
+    const commonConfig = {
+        dateFormat: "Y-m-d",
+        altInput: true,
+        altFormat: "d/m/Y",
+        locale: "en",
+        allowInput: true,
+        disableMobile: true,
+
+        onReady: function (_, __, instance) {
+            const el = instance.element;
+            const defaultVal = el.dataset.default;
+
+            if (defaultVal) {
+                const parsed = flatpickr.parseDate(defaultVal, "Y-m-d");
+                instance.setDate(parsed, false);
+            }
+        },
+
+        onChange: function (_, dateStr, instance) {
+            instance.element.dataset.default = dateStr;
+        }
+    };
+
+    let fpStart = null;
+    let fpEnd = null;
+
+    function initDatePickers() {
+
+        if (fpStart) fpStart.destroy();
+        if (fpEnd) fpEnd.destroy();
+
+        fpStart = flatpickr("#startDatePicker", commonConfig);
+        fpEnd = flatpickr("#endDatePicker", commonConfig);
+
+        // 🔥 FORCE SET หลัง init (สำคัญมาก)
+        const startVal = document.getElementById("startDatePicker").dataset.default;
+        const endVal = document.getElementById("endDatePicker").dataset.default;
+
+        if (startVal) {
+            fpStart.setDate(startVal, true, "Y-m-d");
+        }
+
+        if (endVal) {
+            fpEnd.setDate(endVal, true, "Y-m-d");
+        }
+    }
+
+    // ==================================================
+    // 5. DASHBOARD REFRESH (FIXED - NO DATE RESET)
+    // ==================================================
+    function refreshDashboard() {
+        $.get(window.location.href, function (data) {
+            const newHtml = $(data);
+
+            $('.row.g-3.mb-4.text-center')
+                .html(newHtml.find('.row.g-3.mb-4.text-center').html());
+
+            $('#maintenanceTable tbody')
+                .html(newHtml.find('#maintenanceTable tbody').html());
+
+            updateLastJobId();
+
+            // 🔥 RE-INIT ONLY DATA TABLE CONTENT SAFE
+            console.log("Dashboard refreshed");
+        });
+    }
+
+    // ==================================================
+    // 6. CHECK UPDATE
+    // ==================================================
+    function checkUpdates() {
+        $.get('/Maintenance/GetStatusUpdate', function (data) {
+            if (!data || data.length === 0) return;
+
+            const newest = data[0];
+
+            if (lastKnownJob === null) {
+                lastKnownJob = newest.jobNo;
+                return;
+            }
+
+            if (newest.jobNo !== lastKnownJob) {
+                Swal.fire({
+                    title: 'มีใบงานใหม่! 🆕',
+                    text: `ใบงานเลขที่: ${newest.jobNo} (${newest.status})`,
+                    icon: 'info',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 5000
+                });
+
+                lastKnownJob = newest.jobNo;
+                refreshDashboard();
+            }
+        });
+    }
+
+    // ==================================================
+    // 7. PRINT REPORT (SAFE FIX)
+    // ==================================================
+    function PrintReport(reportType) {
+
+        const start = fpStart?.selectedDates?.length
+            ? fpStart.formatDate(fpStart.selectedDates[0], "Y-m-d")
+            : "";
+
+        const end = fpEnd?.selectedDates?.length
+            ? fpEnd.formatDate(fpEnd.selectedDates[0], "Y-m-d")
+            : "";
+
+        const params = new URLSearchParams({
+            start,
+            end,
+            status: document.getElementById("filterStatus")?.value || "",
+            sectionFrom: document.getElementById("sectionFrom")?.value || "",
+            sectionTo: document.getElementById("sectionTo")?.value || "",
+            jobtype: document.getElementById("jobtype")?.value || "",
+            view: document.querySelector('input[name="view"]:checked')?.value || "followup",
+            rptType: reportType
+        });
+
+        window.open(`/Report/PrintReport?${params.toString()}`, '_blank');
+        $('#printSelectModal').modal('hide');
+    }
+
+    // ==================================================
+    // 8. INIT
+    // ==================================================
+    $(document).ready(function () {
+
+        initDatePickers();
+
+        if (!$.fn.DataTable.isDataTable('#maintenanceTable')) {
+            $('#maintenanceTable').DataTable({
+                pageLength: 10,
+                lengthMenu: [[10, 15, 25, 50, 100], [10, 15, 25, 50, 100]],
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/th.json"
+                },
+                order: [[0, "desc"]],
+                dom: '<"d-flex justify-content-between align-items-center px-3 pt-2 mb-2"l f>rt<"d-flex justify-content-between align-items-center px-3 pb-3 mt-2"i p>'
             });
         }
 
-        // สั่งให้ทำงานทุกๆ 30 วินาที (30000 ms)
+        $(document).on('click', '.job-row', function () {
+            const $el = $(this);
+
+            $('#mId').text($el.data('id'));
+            $('#mMachine').text($el.data('machine') || '-');
+            $('#mType').text($el.data('type') || '-');
+            $('#mUser').text($el.data('user') || '-');
+            $('#mDetail').text($el.data('detail') || '-');
+
+            $('#mStatus')
+                .text($el.data('status'))
+                .removeClass()
+                .addClass('badge rounded-pill ' + ($el.data('css') || 'bg-secondary'));
+
+            $('#mSectionCreateName').text(getSectionName($el.data('sectioncreate')));
+            $('#mSection').text(getSectionName($el.data('section')));
+            $('#mAssign').text($el.data('uassign') || 'ยังไม่มอบหมาย');
+            $('#mAccept').text($el.data('useraccept') || 'ยังไม่มีผู้รับงาน');
+            $('#mFinish').text($el.data('userfinish') || '-');
+            $('#mTimeCreate').text(formatDT($el.data('timecreate')));
+            $('#mTimeAccept').text(formatDT($el.data('timeaccept')));
+
+            $('#jobDetailModal').modal('show');
+        });
+
+        $('form').on('submit', function () {
+            $('#loader-wrapper').fadeIn(200);
+            $('button[type="submit"]').prop('disabled', true);
+        });
+
+        setInterval(updateClock, 1000);
         setInterval(checkUpdates, 30000);
+        setInterval(refreshDashboard, 60000);
+
+        updateClock();
+        updateLastJobId();
+    });
 </script>
+
+<script>
+    // เมื่อโหลดทรัพยากรทุกอย่างในหน้าเว็บเสร็จ (รูปภาพ, สคริปต์, CSS)
+    $(window).on('load', function() {
+        // ให้ Loader ค่อยๆ จางหายไปใน 500ms
+        $('#loader-wrapper').fadeOut(500, function() {
+            $(this).css('display', 'none');
+        });
+    });
+
+    // ป้องกันกรณีที่โหลดนานเกินไป (Failsafe)
+    // ถ้าผ่านไป 5 วินาทีแล้วยังไม่หาย ให้สั่งปิดเองเลย
+    setTimeout(function() {
+        if ($('#loader-wrapper').is(':visible')) {
+            $('#loader-wrapper').fadeOut(300);
+        }
+    }, 5000);
+</script>
+}
+
+
 
 </body>
 

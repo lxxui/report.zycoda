@@ -3,73 +3,105 @@ using Microsoft.EntityFrameworkCore;
 using report_zycoda.Data;
 using report_zycoda.Models;
 using report_zycoda.Services;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ------------------------------------------------------------------
-// 1. Database Connection
-// ------------------------------------------------------------------
+// ===============================
+// 1. CULTURE (กันวันที่เพี้ยน)
+// ===============================
+var culture = CultureInfo.InvariantCulture;
+CultureInfo.DefaultThreadCurrentCulture = culture;
+CultureInfo.DefaultThreadCurrentUICulture = culture;
+
+// ===============================
+// 2. DB
+// ===============================
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<myDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+// ===============================
+// 3. MVC
+// ===============================
 builder.Services.AddControllersWithViews();
 
-// ------------------------------------------------------------------
-// 2. Authentication (สำคัญ: ตรวจสอบการตั้งค่า Cookie)
-// ------------------------------------------------------------------
+// ===============================
+// 4. AUTH
+// ===============================
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/Home/Login";          // หน้าสำหรับ Login
-        options.LogoutPath = "/Home/Logout";        // หน้าสำหรับ Logout
+        options.LoginPath = "/Home/Login";
+        options.LogoutPath = "/Home/Logout";
         options.AccessDeniedPath = "/Home/AccessDenied";
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(60); // ปรับให้เท่ากับ Session
-        options.SlidingExpiration = true;           // ต่ออายุอัตโนมัติเมื่อมีการใช้งาน
-        options.Cookie.Name = "ZycodaAuthCookie";    // ตั้งชื่อ Cookie ให้ชัดเจน
+
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+        options.SlidingExpiration = true;
+
+        options.Cookie.Name = "ZycodaAuthCookie";
+
+        // 🔥 เพิ่มอันนี้ (กัน login หลุด random)
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.Lax;
     });
 
-// ------------------------------------------------------------------
-// 3. Session Configuration
-// ------------------------------------------------------------------
+// ===============================
+// 5. SESSION
+// ===============================
 builder.Services.AddDistributedMemoryCache();
+
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(60);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
-    options.Cookie.Name = "ZycodaSession";         // ตั้งชื่อแยกกับ Auth Cookie
+    options.Cookie.Name = "ZycodaSession";
+
+    // 🔥 เพิ่ม safety
+    options.Cookie.SameSite = SameSiteMode.Lax;
 });
 
-// แก้ตรงส่วน DI Services ให้เป็นแบบนี้:
+// ===============================
+// 6. SERVICES
+// ===============================
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddHttpClient(); // ใช้ตัวนี้แทน AddHttpClient<ApiService>() ถ้าไม่ได้ตั้งค่าพิเศษ
+builder.Services.AddHttpClient();
 builder.Services.AddScoped<ApiService>();
-//builder.Services.AddHostedService<JobSyncService>();
 
 var app = builder.Build();
 
-// ✅ Database Connection Check (เก็บไว้เหมือนเดิมเพื่อความชัวร์)
+// ===============================
+// 7. DATABASE CHECK (DEBUG ONLY)
+// ===============================
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+
     try
     {
         var context = services.GetRequiredService<myDbContext>();
+
         if (context.Database.CanConnect())
         {
-            Console.WriteLine("✅ [DATABASE STATUS]: CONNECTION SUCCESS!");
+            Console.WriteLine("DATABASE CONNECTED SUCCESS");
+        }
+        else
+        {
+            Console.WriteLine("DATABASE NOT CONNECTED");
         }
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"🚩 [DATABASE ERROR]: {ex.Message}");
+        Console.WriteLine($"DATABASE ERROR: {ex.Message}");
     }
 }
 
-// ------------------------------------------------------------------
-// 5. Middleware Pipeline (ลำดับห้ามสลับ!)
-// ------------------------------------------------------------------
+// ===============================
+// 8. PIPELINE
+// ===============================
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -81,7 +113,6 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// 🚩 ลำดับต้องเป็น: Session -> Authentication -> Authorization
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
