@@ -595,9 +595,13 @@
                         <span class="badge bg-danger rounded-pill">Wait</span>
                     </div>
                     <h2 class="fw-bold mb-0 mt-2 text-danger">
-                        @(reports.Count(x => x.status == "Pending") + reports.Count(x => x.status == "Create"))
+                        @reports.Count(x => string.Equals(x.statustext?.Trim(), "Pending", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(x.statustext?.Trim(), "Create", StringComparison.OrdinalIgnoreCase))
                     </h2>
-                    <small class="text-muted" style="font-size: 0.7rem;">รออนุมัติ:@reports.Count(x => x.status == "Pending") | รอรับงาน:@reports.Count(x => x.status == "Create")</small>
+                    <small class="text-muted" style="font-size: 0.7rem;">
+                        รออนุมัติ: @reports.Count(x => string.Equals(x.statustext?.Trim(), "Pending", StringComparison.OrdinalIgnoreCase)) |
+                        รอรับงาน: @reports.Count(x => string.Equals(x.statustext?.Trim(), "Create", StringComparison.OrdinalIgnoreCase))
+                    </small>
                 </div>
             </div>
 
@@ -607,7 +611,9 @@
                         <small class="text-warning fw-bold text-uppercase">Accepted</small>
                         <i class="bi bi-check2-circle text-warning fs-5"></i>
                     </div>
-                    <h2 class="fw-bold mb-0 mt-2 text-warning">@reports.Count(x => x.status == "Accept")</h2>
+                    <h2 class="fw-bold mb-0 mt-2 text-warning">
+                        @reports.Count(x => string.Equals(x.statustext?.Trim(), "Accept", StringComparison.OrdinalIgnoreCase))
+                    </h2>
                     <small class="text-muted" style="font-size: 0.7rem;">รับงานแล้ว</small>
                 </div>
             </div>
@@ -615,10 +621,12 @@
             <div class="col-md-3 col-lg-1-5">
                 <div class="card border-0 shadow-sm p-3 h-100" style="border-left: 5px solid #0d6efd; background-color: #f5f9ff;">
                     <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-primary fw-bold text-uppercase">Assigned</small>
+                        <small class="text-primary fw-bold text-uppercase">Assign</small>
                         <i class="bi bi-person-badge text-primary fs-5"></i>
                     </div>
-                    <h2 class="fw-bold mb-0 mt-2 text-primary">@reports.Count(x => x.status == "Assigned")</h2>
+                    <h2 class="fw-bold mb-0 mt-2 text-primary">
+                        @reports.Count(x => string.Equals(x.statustext?.Trim(), "Assign", StringComparison.OrdinalIgnoreCase))
+                    </h2>
                     <small class="text-muted" style="font-size: 0.7rem;">มอบหมายงานแล้ว</small>
                 </div>
             </div>
@@ -630,9 +638,13 @@
                         <i class="bi bi-clipboard-check text-success fs-5"></i>
                     </div>
                     <h2 class="fw-bold mb-0 mt-2 text-success">
-                        @(reports.Count(x => x.status == "Finish") + reports.Count(x => x.status == "Confirm"))
+                        @reports.Count(x => string.Equals(x.statustext?.Trim(), "Finish", StringComparison.OrdinalIgnoreCase) ||
+                                                string.Equals(x.statustext?.Trim(), "Confirm", StringComparison.OrdinalIgnoreCase))
                     </h2>
-                    <small class="text-muted" style="font-size: 0.7rem;">F:@reports.Count(x => x.status == "Finish") | C:@reports.Count(x => x.status == "Confirm")</small>
+                    <small class="text-muted" style="font-size: 0.7rem;">
+                        F: @reports.Count(x => string.Equals(x.statustext?.Trim(), "Finish", StringComparison.OrdinalIgnoreCase)) |
+                        C: @reports.Count(x => string.Equals(x.statustext?.Trim(), "Confirm", StringComparison.OrdinalIgnoreCase))
+                    </small>
                 </div>
             </div>
 
@@ -642,12 +654,13 @@
                         <small class="text-muted fw-bold text-uppercase">Rejected</small>
                         <i class="bi bi-x-octagon text-dark fs-5"></i>
                     </div>
-                    <h2 class="fw-bold mb-0 mt-2">@reports.Count(x => x.status == "Reject")</h2>
+                    <h2 class="fw-bold mb-0 mt-2">
+                        @reports.Count(x => string.Equals(x.statustext?.Trim(), "Reject", StringComparison.OrdinalIgnoreCase))
+                    </h2>
                     <small class="text-muted" style="font-size: 0.7rem;">ยกเลิกงาน</small>
                 </div>
             </div>
         </div>
-
         <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
             <div class="card-body p-4">
                 <form method="get" class="row g-3 align-items-end" id="filterForm">

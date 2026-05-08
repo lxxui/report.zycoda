@@ -44,6 +44,7 @@ namespace report_zycoda.Controllers
             ViewBag.CurrentEnd = end;
             ViewBag.SelectedStatus = Status?.Trim();
             ViewBag.CurrentJobType = jobtype ?? "EM,CM";
+
             ViewBag.CurrentView = view ?? "followup";
             ViewBag.CurrentSectionFrom = sectionFrom;
             ViewBag.CurrentSectionTo = sectionTo;
@@ -84,13 +85,13 @@ namespace report_zycoda.Controllers
             {
                 client.DefaultRequestHeaders.Add("username", sessionUser);
                 client.DefaultRequestHeaders.Add("password", sessionPass);
-
+                string jobTypeToQuery = string.IsNullOrEmpty(jobtype) ? "EM,CM" : jobtype;
                 foreach (var v in viewsToCall)
                 {
                     var url = QueryHelpers.AddQueryString("https://farmhouse.zycoda.com/apimpros/get_job_order", new Dictionary<string, string?>
                     {
                         ["plant"] = "FARMHOUSE",
-                        ["jobtype"] = ViewBag.CurrentJobType,
+                        ["jobtype"] = jobTypeToQuery,
                         ["start"] = start,
                         ["end"] = end,
                         ["view"] = v,
@@ -112,28 +113,25 @@ namespace report_zycoda.Controllers
 
             // --- 5. FILTER SAFE (THE ACCURACY CORE) ---
             // กรองซ้ำเพื่อให้แน่ใจว่าได้ข้อมูลตรงตามเงื่อนไขเป๊ะๆ
+            // --- 5. FILTER SAFE (ปรับปรุงใหม่ให้ตรงกับ API) ---
             var final = combined.Where(x => {
-                // 1. กรองวันที่: พยายาม Parse หลายรูปแบบที่ API มักส่งมา
+                // 1. กรองวันที่: ถ้า API ส่งมาและ Parse ได้ ให้กรองตามวันที่
                 bool dateMatch = true;
                 if (!string.IsNullOrEmpty(x.timecreate))
                 {
-                    // ลอง Parse แบบมาตรฐาน ISO (yyyy-MM-dd...)
-                    if (DateTime.TryParse(x.timecreate, culture, DateTimeStyles.None, out var dt))
+                    if (DateTime.TryParse(x.timecreate, out var dt))
                     {
                         dateMatch = dt.Date >= startDate.Date && dt.Date <= endDate.Date;
                     }
-                    else
-                    {
-                        // ถ้า Parse ไม่ผ่าน ให้ถือว่าข้อมูลวันที่ผิดพลาด (เลือกที่จะไม่โชว์เพื่อความถูกต้อง)
-                        dateMatch = false;
-                    }
+                    // ถ้า Parse วันที่ไม่ได้ เราจะไม่เตะทิ้ง (ให้ dateMatch = true ไว้ก่อน) เพื่อให้ข้อมูลแสดงออกมา
                 }
 
-                // 2. กรอง Status
+                // 2. กรอง Status: รองรับทั้งค่า Null และ "All"
                 bool statusMatch = string.IsNullOrEmpty(Status) ||
-                                  (x.status != null && x.status.Trim().Equals(Status.Trim(), StringComparison.OrdinalIgnoreCase));
+                                   Status.Equals("All", StringComparison.OrdinalIgnoreCase) ||
+                                   (x.status != null && x.status.Trim().Equals(Status.Trim(), StringComparison.OrdinalIgnoreCase));
 
-                // 3. กรอง Section
+                // 3. กรอง Section: ปรับให้ยืดหยุ่นขึ้น
                 bool sectionMatch = true;
                 var sec = (x.sectioncreate ?? x.section ?? "").Trim();
                 if (!string.IsNullOrWhiteSpace(sectionFrom) || !string.IsNullOrWhiteSpace(sectionTo))
@@ -146,6 +144,7 @@ namespace report_zycoda.Controllers
                 return dateMatch && statusMatch && sectionMatch;
             }).ToList();
 
+            // เรียงลำดับตามเลขงานล่าสุดเสมอ
             return View(final.OrderByDescending(x => x.job_no).ToList());
         }
     }
