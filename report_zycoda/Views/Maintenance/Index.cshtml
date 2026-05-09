@@ -577,91 +577,155 @@
         </div>
 
 
-        <div class="row g-3 mb-4 text-center">
-            <div class="col-md-3 col-lg-1-5">
-                <div class="card border-0 shadow-sm p-3 h-100 bg-light" style="border-left: 5px solid #6c757d;">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-muted fw-bold text-uppercase">งานทั้งหมด</small>
-                        <i class="bi bi-list-task text-muted fs-5"></i>
+        <div class="row g-2 mb-4 text-center">
+            <!-- 1. ALL JOBS -->
+            <div class="col-6 col-md-4 col-lg-1-5">
+                <div class="card border-0 shadow-sm p-2 h-100 bg-secondary text-white" style="border-left: 4px solid #343a40;">
+                    <div class="d-flex justify-content-between align-items-start px-1">
+                        <small class="fw-bold" style="font-size: 0.65rem;">ALL JOBS</small>
+                        <i class="bi bi-list-task opacity-50"></i>
                     </div>
-                    <h2 class="fw-bold mb-0 mt-2 text-dark">@reports.Count</h2>
+                    <h2 class="fw-bold mb-0 mt-1">@reports.Count</h2>
                 </div>
             </div>
 
-            <div class="col-md-3 col-lg-1-5">
-                <div class="card border-0 shadow-sm p-3 h-100" style="border-left: 5px solid #dc3545; background-color: #fff5f5;">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-danger fw-bold text-uppercase">Pending / Create</small>
-                        <span class="badge bg-danger rounded-pill">Wait</span>
+            <!-- 2. PENDING / CREATE -->
+            <div class="col-6 col-md-4 col-lg-1-5">
+                <div class="card border-0 shadow-sm p-2 h-100" style="border-left: 4px solid #dc3545; background-color: #fff5f5;">
+                    <div class="d-flex justify-content-between align-items-start px-1">
+                        <small class="text-danger fw-bold" style="font-size: 0.65rem;">PENDING / CREATE</small>
+                        <i class="bi bi-plus-circle text-danger opacity-50"></i>
                     </div>
-                    <h2 class="fw-bold mb-0 mt-2 text-danger">
-                        @reports.Count(x => string.Equals(x.statustext?.Trim(), "Pending", StringComparison.OrdinalIgnoreCase) ||
-                        string.Equals(x.statustext?.Trim(), "Create", StringComparison.OrdinalIgnoreCase))
+                    <h2 class="fw-bold mb-0 mt-1 text-danger">
+                        @reports.Count(x => (x.statustext ?? "").Trim().Equals("Pending", StringComparison.OrdinalIgnoreCase) ||
+                                                (x.statustext ?? "").Trim().Equals("Create", StringComparison.OrdinalIgnoreCase))
                     </h2>
-                    <small class="text-muted" style="font-size: 0.7rem;">
-                        รออนุมัติ: @reports.Count(x => string.Equals(x.statustext?.Trim(), "Pending", StringComparison.OrdinalIgnoreCase)) |
-                        รอรับงาน: @reports.Count(x => string.Equals(x.statustext?.Trim(), "Create", StringComparison.OrdinalIgnoreCase))
-                    </small>
                 </div>
             </div>
 
-            <div class="col-md-3 col-lg-1-5">
-                <div class="card border-0 shadow-sm p-3 h-100" style="border-left: 5px solid #ffc107; background-color: #fffdf5;">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-warning fw-bold text-uppercase">Accepted</small>
-                        <i class="bi bi-check2-circle text-warning fs-5"></i>
+            <!-- 3. ACCEPT -->
+            <div class="col-6 col-md-4 col-lg-1-5">
+                <div class="card border-0 shadow-sm p-2 h-100" style="border-left: 4px solid #ffc107; background-color: #fffdf5;">
+                    <div class="d-flex justify-content-between align-items-start px-1">
+                        <small class="text-warning fw-bold" style="font-size: 0.65rem;">ACCEPT</small>
+                        <i class="bi bi-check2-circle text-warning opacity-50"></i>
                     </div>
-                    <h2 class="fw-bold mb-0 mt-2 text-warning">
-                        @reports.Count(x => string.Equals(x.statustext?.Trim(), "Accept", StringComparison.OrdinalIgnoreCase))
+                    <h2 class="fw-bold mb-0 mt-1 text-warning">
+                        @reports.Count(x => (x.statustext ?? "").Trim().Equals("Accept", StringComparison.OrdinalIgnoreCase))
                     </h2>
-                    <small class="text-muted" style="font-size: 0.7rem;">รับงานแล้ว</small>
                 </div>
             </div>
 
-            <div class="col-md-3 col-lg-1-5">
-                <div class="card border-0 shadow-sm p-3 h-100" style="border-left: 5px solid #0d6efd; background-color: #f5f9ff;">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-primary fw-bold text-uppercase">Assign</small>
-                        <i class="bi bi-person-badge text-primary fs-5"></i>
+            <!-- 4. PLANNER -->
+            <div class="col-6 col-md-4 col-lg-1-5">
+                <div class="card border-0 shadow-sm p-2 h-100" style="border-left: 4px solid #6610f2; background-color: #f8f5ff;">
+                    <div class="d-flex justify-content-between align-items-start px-1">
+                        <small class="fw-bold" style="font-size: 0.65rem; color: #6610f2;">PLANNER</small>
+                        <i class="bi bi-calendar-event opacity-50" style="color: #6610f2;"></i>
                     </div>
-                    <h2 class="fw-bold mb-0 mt-2 text-primary">
-                        @reports.Count(x => string.Equals(x.statustext?.Trim(), "Assign", StringComparison.OrdinalIgnoreCase))
+                    <h2 class="fw-bold mb-0 mt-1" style="color: #6610f2;">
+                        @reports.Count(x => (x.statustext ?? "").Trim().Equals("Planner", StringComparison.OrdinalIgnoreCase))
                     </h2>
-                    <small class="text-muted" style="font-size: 0.7rem;">มอบหมายงานแล้ว</small>
                 </div>
             </div>
 
-            <div class="col-md-3 col-lg-1-5">
-                <div class="card border-0 shadow-sm p-3 h-100" style="border-left: 5px solid #198754; background-color: #f5fff9;">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-success fw-bold text-uppercase">Success</small>
-                        <i class="bi bi-clipboard-check text-success fs-5"></i>
+            <!-- 5. ASSIGN -->
+            <div class="col-6 col-md-4 col-lg-1-5">
+                <div class="card border-0 shadow-sm p-2 h-100" style="border-left: 4px solid #0d6efd; background-color: #f5f9ff;">
+                    <div class="d-flex justify-content-between align-items-start px-1">
+                        <small class="text-primary fw-bold" style="font-size: 0.65rem;">ASSIGN</small>
+                        <i class="bi bi-person-badge text-primary opacity-50"></i>
                     </div>
-                    <h2 class="fw-bold mb-0 mt-2 text-success">
-                        @reports.Count(x => string.Equals(x.statustext?.Trim(), "Finish", StringComparison.OrdinalIgnoreCase) ||
-                                                string.Equals(x.statustext?.Trim(), "Confirm", StringComparison.OrdinalIgnoreCase))
+                    <h2 class="fw-bold mb-0 mt-1 text-primary">
+                        @reports.Count(x => (x.statustext ?? "").Trim().Contains("Assign", StringComparison.OrdinalIgnoreCase))
                     </h2>
-                    <small class="text-muted" style="font-size: 0.7rem;">
-                        F: @reports.Count(x => string.Equals(x.statustext?.Trim(), "Finish", StringComparison.OrdinalIgnoreCase)) |
-                        C: @reports.Count(x => string.Equals(x.statustext?.Trim(), "Confirm", StringComparison.OrdinalIgnoreCase))
-                    </small>
                 </div>
             </div>
 
-            <div class="col-md-3 col-lg-1-5">
-                <div class="card border-0 shadow-sm p-3 h-100 bg-light" style="border-left: 5px solid #212529;">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-muted fw-bold text-uppercase">Rejected</small>
-                        <i class="bi bi-x-octagon text-dark fs-5"></i>
+            <!-- 6. SUCCESS (FINISH / CONFIRM) -->
+            <div class="col-6 col-md-4 col-lg-1-5">
+                <div class="card border-0 shadow-sm p-2 h-100" style="border-left: 4px solid #198754; background-color: #f5fff9;">
+                    <div class="d-flex justify-content-between align-items-start px-1">
+                        <small class="text-success fw-bold" style="font-size: 0.65rem;">SUCCESS</small>
+                        <i class="bi bi-clipboard-check text-success opacity-50"></i>
                     </div>
-                    <h2 class="fw-bold mb-0 mt-2">
-                        @reports.Count(x => string.Equals(x.statustext?.Trim(), "Reject", StringComparison.OrdinalIgnoreCase))
+                    <h2 class="fw-bold mb-0 mt-1 text-success">
+                        @reports.Count(x => (x.statustext ?? "").Trim().Equals("Finish", StringComparison.OrdinalIgnoreCase) ||
+                                                (x.statustext ?? "").Trim().Equals("Confirm", StringComparison.OrdinalIgnoreCase))
                     </h2>
-                    <small class="text-muted" style="font-size: 0.7rem;">ยกเลิกงาน</small>
+                </div>
+            </div>
+
+            <!-- 7. CLOSE -->
+            <div class="col-6 col-md-4 col-lg-1-5">
+                <div class="card border-0 shadow-sm p-2 h-100" style="border-left: 4px solid #20c997; background-color: #e6fffa;">
+                    <div class="d-flex justify-content-between align-items-start px-1">
+                        <small class="fw-bold" style="font-size: 0.65rem; color: #20c997;">CLOSE</small>
+                        <i class="bi bi-lock-fill opacity-50" style="color: #20c997;"></i>
+                    </div>
+                    <h2 class="fw-bold mb-0 mt-1" style="color: #20c997;">
+                        @reports.Count(x => (x.statustext ?? "").Trim().Equals("Close", StringComparison.OrdinalIgnoreCase))
+                    </h2>
+                </div>
+            </div>
+
+            <!-- 8. REJECT / DENY -->
+            <div class="col-6 col-md-4 col-lg-1-5">
+                <div class="card border-0 shadow-sm p-2 h-100 bg-light" style="border-left: 4px solid #212529;">
+                    <div class="d-flex justify-content-between align-items-start px-1">
+                        <small class="text-muted fw-bold" style="font-size: 0.65rem;">REJECT / DENY</small>
+                        <i class="bi bi-x-octagon text-dark opacity-50"></i>
+                    </div>
+                    <h2 class="fw-bold mb-0 mt-1">
+                        @reports.Count(x => (x.statustext ?? "").Trim().Contains("Reject", StringComparison.OrdinalIgnoreCase) ||
+                                                (x.statustext ?? "").Trim().Contains("Deny", StringComparison.OrdinalIgnoreCase))
+                    </h2>
+                </div>
+            </div>
+
+            <!-- 9. OTHER (Debug Card) -->
+            <div class="col-6 col-md-4 col-lg-1-5">
+                <div class="card border-0 shadow-sm p-2 h-100 bg-warning bg-opacity-10" style="border-left: 4px dashed #ffc107;">
+                    <div class="d-flex justify-content-between align-items-start px-1">
+                        <small class="text-dark fw-bold" style="font-size: 0.65rem;">OTHER</small>
+                        <i class="bi bi-question-circle text-dark opacity-50"></i>
+                    </div>
+                    <h2 class="fw-bold mb-0 mt-1 text-dark">
+                        @{
+                            var knownStatus = new[] { "Pending", "Create", "Accept", "Planner", "Assign", "Assigned", "Finish", "Confirm", "Close", "Reject", "Deny" };
+                            var otherCount = reports.Count(x => string.IsNullOrEmpty(x.statustext) ||
+                            !knownStatus.Any(s => (x.statustext ?? "").Trim().Contains(s, StringComparison.OrdinalIgnoreCase)));
+                        }
+                        @otherCount
+                    </h2>
                 </div>
             </div>
         </div>
-        <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+
+        <style>
+            /* ปรับขนาดเพื่อให้ 9 Card เรียงกันสวยๆ บนจอใหญ่ */
+            @@media (min-width: 1200px) {
+                .col-lg-1-5
+
+            {
+                flex: 0 0 auto;
+                width: 11.11%; /* 100% / 9 cards */
+            }
+
+            }
+        </style>
+        <style>
+            /* เพิ่มเพื่อให้ col-lg-1-2 ทำงาน (แบ่ง 10-12 ส่วนในแถวเดียวบนจอใหญ่) */
+            @@media (min-width: 992px) {
+                .col-lg-1-2
+
+            {
+                flex: 0 0 auto;
+                width: 10%; /* 100% / 10 = 10% ต่อ Card */
+            }
+
+            }
+        </style>        <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
             <div class="card-body p-4">
                 <form method="get" class="row g-3 align-items-end" id="filterForm">
 

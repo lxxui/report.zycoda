@@ -1,5 +1,4 @@
-﻿@* @model List<report_zycoda.Models.MaintenanceApiModels> *@
-@model IEnumerable<dynamic>
+﻿@model IEnumerable<dynamic>
 @{
     Layout = null;
 }
@@ -7,380 +6,404 @@
 <html lang="th">
 <head>
     <meta charset="utf-8" />
-    <title>Zycoda Report</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
+    <title>Zycoda Job Tracking Report - Premium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --primary-color: #1e3a8a;
-            --secondary-color: #64748b;
-            --border-color: #e2e8f0;
-            --bg-light: #f8fafc;
+            --primary: #1e293b; /* Slate 800 */
+            --accent: #3b82f6; /* Blue 500 */
+            --accent-dark: #1d4ed8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-main: #1e293b;
+            --text-light: #64748b;
+            --bg-subtle: #f1f5f9;
+            --border: #e2e8f0;
         }
 
         @@page {
             size: A4 landscape;
-            margin: 1.5cm;
+            margin: 0.8cm;
         }
 
         body {
             font-family: 'Sarabun', sans-serif;
-            font-size: 13px;
-            color: #334155;
+            font-size: 11.5px;
+            color: var(--text-main);
             margin: 0;
+            background: #fff;
             line-height: 1.5;
         }
 
-        /* Header Section */
-        .report-header {
-            width: 100%;
-            border-bottom: 2px solid var(--primary-color);
-            margin-bottom: 20px;
-            padding-bottom: 10px;
+        /* Top Header with Gradient */
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 2px solid var(--bg-subtle);
+            margin-bottom: 25px;
         }
 
-        .title-main {
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--primary-color);
+        .brand-section h1 {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--primary);
             margin: 0;
+            letter-spacing: -1px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .subtitle {
-            font-size: 14px;
-            color: var(--secondary-color);
+        .status-pill {
+            display: inline-block;
+            background: var(--bg-subtle);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent);
             margin-top: 5px;
         }
 
-        /* Filter Box */
-        .filter-container {
-            background-color: var(--bg-light);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
+        /* Stats Dashboard Cards */
+        .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            border: 1px solid var(--border-color);
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
         }
 
-        .filter-item b {
-            color: var(--primary-color);
+        .stat-card {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            position: relative;
+            overflow: hidden;
         }
 
-        /* Table Styling */
-        .data-table {
+            .stat-card::after {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 4px;
+                height: 100%;
+                background: var(--accent);
+            }
+
+        .stat-label {
+            display: block;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-light);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Styled Table */
+        .table-container {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .main-table {
             width: 100%;
             border-collapse: collapse;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            background: white;
         }
 
-        .data-table th {
-            background-color: var(--primary-color);
-            color: white;
-            font-weight: 400;
-            text-align: left;
-            padding: 12px 8px;
-            font-size: 12px;
-            text-transform: uppercase;
-        }
+            .main-table th {
+                background: #f8fafc;
+                color: var(--text-light);
+                font-weight: 600;
+                padding: 14px 12px;
+                text-align: left;
+                font-size: 10.5px;
+                text-transform: uppercase;
+                border-bottom: 2px solid var(--border);
+            }
 
-        .data-table td {
-            padding: 10px 8px;
-            border-bottom: 1px solid var(--border-color);
-            vertical-align: top;
-        }
+            .main-table td {
+                padding: 14px 12px;
+                border-bottom: 1px solid #f1f5f9;
+            }
 
-        .data-table tr:nth-child(even) {
-            background-color: #fcfcfc;
-        }
+            .main-table tr:last-child td {
+                border-bottom: none;
+            }
 
-        /* Status Badge */
+            .main-table tr:nth-child(even) {
+                background-color: #fafbfc;
+            }
+
+        /* Modern Badges */
         .badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: bold;
-            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
             text-align: center;
-            min-width: 60px;
         }
-        .badge-status { background: #e0f2fe; color: #0369a1; } /* Blue */
-        .badge-delay { background: #fee2e2; color: #b91c1c; } /* Red */
 
-        .text-center { text-align: center; }
-        .text-right { text-align: right; }
-        .font-bold { font-weight: bold; }
-
-        @@media print {
-            .no-print { display: none; }
-            body { margin: 0; }
-            .filter-container { border: 1px solid #ccc; background: none; }
-            .data-table th { background-color: #1e3a8a !important; color: white !important; -webkit-print-color-adjust: exact; }
+        .badge-blue {
+            background: #eff6ff;
+            color: #2563eb;
         }
-        /* บังคับไม่ให้เกิดการตัดหน้ากระดาษภายในตารางและ Footer */
-        .data-table tr {
+
+        .badge-red {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .badge-green {
+            background: #ecfdf5;
+            color: #059669;
+        }
+
+        .job-type-em {
+            color: var(--danger);
+            font-weight: 700;
+        }
+
+        .job-type-cm {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* Signature Section */
+        .sig-section {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin-top: 50px;
             page-break-inside: avoid;
         }
-    
-        footer, .report-footer {
-            page-break-before: avoid; /* ห้ามตัดหน้าก่อนถึงส่วนนี้ */
+
+        .sig-box {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px dashed #cbd5e1;
         }
 
-        /* ลด Margin ของหน้ากระดาษลงเล็กน้อยเพื่อให้มีพื้นที่เพิ่มขึ้น */
-        @@page {
-            size: A4 landscape;
-            margin: 0.8cm; /* จากเดิม 1.5cm ลดลงเพื่อให้พอดีหน้าเดียว */
+        .sig-line {
+            margin: 25px auto 10px;
+            width: 80%;
+            border-bottom: 1px solid #94a3b8;
         }
 
-                /* Filter Box ใหม่ - เน้นความโปร่งและสะอาด */
-.filter-container {
-    background-color: #ffffff;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 25px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-}
+        /* Floating Print Action */
+        .print-fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 100;
+        }
 
-.filter-group {
-    display: flex;
-    gap: 30px; /* เว้นระยะห่างระหว่างกลุ่มข้อมูล */
-}
+        .btn-print {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-.filter-item {
-    display: flex;
-    flex-direction: column; /* จัด Label ไว้บน Data ไว้ล่าง */
-    gap: 4px;
-}
+            .btn-print:hover {
+                transform: translateY(-2px);
+            }
 
-.filter-label {
-    font-size: 11px;
-    text-transform: uppercase;
-    color: var(--secondary-color);
-    font-weight: 700;
-    letter-spacing: 0.5px;
-}
+        @@media print {
+            .no-print {
+                display: none !important;
+            }
 
-.filter-value {
-    font-size: 14px;
-    color: #1e293b;
-    font-weight: 500;
-}
+            body {
+                background: white;
+            }
 
-.filter-value b {
-    color: var(--primary-color);
-}
+            .table-container {
+                box-shadow: none;
+                border: 1px solid #eee;
+            }
 
-/* ปรับแต่ง Badge สถานะใน Filter ให้เด่นขึ้น */
-.filter-status-badge {
-    background: #eff6ff;
-    color: #1d4ed8;
-    padding: 4px 12px;
-    border-radius: 6px;
-    font-weight: 700;
-    border: 1px solid #dbeafe;
-}
+            .stat-card {
+                border: 1px solid #eee;
+                box-shadow: none;
+            }
 
+            .sig-box {
+                background: transparent;
+            }
+        }
     </style>
 </head>
 <body>
 
-    <table class="report-header">
-        <tr>
-             <td style="width:25%; font-size: 11px; color: var(--secondary-color); line-height: 1.5;">
-                @* CODE อักษรย่อ: RPT-JTR (Job Tracking Report - 0001 (มาจากฉบับแรก)) *@
-                CODE: RPT-JTR-0001<br />
-    
-                @* Logic Ref: [yyMMdd][Section][Random] *@
-                @{
-                    string currentSec = ViewBag.UserSection ?? "000000"; // ดึงรหัสหน่วยงานจาก ViewBag
-                    string datePart = DateTime.Now.ToString("yyMMdd");
-                    string randomPart = new Random().Next(100, 999).ToString(); // เลขสุ่ม 3 หลักกันซ้ำ
-                    string refNo = $"{datePart}{currentSec}{randomPart}";
-                }
-                Ref: @refNo
-            </td>
-
-            <td class="text-center">
-                <h1 class="title-main" style="letter-spacing: 1px;">รายงานติดตามความคืบหน้า Job</h1>
-                <div class="subtitle">
-                    @* ปรับตามที่ Fai อยากได้: (สำหรับผู้แจ้งงานตรวจสอบ) *@
-                    หน่วยงาน: <b>@ViewBag.DepartmentName</b> (สำหรับผู้แจ้งงานตรวจสอบ)
-                </div>
-            </td>
-            <td style="width:25%;" class="text-right subtitle">
-                @* ดึงชื่อผู้พิมพ์จาก Session (เปลี่ยนชื่อ Key ตามที่ Fai ตั้งไว้ใน Controller นะครับ) *@
-                @{
-                    var printerName = Context.Session.GetString("UserName") ?? "System User";
-                    var printerRole = Context.Session.GetString("UserRole") ?? "";
-                }
-    
-                <div class="print-only-info" style="display: none;">
-                    ผู้พิมพ์: @ViewBag.ApiUser
-                </div>                
-                <div>พิมพ์เมื่อ: <span id="live-print-time">@DateTime.Now.ToString("dd/MM/yy HH:mm:ss")</span></div>
-                <div>หน้า: 1 / 1</div>
-            </td>
-        </tr>
-    </table>
-
-    <div class="filter-container">
-    <div class="filter-group">
-        <div class="filter-item">
-            <span class="filter-label">🌐 ขอบเขตหน่วยงาน (Section)</span>
-            <span class="filter-value">
-                <b>@ViewBag.SectionFrom</b> 
-                <span style="color: #cbd5e1; margin: 0 8px;">→</span> 
-                <b>@ViewBag.SectionTo</b>
-            </span>
+    <!-- Header -->
+    <div class="header-container">
+        <div class="brand-section">
+            <h1>Job Tracking Report</h1>
+            <div class="status-pill">
+                📍 @ViewBag.DepartmentName | สำหรับผู้แจ้งงานตรวจสอบ
+            </div>
         </div>
-
-        <div class="filter-item">
-            <span class="filter-label">📅 ช่วงเวลาที่เลือก (Period)</span>
-            <span class="filter-value">
-                @{
-                    string displayStart = "-";
-                    if (DateTime.TryParse(ViewBag.StartDate?.ToString(), out DateTime dStart)) {
-                        displayStart = dStart.ToString("dd/MM/yyyy");
-                    }
-                    string displayEnd = "-";
-                    if (DateTime.TryParse(ViewBag.EndDate?.ToString(), out DateTime dEnd)) {
-                        displayEnd = dEnd.ToString("dd/MM/yyyy");
-                    }
-                }
-                @displayStart <span style="color: #cbd5e1; margin: 0 5px;">-</span> @displayEnd
-            </span>
+        <div style="text-align: right;">
+            <div style="font-family: monospace; font-size: 12px; color: var(--text-light);">
+                REF: <span style="color: var(--primary); font-weight: 600;">@(DateTime.Now.ToString("yyMMdd"))-@ViewBag.UserSection</span>
+            </div>
+            <div style="font-size: 10px; color: var(--text-light); margin-top: 4px;">
+                Generated at: <span id="live-print-time"></span>
+            </div>
         </div>
     </div>
 
-    <div class="filter-item text-right">
-        <span class="filter-label">สถานะงาน (Status)</span>
-        <div style="margin-top: 4px;">
-            <span class="filter-status-badge">
-                @(string.IsNullOrEmpty(ViewBag.Status?.ToString()) ? "ทั้งหมด" : ViewBag.Status)
-            </span>
+    <!-- Dashboard Grid -->
+    <div class="dashboard-grid">
+        <div class="stat-card">
+            <span class="stat-label">ขอบเขตหน่วยงาน</span>
+            <div class="stat-value">@ViewBag.SectionFrom <span style="color: var(--text-light); font-weight: normal;">→</span> @ViewBag.SectionTo</div>
+        </div>
+        <div class="stat-card" style="--accent: var(--accent);">
+            <span class="stat-label">ช่วงเวลา</span>
+            <div class="stat-value" style="font-size: 13px;">@ViewBag.StartDate - @ViewBag.EndDate</div>
+        </div>
+        <div class="stat-card" style="--accent: var(--warning);">
+            <span class="stat-label">สถานะที่เลือก</span>
+            <div class="stat-value">@(ViewBag.Status ?? "ทั้งหมด")</div>
+        </div>
+        <div class="stat-card" style="--accent: var(--success);">
+            <span class="stat-label">รายการทั้งหมด</span>
+            <div class="stat-value" style="font-size: 22px; color: var(--accent-dark);">
+                @(Model?.Count() ?? 0) <small style="font-size: 11px; color: var(--text-light); font-weight: normal;">Jobs</small>
+            </div>
         </div>
     </div>
-</div>
 
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>วันที่แจ้ง</th>
-                <th>Service No.</th>
-                <th style="width: 15%;">ประเภทงาน/แบบฟอร์ม</th>
-                <th style="width: 20%;">รายละเอียดปัญหา</th>
-                <th>หน่วยงานที่แจ้ง</th>
-                <th>ผู้แจ้ง</th>
-                <th>สถานะ</th>
-                <th class="text-center">แผนรับ/เสร็จ</th>
-                <th class="text-center">เริ่ม/เสร็จจริง</th>
-                <th class="text-center">Delay</th>
-            </tr>
-        </thead>
-<tbody>
-    @if (Model != null && Model.Any())
-    {
-        foreach (var item in Model)
-        {
-            <tr>
-                @* 1. วันที่แจ้ง *@
-                <td class="text-center">
-                    @(DateTime.TryParse(item.timecreate, out DateTime dtC) ? dtC.ToString("dd/MM/yy") : "-")
-                </td>
-
-                <td class="fw-bold">@item.id</td>
-                <td>
-                    @{
-                        string displayJobType = item.jobtype;
-                        if (item.jobtype == "CM") {
-                            displayJobType = "ประเภทงานทั่วไป";
-                        } else if (item.jobtype == "EM") {
-                            displayJobType = "ประเภทงานฉุกเฉิน";
-                        }
-                    }
-                    @displayJobType
-                </td>               
-                <td style="font-size: 12px; color: #475569;">@item.detail</td>
-                <td>@item.sectioncreate</td>
-                <td>@item.usercreate</td>
-                
-                <td class="text-center">
-                    <span class="badge badge-status">@item.status</span>
-                </td>
-
-                @* 2. แผนรับ/เสร็จ (ซ่อน ?? "-" ที่กวนใจออก) *@
-                <td class="text-center" style="font-size: 11px;">
-                    @(DateTime.TryParse(item.timestart, out DateTime ts) ? ts.ToString("dd/MM/yy HH:mm") : "-")
-                    <br/>
-                    @(DateTime.TryParse(item.timeend, out DateTime te) ? te.ToString("dd/MM/yy HH:mm") : "-")
-                </td>
-
-                @* 3. เริ่ม/เสร็จจริง *@
-                <td class="text-center" style="font-size: 11px;">
-                    @(DateTime.TryParse(item.timestartrepair, out DateTime trs) ? trs.ToString("dd/MM/yy HH:mm") : "-")
-                    <br/>
-                    @(DateTime.TryParse(item.timeendrepair, out DateTime tre) ? tre.ToString("dd/MM/yy HH:mm") : "-")
-                </td>
-
-                @* 4. DELAY (เช็ค string "0" หรือ null) *@
-                <td class="text-center">
-                    @if (!string.IsNullOrEmpty(item.timedelay) && item.timedelay != "0" && item.timedelay != "00:00:00")
+    <!-- Table -->
+    <div class="table-container">
+        <table class="main-table">
+            <thead>
+                <tr>
+                    <th style="width: 70px;">วันที่แจ้ง</th>
+                    <th style="width: 100px;">Service No.</th>
+                    <th style="width: 120px;">ประเภทงาน</th>
+                    <th>รายละเอียดปัญหา</th>
+                    <th style="width: 150px;">ผู้แจ้งงาน</th>
+                    <th style="text-align: center;">สถานะ</th>
+                    <th style="text-align: center;">แผนเริ่ม-เสร็จ</th>
+                    <th style="text-align: center;">Delay</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null)
+                {
+                    foreach (var item in Model)
                     {
-                        <span class="badge badge-delay">@item.timedelay วัน</span>
-                    }
-                    else
-                    {
-                        <span>-</span>
-                    }
-                </td>
-            </tr>
-        }
-    }
-    else
-    {
-        <tr>
-            <td colspan="10" class="text-center" style="padding: 40px;">
-                <i style="color: var(--secondary-color);">-- ไม่พบข้อมูลการแจ้งซ่อมในเครื่องที่ระบุ --</i>
-            </td>
-        </tr>
-    }
-</tbody>    </table>
+                        <tr>
+                            <td><b>@(DateTime.TryParse(item.timecreate, out DateTime dtC) ? dtC.ToString("dd/MM/yy") : "-")</b></td>
+                            <td style="font-weight: 700; color: var(--accent-dark);">#@item.id</td>
+                            <td>
+                                @if (item.jobtype == "EM")
+                                {
+                                    <span class="job-type-em">🚨 งานฉุกเฉิน (EM)</span>
+                                }
+                                else
+                                {
+                                    <span class="job-type-cm">🔧 งานทั่วไป (CM)</span>
+                                }
+                            </td>
+                            <td style="color: #475569; font-size: 11px;">@item.detail</td>
+                            <td>
+                                <div style="font-weight: 600;">@item.sectioncreate</div>
+                                <div style="font-size: 10px; color: var(--text-light);">@item.usercreate</div>
+                            </td>
+                            <td style="text-align: center;">
+                                <span class="badge badge-blue">@item.status</span>
+                            </td>
+                            <td style="text-align: center; font-size: 10px; line-height: 1.2;">
+                                <div style="color: var(--text-light);">@((DateTime.TryParse(item.timestart, out DateTime ts)) ? ts.ToString("dd/MM/yy HH:mm") : "-")</div>
+                                <div style="color: var(--accent); font-weight: bold;">@((DateTime.TryParse(item.timeend, out DateTime te)) ? te.ToString("dd/MM/yy HH:mm") : "-")</div>
+                            </td>
+                            <td style="text-align: center;">
+                                @if (!string.IsNullOrEmpty(item.timedelay) && item.timedelay != "0")
+                                {
+                                    <span class="badge badge-red">@item.timedelay วัน</span>
+                                }
+                                else
+                                {
 
-     <div style="display: flex; justify-content: space-between; margin-top: 10px; padding-top: 5px; border-top: 1px dashed #cbd5e1; font-size: 10px; color: #64748b;">
-        <div class="fw-bold">*** สิ้นสุดรายงาน ***</div>
-    
-        <div style="font-style: italic;">
-            เอกสารนี้ออกโดยระบบอัตโนมัติ (Zycoda Reporting System)
-        </div>
-
-        <div>© President Bakery Public Company Limited.</div>
+                                    <span style="color: #cbd5e1;">-</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
     </div>
 
-    <div class="no-print" style="position: fixed; bottom: 30px; right: 30px;">
-        <button onclick="window.print()" style="background: var(--primary-color); color: white; border: none; padding: 12px 25px; border-radius: 30px; cursor: pointer; font-family: 'Sarabun'; box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-weight: bold;">
-             🖨️ พิมพ์รายงาน (PDF)
+    <!-- Signatures -->
+    <div class="sig-section">
+        <div class="sig-box">
+            <span class="stat-label">ผู้จัดทำรายงาน</span>
+            <div class="sig-line"></div>
+            <span style="font-size: 11px;">( @ViewBag.UserName )</span>
+        </div>
+        <div class="sig-box">
+            <span class="stat-label">หัวหน้าส่วนงาน</span>
+            <div class="sig-line"></div>
+            <span style="font-size: 11px;">ตำแหน่ง ............................</span>
+        </div>
+        <div class="sig-box">
+            <span class="stat-label">ผู้อนุมัติ</span>
+            <div class="sig-line"></div>
+            <span style="font-size: 11px;">วันที่ ......../......../........</span>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="margin-top: 50px; text-align: center; padding: 20px; border-top: 1px solid var(--border);">
+        <p style="font-size: 10px; color: var(--text-light); margin: 0;">
+            <b>President Bakery Public Company Limited</b><br>
+            เอกสารนี้เป็นรายงานสรุปผลการดำเนินงานจากระบบ Zycoda ERP (Internal Use Only)
+        </p>
+    </div>
+
+    <!-- Floating Action Button -->
+    <div class="no-print print-fab">
+        <button onclick="window.print()" class="btn-print">
+            <span>🖨️</span> พิมพ์รายงานสรุปผล
         </button>
     </div>
 
+    <script>
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('live-print-time').innerText = now.toLocaleString('th-TH');
+        }
+        updateTime();
+    </script>
 </body>
-<script>
-    function updatePrintTime() {
-        const now = new Date();
-        const options = { 
-            day: '2-digit', month: '2-digit', year: '2-digit',
-            hour: '2-digit', minute: '2-digit', second: '2-digit',
-            hour12: false 
-        };
-        // พ.ศ. แบบไทย 30/03/69 15:30:05
-        document.getElementById('live-print-time').innerText = now.toLocaleString('th-TH', options);
-    }
-    setInterval(updatePrintTime, 1000);
-    updatePrintTime();
-
-</script>
 </html>
