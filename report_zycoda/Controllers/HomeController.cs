@@ -64,6 +64,7 @@ public class HomeController : Controller
             new Claim(ClaimTypes.Name, user.Username ?? ""),
             new Claim("FullName", $"{user.FirstName} {user.LastName}"),
             new Claim("UserRole", user.Rule ?? "User"),
+            new Claim("UserClass", user.Class ?? "0"),
             new Claim("Section", user.Section ?? ""),
             new Claim("ApiPassword", password)
         };

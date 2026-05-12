@@ -5,24 +5,22 @@
 <html lang="en">
 <head>
 
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Zycoda Report</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zycoda Report</title>
 
-        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-        <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.css">
-    
-        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    
-        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-        <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true" />
 
-        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-        <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         /* ตกแต่ง Logo ZYCODA ให้ดู Modern */
@@ -136,7 +134,6 @@
         font-family: sans-serif;
         transform: translate(10%, -10%);
         }
-
 
     </style>
 </head>
@@ -258,60 +255,60 @@
     @await RenderSectionAsync("Scripts", required: false)
 
     <script>
-       function showLogoutAlert() {
+        function showLogoutAlert() {
         Swal.fire({
-            title: 'ยืนยันการออกจากระบบ',
-            html: 'เซสชันของคุณจะสิ้นสุดลง<br><small class="text-muted">คุณต้องการออกจากระบบ Zycoda Report ใช่หรือไม่?</small>',
-            // ใช้ Icon แบบ Custom หรือเปลี่ยนเป็น Question แทน Warning จะดู Soft กว่า
-            icon: 'question', 
-            iconColor: '#001f3f', // สี Navy ตาม Branding ของฟาย
-            showCancelButton: true,
-            confirmButtonText: 'ออกจากระบบ',
-            cancelButtonText: 'กลับไปทำงานต่อ',
-            reverseButtons: true, // เอาปุ่มยืนยันไว้ขวา (ตามหลัก UI สมัยใหม่)
+        title: 'ยืนยันการออกจากระบบ',
+        html: 'เซสชันของคุณจะสิ้นสุดลง<br><small class="text-muted">คุณต้องการออกจากระบบ Zycoda Report ใช่หรือไม่?</small>',
+        // ใช้ Icon แบบ Custom หรือเปลี่ยนเป็น Question แทน Warning จะดู Soft กว่า
+        icon: 'question',
+        iconColor: '#001f3f', // สี Navy ตาม Branding ของฟาย
+        showCancelButton: true,
+        confirmButtonText: 'ออกจากระบบ',
+        cancelButtonText: 'กลับไปทำงานต่อ',
+        reverseButtons: true, // เอาปุ่มยืนยันไว้ขวา (ตามหลัก UI สมัยใหม่)
         
-            // ตกแต่งความสวยงาม
-            background: '#ffffff',
-            padding: '2rem',
-            color: '#001f3f',
-            backdrop: `rgba(0,31,63,0.1)`, // พื้นหลังมัวๆ สี Navy จางๆ
+        // ตกแต่งความสวยงาม
+        background: '#ffffff',
+        padding: '2rem',
+        color: '#001f3f',
+        backdrop: `rgba(0,31,63,0.1)`, // พื้นหลังมัวๆ สี Navy จางๆ
         
-            showClass: {
-                popup: 'animate__animated animate__fadeInUp animate__faster' // ต้องลง animate.css หรือใช้ default ก็ได้
-            },
-            hideClass: {
-                popup: 'animate__animated animate__fadeOutDown animate__faster'
-            },
+        showClass: {
+        popup: 'animate__animated animate__fadeInUp animate__faster' // ต้องลง animate.css หรือใช้ default ก็ได้
+        },
+        hideClass: {
+        popup: 'animate__animated animate__fadeOutDown animate__faster'
+        },
 
-            customClass: {
-                title: 'fw-bold fs-4 mb-2',
-                htmlContainer: 'mb-4',
-                confirmButton: 'btn btn-navy px-4 py-2 rounded-pill shadow-sm ms-3',
-                cancelButton: 'btn btn-link text-muted fw-bold text-decoration-none'
-            },
-            buttonsStyling: false // ปิด Style พื้นฐานของ Swal เพื่อใช้ Bootstrap ของเราเอง
-              }).then((result) => {
-                if (result.isConfirmed) {
-                    // 1. แสดง Loading ทันทีที่กดยืนยัน
-                    Swal.fire({
-                        title: 'กำลังออกจากระบบ...',
-                        html: 'กรุณารอสักครู่ ระบบกำลังปิดเซสชันการทำงาน',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading(); // แสดง Spinner ของ Swal
-                        }
-                    });
+        customClass: {
+        title: 'fw-bold fs-4 mb-2',
+        htmlContainer: 'mb-4',
+        confirmButton: 'btn btn-navy px-4 py-2 rounded-pill shadow-sm ms-3',
+        cancelButton: 'btn btn-link text-muted fw-bold text-decoration-none'
+        },
+        buttonsStyling: false // ปิด Style พื้นฐานของ Swal เพื่อใช้ Bootstrap ของเราเอง
+        }).then((result) => {
+        if (result.isConfirmed) {
+        // 1. แสดง Loading ทันทีที่กดยืนยัน
+        Swal.fire({
+        title: 'กำลังออกจากระบบ...',
+        html: 'กรุณารอสักครู่ ระบบกำลังปิดเซสชันการทำงาน',
+        allowOutsideClick: false,
+        didOpen: () => {
+        Swal.showLoading(); // แสดง Spinner ของ Swal
+        }
+        });
 
-                    // 2. ใช้ setTimeout เพื่อหน่วงเวลาให้ User เห็น UI แป๊บหนึ่ง (1500ms = 1.5 วินาที)
-                    setTimeout(() => {
-                        document.getElementById('logoutForm').submit();
-                    }, 1500); 
-                }
-            });
-    }
+        // 2. ใช้ setTimeout เพื่อหน่วงเวลาให้ User เห็น UI แป๊บหนึ่ง (1500ms = 1.5 วินาที)
+        setTimeout(() => {
+        document.getElementById('logoutForm').submit();
+        }, 1500);
+        }
+        });
+        }
 
-    function deleteSection(id) {
-    Swal.fire({
+        function deleteSection(id) {
+        Swal.fire({
         title: 'ยืนยันการลบ?',
         text: "คุณกำลังจะลบหน่วยงานรหัส " + id,
         icon: 'warning',
@@ -319,17 +316,17 @@
         confirmButtonColor: '#d33',
         confirmButtonText: 'ลบเลย!',
         cancelButtonText: 'ยกเลิก'
-    }).then((result) => {
+        }).then((result) => {
         if (result.isConfirmed) {
-            // สร้าง Form จำลองเพื่อส่งค่า POST ไปลบ
-            var form = $('<form action="/Master/DeleteSection" method="post">' +
-                         '<input type="hidden" name="id" value="' + id + '" />' +
-                         '</form>');
-            $('body').append(form);
-            form.submit();
+        // สร้าง Form จำลองเพื่อส่งค่า POST ไปลบ
+        var form = $('<form action="/Master/DeleteSection" method="post">' +
+        '<input type="hidden" name="id" value="' + id + '" />' +
+        '</form>');
+        $('body').append(form);
+        form.submit();
         }
-    });
-}
+        });
+        }
 
     </script>
 

@@ -8,15 +8,7 @@ public class ReportController(ApiService apiService) : Controller
     private readonly ApiService _apiService = apiService;
 
     [HttpGet]
-    public async Task<IActionResult> PrintReport(
-        string start,
-        string end,
-        string status,
-        string sectionFrom,
-        string sectionTo,
-        string jobtype,
-        string view , // รับค่าจาก Radio Button (followup / myjob)
-        string rptType)
+    public async Task<IActionResult> PrintReport(string start,string end,string status,string sectionFrom,string sectionTo,string jobtype,string view , string rptType)
     {
         // 1. Authentication & Session
         if (User.Identity == null || !User.Identity.IsAuthenticated)

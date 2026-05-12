@@ -325,198 +325,197 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script>
-        $(document).ready(function () {
-            console.log("🚀 System: Zycoda Login Ready!");
+<script>
+    $(document).ready(function () {
+        console.log("🚀 System: Zycoda Login Ready!");
 
-            // --- 1. จัดการ UI & Animations ---
-            try {
-                initNetwork();
-                type();
-                console.log("🎨 UI Animations: Online");
-            } catch (e) {
-                console.error("🎨 UI Error:", e);
-            }
+        // ใช้ Object สำหรับเก็บสถานะเพื่อให้จัดการง่ายขึ้น
+        const userState = {
+            fullName: "",
+            userClass: ""
+        };
 
-            // --- 2. ตรวจสอบ Error จากฝั่ง Controller ---
-            var errorMsg = `@Html.Raw(TempData["ErrorMessage"] ?? "")`;
-            console.log("📝 Server Message (TempData):", errorMsg);
+        try {
+            initNetwork();
+            type();
+        } catch (e) {
+            console.error("🎨 UI Error:", e);
+        }
 
-            if (errorMsg && errorMsg !== "null" && errorMsg.trim() !== "") {
-                console.error("❌ Login Fail Detail:", errorMsg);
-               Swal.fire({
+        // --- 1. ตรวจสอบ Error Message จาก Server ---
+        const errorMsg = `@Html.Raw(TempData["ErrorMessage"] ?? "")`;
+        if (errorMsg && errorMsg !== "null" && errorMsg.trim() !== "") {
+            Swal.fire({
                 icon: 'error',
-                // ปรับหัวข้อให้ดู Modern ขึ้น
-                title: '<span style="color: #f8fafc; font-weight: 700; letter-spacing: -0.5px;">Login Required</span>',
+                title: '<span style="color: #f8fafc; font-weight: 700;">Login Required</span>',
                 text: errorMsg,
-    
-                // Theme Matching (Matching กับ --bg-dark และ --primary)
                 background: '#0f172a', 
                 color: '#94a3b8',
-                iconColor: '#38bdf8', // สีฟ้า Glow แบบในหน้า Login
-    
-                showConfirmButton: true,
+                iconColor: '#38bdf8',
                 confirmButtonText: 'Try Again',
-                confirmButtonColor: '#38bdf8', // สีฟ้า Primary
-                buttonsStyling: true,
-
+                confirmButtonColor: '#38bdf8',
                 customClass: {
                     popup: 'zycoda-alert-popup',
-                    confirmButton: 'zycoda-confirm-btn',
-                    title: 'zycoda-title'
-                },
-    
-                // Animation การแสดงผล (Fade + Scale)
-                showClass: {
-                    popup: 'animate__animated animate__zoomIn animate__faster'
-                },
-                hideClass: {
-                    popup: 'animate__animated animate__fadeOut animate__faster'
+                    confirmButton: 'zycoda-confirm-btn'
                 }
             });
-            }
+        }
 
-            // --- 3. AJAX ดึงชื่อพนักงานตอน Blur (แค่แสดงผลสวยๆ) ---
-            window.currentFullName = "";
-            $('input[name="username"]').on('blur', function() {
-                const val = $(this).val();
-                if(val) {
-                    console.log("🔍 Fetching info for:", val);
-                    $.get('@Url.Action("GetFirstName", "Home")', { username: val.trim() })
-                     .done(function(data) {
-                        if (data && data.firstName) {
-                            window.currentFullName = data.firstName;
-                            console.log("✅ User Identified:", window.currentFullName);
-                        }
-                     })
-                     .fail(function(err) {
-                        console.warn("⚠️ API GetFirstName failed (Maybe user doesn't exist yet)");
-                     });
-                }
-            });
+        // --- 2. AJAX ดึงข้อมูล Profile (Event: Blur) ---
+        $('input[name="username"]').on('blur', function() {
+            const username = $(this).val().trim();
+            if(!username) return;
 
-            // --- 4. ก้อนหลัก: จัดการการส่งฟอร์ม (Submit) ---
-            // ใช้ Selector 'form' เพื่อความชัวร์ว่าครอบคลุมแน่นอน
-            $('form').on('submit', function (e) {
-                console.log("🔘 Action: Sign In Clicked");
-                e.preventDefault(); // หยุด Default Submit เพื่อเล่น Animation
+            $.get('@Url.Action("GetFirstName", "Home")', { username: username })
+             .done(function(data) {
+                if (data) {
+                    // ปรับแก้ Case Sensitivity (C# มักใช้ PascalCase, JS มักใช้ camelCase)
+                    userState.fullName = data.firstName || data.FirstName || "User";
+                    userState.userClass = (data.userClass !== undefined && data.userClass !== null) 
+                                          ? data.userClass : (data.UserClass || "Standard");
 
-                const form = this;
-                const $loader = $('#git-loader');
-                const $statusText = $('.loading-text');
-                const $progressBar = $('#git-progress');
-
-                // แสดง Loader
-                $loader.css('display', 'flex');
-                console.log("⏳ Loader: Started");
-
-                const displayName = window.currentFullName || "User";
-                const steps = [
-                    `ยินดีต้อนรับคุณ ${displayName}`,
-                    "กำลังยืนยันตัวตน...",
-                    "เชื่อมต่อ Secure Gateway...",
-                    "เรียบร้อย! กำลังพาคุณเข้าสู่ระบบ..."
-                ];
-
-                let progress = 0;
-                const interval = setInterval(() => {
-                    progress += Math.floor(Math.random() * 20) + 5;
-                    if (progress > 100) progress = 100;
-
-                    $progressBar.css('width', progress + "%");
-                
-                    // คำนวณ Step ข้อความ
-                    let stepIdx = Math.min(Math.floor(progress / 26), steps.length - 1);
-                    $statusText.text(steps[stepIdx]);
-
-                    console.log(`📊 Progress: ${progress}% | Status: ${steps[stepIdx]}`);
-
-                    if (progress >= 100) {
-                        clearInterval(interval);
-                        console.log("✅ Ready! Submitting form to Controller...");
+                    console.group("🔑 [Debug] Profile Retrieved");
+                    console.log("%cTarget:", "font-weight: bold", username);
+                    console.log("%cClass:", "color: #38bdf8; font-weight: bold;", userState.userClass);
+                    console.log("Data Payload:", data);
                     
-                        // สั่งส่งฟอร์มจริง
-                        try {
-                            form.submit();
-                        } catch (submitError) {
-                            console.error("🛑 Native Submit Error:", submitError);
-                            // Fallback กรณี form.submit() พัง
-                            $(form).off('submit').submit();
-                        }
+                    if(String(userState.userClass) === "9") {
+                        console.log("%cStatus: 👑 Administrator Access Verified", "color: #10b981; font-weight: bold;");
                     }
-                }, 200);
-            });
+                    console.groupEnd();
+                }
+             })
+             .fail(function(xhr) {
+                console.error("❌ Network Error: ไม่สามารถเข้าถึง API ข้อมูลพนักงานได้", xhr.status);
+             });
         });
 
-        // --- 5. Supporting Functions (Background & Typing) ---
-        function initNetwork() {
-            const canvas = document.getElementById('network-canvas');
-            if(!canvas) return;
-            const ctx = canvas.getContext('2d');
-            let dots = [];
-            const dotCount = 100;
+        // --- 3. จัดการการ Submit และ Loading Animation ---
+        $('form').on('submit', function (e) {
+            e.preventDefault(); 
+            const form = this;
+            const $loader = $('#git-loader');
+            const $statusText = $('.loading-text');
+            const $progressBar = $('#git-progress');
 
-            function resize() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-                dots = [];
-                for (let i = 0; i < dotCount; i++) {
-                    dots.push({
-                        x: Math.random() * canvas.width,
-                        y: Math.random() * canvas.height,
-                        vx: (Math.random() - 0.5) * 0.4,
-                        vy: (Math.random() - 0.5) * 0.4,
-                        size: Math.random() * 1.5 + 0.5
-                    });
+            $loader.css('display', 'flex');
+
+            // ใช้ค่าจาก userState ที่ดึงมาได้
+            const displayName = userState.fullName || "User";
+            const displayClass = userState.userClass || "Guest";
+
+            const steps = [
+                `สวัสดีคุณ ${displayName}`,
+                `กำลังตรวจสอบสิทธิ์: Class ${displayClass}...`,
+                "เชื่อมต่อ Secure Gateway...",
+                "ยืนยันข้อมูลเรียบร้อย!"
+            ];
+
+            let progress = 0;
+            const interval = setInterval(() => {
+                // สุ่มการเพิ่ม progress ให้ดูเหมือนมีการประมวลผลจริง
+                progress += Math.floor(Math.random() * 15) + 5;
+                if (progress > 100) progress = 100;
+
+                $progressBar.css('width', progress + "%");
+                
+                // คำนวณ Index ของข้อความตามความคืบหน้า
+                let stepIdx = Math.min(Math.floor((progress / 100) * steps.length), steps.length - 1);
+                $statusText.text(steps[stepIdx]);
+
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    console.log("%c--- Finalizing Session ---", "color: #f472b6; font-weight: bold;");
+                    
+                    // หน่วงเวลาเล็กน้อยเพื่อให้ User เห็นความสำเร็จก่อนเปลี่ยนหน้า
+                    setTimeout(() => { form.submit(); }, 600);
                 }
-            }
+            }, 120);
+        });
+    });
 
-            function draw() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = "rgba(56, 189, 248, 0.3)";
-                for (let i = 0; i < dots.length; i++) {
-                    let d = dots[i];
-                    d.x += d.vx; d.y += d.vy;
-                    if (d.x < 0 || d.x > canvas.width) d.vx *= -1;
-                    if (d.y < 0 || d.y > canvas.height) d.vy *= -1;
-                    ctx.beginPath();
-                    ctx.arc(d.x, d.y, d.size, 0, Math.PI * 2);
-                    ctx.fill();
-                    for (let j = i + 1; j < dots.length; j++) {
-                        let d2 = dots[j];
-                        let dist = Math.hypot(d.x - d2.x, d.y - d2.y);
-                        if (dist < 150) {
-                            ctx.beginPath();
-                            ctx.strokeStyle = `rgba(56, 189, 248, ${0.15 - dist / 1000})`;
-                            ctx.lineWidth = 0.5;
-                            ctx.moveTo(d.x, d.y);
-                            ctx.lineTo(d2.x, d2.y);
-                            ctx.stroke();
-                        }
+    // --- 4. Network Background Effect ---
+    function initNetwork() {
+        const canvas = document.getElementById('network-canvas');
+        if(!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let dots = [];
+        const dotCount = 80; // ลดลงเล็กน้อยเพื่อ Performance
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            dots = [];
+            for (let i = 0; i < dotCount; i++) {
+                dots.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    size: Math.random() * 2 + 0.5
+                });
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "rgba(56, 189, 248, 0.4)";
+            for (let i = 0; i < dots.length; i++) {
+                let d = dots[i];
+                d.x += d.vx; d.y += d.vy;
+                
+                if (d.x < 0 || d.x > canvas.width) d.vx *= -1;
+                if (d.y < 0 || d.y > canvas.height) d.vy *= -1;
+                
+                ctx.beginPath();
+                ctx.arc(d.x, d.y, d.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                for (let j = i + 1; j < dots.length; j++) {
+                    let d2 = dots[j];
+                    let dist = Math.hypot(d.x - d2.x, d.y - d2.y);
+                    if (dist < 150) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(56, 189, 248, ${0.2 - dist / 750})`;
+                        ctx.lineWidth = 0.6;
+                        ctx.moveTo(d.x, d.y);
+                        ctx.lineTo(d2.x, d2.y);
+                        ctx.stroke();
                     }
                 }
-                requestAnimationFrame(draw);
             }
-            window.addEventListener('resize', resize);
-            resize(); draw();
+            requestAnimationFrame(draw);
         }
+        window.addEventListener('resize', resize);
+        resize(); draw();
+    }
 
-        function type() {
-            const textElement = document.getElementById("typing-effect");
-            if(!textElement) return;
-            const phrases = ["System Maintenance & Analytics", "Real-time Data Processing", "Secure Cloud Infrastructure"];
-            let pIdx = 0, cIdx = 0, isDel = false;
+    // --- 5. Typing Effect ---
+    function type() {
+        const textElement = document.getElementById("typing-effect");
+        if(!textElement) return;
+        const phrases = ["System Maintenance & Analytics", "Real-time Data Processing", "Secure Cloud Infrastructure"];
+        let pIdx = 0, cIdx = 0, isDel = false;
 
-            function loop() {
-                const current = phrases[pIdx];
-                textElement.textContent = isDel ? current.substring(0, cIdx--) : current.substring(0, cIdx++);
-                let speed = isDel ? 50 : 100;
-                if (!isDel && cIdx > current.length) { isDel = true; speed = 2000; }
-                else if (isDel && cIdx < 0) { isDel = false; pIdx = (pIdx + 1) % phrases.length; speed = 500; }
-                setTimeout(loop, speed);
+        function loop() {
+            const current = phrases[pIdx];
+            textElement.textContent = isDel ? current.substring(0, cIdx--) : current.substring(0, cIdx++);
+            
+            let speed = isDel ? 40 : 80;
+            if (!isDel && cIdx > current.length) { 
+                isDel = true; 
+                speed = 2500; // ค้างข้อความไว้ครู่หนึ่ง
+            } else if (isDel && cIdx < 0) { 
+                isDel = false; 
+                pIdx = (pIdx + 1) % phrases.length; 
+                speed = 500; 
             }
-            loop();
+            setTimeout(loop, speed);
         }
-    </script>
+        loop();
+    }
+</script>    
+
+
 </body>
 </html>

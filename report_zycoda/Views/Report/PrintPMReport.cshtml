@@ -1,221 +1,116 @@
 ﻿@model List<report_zycoda.Models.MaintenanceApiModels>
 @{
     Layout = null;
+
+    // Helper สำหรับจัดการวันที่ (Support ทั้ง String และ DateTime)
+    string FormatDT(object dateInput, string format = "dd/MM/yy HH:mm")
+    {
+        if (dateInput == null) return "-";
+        string val = dateInput.ToString();
+        if (string.IsNullOrEmpty(val)) return "-";
+        return DateTime.TryParse(val, out DateTime dt) ? dt.ToString(format) : val;
+    }
 }
 
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>Print Report - JCS</title>
-
+    <title>Report - JCS</title>
     <style>
-            @@page {
-                size: A4 landscape;
-                margin: 1cm;
-            }
-
-            body {
-                font-family: 'TH Sarabun New', Tahoma, sans-serif;
-                font-size: 14px;
-                margin: 0;
-            }
-
-            .title {
-                font-size: 18px;
-                font-weight: bold;
-            }
-
-            .report-header {
-                width: 100%;
-                margin-bottom: 10px;
-            }
-
-                .report-header td {
-                    vertical-align: top;
-                }
-
-            .filter-table {
-                width: 60%;
-                margin: 0 auto 10px auto;
-            }
-
-                .filter-table td {
-                    padding: 2px;
-                }
-
-            .data-table {
-                width: 100%;
-                border-collapse: collapse;
-            }
-
-                .data-table th,
-                .data-table td {
-                    border: 1px dashed #000;
-                    padding: 4px;
-                    word-break: break-word;
-                }
-
-                .data-table th {
-                    text-align: center;
-                    font-weight: bold;
-                }
-
-            .text-center {
-                text-align: center;
-            }
-
-            .text-right {
-                text-align: right;
-            }
-
-            /* รองรับหลายหน้า */
-            thead {
-                display: table-header-group;
-            }
-
-            tr {
-                page-break-inside: avoid;
-            }
-
-            @@media print {
-                .no-print {
-                    display: none;
-                }
-            }
+        @@page { size: A4 landscape; margin: 1cm; }
+        body { font-family: 'TH Sarabun New', Tahoma, sans-serif; font-size: 14px; margin: 0; }
+        .title { font-size: 18px; font-weight: bold; text-align: center; }
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
+        .data-table th, .data-table td { border: 1px solid #000; padding: 4px; word-wrap: break-word; vertical-align: top; }
+        .data-table th { background-color: #f2f2f2; text-align: center; font-weight: bold; }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .small-text { font-size: 12px; line-height: 1.1; }
+        thead { display: table-header-group; }
+        tr { page-break-inside: avoid; }
+        @@media print { .no-print { display: none; } }
     </style>
 </head>
-
 <body>
 
-    <!-- HEADER -->
-    <table class="report-header">
+    <!-- Header -->
+    <table style="width:100%;">
         <tr>
-            <td style="width:25%;">
-                RPT_PROGRESS_FOR_RECEIVER<br />
-                2603000753
-            </td>
-
+            <td style="width:25%;">RPT_PROGRESS_JOB<br />@DateTime.Now.ToString("yyyyMMdd")</td>
             <td style="width:50%;" class="text-center">
-                <div class="title">
-                    รายงานติดตามความคืบหน้า Job (สำหรับผู้รับแจ้งงานตรวจสอบ)
-                </div>
-                <div style="font-weight:bold;">
-                    สำหรับหน่วยงาน 150000 ตรวจสอบ
-                </div>
+                <div class="title">รายงานติดตามความคืบหน้า Job</div>
+                <div>สำหรับหน่วยงาน: @(ViewBag.SectionTo ?? "150000 ตรวจสอบ")</div>
             </td>
-
             <td style="width:25%;" class="text-right">
-                วันที่ : @DateTime.Now.ToString("dd/MM/yyyy")<br />
-                เวลา : @DateTime.Now.ToString("HH:mm:ss")<br />
-                Page : 1
+                วันที่พิมพ์: @DateTime.Now.ToString("dd/MM/yyyy")<br />
+                เวลา: @DateTime.Now.ToString("HH:mm:ss")
             </td>
         </tr>
     </table>
 
-    <!-- FILTER -->
-    <table class="filter-table">
-        <tr>
-            <td>จากหน่วยงานแจ้ง : <b>@ViewBag.SectionFrom</b></td>
-            <td>ถึงหน่วยงาน : <b>@ViewBag.SectionTo</b></td>
-        </tr>
-        <tr>
-            <td>จากวันที่แจ้ง : <b>@ViewBag.StartDate</b></td>
-            <td>ถึงวันที่ : <b>@ViewBag.EndDate</b></td>
-        </tr>
-        <tr>
-            <td colspan="2">สถานะ JOB : <b>@ViewBag.Status</b></td>
-        </tr>
-    </table>
-
-    <!-- DATA TABLE -->
+    <!-- Data Table -->
     <table class="data-table">
         <thead>
             <tr>
-                <th>วันที่แจ้ง</th>
-                <th>Service No.</th>
-                <th>รหัส - แบบฟอร์ม</th>
-                <th>ปัญหา-รายละเอียด</th>
-                <th>รหัส - หน่วยงาน</th>
-                <th>ผู้แจ้ง</th>
-                <th>สถานะ</th>
-
-                <!-- เพิ่มตามฟอร์ม -->
-                <th>แผนรับ</th>
-                <th>แผนเสร็จ</th>
-                <th>เริ่มจริง</th>
-                <th>เสร็จจริง</th>
-                <th>Delay(วัน)</th>
+                <th style="width:65px;">วันที่แจ้ง</th>
+                <th style="width:90px;">Service No.</th>
+                <th style="width:80px;">ประเภทงาน</th>
+                <th>ปัญหา/รายละเอียด</th>
+                <th style="width:100px;">ผู้แจ้ง/หน่วยงาน</th>
+                <th style="width:70px;">สถานะ</th>
+                <th style="width:100px;">แผน (รับ/เสร็จ)</th>
+                <th style="width:100px;">ทำจริง (เริ่ม/เสร็จ)</th>
+                <th style="width:50px;">Delay</th>
             </tr>
         </thead>
-
         <tbody>
             @if (Model != null && Model.Any())
             {
                 foreach (var item in Model)
                 {
                     <tr>
-                        @* 1. วันที่แจ้ง *@
-                        <td class="text-center">
-                            @if (DateTime.TryParse(item.timecreate, out DateTime dtCreate))
-                            {
-                                <span>@dtCreate.ToString("dd/MM/yy")</span>
-                            }
-                            else
-                            {
-                                <span>-</span>
-                            }
-                        </td>
-
-                        <td class="fw-bold">@item.id</td>
+                        <td class="text-center">@FormatDT(item.timecreate, "dd/MM/yy")</td>
+                        <td class="text-center" style="font-weight:bold;">@(item.id ?? item.id_h ?? "-")</td>
                         <td class="text-center">@item.jobtype</td>
-                        <td class="text-truncate" style="max-width:200px">@item.detail</td>
-                        <td>@item.sectioncreate</td>
-                        <td>@item.usercreate</td>
-                        <td class="text-center">@item.status</td>
-
-                        @* 2. แผนรับ/เสร็จ (Parse string เป็น DateTime) *@
-                        <td class="text-center small">
-                            <div>@(DateTime.TryParse(item.timestart, out DateTime ts) ? ts.ToString("dd/MM/yy HH:mm") : "-")</div>
-                            <div class="text-muted">@(DateTime.TryParse(item.timeend, out DateTime te) ? te.ToString("dd/MM/yy HH:mm") : "-")</div>
+                        <td class="small-text">@(item.detail ?? item.detail_h)</td>
+                        <td class="text-center small-text">
+                            @* ใช้ UserDisplayName จาก Model ที่คุณเขียนไว้ *@
+                            @item.UserDisplayName <br />
+                            <span style="color:#666;">(@(item.sectioncreate ?? item.section))</span>
                         </td>
-
-                        @* 3. เริ่ม/เสร็จจริง *@
-                        <td class="text-center small">
-                            <div>@(DateTime.TryParse(item.timestartrepair, out DateTime trs) ? trs.ToString("dd/MM/yy HH:mm") : "-")</div>
-                            <div class="text-muted">@(DateTime.TryParse(item.timeendrepair, out DateTime tre) ? tre.ToString("dd/MM/yy HH:mm") : "-")</div>
-                        </td>
-
-                        @* 4. DELAY (Parse string เป็น TimeSpan) *@
                         <td class="text-center">
-                            @if (TimeSpan.TryParse(item.timedelay, out TimeSpan delay) && delay != TimeSpan.Zero)
+                             @* ใช้ statustext หรือ status ตามลำดับ *@
+                             @(item.statustext ?? item.status)
+                        </td>
+                        <td class="text-center small-text">
+                            <span style="color:blue;">P: @FormatDT(item.timestart)</span><br/>
+                            <span style="color:navy;">F: @FormatDT(item.timeend)</span>
+                        </td>
+                        <td class="text-center small-text">
+                            <span style="color:green;">S: @FormatDT(item.timestartrepair)</span><br/>
+                            <span style="color:red;">E: @FormatDT(item.timeendrepair)</span>
+                        </td>
+                        <td class="text-center">
+                            @if (!string.IsNullOrEmpty(item.timedelay) && item.timedelay != "0")
                             {
-                                <span class="text-danger">@((int)delay.TotalDays) วัน</span>
+                                <span style="color:red; font-weight:bold;">@item.timedelay</span>
                             }
-                            else
-                            {
-                                <span>-</span>
-                            }
+                            else { <span>-</span> }
                         </td>
                     </tr>
                 }
             }
             else
             {
-                <tr><td colspan="11" class="text-center">-- ไม่พบข้อมูล --</td></tr>
+                <tr><td colspan="9" class="text-center" style="padding:20px;">-- ไม่พบข้อมูล --</td></tr>
             }
         </tbody>
     </table>
 
-    <!-- FOOTER -->
-    <div style="text-align:center; margin-top:10px;">
-        End of Report
-    </div>
-
-    <!-- PRINT BUTTON -->
-    <div class="no-print" style="position: fixed; bottom: 20px; right: 20px;">
-        <button onclick="window.print()" style="padding: 10px 20px; cursor: pointer;">
-            Print PDF / Paper
+    <div class="no-print" style="position:fixed; bottom:20px; right:20px;">
+        <button onclick="window.print()" style="padding:10px 20px; background:#007bff; color:white; border:none; cursor:pointer; border-radius:4px;">
+            Print Report
         </button>
     </div>
 

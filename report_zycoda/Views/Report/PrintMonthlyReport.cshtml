@@ -1,152 +1,157 @@
 ﻿@model List<report_zycoda.Models.MaintenanceApiModels>
 @{
     Layout = null;
+    // คำนวณหาตัวเลข KPI เบื้องต้น
+    var totalJobs = Model?.Count ?? 0;
+    var completedJobs = Model?.Count(x => x.status == "Complete" || x.status == "Closed") ?? 0;
+    var pendingJobs = totalJobs - completedJobs;
+    var completionRate = totalJobs > 0 ? (double)completedJobs / totalJobs * 100 : 0;
 }
-
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>Print Report - JCS</title>
+    <title>KPI Performance Report - Zycoda</title>
     <style>
-            @@page {
-                size: A4 landscape;
-                margin: 1cm;
-            }
+        @@page { size: A4 landscape; margin: 1cm; }
+        body { font-family: 'Tahoma', sans-serif; font-size: 11px; color: #333; }
+        
+        /* KPI Summary Cards */
+        .kpi-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        .kpi-card {
+            flex: 1;
+            border: 1px solid #2e7d32; /* สีเขียวเข้มตามสไตล์ที่ชอบ */
+            padding: 10px;
+            text-align: center;
+            border-radius: 4px;
+        }
+        .kpi-value { font-size: 18px; font-weight: bold; color: #1b5e20; }
+        .kpi-label { font-size: 10px; color: #666; text-transform: uppercase; }
 
-            body {
-                font-family: 'Tahoma', sans-serif;
-                font-size: 11px;
-                margin: 0;
-                padding: 0;
-            }
+        .report-header { width: 100%; border-bottom: 2px solid #2e7d32; margin-bottom: 15px; }
+        .title { font-size: 18px; font-weight: bold; text-align: center; }
 
-            .report-header {
-                width: 100%;
-                border-bottom: 2px solid #000;
-                padding-bottom: 5px;
-                margin-bottom: 10px;
-            }
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .data-table th { 
+            background-color: #f5f5f5; 
+            border: 1px solid #ccc; 
+            padding: 6px; 
+            font-weight: bold; 
+            text-align: center;
+        }
+        .data-table td { border: 1px solid #eee; padding: 6px; }
+        
+        /* แถบสีสถานะ */
+        .status-badge {
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: bold;
+        }
+        .status-complete { background-color: #c8e6c9; color: #256029; }
+        .status-pending { background-color: #fff9c4; color: #856404; }
 
-            .title {
-                text-align: center;
-                font-size: 16px;
-                font-weight: bold;
-            }
-
-            /* ส่วนข้อมูล Filter */
-            .filter-table {
-                width: 60%;
-                margin: 0 auto 10px auto;
-                border: none;
-            }
-
-                .filter-table td {
-                    padding: 2px;
-                }
-
-            /* ตารางข้อมูลหลัก (ใช้เส้นประตามรูป) */
-            .data-table {
-                width: 100%;
-                border-collapse: collapse;
-            }
-
-                .data-table th, .data-table td {
-                    border: 1px dashed #000; /* เส้นประ */
-                    padding: 4px;
-                    text-align: left;
-                }
-
-                .data-table th {
-                    background-color: #fff;
-                    text-align: center;
-                    font-weight: bold;
-                }
-
-            .text-center {
-                text-align: center;
-            }
-
-            .text-right {
-                text-align: right;
-            }
-
-            @@media print {
-                .no-print {
-                    display: none;
-                }
-            }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .no-print { position: fixed; bottom: 20px; right: 20px; }
     </style>
 </head>
 <body>
     <table class="report-header" style="border:none; width:100%;">
         <tr>
-            <td style="width:25%">RPT_PROGRESS_FOR_RECEIVER<br />2603000753</td>
-            <td class="title">รายงานติดตามความคืบหน้า Job (สำหรับผู้รับแจ้งงานตรวจสอบ)</td>
-            <td style="width:25%" class="text-right">
-                วันที่ : @DateTime.Now.ToString("dd/MM/yyyy")<br />
-                เวลา : @DateTime.Now.ToString("HH:mm:ss")<br />
-                Page : 1
+            <td style="width:20%">RPT_KPI_PERFORMANCE</td>
+            <td class="title">รายงานสรุปผลการดำเนินงาน (KPI Performance Report)</td>
+            <td style="width:20%" class="text-right">
+                Print Date: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
             </td>
-        </tr>
-        <tr>
-            <td></td>
-            <td class="text-center" style="font-weight:bold;">สำหรับหน่วยงาน 150000 ตรวจสอบ</td>
-            <td></td>
         </tr>
     </table>
 
-    <table class="filter-table">
-        <tr>
-            <td>จากหน่วยงานแจ้ง : <b>@ViewBag.SectionFrom</b></td>
-            <td>ถึงหน่วยงาน : <b>@ViewBag.SectionTo</b></td>
-        </tr>
-        <tr>
-            <td>จากวันที่แจ้ง : <b>@ViewBag.StartDate</b></td>
-            <td>ถึงวันที่ : <b>@ViewBag.EndDate</b></td>
-        </tr>
-        <tr>
-            <td colspan="2">สถานะ JOB : <b>@ViewBag.Status</b></td>
-        </tr>
-    </table>
+    <!-- ส่วนสรุปตัวเลข KPI -->
+    <div class="kpi-container">
+        <div class="kpi-card">
+            <div class="kpi-label">งานที่ได้รับแจ้งทั้งหมด</div>
+            <div class="kpi-value">@totalJobs</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">ดำเนินการเสร็จสิ้น</div>
+            <div class="kpi-value">@completedJobs</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">อัตราความสำเร็จ (KPI)</div>
+            <div class="kpi-value">@completionRate.ToString("N2")%</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">รอดำเนินการ</div>
+            <div class="kpi-value" style="color: #d32f2f;">@pendingJobs</div>
+        </div>
+    </div>
 
     <table class="data-table">
         <thead>
             <tr>
-                <th>วันที่แจ้ง</th>
-                <th>Service No.</th>
-                <th>รหัส - แบบฟอร์ม</th>
-                <th>ปัญหา-รายละเอียด</th>
-                <th>รหัส - ชื่อหน่วย</th>
-                <th>ผู้แจ้ง</th>
-                <th>สถานะ</th>
+                <th width="10%">วันที่แจ้ง</th>
+                <th width="10%">Service No.</th>
+                <th width="15%">ผู้แจ้ง / หน่วยงาน</th>
+                <th>รายละเอียดปัญหา</th>
+                <th width="12%">ผู้รับผิดชอบ</th>
+                <th width="8%">สถานะ</th>
+                <th width="10%">ระยะเวลา (วัน)</th>
             </tr>
         </thead>
         <tbody>
-            @if (Model != null && Model.Count > 0)
+            @if (Model != null && Model.Any())
             {
                 foreach (var item in Model)
                 {
                     <tr>
                         <td class="text-center">@item.timecreate</td>
-                        <td>@item.id</td>
-                        <td>@item.jobtype</td>
+                        <td class="text-center"><b>@item.id</b></td>
+                        <td>
+                            @item.usercreate<br/>
+                            <small style="color:#666">@item.sectioncreate</small>
+                        </td>
                         <td>@item.detail</td>
-                        <td>@item.sectioncreate</td>
-                        <td>@item.usercreate</td>
-                        <td class="text-center">@item.status</td>
+                        <td class="text-center">@(string.IsNullOrEmpty(item.useraccept) ? "-" : item.useraccept)</td>
+                        <td class="text-center">
+                            <span class="status-badge @(item.status == "Complete" ? "status-complete" : "status-pending")">
+                                @item.status
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            @{
+                                int days = 0;
+                                DateTime dateCreated;
+                                if (DateTime.TryParse(item.timecreate, out dateCreated))
+                                {
+                                    days = (DateTime.Now - dateCreated).Days;
+                                    @days
+                                }
+                                else
+                                {
+                                    @:0
+                                }
+                            } วัน
+                        </td>
                     </tr>
                 }
             }
             else
             {
-                <tr><td colspan="7" class="text-center">-- ไม่พบข้อมูล --</td></tr>
+                <tr><td colspan="7" class="text-center">-- ไม่พบข้อมูลสำหรับการประเมิน KPI --</td></tr>
             }
         </tbody>
     </table>
 
-    <div class="no-print" style="position: fixed; bottom: 20px; right: 20px;">
-        <button onclick="window.print()" style="padding: 10px 20px; cursor: pointer;">Print PDF / Paper</button>
+    <div class="no-print">
+        <button onclick="window.print()" style="padding: 10px 20px; background:#2e7d32; color:white; border:none; border-radius:5px; cursor: pointer;">
+            Export to PDF / Print
+        </button>
     </div>
 </body>
 </html>
