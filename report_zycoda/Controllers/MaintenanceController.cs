@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using report_zycoda.Data;
 using report_zycoda.Models;
 using System.Globalization;
+using System.Net.NetworkInformation;
 
 namespace report_zycoda.Controllers
 {
@@ -19,7 +20,7 @@ namespace report_zycoda.Controllers
         }
 
 
-        public async Task<IActionResult> Index(string jobtype, string start, string end, string sectionFrom, string sectionTo, string Status, string view = "followup")
+        public async Task<IActionResult> Index(string jobtype, string start, string end, string sectionFrom, string sectionTo, string status, string view = "followup")
         {
             if (User.Identity == null || !User.Identity.IsAuthenticated)
                 return RedirectToAction("Login", "Home");
@@ -42,9 +43,8 @@ namespace report_zycoda.Controllers
             // --- 2. VIEW STATE (ค้างค่าหน้าจอ) ---
             ViewBag.CurrentStart = start;
             ViewBag.CurrentEnd = end;
-            ViewBag.SelectedStatus = Status?.Trim();
+            ViewBag.SelectedStatus = status;
             ViewBag.CurrentJobType = jobtype ?? "EM,CM";
-
             ViewBag.CurrentView = view ?? "followup";
             ViewBag.CurrentSectionFrom = sectionFrom;
             ViewBag.CurrentSectionTo = sectionTo;
@@ -111,8 +111,6 @@ namespace report_zycoda.Controllers
                 }
             }
 
-            // --- 5. FILTER SAFE (THE ACCURACY CORE) ---
-            // กรองซ้ำเพื่อให้แน่ใจว่าได้ข้อมูลตรงตามเงื่อนไขเป๊ะๆ
             // --- 5. FILTER SAFE (ปรับปรุงใหม่ให้ตรงกับ API) ---
             var final = combined.Where(x => {
                 // 1. กรองวันที่: ถ้า API ส่งมาและ Parse ได้ ให้กรองตามวันที่
@@ -127,9 +125,9 @@ namespace report_zycoda.Controllers
                 }
 
                 // 2. กรอง Status: รองรับทั้งค่า Null และ "All"
-                bool statusMatch = string.IsNullOrEmpty(Status) ||
-                                   Status.Equals("All", StringComparison.OrdinalIgnoreCase) ||
-                                   (x.status != null && x.status.Trim().Equals(Status.Trim(), StringComparison.OrdinalIgnoreCase));
+                bool statusMatch = string.IsNullOrEmpty(status) ||
+                                   status.Equals("All", StringComparison.OrdinalIgnoreCase) ||
+                                   (x.status != null && x.status.Trim().Equals(status.Trim(), StringComparison.OrdinalIgnoreCase));
 
                 // 3. กรอง Section: ปรับให้ยืดหยุ่นขึ้น
                 bool sectionMatch = true;
