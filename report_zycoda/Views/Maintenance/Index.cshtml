@@ -1,52 +1,44 @@
 ﻿@using Microsoft.AspNetCore.Http
-@using Newtonsoft.Json
 @inject IHttpContextAccessor HttpContextAccessor
 @model List<report_zycoda.Models.MaintenanceApiModels>
 
 @{
-    var mode = Context.Request.Query["mode"].ToString() ?? "myjob";
-    var jobtype = Context.Request.Query["jobtype"].ToString();
-    var section = Context.Request.Query["sectioncreate"].ToString();
-    var status = Context.Request.Query["status"].ToString();
+    // 1. ดึงค่า State ต่างๆ (ดึงจาก ViewBag ที่ Controller ส่งมาจะแม่นยำกว่า Query ตรงๆ)
+    var view = ViewBag.CurrentView ?? "followup";
+    var jobtype = ViewBag.CurrentJobType ?? "";
+    var selectedStatus = ViewBag.SelectedStatus ?? "All";
+    var start = ViewBag.CurrentStart ?? "";
+    var end = ViewBag.CurrentEnd ?? "";
+    var sectionFrom = ViewBag.CurrentSectionFrom ?? "";
+    var sectionTo = ViewBag.CurrentSectionTo ?? "";
+
     var reports = Model ?? new List<report_zycoda.Models.MaintenanceApiModels>();
-    var culture = System.Globalization.CultureInfo.InvariantCulture;
-    var start = ViewBag.CurrentStart ?? Context.Request.Query["start"].ToString();
-    var end = ViewBag.CurrentEnd ?? Context.Request.Query["end"].ToString();
-    var sectionFrom = Context.Request.Query["sectionFrom"].ToString();
-    var sectionTo = Context.Request.Query["sectionTo"].ToString();
     var userClass = User.FindFirst("UserClass")?.Value;
 
-
-    // --- 1. Pre-calculate values (Optimization: คำนวณครั้งเดียวใช้ทั้งหน้า) ---
-    var statusData = reports.Select(x => (x.statustext ?? "").Trim()).ToList();
-    var allCount = statusData.Count;
-    var pCount = statusData.Count(s => s.Equals("Pending", StringComparison.OrdinalIgnoreCase));
-    var cCount = statusData.Count(s => s.Equals("Create", StringComparison.OrdinalIgnoreCase));
-    var acceptCount = statusData.Count(s => s.Equals("Accept", StringComparison.OrdinalIgnoreCase));
-    var assignCount = statusData.Count(s => s.Contains("Assign", StringComparison.OrdinalIgnoreCase));
-    var finCount = statusData.Count(s => s.Equals("Finish", StringComparison.OrdinalIgnoreCase));
-    var conCount = statusData.Count(s => s.Equals("Confirm", StringComparison.OrdinalIgnoreCase));
-    var rejCount = statusData.Count(s => s.Contains("Reject", StringComparison.OrdinalIgnoreCase));
-    var denyCount = statusData.Count(s => s.Contains("Deny", StringComparison.OrdinalIgnoreCase));
-
+    // 2. จัดการข้อมูลสำหรับ Chart (Top 10 Machines)
     var machineGroups = reports
         .Where(x => !string.IsNullOrEmpty(x.fldetail))
-        .GroupBy(x => x.fldetail)
+        .GroupBy(x => x.fldetail!.Trim())
         .Select(g => new { Name = g.Key, Count = g.Count() })
         .OrderByDescending(x => x.Count)
-        .Take(10).ToList();
+        .Take(10)
+        .ToList();
 
     var machineLabels = machineGroups.Select(x => x.Name).ToList();
     var machineData = machineGroups.Select(x => x.Count).ToList();
 
-    var sectionList = (List<report_zycoda.Models.SectionApiModels>)ViewBag.Section;
+    // 3. จัดการ Master Data Section
+    var sectionList = ViewBag.SectionList as List<report_zycoda.Models.SectionApiModels> ?? new List<report_zycoda.Models.SectionApiModels>();
 
-    var sectionDict = sectionList?
+    // สร้าง Dictionary สำหรับดึงชื่อเต็มแผนก (Key เป็นตัวพิมพ์เล็ก-ใหญ่ก็ได้)
+    var sectionDict = sectionList
         .Where(x => !string.IsNullOrEmpty(x.Sections))
+        .GroupBy(x => x.Sections!.Trim()) // ป้องกัน Key ซ้ำ
         .ToDictionary(
-            x => x.Sections!.Trim(),
-            x => !string.IsNullOrEmpty(x.Name) ? x.Name : x.Sections!
-        ) ?? new Dictionary<string, string>();
+            g => g.Key,
+            g => !string.IsNullOrEmpty(g.First().Name) ? g.First().Name : g.Key,
+            StringComparer.OrdinalIgnoreCase
+        );
 }
 
 <!DOCTYPE html>
@@ -54,31 +46,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- CSS -->
+    <!-- 1. CSS Frameworks -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-    <!-- FIX: bootstrap-icons (กัน 404) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-
+    <!-- 2. FIX: Bootstrap Icons (ใช้ CDN เพื่อแก้ปัญหา 404 ในเครื่อง) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <!-- 3. Custom Styles -->
     <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
-    <!-- JS -->
+
+    <!-- 4. JavaScript Core -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <!-- FIX สำคัญ: ใช้ version stable -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13"></script>
-
 
     <style>
         .job-row:hover {
@@ -587,23 +572,7 @@
         width: 10%; /* 100% / 10 = 10% ต่อ Card */
         }
         }
-            /* ปรับแต่งความสวยงามและการตอบสนอง */
-    .dashboard-card {
-        transition: all 0.3s ease;
-        border-radius: 10px;
-        min-height: 105px;
-    }
-    .dashboard-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-    }
-    .stat-label { font-size: 0.65rem; letter-spacing: 0.5px; }
-    .stat-sub { font-size: 0.7rem; }
-    
-    /* ระบบ 6 คอลัมน์สำหรับจอใหญ่ */
-    @@media (min-width: 1200px) {
-        .col-xl-custom { flex: 0 0 auto; width: 16.66666667%; }
-    }
+
     </style>
 
 
@@ -623,86 +592,97 @@
             </div>
         </div>
 
-        <div class="row g-3 mb-4 text-center">
-            <div class="col-6 col-md-4 col-xl-custom">
-                <div class="card dashboard-card border-0 shadow-sm p-3 h-100 bg-dark text-white">
-                    <div class="d-flex justify-content-between align-items-center mb-1 px-1">
-                        <span class="stat-label fw-bold text-uppercase opacity-75">All Jobs</span>
-                        <i class="bi bi-list-task fs-5 opacity-50"></i>
+
+        <div class="row g-2 mb-4 text-center">
+            <!-- 1. ALL JOBS -->
+            <div class="col-2 col-md-4-cols col-lg-6-cols">
+                <div class="card border-0 shadow-sm p-2 h-100 bg-dark text-white status-card">
+                    <div class="d-flex justify-content-between align-items-start px-1">
+                        <small class="fw-bold card-label">ALL JOBS</small>
+                        <i class="bi bi-grid-fill opacity-50 small"></i>
                     </div>
-                    <h2 class="fw-bold mb-0 mt-auto">@allCount</h2>
-                    <div class="mt-2 opacity-0 stat-sub">spacer</div>
+                    <h2 class="fw-bold mb-0 mt-1 card-value">@reports.Count</h2>
                 </div>
             </div>
 
-            <div class="col-6 col-md-4 col-xl-custom">
-                <div class="card dashboard-card border-0 shadow-sm p-3 h-100" style="background-color: #fff5f5; border-bottom: 4px solid #dc3545;">
-                    <div class="d-flex justify-content-between align-items-center mb-1 px-1">
-                        <span class="stat-label fw-bold text-danger text-uppercase">Pending / Create</span>
-                        <i class="bi bi-plus-circle text-danger opacity-50 fs-5"></i>
+            <!-- 2. PENDING / CREATE -->
+            <div class="col-2 col-md-4-cols col-lg-6-cols">
+                <div class="card border-0 shadow-sm p-2 h-100 status-card" style="border-top: 4px solid #dc3545; background-color: #fff5f5;">
+                    <div class="d-flex justify-content-between align-items-start px-1">
+                        <small class="text-danger fw-bold card-label">PENDING / CREATE</small>
+                        <i class="bi bi-clock-history text-danger opacity-50 small"></i>
                     </div>
-                    <h2 class="fw-bold mb-0 mt-auto text-danger">@(pCount + cCount)</h2>
-                    <div class="mt-2 pt-1 border-top border-danger border-opacity-10 stat-sub">
+                    @{
+                        var pCount = reports.Count(x => (x.statustext ?? "").Trim().Equals("Pending", StringComparison.OrdinalIgnoreCase));
+                        var cCount = reports.Count(x => (x.statustext ?? "").Trim().Equals("Create", StringComparison.OrdinalIgnoreCase));
+                    }
+                    <h2 class="fw-bold mb-0 mt-1 text-danger card-value">@(pCount + cCount)</h2>
+                    <div class="mt-auto pt-1 d-flex justify-content-between border-top border-danger border-opacity-10" style="font-size: 0.6rem;">
                         <span class="text-danger">P: <strong>@pCount</strong></span>
-                        <span class="mx-1 text-muted">|</span>
                         <span class="text-danger">C: <strong>@cCount</strong></span>
                     </div>
                 </div>
             </div>
 
-            <div class="col-6 col-md-4 col-xl-custom">
-                <div class="card dashboard-card border-0 shadow-sm p-3 h-100" style="background-color: #fffdf5; border-bottom: 4px solid #ffc107;">
-                    <div class="d-flex justify-content-between align-items-center mb-1 px-1">
-                        <span class="stat-label fw-bold text-warning text-uppercase">Accept</span>
-                        <i class="bi bi-check2-circle text-warning opacity-50 fs-5"></i>
+            <!-- 3. ACCEPT -->
+            <div class="col-2 col-md-4-cols col-lg-6-cols">
+                <div class="card border-0 shadow-sm p-2 h-100 status-card" style="border-top: 4px solid #ffc107; background-color: #fffdf2;">
+                    <div class="d-flex justify-content-between align-items-start px-1">
+                        <small class="text-warning fw-bold card-label">ACCEPT</small>
+                        <i class="bi bi-bookmark-check-fill text-warning opacity-50 small"></i>
                     </div>
-                    <h2 class="fw-bold mb-0 mt-auto text-warning">@acceptCount</h2>
-                    <div class="mt-2 opacity-0 stat-sub">spacer</div>
+                    <h2 class="fw-bold mb-0 mt-1 text-warning card-value">
+                        @reports.Count(x => (x.statustext ?? "").Trim().Equals("Accept", StringComparison.OrdinalIgnoreCase))
+                    </h2>
                 </div>
             </div>
 
-            <div class="col-6 col-md-4 col-xl-custom">
-                <div class="card dashboard-card border-0 shadow-sm p-3 h-100" style="background-color: #f5f9ff; border-bottom: 4px solid #0d6efd;">
-                    <div class="d-flex justify-content-between align-items-center mb-1 px-1">
-                        <span class="stat-label fw-bold text-primary text-uppercase">Assign</span>
-                        <i class="bi bi-person-badge text-primary opacity-50 fs-5"></i>
+            <!-- 4. ASSIGN -->
+            <div class="col-2 col-md-4-cols col-lg-6-cols">
+                <div class="card border-0 shadow-sm p-2 h-100 status-card" style="border-top: 4px solid #0d6efd; background-color: #f5faff;">
+                    <div class="d-flex justify-content-between align-items-start px-1">
+                        <small class="text-primary fw-bold card-label">ASSIGN</small>
+                        <i class="bi bi-person-badge-fill text-primary opacity-50 small"></i>
                     </div>
-                    <h2 class="fw-bold mb-0 mt-auto text-primary">@assignCount</h2>
-                    <div class="mt-2 opacity-0 stat-sub">spacer</div>
+                    <h2 class="fw-bold mb-0 mt-1 text-primary card-value">
+                        @reports.Count(x => (x.statustext ?? "").Contains("Assign", StringComparison.OrdinalIgnoreCase))
+                    </h2>
                 </div>
             </div>
 
-            <div class="col-6 col-md-4 col-xl-custom">
-                <div class="card dashboard-card border-0 shadow-sm p-3 h-100" style="background-color: #f5fff9; border-bottom: 4px solid #198754;">
-                    <div class="d-flex justify-content-between align-items-center mb-1 px-1">
-                        <span class="stat-label fw-bold text-success text-uppercase">Success</span>
-                        <i class="bi bi-clipboard-check text-success opacity-50 fs-5"></i>
+            <!-- 5. SUCCESS -->
+            <div class="col-2 col-md-4-cols col-lg-6-cols">
+                <div class="card border-0 shadow-sm p-2 h-100 status-card" style="border-top: 4px solid #198754; background-color: #f5fff9;">
+                    <div class="d-flex justify-content-between align-items-start px-1">
+                        <small class="text-success fw-bold card-label">SUCCESS</small>
+                        <i class="bi bi-check-all text-success opacity-50 small"></i>
                     </div>
-                    <h2 class="fw-bold mb-0 mt-auto text-success">@(finCount + conCount)</h2>
-                    <div class="mt-2 pt-1 border-top border-success border-opacity-10 stat-sub">
+                    @{
+                        var finCount = reports.Count(x => (x.statustext ?? "").Trim().Equals("Finish", StringComparison.OrdinalIgnoreCase));
+                        var conCount = reports.Count(x => (x.statustext ?? "").Trim().Equals("Confirm", StringComparison.OrdinalIgnoreCase));
+                    }
+                    <h2 class="fw-bold mb-0 mt-1 text-success card-value">@(finCount + conCount)</h2>
+                    <div class="mt-auto pt-1 d-flex justify-content-between border-top border-success border-opacity-10" style="font-size: 0.6rem;">
                         <span class="text-success">Fin: <strong>@finCount</strong></span>
-                        <span class="mx-1 text-muted">|</span>
                         <span class="text-success">Con: <strong>@conCount</strong></span>
                     </div>
                 </div>
             </div>
 
-            <div class="col-6 col-md-4 col-xl-custom">
-                <div class="card dashboard-card border-0 shadow-sm p-3 h-100" style="background-color: #f8f9fa; border-bottom: 4px solid #343a40;">
-                    <div class="d-flex justify-content-between align-items-center mb-1 px-1">
-                        <span class="stat-label fw-bold text-muted text-uppercase">Reject / Deny</span>
-                        <i class="bi bi-x-octagon text-dark opacity-50 fs-5"></i>
+            <!-- 6. REJECT / DENY -->
+            <div class="col-2 col-md-4-cols col-lg-6-cols">
+                <div class="card border-0 shadow-sm p-2 h-100 status-card" style="border-top: 4px solid #6c757d; background-color: #f8f9fa;">
+                    <div class="d-flex justify-content-between align-items-start px-1">
+                        <small class="text-secondary fw-bold card-label">REJECT/DENY</small>
+                        <i class="bi bi-x-circle-fill text-secondary opacity-50 small"></i>
                     </div>
-                    <h2 class="fw-bold mb-0 mt-auto text-dark">@(rejCount + denyCount)</h2>
-                    <div class="mt-2 pt-1 border-top border-dark border-opacity-10 stat-sub">
-                        <span class="text-dark">Rej: <strong>@rejCount</strong></span>
-                        <span class="mx-1 text-muted">|</span>
-                        <span class="text-dark">Den: <strong>@denyCount</strong></span>
-                    </div>
+                    <h2 class="fw-bold mb-0 mt-1 text-secondary card-value">
+                        @reports.Count(x => (x.statustext ?? "").Contains("Reject", StringComparison.OrdinalIgnoreCase) ||
+                                            (x.statustext ?? "").Contains("Deny", StringComparison.OrdinalIgnoreCase))
+                    </h2>
                 </div>
             </div>
         </div>
-
         <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
             <div class="card-body p-4">
                 <form method="get" class="row g-3 align-items-end" id="filterForm">
@@ -927,6 +907,13 @@
                                 class="btn btn-light border w-100"
                                 onclick="$('#printSelectModal').modal('show')">
                             <i class="fas fa-print"></i>
+                        </button>
+
+                        <button type="button"
+                                class="btn btn-success w-100"
+                                title="งานวันนี้"
+                                onclick="$('#filterForm').attr('action', '@Url.Action("TodayJobEntry", "Maintenance")').submit()">
+                            <i class="fas fa-calendar-day"></i>
                         </button>
                     </div>
 
@@ -1246,409 +1233,352 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 
-    @section Scripts {
-        <script>
-            $(document).ready(function() {
-            // --- ส่วนที่ 1: เตรียมข้อมูลและชุดสี (Centralized Config) ---
-            const sectionCounts = {};
-            const machineCounts = {};
-        
-            // ประกาศชุดสีส่วนกลางที่เดียว เพื่อใช้ทั้งสองกราฟ (ป้องกัน Error ชื่อซ้ำ)
-            const zycodaPalette = [
-            'rgba(0, 31, 63, 0.85)',   // Deep Blue
-            'rgba(56, 189, 248, 0.85)', // Sky Blue
-            'rgba(16, 185, 129, 0.85)', // Emerald Green
-            'rgba(139, 92, 246, 0.85)', // Violet
-            'rgba(244, 114, 182, 0.85)', // Pink
-            'rgba(245, 158, 11, 0.85)',  // Amber
-            'rgba(71, 85, 105, 0.85)'    // Slate Grey
-            ];
+    @section Scripts {
+        <script>
+            $(document).ready(function () {
 
-            // วนลูปเก็บข้อมูลจากตารางครั้งเดียว (Performance Optimization)
-            $('.job-row').each(function() {
-            // ข้อมูล Section (สำหรับ Doughnut)
-            const sectionId = $(this).data('sectioncreate') || 'ไม่ระบุ';
-            const sectionName = (typeof getSectionName === "function") ? getSectionName(sectionId) : sectionId;
-            sectionCounts[sectionName] = (sectionCounts[sectionName] || 0) + 1;
+                // ==================================================
+                // ส่วนที่ 1: เตรียมข้อมูลและชุดสี (Centralized Config)
+                // ==================================================
+                const sectionCounts = {};
+                const machineCounts = {};
 
-            // ข้อมูล Machine (สำหรับ Bar Chart)
-            const machineName = $(this).data('machine');
-            if (machineName && machineName !== '-' && machineName !== 'null') {
-            machineCounts[machineName] = (machineCounts[machineName] || 0) + 1;
-            }
-            });
+                const zycodaPalette = [
+                    'rgba(0, 31, 63, 0.85)',
+                    'rgba(56, 189, 248, 0.85)',
+                    'rgba(16, 185, 129, 0.85)',
+                    'rgba(139, 92, 246, 0.85)',
+                    'rgba(244, 114, 182, 0.85)',
+                    'rgba(245, 158, 11, 0.85)',
+                    'rgba(71, 85, 105, 0.85)'
+                ];
 
-            // --- ส่วนที่ 2: Doughnut Chart (Section Analysis) ---
-            const sectionLabels = Object.keys(sectionCounts);
-            const sectionData = Object.values(sectionCounts);
-            const sectionColors = sectionLabels.map((_, i) => zycodaPalette[i % zycodaPalette.length]);
+                $('.job-row').each(function () {
+                    const sectionId = $(this).data('sectioncreate') || 'ไม่ระบุ';
+                    const sectionName = (typeof getSectionName === "function") ? getSectionName(sectionId) : sectionId;
+                    sectionCounts[sectionName] = (sectionCounts[sectionName] || 0) + 1;
 
-            const pieCtx = document.getElementById('maintenancePieChart').getContext('2d');
-            new Chart(pieCtx, {
-                type: 'doughnut',
-                data: {
-                labels: sectionLabels,
-                datasets: [{
-                data: sectionData,
-                backgroundColor: sectionColors,
-                hoverOffset: 15,
-                borderWidth: 2,
-                borderColor: '#ffffff'
-                }]
-            },
-            options: {
-                        maintainAspectRatio: false,
-                        cutout: '72%',
-                    plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: { usePointStyle: true, padding: 15, font: { family: 'Segoe UI', size: 12 } }
-                    },
-                    tooltip: {
-                        backgroundColor: '#0f172a',
-                        callbacks: { label: (ctx) => ` ${ctx.label}: ${ctx.raw} งาน` }
-                        }
-                    }
-                }
-            });
+                    const machineName = $(this).data('machine');
+                    if (machineName && machineName !== '-' && machineName !== 'null') {
+                        machineCounts[machineName] = (machineCounts[machineName] || 0) + 1;
+                    }
+                });
 
-            // --- ส่วนที่ 3: Bar Chart (Top 10 Machines) ---
-            const sortedMachines = Object.entries(machineCounts)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 10);
+                // ==================================================
+                // ส่วนที่ 2: Doughnut Chart (Section Analysis)
+                // ==================================================
+                const sectionLabels = Object.keys(sectionCounts);
+                const sectionData = Object.values(sectionCounts);
+                const sectionColors = sectionLabels.map((_, i) => zycodaPalette[i % zycodaPalette.length]);
 
-            const barLabels = sortedMachines.map(item => item[0]);
-            const barValues = sortedMachines.map(item => item[1]);
+                const pieCtx = document.getElementById('maintenancePieChart').getContext('2d');
+                new Chart(pieCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: sectionLabels,
+                        datasets: [{
+                            data: sectionData,
+                            backgroundColor: sectionColors,
+                            hoverOffset: 15,
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        cutout: '72%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { usePointStyle: true, padding: 15, font: { family: 'Segoe UI', size: 12 } }
+                            },
+                            tooltip: {
+                                backgroundColor: '#0f172a',
+                                callbacks: { label: (ctx) => ` ${ctx.label}: ${ctx.raw} งาน` }
+                            }
+                        }
+                    }
+                });
 
-            // สร้าง Array ของสีสำหรับแต่ละแท่ง (แก้ปัญหาสีเดียวกันหมด)
-            const barBgColors = barValues.map((_, i) => zycodaPalette[i % zycodaPalette.length]);
-            const barBorderColors = barBgColors.map(c => c.replace('0.85', '1'));
+                // ==================================================
+                // ส่วนที่ 3: Bar Chart (Top 10 Machines)
+                // ==================================================
+                const sortedMachines = Object.entries(machineCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 10);
 
-            const barCtx = document.getElementById('maintenanceBarChart').getContext('2d');
-            new Chart(barCtx, {
-                type: 'bar',
-                data: {
-                labels: barLabels,
-                datasets: [{
-                    label: 'จำนวนครั้งที่ซ่อม',
-                    data: barValues,
-                    backgroundColor: barBgColors, // ส่งเป็น Array เพื่อให้สีต่างกัน
-                    borderColor: barBorderColors,
-                    borderWidth: 1.5,
-                    borderRadius: 6,
-                    barThickness: 22,
-                    hoverBackgroundColor: '#001f3f'
-                }]
-            },
-            options: {
-                indexAxis: 'y', // กราฟแนวนอน
-                maintainAspectRatio: false,
-            plugins: {
-            legend: { display: false },
-            tooltip: { backgroundColor: '#0f172a' }
-            },
-            scales: {
-            x: {
-            beginAtZero: true,
-            grid: { color: 'rgba(148, 163, 184, 0.1)', drawBorder: false },
-            ticks: { stepSize: 1, color: '#94a3b8' }
-            },
-            y: {
-            grid: { display: false },
-            ticks: {
-            color: '#475569',
-            font: { family: 'Segoe UI', weight: '600', size: 12 }
-            }
-            }
-            },
-            animation: {
-            duration: 1200,
-            easing: 'easeOutQuart'
-            }
-            }
-            });
-            });
-        </script>
-        <script>
-            // ==================================================
-            // 1. GLOBAL VARIABLES
-            // ==================================================
-            let lastKnownJob = null;
-            let lastJobId = 0;
-            const sectionLookup = {};
+                const barLabels = sortedMachines.map(item => item[0]);
+                const barValues = sortedMachines.map(item => item[1]);
+                const barBgColors = barValues.map((_, i) => zycodaPalette[i % zycodaPalette.length]);
+                const barBorderColors = barBgColors.map(c => c.replace('0.85', '1'));
 
-            @if (ViewBag.SectionList != null)
-            {
-                foreach (var item in (List<report_zycoda.Models.SectionApiModels>)ViewBag.SectionList)
-                {
-                    <text>
-                        sectionLookup["@item.Sections?.Trim()"] =
-                        "@Html.Raw(item.Name?.Replace("\"", "\\\""))";
-                    </text>
-                }
-            }
+                const barCtx = document.getElementById('maintenanceBarChart').getContext('2d');
+                new Chart(barCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: barLabels,
+                        datasets: [{
+                            label: 'จำนวนครั้งที่ซ่อม',
+                            data: barValues,
+                            backgroundColor: barBgColors,
+                            borderColor: barBorderColors,
+                            borderWidth: 1.5,
+                            borderRadius: 6,
+                            barThickness: 22,
+                            hoverBackgroundColor: '#001f3f'
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { backgroundColor: '#0f172a' }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                grid: { color: 'rgba(148, 163, 184, 0.1)', drawBorder: false },
+                                ticks: { stepSize: 1, color: '#94a3b8' }
+                            },
+                            y: {
+                                grid: { display: false },
+                                ticks: { color: '#475569', font: { family: 'Segoe UI', weight: '600', size: 12 } }
+                            }
+                        },
+                        animation: {
+                            duration: 1200,
+                            easing: 'easeOutQuart'
+                        }
+                    }
+                });
+            });
+        </script>
 
-            // ==================================================
-            // 2. HELPERS
-            // ==================================================
-            function getSectionName(code) {
-            if (!code || code === '-') return '-';
-            return sectionLookup[String(code).trim()] || code;
-            }
+        <script>
+            // ==================================================
+            // 1. GLOBAL VARIABLES
+            // ==================================================
+            let lastKnownJob = null;
+            let lastJobId = 0;
+            const sectionLookup = {};
 
-            function formatDT(dateStr) {
-            if (!dateStr || dateStr === '-' || dateStr === '0001-01-01T00:00:00') return '-';
-            try {
-            const d = new Date(dateStr);
-            if (isNaN(d.getTime())) return dateStr;
+            @if (ViewBag.SectionList != null)
+            {
+                foreach (var item in (List<report_zycoda.Models.SectionApiModels>)ViewBag.SectionList)
+                {
+                    <text>
+                        sectionLookup["@item.Sections?.Trim()"] = "@Html.Raw(item.Name?.Replace("\"", "\\\""))";
+                    </text>
+                }
+            }
 
-            return new Intl.DateTimeFormat('en-GB', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-            }).format(d).replace(/\//g, '-');
-            } catch {
-            return dateStr;
-            }
-            }
+            // ==================================================
+            // 2. HELPERS
+            // ==================================================
+            function getSectionName(code) {
+                if (!code || code === '-') return '-';
+                return sectionLookup[String(code).trim()] || code;
+            }
 
-            function updateClock() {
-            const el = document.getElementById('realtime-clock');
-            if (!el) return;
+            function formatDT(dateStr) {
+                if (!dateStr || dateStr === '-' || dateStr === '0001-01-01T00:00:00') return '-';
+                try {
+                    const d = new Date(dateStr);
+                    if (isNaN(d.getTime())) return dateStr;
+                    return new Intl.DateTimeFormat('en-GB', {
+                        day: '2-digit', month: '2-digit', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit', hour12: false
+                    }).format(d).replace(/\//g, '-');
+                } catch {
+                    return dateStr;
+                }
+            }
 
-            const now = new Date();
-            el.innerText = now.toLocaleString('th-TH', {
-            day: '2-digit',
-            month: '2-digit',
-            year: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false
-            });
-            }
+            function updateClock() {
+                const el = document.getElementById('realtime-clock');
+                if (!el) return;
+                el.innerText = new Date().toLocaleString('th-TH', {
+                    day: '2-digit', month: '2-digit', year: '2-digit',
+                    hour: '2-digit', minute: '2-digit', second: '2-digit',
+                    hour12: false
+                });
+            }
 
-            // ==================================================
-            // 3. STATE
-            // ==================================================
-            function updateLastJobId() {
-            $('.job-row').each(function() {
-            const id = parseInt($(this).data('id'));
-            if (id > lastJobId) lastJobId = id;
-            });
-            }
+            // ==================================================
+            // 3. STATE
+            // ==================================================
+            function updateLastJobId() {
+                $('.job-row').each(function () {
+                    const id = parseInt($(this).data('id'));
+                    if (id > lastJobId) lastJobId = id;
+                });
+            }
 
-            // ==================================================
-            // 4. FLATPICKR CONFIG (FIXED)
-            // ==================================================
-            const commonConfig = {
-            dateFormat: "Y-m-d",
-            altInput: true,
-            altFormat: "d/m/Y",
-            locale: "en",
-            allowInput: true,
-            disableMobile: true,
+            // ==================================================
+            // 4. FLATPICKR CONFIG
+            // ==================================================
+            const commonConfig = {
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "d/m/Y",
+                locale: "en",
+                allowInput: true,
+                disableMobile: true,
+                onReady: function (_, __, instance) {
+                    const defaultVal = instance.element.dataset.default;
+                    if (defaultVal) instance.setDate(flatpickr.parseDate(defaultVal, "Y-m-d"), false);
+                },
+                onChange: function (_, dateStr, instance) {
+                    instance.element.dataset.default = dateStr;
+                }
+            };
 
-            onReady: function(_, __, instance) {
-            const el = instance.element;
-            const defaultVal = el.dataset.default;
+            let fpStart = null;
+            let fpEnd = null;
 
-            if (defaultVal) {
-            const parsed = flatpickr.parseDate(defaultVal, "Y-m-d");
-            instance.setDate(parsed, false);
-            }
-            },
+            function initDatePickers() {
+                if (fpStart) fpStart.destroy();
+                if (fpEnd) fpEnd.destroy();
 
-            onChange: function(_, dateStr, instance) {
-            instance.element.dataset.default = dateStr;
-            }
-            };
+                fpStart = flatpickr("#startDatePicker", commonConfig);
+                fpEnd = flatpickr("#endDatePicker", commonConfig);
 
-            let fpStart = null;
-            let fpEnd = null;
+                const startVal = document.getElementById("startDatePicker").dataset.default;
+                const endVal = document.getElementById("endDatePicker").dataset.default;
+                if (startVal) fpStart.setDate(startVal, true, "Y-m-d");
+                if (endVal) fpEnd.setDate(endVal, true, "Y-m-d");
+            }
 
-            function initDatePickers() {
+            // ==================================================
+            // 5. DASHBOARD REFRESH
+            // ==================================================
+            function refreshDashboard() {
+                $.get(window.location.href, function (data) {
+                    const newHtml = $(data);
+                    $('.row.g-3.mb-4.text-center').html(newHtml.find('.row.g-3.mb-4.text-center').html());
+                    $('#maintenanceTable tbody').html(newHtml.find('#maintenanceTable tbody').html());
+                    updateLastJobId();
+                    console.log("Dashboard refreshed");
+                });
+            }
 
-            if (fpStart) fpStart.destroy();
-            if (fpEnd) fpEnd.destroy();
+            // ==================================================
+            // 6. CHECK UPDATE
+            // ==================================================
+            function checkUpdates() {
+                $.get('/Maintenance/GetStatusUpdate', function (data) {
+                    if (!data || data.length === 0) return;
+                    const newest = data[0];
+                    if (lastKnownJob === null) {
+                        lastKnownJob = newest.jobNo;
+                        return;
+                    }
+                    if (newest.jobNo !== lastKnownJob) {
+                        Swal.fire({
+                            title: 'มีใบงานใหม่! 🆕',
+                            text: `ใบงานเลขที่: ${newest.jobNo} (${newest.status})`,
+                            icon: 'info',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 5000
+                        });
+                        lastKnownJob = newest.jobNo;
+                        refreshDashboard();
+                    }
+                });
+            }
 
-            fpStart = flatpickr("#startDatePicker", commonConfig);
-            fpEnd = flatpickr("#endDatePicker", commonConfig);
+            // ==================================================
+            // 7. PRINT REPORT
+            // ==================================================
+            function PrintReport(reportType) {
+                const start = fpStart?.selectedDates?.length ? fpStart.formatDate(fpStart.selectedDates[0], "Y-m-d") : "";
+                const end = fpEnd?.selectedDates?.length ? fpEnd.formatDate(fpEnd.selectedDates[0], "Y-m-d") : "";
 
-            // 🔥 FORCE SET หลัง init (สำคัญมาก)
-            const startVal = document.getElementById("startDatePicker").dataset.default;
-            const endVal = document.getElementById("endDatePicker").dataset.default;
+                const params = new URLSearchParams({
+                    start,
+                    end,
+                    status: document.getElementById("filterStatus")?.value || "",
+                    sectionFrom: document.getElementById("sectionFrom")?.value || "",
+                    sectionTo: document.getElementById("sectionTo")?.value || "",
+                    jobtype: document.getElementById("jobtype")?.value || "",
+                    view: document.querySelector('input[name="view"]:checked')?.value || "followup",
+                    rptType: reportType
+                });
 
-            if (startVal) {
-            fpStart.setDate(startVal, true, "Y-m-d");
-            }
+                window.open(`/Report/PrintReport?${params.toString()}`, '_blank');
+                $('#printSelectModal').modal('hide');
+            }
 
-            if (endVal) {
-            fpEnd.setDate(endVal, true, "Y-m-d");
-            }
-            }
+            // ==================================================
+            // 8. INIT
+            // ==================================================
+            $(document).ready(function () {
+                initDatePickers();
 
-            // ==================================================
-            // 5. DASHBOARD REFRESH (FIXED - NO DATE RESET)
-            // ==================================================
-            function refreshDashboard() {
-            $.get(window.location.href, function(data) {
-            const newHtml = $(data);
+                if (!$.fn.DataTable.isDataTable('#maintenanceTable')) {
+                    $('#maintenanceTable').DataTable({
+                        pageLength: 10,
+                        lengthMenu: [[10, 15, 25, 50, 100], [10, 15, 25, 50, 100]],
+                        language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/th.json" },
+                        order: [[0, "desc"]],
+                        dom: '<"d-flex justify-content-between align-items-center px-3 pt-2 mb-2"l f>rt<"d-flex justify-content-between align-items-center px-3 pb-3 mt-2"i p>'
+                    });
+                }
 
-            $('.row.g-3.mb-4.text-center')
-            .html(newHtml.find('.row.g-3.mb-4.text-center').html());
+                $(document).on('click', '.job-row', function () {
+                    const $el = $(this);
+                    $('#mId').text($el.data('id'));
+                    $('#mMachine').text($el.data('machine') || '-');
+                    $('#mType').text($el.data('type') || '-');
+                    $('#mUser').text($el.data('user') || '-');
+                    $('#mDetail').text($el.data('detail') || '-');
+                    $('#mStatus')
+                        .text($el.data('status'))
+                        .removeClass()
+                        .addClass('badge rounded-pill ' + ($el.data('css') || 'bg-secondary'));
+                    $('#mSectionCreateName').text(getSectionName($el.data('sectioncreate')));
+                    $('#mSection').text(getSectionName($el.data('section')));
+                    $('#mAssign').text($el.data('uassign') || 'ยังไม่มอบหมาย');
+                    $('#mAccept').text($el.data('useraccept') || 'ยังไม่มีผู้รับงาน');
+                    $('#mFinish').text($el.data('userfinish') || '-');
+                    $('#mTimeCreate').text(formatDT($el.data('timecreate')));
+                    $('#mTimeAccept').text(formatDT($el.data('timeaccept')));
+                    $('#mApprove').text($el.data('userapprove') || '-');
+                    $('#mTimeApprove').text(formatDT($el.data('timeapprove')));
+                    $('#jobDetailModal').modal('show');
+                });
 
-            $('#maintenanceTable tbody')
-            .html(newHtml.find('#maintenanceTable tbody').html());
+                $('form').on('submit', function () {
+                    $('#loader-wrapper').fadeIn(200);
+                    $('button[type="submit"]').prop('disabled', true);
+                });
 
-            updateLastJobId();
+                setInterval(updateClock, 1000);
+                setInterval(checkUpdates, 30000);
+                setInterval(refreshDashboard, 60000);
 
-            // 🔥 RE-INIT ONLY DATA TABLE CONTENT SAFE
-            console.log("Dashboard refreshed");
-            });
-            }
+                updateClock();
+                updateLastJobId();
+            });
+        </script>
 
-            // ==================================================
-            // 6. CHECK UPDATE
-            // ==================================================
-            function checkUpdates() {
-            $.get('/Maintenance/GetStatusUpdate', function(data) {
-            if (!data || data.length === 0) return;
+        <script>
+            $(window).on('load', function () {
+                $('#loader-wrapper').fadeOut(500, function () {
+                    $(this).css('display', 'none');
+                });
+            });
 
-            const newest = data[0];
-
-            if (lastKnownJob === null) {
-            lastKnownJob = newest.jobNo;
-            return;
-            }
-
-            if (newest.jobNo !== lastKnownJob) {
-            Swal.fire({
-            title: 'มีใบงานใหม่! 🆕',
-            text: `ใบงานเลขที่: ${newest.jobNo} (${newest.status})`,
-            icon: 'info',
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 5000
-            });
-
-            lastKnownJob = newest.jobNo;
-            refreshDashboard();
-            }
-            });
-            }
-
-            // ==================================================
-            // 7. PRINT REPORT (SAFE FIX)
-            // ==================================================
-            function PrintReport(reportType) {
-
-            const start = fpStart?.selectedDates?.length
-            ? fpStart.formatDate(fpStart.selectedDates[0], "Y-m-d")
-            : "";
-
-            const end = fpEnd?.selectedDates?.length
-            ? fpEnd.formatDate(fpEnd.selectedDates[0], "Y-m-d")
-            : "";
-
-            const params = new URLSearchParams({
-            start,
-            end,
-            status: document.getElementById("filterStatus")?.value || "",
-            sectionFrom: document.getElementById("sectionFrom")?.value || "",
-            sectionTo: document.getElementById("sectionTo")?.value || "",
-            jobtype: document.getElementById("jobtype")?.value || "",
-            view: document.querySelector('input[name="view"]:checked')?.value || "followup",
-            rptType: reportType
-            });
-
-            window.open(`/Report/PrintReport?${params.toString()}`, '_blank');
-            $('#printSelectModal').modal('hide');
-            }
-
-            // ==================================================
-            // 8. INIT
-            // ==================================================
-            $(document).ready(function() {
-
-            initDatePickers();
-
-            if (!$.fn.DataTable.isDataTable('#maintenanceTable')) {
-            $('#maintenanceTable').DataTable({
-            pageLength: 10,
-            lengthMenu: [[10, 15, 25, 50, 100], [10, 15, 25, 50, 100]],
-            language: {
-            url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/th.json"
-            },
-            order: [[0, "desc"]],
-            dom: '<"d-flex justify-content-between align-items-center px-3 pt-2 mb-2"l f>rt<"d-flex justify-content-between align-items-center px-3 pb-3 mt-2"i p>'
-            });
-            }
-
-            $(document).on('click', '.job-row', function() {
-            const $el = $(this);
-
-            $('#mId').text($el.data('id'));
-            $('#mMachine').text($el.data('machine') || '-');
-            $('#mType').text($el.data('type') || '-');
-            $('#mUser').text($el.data('user') || '-');
-            $('#mDetail').text($el.data('detail') || '-');
-
-            $('#mStatus')
-            .text($el.data('status'))
-            .removeClass()
-            .addClass('badge rounded-pill ' + ($el.data('css') || 'bg-secondary'));
-
-            $('#mSectionCreateName').text(getSectionName($el.data('sectioncreate')));
-            $('#mSection').text(getSectionName($el.data('section')));
-            $('#mAssign').text($el.data('uassign') || 'ยังไม่มอบหมาย');
-            $('#mAccept').text($el.data('useraccept') || 'ยังไม่มีผู้รับงาน');
-            $('#mFinish').text($el.data('userfinish') || '-');
-            $('#mTimeCreate').text(formatDT($el.data('timecreate')));
-            $('#mTimeAccept').text(formatDT($el.data('timeaccept')));
-            $('#mApprove').text($el.data('userapprove') || '-');
-            $('#mTimeApprove').text(formatDT($el.data('timeapprove')));
-
-
-            $('#jobDetailModal').modal('show');
-            });
-
-            $('form').on('submit', function() {
-            $('#loader-wrapper').fadeIn(200);
-            $('button[type="submit"]').prop('disabled', true);
-            });
-
-            setInterval(updateClock, 1000);
-            setInterval(checkUpdates, 30000);
-            setInterval(refreshDashboard, 60000);
-
-            updateClock();
-            updateLastJobId();
-            });
-        </script>
-
-        <script>
-            // เมื่อโหลดทรัพยากรทุกอย่างในหน้าเว็บเสร็จ (รูปภาพ, สคริปต์, CSS)
-            $(window).on('load', function() {
-            // ให้ Loader ค่อยๆ จางหายไปใน 500ms
-            $('#loader-wrapper').fadeOut(500, function() {
-            $(this).css('display', 'none');
-            });
-            });
-
-            // ป้องกันกรณีที่โหลดนานเกินไป (Failsafe)
-            // ถ้าผ่านไป 5 วินาทีแล้วยังไม่หาย ให้สั่งปิดเองเลย
-            setTimeout(function() {
-            if ($('#loader-wrapper').is(':visible')) {
-            $('#loader-wrapper').fadeOut(300);
-            }
-            }, 5000);
-        </script>
-    }
+            setTimeout(function () {
+                if ($('#loader-wrapper').is(':visible')) {
+                    $('#loader-wrapper').fadeOut(300);
+                }
+            }, 5000);
+        </script>
+    }
 
 
 </body>
