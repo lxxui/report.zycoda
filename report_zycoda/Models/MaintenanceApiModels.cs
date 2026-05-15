@@ -47,6 +47,8 @@ namespace report_zycoda.Models
 
         public string? timeclose { get; set; }
 
+        public string? timeassign { get; set; }
+
         public string? useraccept { get; set; }
 
         public string? userfinish { get; set; }
@@ -65,6 +67,8 @@ namespace report_zycoda.Models
         public string? assign_to { get; set; }
 
         public string? view { get; set; }
+
+        public string? priority { get; set; }
 
 
 

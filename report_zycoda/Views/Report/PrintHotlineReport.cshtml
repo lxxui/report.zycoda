@@ -125,52 +125,40 @@
                     <th style="width: 55px;">รออะไหล่</th>
                 </tr>
             </thead>
-           <tbody>
+            <tbody>
                 @foreach (var group in groupedData)
                 {
                     <tr>
-                        <td colspan="8" class="group-header" style="background-color: #f1f5f9; font-weight: bold;">● @group.Key</td>
+                        <td colspan="9" class="group-header" style="background-color: #f1f5f9; font-weight: bold;">● @group.Key</td>
                     </tr>
-                    @foreach (var item in group.OrderByDescending(x => x.Repair))
+                    @foreach (var item in group)
                     {
                         <tr>
-                            <td class="text-center">@i</td>
-                            <td style="text-align: left; padding-left: 10px;">
-                                @(string.IsNullOrEmpty(item.SectionName) ? "ไม่ระบุแผนก" : item.SectionName)
-                            </td>                
-                            <td class="text-muted">@(item.CarriedOver > 0 ? item.CarriedOver.ToString() : "-")</td>
-                
+                            <td>@i</td>
+                            <td class="text-start ps-2">@item.SectionName</td>
+                            <td>@(item.CarriedOver > 0 ? item.CarriedOver.ToString() : "-")</td>
                             <td class="fw-bold">@(item.OpenedToday > 0 ? item.OpenedToday.ToString() : "-")</td>
-
-                            <td style="background-color: #e7f1ff; color: #0d6efd;" class="fw-bold">
-                                @(item.AcceptJob > 0 ? item.AcceptJob.ToString() : "-")
-                            </td>
-                
-                            <td style="background-color: #e7f1ff; color: #0d6efd;" class="fw-bold">
-                                @(item.Repair > 0 ? item.Repair.ToString() : "-")
-                            </td>
-                
-                            <td class="fw-bold text-success">@(item.Finished > 0 ? item.Finished.ToString() : "-")</td>
-                
+                            <td>@(item.AcceptJob > 0 ? item.AcceptJob.ToString() : "-")</td>
+                            <td>@(item.Repair > 0 ? item.Repair.ToString() : "-")</td>
+                            <td class="text-success fw-bold">@(item.Finished > 0 ? item.Finished.ToString() : "-")</td>
                             <td class="text-danger">@(item.RejectedToday > 0 ? item.RejectedToday.ToString() : "-")</td>
-                
                             <td>@(item.WaitPart > 0 ? item.WaitPart.ToString() : "-")</td>
                         </tr>
                         i++;
                     }
                 }
             </tbody>
-           <tfoot class="fw-bold" style="background-color: #f8f9fa; border-top: 2px solid #002d5b;">
+            @* สรุป Grand Total ด้านล่างตาราง *@
+            <tfoot class="fw-bold" style="background-color: #f8f9fa; border-top: 2px solid #002d5b;">
                 <tr>
                     <td colspan="2" class="text-end pe-2">GRAND TOTAL</td>
-                    <!-- ใช้ (int?) เพื่อรองรับ null และ ?? 0 เพื่อเปลี่ยน null เป็นเลข 0 -->
-                    <td class="text-center">@Model.Sum(x => (int?)(x.CarriedOver) ?? 0)</td>
-                    <td class="text-center">@Model.Sum(x => (int?)(x.OpenedToday) ?? 0)</td>
-                    <td class="text-center">@Model.Sum(x => (int?)(x.AcceptJob) ?? 0)</td>
-                    <td class="text-center">@Model.Sum(x => (int?)(x.Repair) ?? 0)</td>
-                    <td class="text-center">@Model.Sum(x => (int?)(x.Finished) ?? 0)</td>
-                    <td class="text-center">@Model.Sum(x => (int?)(x.RejectedToday) ?? 0)</td>
-                    <td class="text-center">@Model.Sum(x => (int?)(x.WaitPart) ?? 0)</td>
+                    <td class="text-center">@Model.Sum(x => x.CarriedOver)</td>
+                    <td class="text-center">@Model.Sum(x => x.OpenedToday)</td>
+                    <td class="text-center">@Model.Sum(x => x.AcceptJob)</td>
+                    <td class="text-center">@Model.Sum(x => x.Repair)</td>
+                    <td class="text-center">@Model.Sum(x => x.Finished)</td>
+                    <td class="text-center">@Model.Sum(x => x.RejectedToday)</td>
+                    <td class="text-center">@Model.Sum(x => x.WaitPart)</td>
                 </tr>
             </tfoot>
         </table>
@@ -179,6 +167,9 @@
             <div class="col-4">
                 <div class="sig-line"></div>
                 <div>(@ViewBag.ApiUser)</div>
+                <div class="text-muted" style="font-size: 9px;">
+                    วันที่จัดทำ: @ViewBag.PrintDate
+                </div>
                 <div class="text-muted small">ผู้จัดทำ</div>
             </div>
             <div class="col-4">

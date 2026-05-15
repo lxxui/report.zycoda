@@ -908,13 +908,6 @@
                                 onclick="$('#printSelectModal').modal('show')">
                             <i class="fas fa-print"></i>
                         </button>
-
-                        <button type="button"
-                                class="btn btn-success w-100"
-                                title="งานวันนี้"
-                                onclick="$('#filterForm').attr('action', '@Url.Action("TodayJobEntry", "Maintenance")').submit()">
-                            <i class="fas fa-calendar-day"></i>
-                        </button>
                     </div>
 
                 </form>
@@ -945,7 +938,8 @@
                                 <th class="text-center">ประเภท</th>
                                 <th>รายละเอียด</th>
                                 <th class="text-center">สถานะ</th>
-                                <th class="pe-4">ผู้แจ้ง</th>
+                                <th>ผู้แจ้ง</th>
+                                <th class="pe-4 text-center">จัดการ</th> <!-- เพิ่มหัวข้อใหม่ -->
                             </tr>
                         </thead>
                         <tbody>
@@ -994,6 +988,52 @@
                                         <span class="badge rounded-pill @item.StatusCssClass px-3 py-2 small">@item.status</span>
                                     </td>
                                     <td class="pe-4 small">@item.usercreate</td>
+                                    <td class="text-center pe-4">
+                                        @{
+                                            // 1. จัดการรายชื่อช่าง
+                                            var assignees = item.uassign != null && item.uassign.Any()
+                                                            ? string.Join(", ", item.uassign)
+                                                            : "ยังไม่มอบหมาย";
+
+                                            // 2. คำนวณวัน Deadline จากเลขวันในระบบ (ตามตัวอย่างใน image_ca7739.png)
+                                            string deadlineText = "-";
+                                            string priorityDisplay = item.priority ?? "0"; // สมมติว่าเก็บเลข 3, 7, 30 เอาไว้
+
+                                            if (DateTime.TryParse(item.timecreate, out DateTime startDate))
+                                            {
+                                                // ดึงตัวเลขจากค่า priority มาบวกวัน
+                                                if (double.TryParse(priorityDisplay, out double daysToAdd))
+                                                {
+                                                    var dueDate = startDate.AddDays(daysToAdd);
+                                                    deadlineText = dueDate.ToString("dd/MM/yyyy");
+                                                }
+                                            }
+
+                                            // 3. จัดรูปแบบข้อความสำหรับส่งเข้า LINE
+                                            var shareText = $"🛠 *งานแจ้งซ่อม (Zycoda System)*\n" +
+                                                            $"--------------------------\n" +
+                                                            $"🆔 Job ID: {item.id}\n" +
+                                                            $"🗓 วันที่แจ้ง: {startDate:dd/MM/yyyy HH:mm} น.\n" +
+                                                            $"⏰ *ต้องเสร็จภายใน: {deadlineText}* (กำหนด {priorityDisplay} วัน)\n" +
+                                                            $"--------------------------\n" +
+                                                            $"📍 สถานที่: {item.fl}\n" +
+                                                            $"📦 อุปกรณ์: {item.fldetail}\n" +
+                                                            $"📝 รายละเอียด: {item.detail}\n" +
+                                                            $"👤 ช่างผู้รับผิดชอบ: {assignees}\n" +
+                                                            $"🚩 สถานะ: {item.status}\n" +
+                                                            $"--------------------------\n" +
+                                                            $"🌐 ตรวจสอบข้อมูล/ปิดงานที่เว็บ Zycoda";
+
+                                            var lineUrl = $"https://line.me/R/msg/text/?{Uri.EscapeDataString(shareText)}";
+                                        }
+                                        <a href="@lineUrl"
+                                           target="_blank"
+                                           class="btn btn-success btn-sm rounded-circle shadow-sm"
+                                           title="แชร์ไปที่ LINE"
+                                           style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center;">
+                                            <i class="fab fa-line"></i>
+                                        </a>
+                                    </td>
                                 </tr>
                             }
                         </tbody>
@@ -1101,6 +1141,10 @@
                                     <div class="mb-3">
                                         <div class="info-label"><i class="bi bi-shield-check me-1"></i> ผู้มอบหมาย (Assignor)</div>
                                         <div id="mAssign" class="fw-bold">-</div>
+                                        <!-- เพิ่มส่วนนี้เข้าไปครับ -->
+                                        <div class="text-muted mt-1" style="font-size: 0.8rem;">
+                                            <i class="bi bi-calendar-check me-1"></i> มอบหมายเมื่อ: <span id="mTimeAssign">-</span>
+                                        </div>
                                     </div>
 
                                     <!-- ส่วนของ Engineer -->
@@ -1170,8 +1214,16 @@
                             }
 
 
-                            @if (User.FindFirst("UserClass")?.Value == "9" ||
-                                (User.FindFirst("UserClass")?.Value == "3" && (User.FindFirst("Section")?.Value.StartsWith("317") ?? false)))
+                            @{
+                                // 1. ดึงค่า Section และ UserClass จาก Claims
+                                var userSection = User.FindFirst("Section")?.Value ?? "";
+                                var userClass = User.FindFirst("UserClass")?.Value ?? "";
+                                bool isMaintenanceGroup = userSection.StartsWith("310") ||
+                                                           userSection.StartsWith("317") ||
+                                                           userSection.StartsWith("320");
+                            }
+
+                            @if (userClass == "9" || (userClass == "3" && isMaintenanceGroup))
                             {
                                 <button type="button" onclick="PrintReport('JTR_INTERNAL')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3">
                                     <div class="print-icon-box bg-soft-info me-3">
@@ -1183,6 +1235,7 @@
                                     </div>
                                     <i class="bi bi-chevron-right text-muted"></i>
                                 </button>
+
                                 <button type="button" onclick="PrintReport('HOTLINE')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3">
                                     <div class="print-icon-box bg-soft-danger me-3">
                                         <i class="bi bi-telephone-fill fs-4"></i>
@@ -1546,6 +1599,7 @@
                     $('#mFinish').text($el.data('userfinish') || '-');
                     $('#mTimeCreate').text(formatDT($el.data('timecreate')));
                     $('#mTimeAccept').text(formatDT($el.data('timeaccept')));
+                    $('#mTimeAssign').text(formatDT($el.data('timeassign')));
                     $('#mApprove').text($el.data('userapprove') || '-');
                     $('#mTimeApprove').text(formatDT($el.data('timeapprove')));
                     $('#jobDetailModal').modal('show');
@@ -1577,7 +1631,48 @@
                     $('#loader-wrapper').fadeOut(300);
                 }
             }, 5000);
+
+            function shareToLine(item) {
+                // ดึงข้อมูลจาก JSON/Object ที่คุณส่งมา
+                const jobId = item.id;
+                const location = item.fl; // ที่อยู่เครื่องจักร/จุดเกิดเหตุ
+                const flDetail = item.fldetail; // รายการอุปกรณ์
+                const detail = item.detail; // รายละเอียดแจ้งซ่อม
+                const jobType = item.jobtype; // CM หรือ PM
+                const priority = item.priority; // ระดับความสำคัญ
+                const assignTo = item.uassign ? item.uassign.join(', ') : '-'; // ช่างที่ได้รับมอบหมาย
+                const status = item.status;
+
+                // จัดรูปแบบข้อความให้ช่างอ่านง่าย (มี Emoji ช่วยแบ่งส่วน)
+                const message = 
+            `🛠 *ใบแจ้งซ่อมใหม่ (Job #${jobId})*
+            ----------------------------
+            📌 *สถานที่:* ${location}
+            📦 *อุปกรณ์:* ${flDetail}
+            📝 *อาการ:* ${detail}
+            ----------------------------
+            🔧 *ประเภทงาน:* ${jobType}
+            ⚠️ *ความสำคัญ:* ${priority}
+            👤 *ช่างผู้รับผิดชอบ:* ${assignTo}
+            🚩 *สถานะปัจจุบัน:* ${status}
+
+            🔗 ดูรายละเอียด/กดรับงาน: ${window.location.origin}/Maintenance/Details/${jobId}`;
+    
+                const lineUrl = "https://line.me/R/msg/text/?" + encodeURIComponent(message);
+                window.open(lineUrl, '_blank');
+            }
+
+            function copyToClipboard(text) {
+                const dummy = document.createElement("input");
+                document.body.appendChild(dummy);
+                dummy.value = text;
+                dummy.select();
+                document.execCommand("copy");
+                document.body.removeChild(dummy);
+            }
         </script>
+
+
     }
 
 
