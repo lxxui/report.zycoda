@@ -10,6 +10,12 @@ namespace report_zycoda.Models
         public string? v { get; set; }
         public string? job_no { get; set; }
 
+        public string? Mn { get; set; }
+
+        public string? Mo { get; set; }
+
+        public string? refId { get; set; }
+        public string? reforder { get; set; }
         public string? id { get; set; }           // จาก farmhouse
         public string? id_h { get; set; }         // จากระบบเดิม
 

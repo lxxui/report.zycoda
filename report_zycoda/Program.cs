@@ -48,6 +48,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.SameSite = SameSiteMode.Lax;
     });
 
+builder.Services.AddHostedService<MaintenanceWorker>();
 // ===============================
 // 5. SESSION
 // ===============================
@@ -70,7 +71,7 @@ builder.Services.AddSession(options =>
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<ApiService>();
-
+builder.Services.AddSingleton<LatestSyncStore>();
 var app = builder.Build();
 
 // ===============================

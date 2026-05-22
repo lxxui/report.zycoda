@@ -17,7 +17,7 @@ public class ReportController(ApiService apiService) : Controller
         var sessionUser = User.Identity.Name;
         var sessionPass = User.Claims.FirstOrDefault(c => c.Type == "ApiPassword")?.Value;
 
-        // 2. จัดการตัวแปรวันที่ (ป้องกัน Error ตัวแปรซ้ำ)
+        // 2. จัดการตัวแปรวันที่
         var sDate = string.IsNullOrEmpty(start) ? DateTime.Now.ToString("yyyy-MM-dd") : start;
         var eDate = string.IsNullOrEmpty(end) ? DateTime.Now.ToString("yyyy-MM-dd") : end;
         var jType = string.IsNullOrEmpty(jobtype) ? "EM,CM" : jobtype;
@@ -32,10 +32,10 @@ public class ReportController(ApiService apiService) : Controller
         var sectionDict = sectionMaster?.Where(s => !string.IsNullOrEmpty(s.Sections))
             .ToDictionary(s => s.Sections.Trim(), s => s.Name ?? s.Sections) ?? new Dictionary<string, string>();
 
-        // 4. เรียก API (ใช้ Endpoint หลัก)
+        // 4. เรียก API Main Endpoint
         var queryParams = new Dictionary<string, string?> {
-        { "plant", "FARMHOUSE" }, { "jobtype", jType }, { "start", sDate }, { "end", eDate }, { "view", vMode }
-    };
+            { "plant", "FARMHOUSE" }, { "jobtype", jType }, { "start", sDate }, { "end", eDate }, { "view", vMode }
+        };
         var apiUrl = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString("https://farmhouse.zycoda.com/apimpros/get_job_order", queryParams);
 
         List<MaintenanceApiModels> rawData = new();
@@ -50,7 +50,7 @@ public class ReportController(ApiService apiService) : Controller
                 if (json.Trim().StartsWith("{")) json = "[" + json + "]";
                 var allData = JsonConvert.DeserializeObject<List<MaintenanceApiModels>>(json) ?? new();
 
-                // กรองข้อมูลเบื้องต้นตาม Range แผนกที่เลือกหน้า UI
+                // กรองข้อมูลตามเงื่อนไขที่เลือกจากหน้าเว็บ
                 rawData = allData.Where((MaintenanceApiModels x) => {
                     var target = (x.sectioncreate ?? x.section ?? "").Trim().ToUpper();
                     bool mFrom = string.IsNullOrEmpty(sectionFrom) || sectionFrom == "ทั้งหมด" || string.Compare(target, sectionFrom.Trim().ToUpper()) >= 0;
@@ -62,42 +62,32 @@ public class ReportController(ApiService apiService) : Controller
             }
         }
 
-        // 5. 🛠️ Summary Logic (แก้ปัญหาข้อมูลปนกัน)
+        // 5. Summary Logic (สำหรับกลุ่มรายงานสถิติ)
         var summaryData = rawData
             .GroupBy(x => (x.sectioncreate ?? x.section ?? "N/A").Trim())
             .Select(g => new ReportSummary
             {
                 SectionName = sectionDict.TryGetValue(g.Key, out var name) ? name : g.Key,
-
-                // ✅ ยอดยกมา: งานที่สร้างก่อนวันที่ Start และ (ยังไม่ปิด หรือ ปิดหลังจากเริ่ม Start)
                 CarriedOver = g.Count(x => {
                     var cDate = ParseDate(x.timecreate);
                     var fDate = ParseDate(x.timeclose);
                     return cDate < dStart && (string.IsNullOrEmpty(x.timeclose) || fDate >= dStart);
                 }),
-
-                // ✅ เปิดเพิ่ม: เฉพาะงานที่สร้าง "ภายในช่วงวันที่เลือก" (ไม่เอาของเก่ามาปน)
                 OpenedToday = g.Count(x => {
                     var d = ParseDate(x.timecreate);
                     return d >= dStart && d <= dEnd;
                 }),
-
                 AcceptJob = g.Count(x => x.status == "Accept"),
                 Repair = g.Count(x => x.status == "Assign"),
-
-                // เสร็จสิ้น: งานที่กด Finish/Confirm ในช่วงวันที่เลือก
                 Finished = g.Count(x => (x.status == "Finish" || x.status == "Confirm") &&
                                          !string.IsNullOrEmpty(x.timeclose) &&
                                          ParseDate(x.timeclose) >= dStart && ParseDate(x.timeclose) <= dEnd),
-
-                // ✅ เพิ่ม Deny เข้ามาในช่องยกเลิก
                 RejectedToday = g.Count(x => x.status == "Reject" || x.status == "Deny"),
-
                 WaitPart = g.Count(x => (x.status?.Contains("Spare") ?? false) || (x.statustext?.Contains("อะไหล่") ?? false))
             })
             .OrderBy(x => x.SectionName).ToList();
 
-        // 6. ส่งค่าไป View
+        // 6. ส่งค่าพื้นฐานไปยัง View
         ViewBag.ApiUser = User.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value ?? sessionUser;
         ViewBag.RefNo = $"{DateTime.Now:yyMMdd}-{new Random().Next(100, 999)}";
         ViewBag.PrintDate = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
@@ -105,17 +95,59 @@ public class ReportController(ApiService apiService) : Controller
         ViewBag.EndDate = eDate;
         ViewBag.SectionFrom = sectionFrom;
         ViewBag.SectionTo = sectionTo;
-        SetReportMetadata(rptType);
 
-        string viewName = rptType?.ToUpper() switch
+        // ==========================================================
+        // 🛠️ คัดแยกประเภทรายงานแยก View เด็ดขาด (แก้ไขจุดบั๊กหลัก)
+        // ==========================================================
+        string normalizedRptType = rptType?.ToUpper() ?? "DEFAULT";
+        string viewName = "";
+
+        // ตั้งค่าหัวกระดาษฟอร์มหลักจากฟังก์ชัน Metadata
+        SetReportMetadata(normalizedRptType);
+
+        switch (normalizedRptType)
         {
-            "HOTLINE" => "PrintHotlineReport",
-            "JTR_INTERNAL" => "PrintReport_Jobdaily_Checked",
-            _ => "PrintReport_Receiver_Checked"
-        };
+            case "JTR":
+                viewName = "PrintReport_Jobdaily_Checked"; // หน้าสิทธิ์ผู้แจ้งงาน
+                ViewBag.DepartmentName = "ผู้แจ้งงานตรวจสอบ";
+                break;
 
-        if (rptType == "JTR" || rptType == "JTR_INTERNAL") return View(viewName, rawData.OrderByDescending(x => x.job_no).ToList());
-        return View(viewName, summaryData);
+            case "JTR_INTERNAL":
+                viewName = "PrintReport_Receiver_Checked"; // หน้าสิทธิ์ช่าง/ผู้รับแจ้ง
+                ViewBag.DepartmentName = "ตรวจสอบ (ผู้รับแจ้ง/ช่าง)";
+                break;
+
+            case "HOTLINE":
+                viewName = "PrintHotlineReport";
+                ViewBag.DepartmentName = "ฝ่ายซ่อมบำรุง (Hotline)";
+                break;
+
+            case "PM":
+                viewName = "PrintPMReport";
+                ViewBag.DepartmentName = "ฝ่ายวิศวกรรม (PM)";
+                break;
+
+            case "MONTHLY":
+                viewName = "PrintMonthlyReport";
+                ViewBag.DepartmentName = "ฝ่ายบริหาร/สรุปประจำเดือน";
+                break;
+
+            default:
+                viewName = "PrintReport_Jobdaily_Checked";
+                ViewBag.DepartmentName = "ผู้แจ้งงานตรวจสอบ";
+                break;
+        }
+
+        // 7. ทำการส่ง Model แยกตามสถาปัตยกรรมข้อมูล
+        if (normalizedRptType == "JTR" || normalizedRptType == "JTR_INTERNAL")
+        {
+            var sortedRawData = rawData.OrderByDescending(x => x.job_no ?? x.id).ToList();
+            return View(viewName, sortedRawData); // ส่งข้อมูลดิบลิสต์งาน
+        }
+        else
+        {
+            return View(viewName, summaryData); // ส่งข้อมูลกลุ่มคำนวณสรุปยอดสถิติ
+        }
     }
 
     private DateTime ParseDate(string? dateStr)

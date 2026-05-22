@@ -19,10 +19,7 @@ namespace report_zycoda.Controllers
         // ==================================================
         // HELPER: เรียก API แล้วคืน List<MaintenanceApiModels>
         // ==================================================
-        private async Task<List<MaintenanceApiModels>> FetchJobsFromApi(
-            string sessionUser, string sessionPass,
-            string jobtype, string start, string end,
-            string view = "followup")
+        private async Task<List<MaintenanceApiModels>> FetchJobsFromApi(string sessionUser, string sessionPass,string jobtype, string start, string end,string view = "followup")
         {
             var combined = new List<MaintenanceApiModels>();
             var viewsToCall = (view == "all")

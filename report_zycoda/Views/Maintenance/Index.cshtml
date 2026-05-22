@@ -573,6 +573,21 @@
         }
         }
 
+
+        .spin-animation {
+        animation: fa-spin 2s infinite linear;
+        display: inline-block;
+        }
+
+        @@keyframes fa-spin {
+        0% {
+        transform: rotate(0deg);
+        }
+
+        100% {
+        transform: rotate(360deg);
+        }
+        }
     </style>
 
 
@@ -584,7 +599,13 @@
                 <h4 class="fw-bold text-navy mb-0">รายงานภาพรวมงานแจ้งซ่อม (Overall Dashboard)</h4>
                 <p class="text-muted small mb-0">สรุปข้อมูลการซ่อมบำรุงและสถานะเครื่องจักรทั้งหมดในระบบ</p>
             </div>
-            <div class="text-end">
+            <div class="text-end d-flex gap-2 align-items-center">
+                <div class="badge p-2 shadow-sm" style="border-radius: 8px; background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9;">
+                    <i class="bi bi-arrow-repeat me-1" id="sync-icon"></i>
+                    <span>อัปเดตล่าสุด: </span>
+                    <span id="sync-time-text" class="fw-bold">กำลังโหลด...</span>
+                </div>
+
                 <div class="badge bg-primary-soft text-primary p-2 shadow-sm" style="border-radius: 8px;">
                     <i class="bi bi-clock-history me-2"></i>
                     <span id="realtime-clock" class="fw-bold">กำลังโหลดเวลา...</span>
@@ -1476,81 +1497,86 @@
                     <div class="modal-body p-4">
                         <div class="list-group list-group-flush border-0">
 
-                            <button type="button" onclick="PrintReport('JTR')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3">
-                                <div class="print-icon-box bg-soft-primary me-3">
+                            @{
+                                // 1. ดึงค่าจาก Claims มาเช็คสิทธิ์รอบเดียวให้เคลียร์ที่ด้านบน
+                                var userSection = User.FindFirst("Section")?.Value ?? "";
+                                var userClass = User.FindFirst("UserClass")?.Value ?? "";
+
+                                // เช็คว่าเป็นกลุ่มทีมช่าง/วิศวกร (รหัสแผนกขึ้นต้นด้วย 310, 317, 320)
+                                bool isMaintenanceGroup = userSection.StartsWith("310") ||
+                                                           userSection.StartsWith("317") ||
+                                                           userSection.StartsWith("320");
+
+                                // สิทธิ์ช่างระดับปฏิบัติการ/หัวหน้าหน้างาน
+                                bool hasMechanicAccess = userClass == "9" || (userClass == "3" && isMaintenanceGroup);
+
+                                // สิทธิ์ผู้ดูแลระบบสูงสุด หรือ หัวหน้าแผนกใหญ่
+                                bool hasAdminAccess = userClass == "9";
+                            }
+
+                            <button type="button" onclick="PrintReport('JTR')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3 mb-2 rounded border">
+                                <div class="print-icon-box bg-soft-primary me-3" style="background-color: #eff6ff; color: #2563eb; padding: 10px; border-radius: 8px;">
                                     <i class="bi bi-file-earmark-text-fill fs-4"></i>
                                 </div>
                                 <div class="flex-grow-1">
-                                    <div class="fw-bold text-dark">รายงานติดตามสถานะงานซ่อม</div>
-                                    <div class="text-muted" style="font-size: 0.75rem;">ตรวจสอบความคืบหน้าสำหรับหน่วยงานผู้แจ้ง</div>
+                                    <div class="fw-bold text-dark">รายงานติดตามสถานะงานซ่อม (JTR)</div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">สำหรับหน่วยงานผู้แจ้งงานซ่อม ตรวจสอบความคืบหน้าภาพรวม</div>
                                 </div>
                                 <i class="bi bi-chevron-right text-muted"></i>
                             </button>
 
-                            @if (User.FindFirst("UserClass")?.Value == "9")// หรือเช็คจาก ViewBag.UserClass
+                            @if (hasAdminAccess)
                             {
-                                <button type="button" onclick="PrintReport('PM')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3">
-                                    <div class="print-icon-box bg-soft-warning me-3">
+                                <button type="button" onclick="PrintReport('PM')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3 mb-2 rounded border">
+                                    <div class="print-icon-box bg-soft-warning me-3" style="background-color: #fffbeb; color: #d97706; padding: 10px; border-radius: 8px;">
                                         <i class="bi bi-tools fs-4"></i>
                                     </div>
                                     <div class="flex-grow-1">
                                         <div class="fw-bold text-dark">รายงานแผนบำรุงรักษา (PM)</div>
-                                        <div class="text-muted" style="font-size: 0.75rem;">สรุปงานบำรุงรักษาเชิงป้องกันประจำงวด</div>
+                                        <div class="text-muted" style="font-size: 0.75rem;">สรุปและติดตามความคืบหน้าแผนงานป้องกันเชิงรุก</div>
                                     </div>
                                     <i class="bi bi-chevron-right text-muted"></i>
                                 </button>
                             }
 
-
-                            @{
-                                // 1. ดึงค่า Section และ UserClass จาก Claims
-                                var userSection = User.FindFirst("Section")?.Value ?? "";
-                                var userClass = User.FindFirst("UserClass")?.Value ?? "";
-                                bool isMaintenanceGroup = userSection.StartsWith("310") ||
-                                                           userSection.StartsWith("317") ||
-                                                           userSection.StartsWith("320");
-                            }
-
-                            @if (userClass == "9" || (userClass == "3" && isMaintenanceGroup))
+                            @if (hasMechanicAccess)
                             {
-                                <button type="button" onclick="PrintReport('JTR_INTERNAL')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3">
-                                    <div class="print-icon-box bg-soft-info me-3">
+                                <button type="button" onclick="PrintReport('JTR_INTERNAL')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3 mb-2 rounded border">
+                                    <div class="print-icon-box bg-soft-info me-3" style="background-color: #e0f2fe; color: #0369a1; padding: 10px; border-radius: 8px;">
                                         <i class="bi bi-person-check-fill fs-4"></i>
                                     </div>
                                     <div class="flex-grow-1">
-                                        <div class="fw-bold text-dark">รายงานรายละเอียดงานซ่อม (สำหรับช่าง)</div>
-                                        <div class="text-muted" style="font-size: 0.75rem;">ข้อมูลเชิงลึกและการดำเนินงานของทีมวิศวะ</div>
+                                        <div class="fw-bold text-dark">รายงานรายละเอียดงานซ่อม (สำหรับช่าง / JTR Internal)</div>
+                                        <div class="text-muted" style="font-size: 0.75rem;">การ์ดบอร์ดติดตามเวลาหน้างานจริงและประเมินงานล่าช้า (Delay)</div>
                                     </div>
                                     <i class="bi bi-chevron-right text-muted"></i>
                                 </button>
 
-                                <button type="button" onclick="PrintReport('HOTLINE')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3">
-                                    <div class="print-icon-box bg-soft-danger me-3">
+                                <button type="button" onclick="PrintReport('HOTLINE')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3 mb-2 rounded border">
+                                    <div class="print-icon-box bg-soft-danger me-3" style="background-color: #fef2f2; color: #dc2626; padding: 10px; border-radius: 8px;">
                                         <i class="bi bi-telephone-fill fs-4"></i>
                                     </div>
                                     <div class="flex-grow-1">
                                         <div class="fw-bold text-dark">สรุปยอดงานประจำวัน (Hotline)</div>
-                                        <div class="text-muted" style="font-size: 0.75rem;">สรุปยอด รับงาน / กำลังซ่อม / ส่งมอบ</div>
+                                        <div class="text-muted" style="font-size: 0.75rem;">แดชบอร์ดสรุปตัวเลขสถิติ รับงาน / กำลังซ่อม / ส่งมอบ หน้างาน</div>
                                     </div>
                                     <i class="bi bi-chevron-right text-muted"></i>
                                 </button>
                             }
 
-                            <button type="button" onclick="PrintReport('MONTHLY')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3">
-                                <div class="print-icon-box bg-soft-success me-3">
+                            <button type="button" onclick="PrintReport('MONTHLY')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3 rounded border">
+                                <div class="print-icon-box bg-soft-success me-3" style="background-color: #f0fdf4; color: #16a34a; padding: 10px; border-radius: 8px;">
                                     <i class="bi bi-calendar2-check-fill fs-4"></i>
                                 </div>
                                 <div class="flex-grow-1">
                                     <div class="fw-bold text-dark">รายงานสรุปประสิทธิภาพรายเดือน</div>
-                                    <div class="text-muted" style="font-size: 0.75rem;">ภาพรวมสถิติและ KPI การซ่อมบำรุงประจำเดือน</div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">ภาพรวมดัชนีชี้วัดสถิติและประสิทธิภาพ KPI การซ่อมบำรุงประจำเดือน</div>
                                 </div>
                                 <i class="bi bi-chevron-right text-muted"></i>
                             </button>
 
                         </div>
-
                     </div>
-
                     <div class="modal-footer border-0 pb-4 justify-content-center">
                         <button type="button" class="btn btn-link text-muted fw-bold text-decoration-none" data-bs-dismiss="modal">ยกเลิกการพิมพ์</button>
                     </div>
@@ -1921,44 +1947,105 @@
             }, 5000);
 
             function shareToLine(item) {
-                // ดึงข้อมูลจาก JSON/Object ที่คุณส่งมา
+                // 1. ดึงข้อมูลพื้นฐานจาก item
                 const jobId = item.id;
-                const location = item.fl; // ที่อยู่เครื่องจักร/จุดเกิดเหตุ
-                const flDetail = item.fldetail; // รายการอุปกรณ์
-                const detail = item.detail; // รายละเอียดแจ้งซ่อม
-                const jobType = item.jobtype; // CM หรือ PM
-                const priority = item.priority; // ระดับความสำคัญ
-                const assignTo = item.uassign ? item.uassign.join(', ') : '-'; // ช่างที่ได้รับมอบหมาย
+                const location = item.fl;
+                const flDetail = item.fldetail;
+                const detail = item.detail;
+                const jobType = item.jobtype;
+                const priority = item.priority;
+                const assignTo = item.uassign ? item.uassign.join(', ') : '-';
                 const status = item.status;
+                const creator = item.usercreate ? item.usercreate : '-';
 
-                // จัดรูปแบบข้อความให้ช่างอ่านง่าย (มี Emoji ช่วยแบ่งส่วน)
-                const message = 
-            `🛠 *ใบแจ้งซ่อมใหม่ (Job #${jobId})*
-            ----------------------------
-            📌 *สถานที่:* ${location}
-            📦 *อุปกรณ์:* ${flDetail}
-            📝 *อาการ:* ${detail}
-            ----------------------------
-            🔧 *ประเภทงาน:* ${jobType}
-            ⚠️ *ความสำคัญ:* ${priority}
-            👤 *ช่างผู้รับผิดชอบ:* ${assignTo}
-            🚩 *สถานะปัจจุบัน:* ${status}
+                // 🏬 ดึงรหัสแผนกออกมาก่อน
+                const rawSectionCode = item.sectioncreate;
+                let sectionName = rawSectionCode ? rawSectionCode : '-';
 
-            🔗 ดูรายละเอียด/กดรับงาน: ${window.location.origin}/Maintenance/Details/${jobId}`;
-    
+                // 🕵️‍♂️ [จุดแกะรอย] ปริ้นท์เช็คในหน้า Developer Tools ของ Browser (กด F12 เปิดดูได้เลยครับ)
+                console.log("รหัสแผนกของบิลนี้:", rawSectionCode);
+                console.log("ตัวแปรแผนกทั้งหมดหน้าบ้าน:", typeof sectionApiModel !== 'undefined' ? sectionApiModel : 'หาตัวแปรนี้ไม่เจอ');
+
+                // 2. ค้นหาชื่อหน่วยงานเต็มๆ (ดักฟิลด์ไว้ให้ทุกแบบ ทั้งตัวเล็ก ตัวใหญ่)
+                if (rawSectionCode && typeof sectionApiModel !== 'undefined' && Array.isArray(sectionApiModel)) {
+
+                const foundSection = sectionApiModel.find(s => {
+                // เช็ครหัสแผนก: ดักเผื่อ s.id, s.Id, s.sectionCode, s.sectionid
+                const sId = s.id || s.Id || s.sectionId || s.sectionid || s.code || s.Code;
+                return sId == rawSectionCode;
+                });
+
+                if (foundSection) {
+                // เช็คชื่อแผนก: ดักเผื่อ s.name, s.Name, s.sectionName, s.sectionname
+                sectionName = foundSection.name || foundSection.Name || foundSection.sectionName || foundSection.sectionname || foundSection.text || foundSection.Text;
+                }
+                }
+
+                // 3. จัดรูปแบบข้อความใหม่
+                const message =
+                `🛠 *ใบแจ้งซ่อมใหม่ (Job #${jobId})*
+                ----------------------------
+                👤 *คนแจ้งงาน:* ${creator}
+                🏬 *หน่วยงานที่แจ้ง:* ${sectionName}
+                📌 *สถานที่:* ${location}
+                📦 *อุปกรณ์:* ${flDetail}
+                📝 *อาการ:* ${detail}
+                ----------------------------
+                🔧 *ประเภทงาน:* ${jobType}
+                ⚠️ *ความสำคัญ:* ${priority}
+                👤 *ช่างผู้รับผิดชอบ:* ${assignTo}
+                🚩 *status:* ${status}
+
+                🔗 *ดูรายละเอียด/กดรับงาน:* ${window.location.origin}/Maintenance/Details/${jobId}`;
+
+                // 4. ส่งข้อมูลเข้า LINE
                 const lineUrl = "https://line.me/R/msg/text/?" + encodeURIComponent(message);
                 window.open(lineUrl, '_blank');
-            }
+                }
 
-            function copyToClipboard(text) {
-                const dummy = document.createElement("input");
-                document.body.appendChild(dummy);
-                dummy.value = text;
-                dummy.select();
-                document.execCommand("copy");
-                document.body.removeChild(dummy);
-            }
         </script>
+
+   
+
+        <script>
+        function checkLastSyncTime() {
+            const syncText = document.getElementById('sync-time-text');
+            const syncIcon = document.getElementById('sync-icon');
+        
+            // หมุนไอคอนนิดหน่อยตอนกำลังดึงข้อมูลให้ดูมีมิติ
+            if(syncIcon) syncIcon.classList.add('spin-animation');
+
+            // ยิงไปถาม API Controller ที่เราสร้างไว้หลังบ้าน
+            fetch('/api/sync/last-time')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        syncText.innerText = data.lastSync;
+                    } else {
+                        syncText.innerText = data.message;
+                    }
+                })
+                .catch(err => {
+                    syncText.innerText = "ดึงข้อมูลล้มเหลว";
+                    console.error("Error fetching sync time:", err);
+                })
+                .finally(() => {
+                    // หยุดหมุนไอคอนเมื่อทำงานเสร็จ
+                    setTimeout(() => {
+                        if(syncIcon) syncIcon.classList.remove('spin-animation');
+                    }, 1000);
+                });
+        }
+
+        // ทำงานอัตโนมัติเมื่อเว็บโหลดเสร็จ
+        document.addEventListener("DOMContentLoaded", function() {
+            // 1. ดึงข้อมูลเวลาซิงค์ทันที 1 รอบ
+            checkLastSyncTime();
+        
+            // 2. ตั้งเวลาดึงซ้ำทุกๆ 5 นาทีอัตโนมัติ (5 นาที * 60 วินาที * 1000 มิลลิวินาที)
+            setInterval(checkLastSyncTime, 5 * 60 * 1000); 
+        });
+    </script>
 
 
     }

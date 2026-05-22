@@ -6,323 +6,184 @@
 <html lang="th">
 <head>
     <meta charset="utf-8" />
-    <title>Zycoda Report</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
-
+    <title>@ViewBag.Title</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #1e3a8a;
-            --secondary-color: #64748b;
-            --border-color: #e2e8f0;
+            --primary: #0f172a;
+            --accent: #2563eb;
+            --accent-light: #eff6ff;
+            --border: #e2e8f0;
+            --text-main: #334155;
+            --text-dark: #0f172a;
             --bg-light: #f8fafc;
         }
-
-        @@page {
-            font-size: A4 landscape;
-            margin: 1.5cm;
-        }
-
+        @@page { size: A4 landscape; margin: 0.5cm; }
         body {
             font-family: 'Sarabun', sans-serif;
-            font-size: 13px;
-            color: #334155;
+            font-size: 11.5px;
+            color: var(--text-main);
             margin: 0;
-            line-height: 1.5;
+            background-color: #ffffff;
+            -webkit-print-color-adjust: exact;
         }
-
-        /* Header Section */
-        .report-header {
-            width: 100%;
-            border-bottom: 2px solid var(--primary-color);
-            margin-bottom: 20px;
-            padding-bottom: 10px;
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 8px;
+            margin-bottom: 12px;
         }
-
-        .title-main {
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin: 0;
-        }
-
-        .subtitle {
-            font-size: 14px;
-            color: var(--secondary-color);
-            margin-top: 5px;
-        }
-
-        /* Filter Box */
-        .filter-container {
+        .title-block h1 { font-size: 19px; font-weight: 700; color: var(--primary); margin: 0; }
+        .title-block p { margin: 3px 0 0 0; color: #64748b; font-size: 11px; }
+        .form-code { text-align: right; font-size: 10px; color: #94a3b8; font-weight: bold; }
+        
+        .filter-ribbon {
             background-color: var(--bg-light);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            border: 1px solid var(--border-color);
-        }
-
-        .filter-item b {
-            color: var(--primary-color);
-        }
-
-        /* Table Styling */
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .data-table th {
-            background-color: var(--primary-color);
-            color: white;
-            font-weight: 400;
-            text-align: left;
-            padding: 12px 8px;
-            font-size: 12px;
-            text-transform: uppercase;
-        }
-
-        .data-table td {
-            padding: 10px 8px;
-            border-bottom: 1px solid var(--border-color);
-            vertical-align: top;
-        }
-
-        .data-table tr:nth-child(even) {
-            background-color: #fcfcfc;
-        }
-
-        /* Status Badge */
-        .badge {
-            padding: 4px 8px;
-            border-radius: 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-bottom: 15px;
             font-size: 11px;
-            font-weight: bold;
-            display: inline-block;
-            text-align: center;
-            min-width: 60px;
+            display: flex;
+            justify-content: space-between;
         }
-        .badge-status { background: #e0f2fe; color: #0369a1; } /* Blue */
-        .badge-delay { background: #fee2e2; color: #b91c1c; } /* Red */
 
-        .text-center { text-align: center; }
-        .text-right { text-align: right; }
-        .font-bold { font-weight: bold; }
+        .clean-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .clean-table th {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            font-weight: 700;
+            padding: 10px 8px;
+            border-bottom: 2px solid #cbd5e1;
+            text-align: left;
+            font-size: 11px;
+        }
+        .clean-table td { padding: 10px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+        .clean-table tr:nth-child(even) { background-color: #fdfefe; }
+        .clean-table tr:hover { background-color: #f1f5f9; }
+
+        .job-badge { font-weight: 700; color: var(--accent); }
+        .type-indicator {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        .type-em { background-color: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+        .type-cm { background-color: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+
+        .status-pill {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .status-done { background-color: #e0f2fe; color: #0369a1; }
+        .status-process { background-color: #fef3c7; color: #b45309; }
+
+        .time-text { font-size: 10.5px; color: #475569; }
+        .align-center { text-align: center !important; }
 
         @@media print {
-            .no-print { display: none; }
+            .no-print { display: none !important; }
             body { margin: 0; }
-            .filter-container { border: 1px solid #ccc; background: none; }
-            .data-table th { background-color: #1e3a8a !important; color: white !important; -webkit-print-color-adjust: exact; }
         }
-        /* บังคับไม่ให้เกิดการตัดหน้ากระดาษภายในตารางและ Footer */
-        .data-table tr {
-            page-break-inside: avoid;
-        }
-    
-        footer, .report-footer {
-            page-break-before: avoid; /* ห้ามตัดหน้าก่อนถึงส่วนนี้ */
-        }
-
-        /* ลด Margin ของหน้ากระดาษลงเล็กน้อยเพื่อให้มีพื้นที่เพิ่มขึ้น */
-        @@page {
-            size: A4 landscape;
-            margin: 0.8cm; /* จากเดิม 1.5cm ลดลงเพื่อให้พอดีหน้าเดียว */
-        }
-
-
-
     </style>
 </head>
 <body>
 
-    <table class="report-header">
-        <tr>
-             <td style="width:25%; font-size: 11px; color: var(--secondary-color); line-height: 1.5;">
-                @* CODE อักษรย่อ: RPT-JTR (Job Tracking Report - 0001 (มาจากฉบับแรก)) *@
-                CODE: RPT-JTR-0001<br />
-    
-                @* Logic Ref: [yyMMdd][Section][Random] *@
-                @{
-                    string currentSec = ViewBag.UserSection ?? "000000"; // ดึงรหัสหน่วยงานจาก ViewBag
-                    string datePart = DateTime.Now.ToString("yyMMdd");
-                    string randomPart = new Random().Next(100, 999).ToString(); // เลขสุ่ม 3 หลักกันซ้ำ
-                    string refNo = $"{datePart}{currentSec}{randomPart}";
-                }
-                Ref: @refNo
-            </td>
-
-            <td class="text-center">
-                <h1 class="title-main" style="letter-spacing: 1px;">รายงานติดตามความคืบหน้า Job</h1>
-                <div class="subtitle">
-                    <b>สำหรับผู้แจ้งงานตรวจสอบ</b>
-                    @* หน่วยงาน: <b>@ViewBag.DepartmentName</b> (สำหรับผู้แจ้งงานตรวจสอบ) *@
-                </div>
-            </td>
-               <td style="width:25%;" class="text-right subtitle">
-                    <div>ผู้จัดทำ: @ViewBag.ApiUser </div>
-                    <div>พิมพ์เมื่อ: <span id="live-print-time">@DateTime.Now.ToString("dd/MM/yy HH:mm:ss")</span></div>
-                    <div>หน้า: 1 / 1</div>
-               </td>
-        </tr>
-    </table>
-
-  <div class="filter-container">
-    <div class="filter-group">
-        <div class="filter-item">
-            <span class="filter-label">🌐 ขอบเขตหน่วยงาน (Section)</span>
-            <span class="filter-value">
-                <b>@ViewBag.SectionFrom</b> 
-                <span style="color: #cbd5e1; margin: 0 8px;">→</span> 
-                <b>@ViewBag.SectionTo</b>
-            </span>
+    <div class="header-container">
+        <div class="title-block">
+            <h1>@ViewBag.Title</h1>
+            <p>รายงานติดตามสำหรับสถานะฝั่ง: <strong>@ViewBag.DepartmentName</strong></p>
         </div>
-
-        <div class="filter-item">
-            <span class="filter-label">📅 ช่วงเวลาที่เลือก (Period)</span>
-            <span class="filter-value">
-                @{
-                    string displayStart = "-";
-                    if (DateTime.TryParse(ViewBag.StartDate?.ToString(), out DateTime dStart)) {
-                        displayStart = dStart.ToString("dd/MM/yyyy");
-                    }
-                    string displayEnd = "-";
-                    if (DateTime.TryParse(ViewBag.EndDate?.ToString(), out DateTime dEnd)) {
-                        displayEnd = dEnd.ToString("dd/MM/yyyy");
-                    }
-                }
-                @displayStart <span style="color: #cbd5e1; margin: 0 5px;">-</span> @displayEnd
-            </span>
+        <div class="form-code">
+            <div>FORM CODE: @ViewBag.CodeForm</div>
+            <div style="margin-top: 3px; color: var(--text-dark);">พิมพ์โดย: @ViewBag.ApiUser</div>
         </div>
     </div>
 
-    <div class="filter-item text-right">
-        <span class="filter-label">สถานะงาน (Status)</span>
-        <div style="margin-top: 4px;">
-            <span class="filter-status-badge">
-                @(string.IsNullOrEmpty(ViewBag.Status?.ToString()) ? "ทั้งหมด" : ViewBag.Status)
-            </span>
-        </div>
+    <div class="filter-ribbon">
+        <div>📍 แผนกต้นทาง: <b>@(ViewBag.SectionFrom ?? "ทั้งหมด")</b> ➡️ ปลายทาง: <b>@(ViewBag.SectionTo ?? "ทั้งหมด")</b></div>
+        <div>📅 ช่วงวันที่บันทึก: <b>@ViewBag.StartDate</b> ถึง <b>@ViewBag.EndDate</b></div>
     </div>
-</div>
-    <table class="data-table">
+
+    <table class="clean-table">
         <thead>
             <tr>
-                <th>วันที่แจ้ง</th>
-                <th>Service No.</th>
-                <th style="width: 15%;">ประเภทงาน/แบบฟอร์ม</th>
-                <th style="width: 20%;">รายละเอียดปัญหา</th>
-                <th>หน่วยงานที่แจ้ง</th>
-                <th>ผู้แจ้ง</th>
-                <th>สถานะ</th>
-                <th class="text-center">แผนรับ/เสร็จ</th>
-                <th class="text-center">เริ่ม/เสร็จจริง</th>
-                <th class="text-center">Delay</th>
+                <th style="width: 8%;" class="align-center">วันที่แจ้ง</th>
+                <th style="width: 10%;" class="align-center">Service No.</th>
+                <th style="width: 10%;">ประเภทงาน</th>
+                <th style="width: 26%;">ปัญหา/อาการชำรุดที่พบ</th>
+                <th style="width: 14%;">ผู้ยื่นแจ้งงาน</th>
+                <th style="width: 14%;">ช่างผู้รับผิดชอบ</th>
+                <th style="width: 10%;" class="align-center">สถานะปัจจุบัน</th>
             </tr>
         </thead>
-<tbody>
-    @if (Model != null && Model.Any())
-    {
-        foreach (var item in Model)
-        {
-            <tr>
-                @* 1. วันที่แจ้ง *@
-                <td class="text-center">
-                    @(DateTime.TryParse(item.timecreate, out DateTime dtC) ? dtC.ToString("dd/MM/yy") : "-")
-                </td>
-
-                <td class="fw-bold">@item.id</td>
-                <td>
-                    @{
-                        string displayJobType = item.jobtype;
-                        if (item.jobtype == "CM") {
-                            displayJobType = "ประเภทงานทั่วไป";
-                        } else if (item.jobtype == "EM") {
-                            displayJobType = "ประเภทงานฉุกเฉิน";
-                        }
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    bool isEM = item.jobtype == "EM";
+                    bool isDone = ((string)(item.status ?? "")).Contains("Finish") || ((string)(item.status ?? "")).Contains("Confirm");
+                    
+                    // ป้องกัน Error สำหรับฟิลด์ที่มีขีดล่างของช่างรับผิดชอบ
+                    string repairUser = "";
+                    try { repairUser = item.user_repair ?? ""; } catch { repairUser = ""; }
+                    if(string.IsNullOrEmpty(repairUser)) {
+                        try { repairUser = item.userrepair ?? ""; } catch { repairUser = ""; }
                     }
-                    @displayJobType
-                </td>               
-                <td style="font-size: 12px; color: #475569;">@item.detail</td>
-                <td>@item.sectioncreate</td>
-                <td>@item.usercreate</td>
-                
-                <td class="text-center">
-                    <span class="badge badge-status">@item.status</span>
-                </td>
 
-                @* 2. แผนรับ/เสร็จ (ซ่อน ?? "-" ที่กวนใจออก) *@
-                <td class="text-center" style="font-size: 11px;">
-                    @(DateTime.TryParse(item.timestart, out DateTime ts) ? ts.ToString("dd/MM/yy HH:mm") : "-")
-                    <br/>
-                    @(DateTime.TryParse(item.timeend, out DateTime te) ? te.ToString("dd/MM/yy HH:mm") : "-")
-                </td>
+                    <tr>
+                        <td class="align-center" style="color: #64748b;">
+                            @(DateTime.TryParse(item.timecreate, out DateTime dtC) ? dtC.ToString("dd/MM/yy") : "-")
+                        </td>
+                        <td class="align-center job-badge">@(item.job_no ?? item.id)</td>
+                        <td>
+                            <span class="type-indicator @(isEM ? "type-em" : "type-cm")">
+                                @(isEM ? "🚨 ด่วน EM" : "🔧 ทั่วไป CM")
+                            </span>
+                        </td>
+                        <td style="font-weight: 500; color: var(--text-dark); word-break: break-word;">@item.detail</td>
+                        <td>
+                            <div style="font-weight: bold;">@item.sectioncreate</div>
+                            <div style="font-size: 10px; color: #64748b;">โดย: @item.usercreate</div>
+                        </td>
+                        <td>
+                            <div style="font-weight: 500; color: #0f172a;">
+                                @(string.IsNullOrEmpty(repairUser) ? "ยังไม่มอบหมาย" : repairUser)
+                            </div>
+                        </td>
+                        <td class="align-center">
+                            <span class="status-pill @(isDone ? "status-done" : "status-process")">
+                                @item.status
+                            </span>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="7" class="align-center" style="padding: 40px; color: #94a3b8; font-style: italic;">
+                        ไม่พบข้อมูลประวัติใบสั่งงานซ่อมบำรุงตามช่วงเวลาและเงื่อนไขที่กำหนด
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 
-                @* 3. เริ่ม/เสร็จจริง *@
-                <td class="text-center" style="font-size: 11px;">
-                    @(DateTime.TryParse(item.timestartrepair, out DateTime trs) ? trs.ToString("dd/MM/yy HH:mm") : "-")
-                    <br/>
-                    @(DateTime.TryParse(item.timeendrepair, out DateTime tre) ? tre.ToString("dd/MM/yy HH:mm") : "-")
-                </td>
-
-                @* 4. DELAY (เช็ค string "0" หรือ null) *@
-                <td class="text-center">
-                    @if (!string.IsNullOrEmpty(item.timedelay) && item.timedelay != "0" && item.timedelay != "00:00:00")
-                    {
-                        <span class="badge badge-delay">@item.timedelay วัน</span>
-                    }
-                    else
-                    {
-                        <span>-</span>
-                    }
-                </td>
-            </tr>
-        }
-    }
-    else
-    {
-        <tr>
-            <td colspan="10" class="text-center" style="padding: 40px;">
-                <i style="color: var(--secondary-color);">-- ไม่พบข้อมูลการแจ้งซ่อมในเครื่องที่ระบุ --</i>
-            </td>
-        </tr>
-    }
-</tbody>    </table>
-
-     <div style="display: flex; justify-content: space-between; margin-top: 10px; padding-top: 5px; border-top: 1px dashed #cbd5e1; font-size: 10px; color: #64748b;">
-        <div class="fw-bold">*** สิ้นสุดรายงาน ***</div>
-    
-        <div style="font-style: italic;">
-            เอกสารนี้ออกโดยระบบอัตโนมัติ (Zycoda Reporting System)
-        </div>
-
-        <div>© President Bakery Public Company Limited.</div>
-    </div>
-
-    <div class="no-print" style="position: fixed; bottom: 30px; right: 30px;">
-        <button onclick="window.print()" style="background: var(--primary-color); color: white; border: none; padding: 12px 25px; border-radius: 30px; cursor: pointer; font-family: 'Sarabun'; box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-weight: bold;">
-             🖨️ พิมพ์รายงาน (PDF)
+    <div class="no-print" style="position: fixed; bottom: 25px; right: 25px;">
+        <button onclick="window.print()" style="background: var(--text-dark); color: white; border: none; padding: 10px 24px; border-radius: 20px; cursor: pointer; font-family: 'Sarabun'; font-weight: bold; font-size: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+            🖨️ สั่งพิมพ์ใบรายงาน
         </button>
     </div>
 
-    <script>
-    function updatePrintTime() {
-        const now = new Date();
-        const options = { 
-            day: '2-digit', month: '2-digit', year: '2-digit',
-            hour: '2-digit', minute: '2-digit', second: '2-digit',
-            hour12: false 
-        };
-        // พ.ศ. แบบไทย 30/03/69 15:30:05
-        document.getElementById('live-print-time').innerText = now.toLocaleString('th-TH', options);
-    }
-    setInterval(updatePrintTime, 1000);
-    updatePrintTime();
-
-</script>
-
 </body>
-
 </html>
