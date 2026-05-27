@@ -1503,12 +1503,12 @@
                             @{
                                 // 1. ดึงค่าจาก Claims มาเช็คสิทธิ์รอบเดียวให้เคลียร์ที่ด้านบน
                                 var userSection = User.FindFirst("Section")?.Value ?? "";
-                                var userClass = User.FindFirst("UserClass")?.Value ?? "";
+                                var adminClass = User.FindFirst("UserClass")?.Value ?? "";
 
                                 // เช็คว่าเป็นกลุ่มทีมช่าง/วิศวกร (รหัสแผนกขึ้นต้นด้วย 310, 317, 320)
-                                // bool isMaintenanceGroup = userSection.StartsWith("310") ||
-                                //                            userSection.StartsWith("317") ||
-                                //                            userSection.StartsWith("320");
+                                bool isMaintenanceGroup = userSection.StartsWith("310") ||
+                                                           userSection.StartsWith("317") ||
+                                                           userSection.StartsWith("320");
 
                                 // สิทธิ์ช่างระดับปฏิบัติการ/หัวหน้าหน้างาน
                                 bool hasMechanicAccess = userClass == "9" || (userClass == "3"); //&& isMaintenanceGroup

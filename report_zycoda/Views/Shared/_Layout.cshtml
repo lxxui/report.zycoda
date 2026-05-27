@@ -135,6 +135,28 @@
         transform: translate(10%, -10%);
         }
 
+        /* สไตล์ปุ่ม Admin คุมโทนสีกรมท่า/น้ำเงินเข้มให้รับกับ Badge REPORT */
+        .btn-outline-navy {
+            color: #001f3f;
+            border-color: #001f3f;
+            background-color: transparent;
+        }
+
+            .btn-outline-navy:hover {
+                color: #ffffff;
+                background-color: #001f3f;
+                border-color: #001f3f;
+            }
+
+        /* เอฟเฟกต์เฟืองหมุนเล็กน้อยเวลาผู้ใช้เอาเมาส์มาวางปุ่ม */
+        .animation-spin-hover {
+            transition: transform 0.3s ease;
+        }
+
+        .btn-outline-navy:hover .animation-spin-hover {
+            transform: rotate(45deg);
+        }
+
     </style>
 </head>
 <body>
@@ -159,13 +181,16 @@
                         {
                             // 1. ดึง List (ใส่ Check เผื่อ ViewBag เป็น Null)
                             var allSections = ViewBag.SectionList as List<report_zycoda.Models.SectionApiModels>;
-    
+
                             // 2. ดึงรหัสแผนกจาก Claim
                             var sectionIdFromClaim = User.Claims.FirstOrDefault(c => c.Type == "Section")?.Value;
 
+                            // 🌟 2.5 ดึงรหัส Class ผู้ใช้เพื่อเช็คสิทธิ์แอดมิน (เปลี่ยน "Class" เป็นชื่อ Type ที่ฝ้ายเซ็ตไว้ใน Claim ตอน Login นะครับ)
+                            var userClass = User.Claims.FirstOrDefault(c => c.Type == "Class")?.Value;
+
                             // 3. ทำการ Matching (เพิ่ม StringComparison ให้แม่นยำขึ้น)
                             var userSection = allSections?.FirstOrDefault(s =>
-                                string.Equals(s.Sections?.Trim(), sectionIdFromClaim?.Trim(), StringComparison.OrdinalIgnoreCase));
+                            string.Equals(s.Sections?.Trim(), sectionIdFromClaim?.Trim(), StringComparison.OrdinalIgnoreCase));
 
                             // 4. สรุปชื่อที่จะใช้แสดง
                             string displaySectionName;
@@ -181,6 +206,18 @@
                             {
                                 displaySectionName = userSection.Name;
                             }
+
+                            @* @if (userClass == "9")
+                            { *@
+                                <div class="admin-tool-wrapper me-2">
+                                    <button type="button" class="btn btn-sm btn-outline-navy d-flex align-items-center px-3 py-1.5 rounded-pill shadow-sm transition-all"
+                                            data-bs-toggle="modal" data-bs-target="#adminManageMachineModal" title="จัดการรหัสเครื่องจักร">
+                                        <i class="bi bi-gear-fill me-1.5 animation-spin-hover"></i>
+                                        <span class="d-none d-md-inline" style="font-size: 0.85rem; fw-500;">จัดการเครื่องจักร</span>
+                                    </button>
+
+                                </div>
+                           // }
 
                             <div class="user-nav-wrapper d-flex align-items-center px-3 py-1 me-3">
                                 <div class="text-end me-3">
@@ -209,7 +246,6 @@
                                 </a>
                             </div>
                         }
-                     
                         <form asp-controller="Home" asp-action="Logout" method="post" id="logoutForm" class="d-inline">
                             @Html.AntiForgeryToken()
                             <button type="button"

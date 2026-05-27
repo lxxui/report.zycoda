@@ -1,0 +1,56 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@model List<report_zycoda.Models.MaintenanceApiModels>
+
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<div class="table-responsive mt-4">
+    <table class="table table-hover border">
+        <thead class="bg-light">
+            <tr>
+                <th>Machine ID</th>
+                <th>Name</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>MC-001</td>
+                <td>CNC Lathe V2</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary" onclick="openEditModal('MC-001', 'CNC Lathe V2')">
+                        <i class="bi bi-pencil-square"></i> Edit
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="editMachineModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-navy text-white">
+                <h5 class="modal-title">แก้ไขข้อมูลเครื่องจักร</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Machine ID (รหัสเดิม)</label>
+                    <input type="text" id="editMachineID" class="form-control bg-light" readonly />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Machine Name (ชื่อเครื่องจักร)</label>
+                    <input type="text" id="editMachineName" class="form-control" placeholder="กรอกชื่อใหม่..." />
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                <button type="button" class="btn btn-primary" onclick="saveMachineChange()">บันทึกการแก้ไข</button>
+            </div>
+        </div>
+    </div>
+</div>
