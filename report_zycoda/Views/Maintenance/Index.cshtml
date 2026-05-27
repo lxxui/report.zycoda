@@ -1268,7 +1268,9 @@
                                     data-useraccept="@item.useraccept"
                                     data-userfinish="@item.userfinish"
                                     data-timecreate="@item.timecreate"
-                                    data-timeaccept="@item.timeaccept">
+                                    data-timeaccept="@item.timeaccept"
+                                    data-timeassign="@item.timeassign">
+                                    ```
 
                                     <td class="ps-4 fw-bold text-navy">#@item.id</td>
                                     <td>
@@ -1291,7 +1293,7 @@
                                     <td class="text-center">@item.jobtype</td>
                                     <td>
                                         <div class="fw-bold text-primary small">@item.fl (@item.fldetail)</div>
-                                        <div class="text-muted small text-truncate" style="max-width: 300px;">@item.detail</div>
+                                        <div class="text-muted small text-truncate" style="max-width: 800px;">@item.detail</div>
                                     </td>
                                     <td class="text-center">
                                         <span class="badge rounded-pill @item.StatusCssClass px-3 py-2 small">@item.status</span>
@@ -1450,10 +1452,11 @@
                                     <div class="mb-3">
                                         <div class="info-label"><i class="bi bi-shield-check me-1"></i> ผู้มอบหมาย (Assignor)</div>
                                         <div id="mAssign" class="fw-bold">-</div>
-                                        <!-- เพิ่มส่วนนี้เข้าไปครับ -->
+
                                         <div class="text-muted mt-1" style="font-size: 0.8rem;">
                                             <i class="bi bi-calendar-check me-1"></i> มอบหมายเมื่อ: <span id="mTimeAssign">-</span>
                                         </div>
+                                    </div>
                                     </div>
 
                                     <!-- ส่วนของ Engineer -->
@@ -1503,12 +1506,12 @@
                                 var userClass = User.FindFirst("UserClass")?.Value ?? "";
 
                                 // เช็คว่าเป็นกลุ่มทีมช่าง/วิศวกร (รหัสแผนกขึ้นต้นด้วย 310, 317, 320)
-                                bool isMaintenanceGroup = userSection.StartsWith("310") ||
-                                                           userSection.StartsWith("317") ||
-                                                           userSection.StartsWith("320");
+                                // bool isMaintenanceGroup = userSection.StartsWith("310") ||
+                                //                            userSection.StartsWith("317") ||
+                                //                            userSection.StartsWith("320");
 
                                 // สิทธิ์ช่างระดับปฏิบัติการ/หัวหน้าหน้างาน
-                                bool hasMechanicAccess = userClass == "9" || (userClass == "3" && isMaintenanceGroup);
+                                bool hasMechanicAccess = userClass == "9" || (userClass == "3"); //&& isMaintenanceGroup
 
                                 // สิทธิ์ผู้ดูแลระบบสูงสุด หรือ หัวหน้าแผนกใหญ่
                                 bool hasAdminAccess = userClass == "9";
