@@ -5,6 +5,8 @@ namespace report_zycoda.Data
 {
     public class myDbContext : DbContext
     {
+        internal object UserApiModels;
+
         public myDbContext(DbContextOptions<myDbContext> options) : base(options) { }
 
         public DbSet<UserApiModels> Users { get; set; } = null!;

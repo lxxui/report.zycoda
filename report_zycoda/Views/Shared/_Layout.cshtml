@@ -4,7 +4,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Zycoda Report</title>
@@ -23,142 +22,120 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-
-
         /* ตกแต่ง Logo ZYCODA ให้ดู Modern */
         .zycoda-logo-text {
-        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        font-weight: 800;
-        letter-spacing: 2px;
-        background: linear-gradient(135deg, #001f3f 0%, #004080 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-size: 1.4rem;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-weight: 800;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #001f3f 0%, #004080 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.4rem;
         }
 
         .zycoda-badge {
-        background-color: #001f3f;
-        color: white;
-        padding: 2px 8px;
-        border-radius: 4px;
-        font-size: 0.65rem;
-        vertical-align: middle;
-        margin-left: 5px;
-        letter-spacing: 1px;
+            background-color: #001f3f;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            vertical-align: middle;
+            margin-left: 5px;
+            letter-spacing: 1px;
         }
 
         .modal-header-modern {
-        border-bottom: 1px solid #f1f5f9;
-        padding: 1.25rem 2rem;
-        background: #ffffff;
+            border-bottom: 1px solid #f1f5f9;
+            padding: 1.25rem 2rem;
+            background: #ffffff;
         }
 
-        .btn-logout-modern {
-        color: #64748b; /* สีเทาเข้มแบบ Slate */
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        font-weight: 600;
-        padding: 8px 16px;
-        border-radius: 12px;
-        }
-
-        .btn-logout-modern:hover {
-        color: #dc3545; /* เปลี่ยนเป็นสีแดงเฉพาะตอนจะกด */
-        background-color: #fff1f2; /* พื้นหลังชมพูอ่อนๆ */
-        transform: translateX(3px); /* ขยับขวาเบาๆ ให้ดูมี Dynamic */
-        }
-
-        .btn-logout-modern i {
-        font-size: 1.1rem;
-        vertical-align: middle;
-        }
-
-        /* CSS เพิ่มเติมเพื่อให้ UI ดูดีขึ้น */
         .bg-navy-gradient {
-        background: linear-gradient(135deg, #001f3f 0%, #004080 100%);
+            background: linear-gradient(135deg, #001f3f 0%, #004080 100%);
         }
 
         .text-navy {
-        color: #001f3f;
+            color: #001f3f;
         }
 
-        /* ปุ่ม Master Setup แบบใหม่ */
-        .btn-master-setup {
-        background-color: #fff;
-        color: #001f3f;
-        border: 1.5px solid #001f3f;
-        font-size: 0.65rem;
-        font-weight: 800;
-        padding: 4px 12px;
-        border-radius: 50px;
-        transition: all 0.3s ease;
-        }
-
-        .btn-master-setup:hover {
-        background-color: #001f3f;
-        color: #fff;
-        transform: translateY(-1px);
-        }
-
-        /* ปุ่ม Logout แบบ Minimal */
-        .btn-logout-modern-v2 {
-        background: none;
-        border: none;
-        color: #94a3b8;
-        font-weight: 700;
-        font-size: 0.9rem;
-        padding: 8px 15px;
-        border-radius: 10px;
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        }
-
-        .btn-logout-modern-v2:hover {
-        color: #ef4444;
-        background-color: #fef2f2;
-        }
-
-        .main-nav {
-        backdrop-filter: blur(10px); /* ทำให้พื้นหลังเบลอแบบ iOS */
-        background-color: rgba(255, 255, 255, 0.9) !important;
-        }
-
-        /* บังคับสีและขนาด เผื่อโดน CSS ตัวอื่นทับ */
-        .bi-bell-fill {
-        display: inline-block !important;
-        visibility: visible !important;
-        color: #001f3f !important; /* สี Navy เข้มๆ ของฝ้าย */
-        }
-
-        /* ปรับตำแหน่ง Badge ให้เป๊ะขึ้น */
-        #notif-badge {
-        z-index: 1050; /* ให้อยู่เหนือทุกอย่าง */
-        font-family: sans-serif;
-        transform: translate(10%, -10%);
-        }
-
-        /* สไตล์ปุ่ม Admin คุมโทนสีกรมท่า/น้ำเงินเข้มให้รับกับ Badge REPORT */
         .btn-outline-navy {
             color: #001f3f;
-            border-color: #001f3f;
-            background-color: transparent;
+            border: 1.5px solid #001f3f;
+            background-color: #f8fafc;
+            font-weight: 600;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-            .btn-outline-navy:hover {
-                color: #ffffff;
-                background-color: #001f3f;
-                border-color: #001f3f;
-            }
+        .btn-outline-navy:hover {
+            color: #ffffff;
+            background-color: #001f3f;
+            border-color: #001f3f;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 31, 63, 0.2);
+        }
 
-        /* เอฟเฟกต์เฟืองหมุนเล็กน้อยเวลาผู้ใช้เอาเมาส์มาวางปุ่ม */
         .animation-spin-hover {
-            transition: transform 0.3s ease;
+            transition: transform 0.4s ease;
         }
 
         .btn-outline-navy:hover .animation-spin-hover {
-            transform: rotate(45deg);
+            transform: rotate(60deg);
         }
 
+        .btn-logout-modern-v2 {
+            background: none;
+            border: none;
+            color: #64748b;
+            font-weight: 700;
+            font-size: 0.9rem;
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+        }
+
+        .btn-logout-modern-v2:hover {
+            color: #ef4444;
+            background-color: #fff1f2;
+            transform: translateX(2px);
+        }
+
+        .btn-navy {
+            background-color: #001f3f;
+            color: #ffffff;
+            border: none;
+            transition: all 0.2s;
+        }
+        .btn-navy:hover {
+            background-color: #003366;
+            color: #ffffff;
+        }
+
+        .main-nav {
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.9) !important;
+        }
+
+        .bi-bell-fill {
+            display: inline-block !important;
+            visibility: visible !important;
+            color: #001f3f !important;
+        }
+
+        #notif-badge {
+            z-index: 1050;
+            font-family: sans-serif;
+            transform: translate(10%, -10%);
+        }
+
+        /* 💡 บังคับเลเยอร์ Dropdown ให้อยู่บนสุดเสมอ ป้องกันองค์ประกอบอื่นบัง */
+        .dropdown-menu {
+            z-index: 2500 !important;
+        }
+        #profileDropdown {
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -179,84 +156,67 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <div class="d-flex align-items-center ms-auto">
 
-                        @if (User.Identity.IsAuthenticated)
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
                         {
-                            // 1. ดึง List (ใส่ Check เผื่อ ViewBag เป็น Null)
                             var allSections = ViewBag.SectionList as List<report_zycoda.Models.SectionApiModels>;
-
-                            // 2. ดึงรหัสแผนกจาก Claim
                             var sectionIdFromClaim = User.Claims.FirstOrDefault(c => c.Type == "Section")?.Value;
+                            var userClass = User.Claims.FirstOrDefault(c => c.Type == "UserClass")?.Value;
 
-                            // 🌟 2.5 ดึงรหัส Class ผู้ใช้เพื่อเช็คสิทธิ์แอดมิน (เปลี่ยน "Class" เป็นชื่อ Type ที่ฝ้ายเซ็ตไว้ใน Claim ตอน Login นะครับ)
-                            var userClass = User.Claims.FirstOrDefault(c => c.Type == "Class")?.Value;
-
-                            // 3. ทำการ Matching (เพิ่ม StringComparison ให้แม่นยำขึ้น)
                             var userSection = allSections?.FirstOrDefault(s =>
-                            string.Equals(s.Sections?.Trim(), sectionIdFromClaim?.Trim(), StringComparison.OrdinalIgnoreCase));
+                                string.Equals(s.Sections?.Trim(), sectionIdFromClaim?.Trim(), StringComparison.OrdinalIgnoreCase));
 
-                            // 4. สรุปชื่อที่จะใช้แสดง
-                            string displaySectionName;
-                            if (allSections == null)
-                            {
-                                displaySectionName = "ระบบไม่ได้โหลดรายการหน่วยงาน (" + sectionIdFromClaim + ")";
-                            }
-                            else if (userSection == null)
-                            {
-                                displaySectionName = "ไม่พบชื่อหน่วยงานรหัส " + sectionIdFromClaim;
-                            }
-                            else
-                            {
-                                displaySectionName = userSection.Name;
-                            }
+                            string displaySectionName = allSections == null ? "ระบบไม่ได้โหลดรายการหน่วยงาน (" + sectionIdFromClaim + ")" : (userSection == null ? "ไม่พบชื่อหน่วยงานรหัส " + sectionIdFromClaim : userSection.Name);
 
-                            @* @if (userClass == "9")
-                            { *@
-                                <div class="admin-tool-wrapper me-2">
-                                    <button type="button" class="btn btn-sm btn-outline-navy d-flex align-items-center px-3 py-1.5 rounded-pill shadow-sm transition-all"
-                                            data-bs-toggle="modal" data-bs-target="#adminManageMachineModal" title="จัดการรหัสเครื่องจักร">
-                                        <i class="bi bi-gear-fill me-1.5 animation-spin-hover"></i>
-                                        <span class="d-none d-md-inline" style="font-size: 0.85rem; fw-500;">จัดการเครื่องจักร</span>
-                                    </button>
-
-                                </div>
-                           // }
-
-                            <div class="user-nav-wrapper d-flex align-items-center px-3 py-1 me-3">
-                                <div class="text-end me-3">
-                                    <div class="d-flex align-items-center justify-content-end lh-1 mb-1">
-                                        <span class="fw-bold text-dark me-2" style="font-size: 0.95rem;">
-                                            @User.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value
-                                            @User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value
-                                        </span>
-                                    </div>
-                                    <div class="text-muted d-flex align-items-center justify-content-end" style="font-size: 0.75rem;">
-                                        <i class="bi bi-geo-alt-fill me-1 text-primary"></i>
-                                        <span title="Matching Status: @(userSection != null ? "Found" : "Not Found")">
-                                            @displaySectionName
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
                             <div class="notification-wrapper me-3">
                                 <a class="nav-link position-relative p-2" href="#" id="notificationBell">
                                     <i class="bi bi-bell-fill text-navy fs-5"></i>
-                                    <span id="notif-badge"
-                                          class="position-absolute badge rounded-pill bg-danger"
-                                          style="top: 2px; right: -2px; font-size: 0.6rem; padding: 0.3em 0.5em;">
+                                    <span id="notif-badge" class="position-absolute badge rounded-pill bg-danger" style="top: 2px; right: -2px; font-size: 0.6rem; padding: 0.3em 0.5em;">
                                         NEW
                                     </span>
                                 </a>
                             </div>
+
+                            <div class="dropdown me-2">
+                                <button class="btn d-flex align-items-center bg-light border px-3 py-1.5 rounded-pill shadow-sm dropdown-toggle"
+                                        type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="transition: all 0.2s;">
+                                    <div class="bg-navy-gradient text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 28px; height: 28px;">
+                                        <i class="bi bi-person-fill fs-6"></i>
+                                    </div>
+                                    <span class="fw-bold text-dark me-1" style="font-size: 0.88rem;">
+                                        @User.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value
+                                    </span>
+                                </button>
+
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 py-2" aria-labelledby="profileDropdown" style="min-width: 240px; border-radius: 12px;">
+                                    <li class="px-3 py-2 border-bottom mb-1 bg-light text-start">
+                                        <div class="fw-bold text-dark" style="font-size: 0.9rem;">
+                                            @User.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value @User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value
+                                        </div>
+                                        <div class="text-muted text-truncate" style="font-size: 0.75rem;" title="@displaySectionName">
+                                            <i class="bi bi-geo-alt-fill text-primary me-1"></i>@displaySectionName
+                                        </div>
+                                    </li>
+
+                                    <li class="dropdown-header text-uppercase pb-1" style="font-size: 0.7rem; letter-spacing: 0.5px; color: #94a3b8;">Admin Management</li>
+                                    <li>
+                                        <a asp-controller="Maintenance" asp-action="Machine" class="dropdown-item d-flex align-items-center py-2 text-navy fw-semibold" style="font-size: 0.85rem;">
+                                            <i class="bi bi-gear-fill me-2 text-secondary animation-spin-hover"></i>
+                                            จัดการ
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+
+                                    <li>
+                                        <button type="button" class="dropdown-item d-flex align-items-center py-2 text-danger fw-bold" onclick="showLogoutAlert()" style="font-size: 0.85rem;">
+                                            <i class="bi bi-box-arrow-right me-2"></i> ออกจากระบบ (Logout)
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
                         }
-                        <form asp-controller="Home" asp-action="Logout" method="post" id="logoutForm" class="d-inline">
+
+                        <form asp-controller="Home" asp-action="Logout" method="post" id="logoutForm" class="d-none">
                             @Html.AntiForgeryToken()
-                            <button type="button"
-                                    class="btn-logout-modern-v2"
-                                    onclick="showLogoutAlert()"
-                                    title="ออกจากระบบ">
-                                <i class="bi bi-box-arrow-right"></i>
-                                <span class="d-none d-lg-inline ms-2">Logout</span>
-                            </button>
                         </form>
 
                     </div>
@@ -265,14 +225,12 @@
         </nav>
     </header>
 
-
     <div class="container-fluid px-4 content-wrapper">
         <main role="main" class="pb-3">
             <br />
             @RenderBody()
         </main>
     </div>
-
 
     <footer class="footer text-muted">
         <div class="container-fluid px-4">
@@ -287,90 +245,70 @@
             </div>
         </div>
     </footer>
-
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 
     <script>
         function showLogoutAlert() {
-        Swal.fire({
-        title: 'ยืนยันการออกจากระบบ',
-        html: 'เซสชันของคุณจะสิ้นสุดลง<br><small class="text-muted">คุณต้องการออกจากระบบ Zycoda Report ใช่หรือไม่?</small>',
-        // ใช้ Icon แบบ Custom หรือเปลี่ยนเป็น Question แทน Warning จะดู Soft กว่า
-        icon: 'question',
-        iconColor: '#001f3f', // สี Navy ตาม Branding ของฟาย
-        showCancelButton: true,
-        confirmButtonText: 'ออกจากระบบ',
-        cancelButtonText: 'กลับไปทำงานต่อ',
-        reverseButtons: true, // เอาปุ่มยืนยันไว้ขวา (ตามหลัก UI สมัยใหม่)
-        
-        // ตกแต่งความสวยงาม
-        background: '#ffffff',
-        padding: '2rem',
-        color: '#001f3f',
-        backdrop: `rgba(0,31,63,0.1)`, // พื้นหลังมัวๆ สี Navy จางๆ
-        
-        showClass: {
-        popup: 'animate__animated animate__fadeInUp animate__faster' // ต้องลง animate.css หรือใช้ default ก็ได้
-        },
-        hideClass: {
-        popup: 'animate__animated animate__fadeOutDown animate__faster'
-        },
+            Swal.fire({
+                title: 'ยืนยันการออกจากระบบ',
+                html: 'เซสชันของคุณจะสิ้นสุดลง<br><small class="text-muted">คุณต้องการออกจากระบบ Zycoda Report ใช่หรือไม่?</small>',
+                icon: 'question',
+                iconColor: '#001f3f', 
+                showCancelButton: true,
+                confirmButtonText: 'ออกจากระบบ',
+                cancelButtonText: 'กลับไปทำงานต่อ',
+                reverseButtons: true, 
+                background: '#ffffff',
+                padding: '2rem',
+                color: '#001f3f',
+                backdrop: `rgba(0,31,63,0.1)`, 
+                customClass: {
+                    title: 'fw-bold fs-4 mb-2',
+                    htmlContainer: 'mb-4',
+                    confirmButton: 'btn btn-navy px-4 py-2 rounded-pill shadow-sm ms-3',
+                    cancelButton: 'btn btn-link text-muted fw-bold text-decoration-none'
+                },
+                buttonsStyling: false 
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'กำลังออกจากระบบ...',
+                        html: 'กรุณารอสักครู่ ระบบกำลังปิดเซสชันการทำงาน',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
 
-        customClass: {
-        title: 'fw-bold fs-4 mb-2',
-        htmlContainer: 'mb-4',
-        confirmButton: 'btn btn-navy px-4 py-2 rounded-pill shadow-sm ms-3',
-        cancelButton: 'btn btn-link text-muted fw-bold text-decoration-none'
-        },
-        buttonsStyling: false // ปิด Style พื้นฐานของ Swal เพื่อใช้ Bootstrap ของเราเอง
-        }).then((result) => {
-        if (result.isConfirmed) {
-        // 1. แสดง Loading ทันทีที่กดยืนยัน
-        Swal.fire({
-        title: 'กำลังออกจากระบบ...',
-        html: 'กรุณารอสักครู่ ระบบกำลังปิดเซสชันการทำงาน',
-        allowOutsideClick: false,
-        didOpen: () => {
-        Swal.showLoading(); // แสดง Spinner ของ Swal
-        }
-        });
-
-        // 2. ใช้ setTimeout เพื่อหน่วงเวลาให้ User เห็น UI แป๊บหนึ่ง (1500ms = 1.5 วินาที)
-        setTimeout(() => {
-        document.getElementById('logoutForm').submit();
-        }, 1500);
-        }
-        });
+                    setTimeout(() => {
+                        document.getElementById('logoutForm').submit();
+                    }, 1500);
+                }
+            });
         }
 
         function deleteSection(id) {
-        Swal.fire({
-        title: 'ยืนยันการลบ?',
-        text: "คุณกำลังจะลบหน่วยงานรหัส " + id,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        confirmButtonText: 'ลบเลย!',
-        cancelButtonText: 'ยกเลิก'
-        }).then((result) => {
-        if (result.isConfirmed) {
-        // สร้าง Form จำลองเพื่อส่งค่า POST ไปลบ
-        var form = $('<form action="/Master/DeleteSection" method="post">' +
-        '<input type="hidden" name="id" value="' + id + '" />' +
-        '</form>');
-        $('body').append(form);
-        form.submit();
+            Swal.fire({
+                title: 'ยืนยันการลบ?',
+                text: "คุณกำลังจะลบหน่วยงานรหัส " + id,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'ลบเลย!',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var form = $('<form action="/Master/DeleteSection" method="post">' +
+                    '<input type="hidden" name="id" value="' + id + '" />' +
+                    '</form>');
+                    $('body').append(form);
+                    form.submit();
+                }
+            });
         }
-        });
-        }
-
     </script>
-
-
 </body>
-
-
 </html>
-

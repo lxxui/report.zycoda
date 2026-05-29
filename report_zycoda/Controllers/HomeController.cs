@@ -59,15 +59,16 @@ public class HomeController : Controller
             }
 
             // ✅ success
+            // ✅ เปลี่ยนจาก "UserClass" เป็น "Class" เพื่อให้ตรงกับหน้า Layout ของเดิม
             var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.Name, user.Username ?? ""),
-            new Claim("FullName", $"{user.FirstName} {user.LastName}"),
-            new Claim("UserRole", user.Rule ?? "User"),
-            new Claim("UserClass", user.Class ?? "0"),
-            new Claim("Section", user.Section ?? ""),
-            new Claim("ApiPassword", password)
-        };
+            {
+                new Claim(ClaimTypes.Name, user.Username ?? ""),
+                new Claim("FullName", $"{user.FirstName} {user.LastName}"),
+                new Claim("UserRole", user.Rule ?? "User"),
+                new Claim("Class", user.Class ?? "0"), // 👈 แก้ตรงนี้ (ตัดคำว่า User ออก)
+                new Claim("Section", user.Section ?? ""),
+                new Claim("ApiPassword", password)
+            };
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 

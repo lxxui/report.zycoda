@@ -292,5 +292,23 @@ namespace report_zycoda.Controllers
             .OrderByDescending(x => x.id)
             .ToList();
         }
+
+
+        [HttpGet]
+        public IActionResult Machine()
+        {
+            // 🟢 คอมเมนต์หรือลบการเช็คสิทธิ์ Class 9 ออกชั่วคราว เพื่อบังคับให้เข้าหน้าเว็บได้ทันที
+            /*
+            var userClass = User.Claims.FirstOrDefault(c => c.Type == "UserClass")?.Value;
+
+            if (userClass != "9")
+            {
+                return RedirectToAction("Index", "Maintenance");
+            }
+            */
+
+            // ✅ ปล่อยให้ระบบเปิดไฟล์ Views/Maintenance/Machine.cshtml ได้เลยทันที
+            return View();
+        }
     }
 }
