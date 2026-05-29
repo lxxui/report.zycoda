@@ -390,14 +390,14 @@
         }
 
         @@keyframes scan-vertical {
-        0% {
-        top: 0%;
-        opacity: 0;
-        }
+            0% {
+                top: 0%;
+                opacity: 0;
+            }
 
-        50% {
-        opacity: 1;
-        }
+            50% {
+                opacity: 1;
+            }
 
         100% {
         top: 100%;
@@ -1238,17 +1238,17 @@
 
             <div class="card border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
                 <div class="table-responsive">
-                    <table id="maintenanceTable" class="table table-hover align-middle mb-0">
+                    <table id="maintenanceTable" class="table table-hover align-middle mb-0" style="table-layout: fixed; width: 100%;">
                         <thead class="bg-light">
                             <tr>
-                                <th class="ps-4">Job ID</th>
-                                <th>วันที่แจ้ง</th>
-                                <th>หน่วยงาน</th>
-                                <th class="text-center">ประเภท</th>
-                                <th>รายละเอียด</th>
-                                <th class="text-center">สถานะ</th>
-                                <th>ผู้แจ้ง</th>
-                                <th class="pe-4 text-center">จัดการ</th> <!-- เพิ่มหัวข้อใหม่ -->
+                                <th class="ps-4" style="width: 10%;">Job ID</th>
+                                <th style="width: 10%;">วันที่แจ้ง</th>
+                                <th style="width: 14%;">หน่วยงาน</th>
+                                <th class="text-center" style="width: 10%;">ประเภท</th>
+                                <th style="width: 26%;">รายละเอียด</th>
+                                <th class="text-center" style="width: 12%;">สถานะ</th>
+                                <th style="width: 10%;">ผู้แจ้ง</th>
+                                <th class="pe-4 text-center" style="width: 8%;">จัดการ</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1270,7 +1270,6 @@
                                     data-timecreate="@item.timecreate"
                                     data-timeaccept="@item.timeaccept"
                                     data-timeassign="@item.timeassign">
-                                    ```
 
                                     <td class="ps-4 fw-bold text-navy">#@item.id</td>
                                     <td>
@@ -1281,38 +1280,35 @@
                                         }
                                     </td>
                                     <td>
-                                        <span class="badge text-dark">
-                                            @{
-                                                var sCode = item.sectioncreate?.Trim() ?? "";
-                                                // ถ้ามีใน Dictionary ให้โชว์ชื่อ ถ้าไม่มีให้โชว์รหัสเดิม
-                                                var sName = sectionDict.ContainsKey(sCode) ? sectionDict[sCode] : sCode;
-                                            }
-                                            @sName
-                                        </span>
+                                        <div class="text-truncate" title="@item.sectioncreate">
+                                            <span class="badge text-dark">
+                                                @{
+                                                    var sCode = item.sectioncreate?.Trim() ?? "";
+                                                    var sName = sectionDict.ContainsKey(sCode) ? sectionDict[sCode] : sCode;
+                                                }
+                                                @sName
+                                            </span>
+                                        </div>
                                     </td>
                                     <td class="text-center">@item.jobtype</td>
                                     <td>
-                                        <div class="fw-bold text-primary small">@item.fl (@item.fldetail)</div>
-                                        <div class="text-muted small text-truncate" style="max-width: 800px;">@item.detail</div>
+                                        <div class="fw-bold text-primary small text-truncate" title="@item.fl (@item.fldetail)">@item.fl (@item.fldetail)</div>
+                                        <div class="text-muted small text-truncate" style="max-width: 100%;" title="@item.detail">@item.detail</div>
                                     </td>
                                     <td class="text-center">
-                                        <span class="badge rounded-pill @item.StatusCssClass px-3 py-2 small">@item.status</span>
+                                        <span class="badge rounded-pill @item.StatusCssClass px-3 py-2 small d-inline-block text-truncate" style="max-width: 100%;">@item.status</span>
                                     </td>
-                                    <td class="pe-4 small">@item.usercreate</td>
+                                    <td class="small text-truncate" title="@item.usercreate">@item.usercreate</td>
                                     <td class="text-center pe-4">
                                         @{
-                                            // 1. จัดการรายชื่อช่าง
                                             var assignees = item.uassign != null && item.uassign.Any()
                                                             ? string.Join(", ", item.uassign)
                                                             : "ยังไม่มอบหมาย";
 
-                                            // 2. คำนวณวัน Deadline จากเลขวันในระบบ (ตามตัวอย่างใน image_ca7739.png)
                                             string deadlineText = "-";
-                                            string priorityDisplay = item.priority ?? "0"; // สมมติว่าเก็บเลข 3, 7, 30 เอาไว้
-
+                                            string priorityDisplay = item.priority ?? "0";
                                             if (DateTime.TryParse(item.timecreate, out DateTime startDate))
                                             {
-                                                // ดึงตัวเลขจากค่า priority มาบวกวัน
                                                 if (double.TryParse(priorityDisplay, out double daysToAdd))
                                                 {
                                                     var dueDate = startDate.AddDays(daysToAdd);
@@ -1320,7 +1316,6 @@
                                                 }
                                             }
 
-                                            // 3. จัดรูปแบบข้อความสำหรับส่งเข้า LINE
                                             var shareText = $"🛠 *งานแจ้งซ่อม (Zycoda System)*\n" +
                                                             $"--------------------------\n" +
                                                             $"🆔 Job ID: {item.id}\n" +
@@ -1402,9 +1397,9 @@
                                 </div>
                                 <div class="info-card h-100">
                                     <div class="info-label mb-2">ประเภทงาน: <span id="mType" class="badge bg-navy-soft text-navy ms-2">-</span></div>
-        
+
                                     <div id="mDetail" class="text-dark py-2 mb-3" style="font-size: 1.05rem; line-height: 1.6; white-space: pre-wrap; min-height: 80px;">-</div>
-        
+
                                     <hr class="opacity-10">
 
                                     <div class="row g-3">
@@ -1438,7 +1433,7 @@
                                 </div>
                             </div>
 
-                            <!-- เพิ่มในส่วน Assignment & Action (col-md-5) -->
+                            <!-- ส่วน Assignment & Action (col-md-5) -->
                             <div class="col-md-5">
                                 <div class="detail-section-label">
                                     <i class="bi bi-person-gear"></i> Assignment & Action
@@ -1448,25 +1443,26 @@
                                         <div class="info-label"><i class="bi bi-building me-1"></i> หน่วยงานรับผิดชอบ</div>
                                         <div id="mSection" class="fw-bold text-primary fs-5">-</div>
                                     </div>
-
+                                    <!-- ส่วนของ ผู้รับงาน / วิศวกรผู้ดูแล -->
+                                    <div class="p-3 rounded-3" style="background: #f8fafc; border: 1px solid #edf2f7;">
+                                        <div class="mb-3">
+                                            <div class="info-label text-success"><i class="bi bi-person-check-fill me-1"></i> ผู้รับงาน (Accept)</div>
+                                            <div id="mAccept" class="fw-bold fs-6 text-dark mt-1">-</div>
+                                        </div>
+                                        <div>
+                                            <div class="info-label text-muted" style="font-size: 0.85rem;"><i class="bi bi-clock-history me-1"></i> รับงานเมื่อ</div>
+                                            <div id="mTimeAccept" class="fw-bold text-navy" style="font-size: 0.9rem;">-</div>
+                                        </div>
+                                    </div>
                                     <div class="mb-3">
                                         <div class="info-label"><i class="bi bi-shield-check me-1"></i> ผู้มอบหมาย (Assignor)</div>
                                         <div id="mAssign" class="fw-bold">-</div>
-
                                         <div class="text-muted mt-1" style="font-size: 0.8rem;">
                                             <i class="bi bi-calendar-check me-1"></i> มอบหมายเมื่อ: <span id="mTimeAssign">-</span>
                                         </div>
                                     </div>
-                                    </div>
 
-                                    <!-- ส่วนของ Engineer -->
-                                    <div class="p-3 rounded-3 mb-3" style="background: #f8fafc; border: 1px solid #edf2f7;">
-                                        <div class="info-label text-success"><i class="bi bi-person-badge-fill me-1"></i> วิศวกรผู้ดูแล (Engineer)</div>
-                                        <div id="mAccept" class="fw-bold fs-6 text-dark mt-1">-</div>
-                                        <div class="text-muted mt-1" style="font-size: 0.8rem;">
-                                            <i class="bi bi-clock-history me-1"></i> รับงานเมื่อ: <span id="mTimeAccept">-</span>
-                                        </div>
-                                    </div>
+                                   
                                 </div>
                             </div>
                         </div>
@@ -1501,9 +1497,9 @@
                         <div class="list-group list-group-flush border-0">
 
                             @{
-                                // 1. ดึงค่าจาก Claims มาเช็คสิทธิ์รอบเดียวให้เคลียร์ที่ด้านบน
+                                // 💡 1. UPDATED: แก้ไขชื่อตัวแปรให้ตรงกันทั้งหมด ป้องกันการพังของโค้ดเช็คสิทธิ์
                                 var userSection = User.FindFirst("Section")?.Value ?? "";
-                                var adminClass = User.FindFirst("UserClass")?.Value ?? "";
+                                var userClass = User.FindFirst("UserClass")?.Value ?? ""; // เปลี่ยนจาก adminClass เป็น userClass ให้แมตช์ด้านล่าง
 
                                 // เช็คว่าเป็นกลุ่มทีมช่าง/วิศวกร (รหัสแผนกขึ้นต้นด้วย 310, 317, 320)
                                 bool isMaintenanceGroup = userSection.StartsWith("310") ||
@@ -1511,7 +1507,7 @@
                                                            userSection.StartsWith("320");
 
                                 // สิทธิ์ช่างระดับปฏิบัติการ/หัวหน้าหน้างาน
-                                bool hasMechanicAccess = userClass == "9" || (userClass == "3"); //&& isMaintenanceGroup
+                                bool hasMechanicAccess = userClass == "9" || userClass == "3";
 
                                 // สิทธิ์ผู้ดูแลระบบสูงสุด หรือ หัวหน้าแผนกใหญ่
                                 bool hasAdminAccess = userClass == "9";
@@ -1586,7 +1582,9 @@
                 </div>
             </div>
         </div>
-    </div>
+
+
+    
 
     <div id="loader-wrapper">
         <div class="loader-content">
@@ -1863,24 +1861,29 @@
             // ==================================================
             // 7. PRINT REPORT
             // ==================================================
-            function PrintReport(reportType) {
-                const start = fpStart?.selectedDates?.length ? fpStart.formatDate(fpStart.selectedDates[0], "Y-m-d") : "";
-                const end = fpEnd?.selectedDates?.length ? fpEnd.formatDate(fpEnd.selectedDates[0], "Y-m-d") : "";
+           function PrintReport(reportType) {
+                 // 💡 ดึงฟิลเตอร์และค่าทุกอย่างที่อยู่บน URL ณ ปัจจุบันของหน้าเว็บออกมาใช้งานโดยอัตโนมัติ
+                 const currentParams = new URLSearchParams(window.location.search);
 
-                const params = new URLSearchParams({
-                    start,
-                    end,
-                    status: document.getElementById("filterStatus")?.value || "",
-                    sectionFrom: document.getElementById("sectionFrom")?.value || "",
-                    sectionTo: document.getElementById("sectionTo")?.value || "",
-                    jobtype: document.getElementById("jobtype")?.value || "",
-                    view: document.querySelector('input[name="view"]:checked')?.value || "followup",
-                    rptType: reportType
-                });
+                 // สร้างก้อน Parameter ใหม่ที่จะยิงไปที่หน้าพิมพ์รายงาน
+                 const params = new URLSearchParams({
+                     // ถ้าใน URL มีค่าให้ใช้ค่าจาก URL ถ้าไม่มีให้วิ่งไปหา Element ID หรือใช้ค่าว่าง
+                     start: currentParams.get("start") || (fpStart?.selectedDates?.length ? fpStart.formatDate(fpStart.selectedDates[0], "Y-m-d") : ""),
+                     end: currentParams.get("end") || (fpEnd?.selectedDates?.length ? fpEnd.formatDate(fpEnd.selectedDates[0], "Y-m-d") : ""),
+                     status: currentParams.get("Status") || currentParams.get("status") || document.getElementById("filterStatus")?.value || "",
+                     sectionFrom: currentParams.get("sectionFrom") || document.getElementById("sectionFrom")?.value || "",
+                     sectionTo: currentParams.get("sectionTo") || document.getElementById("sectionTo")?.value || "",
+                     jobtype: currentParams.get("jobtype") || document.getElementById("jobtype")?.value || "EM,CM",
+                     view: currentParams.get("view") || document.querySelector('input[name="view"]:checked')?.value || "followup",
+                     rptType: reportType // ใส่ประเภทรายงานตามที่กดเลือกใน Modal
+                 });
 
-                window.open(`/Report/PrintReport?${params.toString()}`, '_blank');
-                $('#printSelectModal').modal('hide');
-            }
+                 console.log("👉 Final Print Params Sent:", params.toString());
+
+                 // สั่งเปิดแท็บใหม่ยิงเข้า Controller 
+                 window.open(`/Report/PrintReport?${params.toString()}`, '_blank');
+                 $('#printSelectModal').modal('hide');
+             }
 
             // ==================================================
             // 8. INIT

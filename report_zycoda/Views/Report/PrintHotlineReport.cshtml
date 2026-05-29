@@ -99,7 +99,21 @@
             <div>
                 <h5 class="fw-bold mb-0" style="color: #002d5b;">President Bakery Public Company Limited</h5>
                 <div class="fw-bold small text-secondary">@ViewBag.Title</div>
-                <div style="font-size: 10px;"><b>ช่วงข้อมูล:</b> @ViewBag.SectionFrom - @ViewBag.SectionTo</div>
+                <div style="font-size: 10px;">
+                    @{
+                        // ดึง Dictionary ที่ส่งมาจาก Controller
+                        var viewDict = ViewBag.SectionDict as Dictionary<string, string> ?? new Dictionary<string, string>();
+
+                        string fromKey = (ViewBag.SectionFrom as string ?? "").Trim();
+                        // ถ้าหาชื่อใน Dict เจอให้ใช้ชื่อจริง ถ้าไม่เจอ (เช่น เป็นรหัสที่ไม่มีในระบบ หรือเป็นคำว่า ทั้งหมด) ให้โชว์ค่าเดิม
+                        string fromName = viewDict.TryGetValue(fromKey, out var fName) ? fName : (!string.IsNullOrEmpty(fromKey) ? fromKey : "ทั้งหมด");
+
+                        string toKey = (ViewBag.SectionTo as string ?? "").Trim();
+                        string toName = viewDict.TryGetValue(toKey, out var tName) ? tName : (!string.IsNullOrEmpty(toKey) ? toKey : "ทั้งหมด");
+                    }
+
+                    <b>ช่วงข้อมูล:</b> @fromName - @toName
+                </div>
             </div>
             <div class="text-end" style="font-size: 9px; line-height: 1.2;">
                 <b>Ref No:</b> @ViewBag.RefNo<br>
@@ -113,56 +127,81 @@
                 <tr>
                     <th rowspan="2" style="width: 25px;">#</th>
                     <th rowspan="2" style="text-align: left; padding-left: 5px;">สายการผลิต / แผนก</th>
-                    <th colspan="7">สถานะใบแจ้งซ่อม (Work Order Status)</th>
+                    <th colspan="9">สถานะใบแจ้งซ่อม (Work Order Status)</th>
                 </tr>
                 <tr>
-                    <th style="width: 55px;">ยกมา</th>
-                    <th style="width: 55px;">เปิดเพิ่ม</th>
-                    <th style="width: 55px;">รับงานแล้ว</th>
-                    <th style="width: 55px;">กำลังซ่อม</th>
-                    <th style="width: 55px;">เสร็จสิ้น</th>
-                    <th style="width: 55px;">ยกเลิก</th>
-                    <th style="width: 55px;">รออะไหล่</th>
+                    <th style="width: 50px;">ยกมา</th>
+                    <th style="width: 50px;">เปิดเพิ่ม</th>
+                    <th style="width: 55px; color: #64748b;">ยังไม่อนุมัติ</th>
+                    <th style="width: 55px; color: #fd7e14;">ยังไม่รับงาน</th>
+                    <th style="width: 50px;">รับงานแล้ว</th>
+                    <th style="width: 50px;">กำลังซ่อม</th>
+                    <th style="width: 50px;">เสร็จสิ้น</th>
+                    <th style="width: 50px;">ยกเลิก</th>
+                    <th style="width: 50px;">รออะไหล่</th>
                 </tr>
             </thead>
             <tbody>
+                @{
+                    int i = 1;
+                }
                 @foreach (var group in groupedData)
                 {
                     <tr>
-                        <td colspan="9" class="group-header" style="background-color: #f1f5f9; font-weight: bold;">● @group.Key</td>
+                        <td colspan="11" class="group-header" style="background-color: #f1f5f9; font-weight: bold; text-align: left; padding-left: 10px;">● @group.Key</td>
                     </tr>
                     @foreach (var item in group)
                     {
                         <tr>
-                            <td>@i</td>
+                            <td class="text-center">@i</td>
                             <td class="text-start ps-2">@item.SectionName</td>
-                            <td>@(item.CarriedOver > 0 ? item.CarriedOver.ToString() : "-")</td>
-                            <td class="fw-bold">@(item.OpenedToday > 0 ? item.OpenedToday.ToString() : "-")</td>
-                            <td>@(item.AcceptJob > 0 ? item.AcceptJob.ToString() : "-")</td>
-                            <td>@(item.Repair > 0 ? item.Repair.ToString() : "-")</td>
-                            <td class="text-success fw-bold">@(item.Finished > 0 ? item.Finished.ToString() : "-")</td>
-                            <td class="text-danger">@(item.RejectedToday > 0 ? item.RejectedToday.ToString() : "-")</td>
-                            <td>@(item.WaitPart > 0 ? item.WaitPart.ToString() : "-")</td>
+                            <td class="text-center">@(item.CarriedOver > 0 ? item.CarriedOver.ToString() : "-")</td>
+                            <td class="text-center fw-bold">@(item.OpenedToday > 0 ? item.OpenedToday.ToString() : "-")</td>
+
+                            <td class="text-center text-muted">@(item.NotApproved > 0 ? item.NotApproved.ToString() : "-")</td>
+
+                            <td class="text-center text-warning fw-bold">@(item.NotAccepted > 0 ? item.NotAccepted.ToString() : "-")</td>
+
+                            <td class="text-center">@(item.AcceptJob > 0 ? item.AcceptJob.ToString() : "-")</td>
+                            <td class="text-center">@(item.Repair > 0 ? item.Repair.ToString() : "-")</td>
+                            <td class="text-center text-success fw-bold">@(item.Finished > 0 ? item.Finished.ToString() : "-")</td>
+                            <td class="text-center text-danger">@(item.RejectedToday > 0 ? item.RejectedToday.ToString() : "-")</td>
+                            <td class="text-center">@(item.WaitPart > 0 ? item.WaitPart.ToString() : "-")</td>
                         </tr>
                         i++;
                     }
                 }
             </tbody>
-            @* สรุป Grand Total ด้านล่างตาราง *@
-            <tfoot class="fw-bold" style="background-color: #f8f9fa; border-top: 2px solid #002d5b;">
+
+            @* 🛠️ อัปเดต GRAND TOTAL ด้านล่างตาราง คำนวณเพิ่ม 2 สถานะใหม่ดักไว้ให้ครบ *@
+            <tfoot class="fw-bold" style="background-color: #f8f9fa; border-top: 2px solid #002d5b; vertical-align: middle;">
+                @{
+                    var totalCarried = Model.Sum(x => x.CarriedOver);
+                    var totalOpened = Model.Sum(x => x.OpenedToday);
+                    var totalNotApproved = Model.Sum(x => x.NotApproved); // 🌟 ยอดรวมผลรวม Pending
+                    var totalNotAccepted = Model.Sum(x => x.NotAccepted); // 🌟 ยอดรวมผลรวม Create
+                    var totalAccept = Model.Sum(x => x.AcceptJob);
+                    var totalRepair = Model.Sum(x => x.Repair);
+                    var totalFinished = Model.Sum(x => x.Finished);
+                    var totalRejected = Model.Sum(x => x.RejectedToday);
+                    var totalWaitPart = Model.Sum(x => x.WaitPart);
+                }
                 <tr>
-                    <td colspan="2" class="text-end pe-2">GRAND TOTAL</td>
-                    <td class="text-center">@Model.Sum(x => x.CarriedOver)</td>
-                    <td class="text-center">@Model.Sum(x => x.OpenedToday)</td>
-                    <td class="text-center">@Model.Sum(x => x.AcceptJob)</td>
-                    <td class="text-center">@Model.Sum(x => x.Repair)</td>
-                    <td class="text-center">@Model.Sum(x => x.Finished)</td>
-                    <td class="text-center">@Model.Sum(x => x.RejectedToday)</td>
-                    <td class="text-center">@Model.Sum(x => x.WaitPart)</td>
+                    <td colspan="2" class="text-end pe-3" style="background-color: #f1f5f9; letter-spacing: 0.5px;">GRAND TOTAL</td>
+                    <td class="text-center">@(totalCarried > 0 ? totalCarried.ToString() : "-")</td>
+                    <td class="text-center text-dark ">@(totalOpened > 0 ? totalOpened.ToString() : "-")</td>
+
+                    <td class="text-center text-muted">@(totalNotApproved > 0 ? totalNotApproved.ToString() : "-")</td>
+                    <td class="text-center text-warning">@(totalNotAccepted > 0 ? totalNotAccepted.ToString() : "-")</td>
+
+                    <td class="text-center">@(totalAccept > 0 ? totalAccept.ToString() : "-")</td>
+                    <td class="text-center">@(totalRepair > 0 ? totalRepair.ToString() : "-")</td>
+                    <td class="text-center text-success">@(totalFinished > 0 ? totalFinished.ToString() : "-")</td>
+                    <td class="text-center text-danger">@(totalRejected > 0 ? totalRejected.ToString() : "-")</td>
+                    <td class="text-center">@(totalWaitPart > 0 ? totalWaitPart.ToString() : "-")</td>
                 </tr>
             </tfoot>
-        </table>
-
+        </table>        
         <div class="row sig-box text-center g-0">
             <div class="col-4">
                 <div class="sig-line"></div>

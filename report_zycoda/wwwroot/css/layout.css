@@ -6,6 +6,7 @@
 
 body {
     background-color: var(--body-bg);
+    font-family: 'Prompt', sans-serif !important;
     color: #334155;
 }
 

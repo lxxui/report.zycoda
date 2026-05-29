@@ -2,15 +2,30 @@
 using Newtonsoft.Json;
 using report_zycoda.Data;
 using report_zycoda.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 public class ReportController(ApiService apiService) : Controller
 {
     private readonly ApiService _apiService = apiService;
 
     [HttpGet]
-    public async Task<IActionResult> PrintReport(string start, string end, string status, string sectionFrom, string sectionTo, string jobtype, string view, string rptType)
+    public async Task<IActionResult> PrintReport()
     {
-        // 1. ตรวจสอบสิทธิ์
+        // 💡 1. ดักจับ Query String ทุกรูปแบบ ไม่ว่าหน้าจอจะส่งมาเป็นพิมพ์เล็กหรือพิมพ์ใหญ่ ป้องกันปัญหาระหว่างหน้าเว็บกับหน้าปริ้น
+        var start = Request.Query.FirstOrDefault(q => q.Key.Equals("start", StringComparison.OrdinalIgnoreCase)).Value.ToString();
+        var end = Request.Query.FirstOrDefault(q => q.Key.Equals("end", StringComparison.OrdinalIgnoreCase)).Value.ToString();
+        var status = Request.Query.FirstOrDefault(q => q.Key.Equals("status", StringComparison.OrdinalIgnoreCase)).Value.ToString();
+        var sectionFrom = Request.Query.FirstOrDefault(q => q.Key.Equals("sectionFrom", StringComparison.OrdinalIgnoreCase)).Value.ToString();
+        var sectionTo = Request.Query.FirstOrDefault(q => q.Key.Equals("sectionTo", StringComparison.OrdinalIgnoreCase)).Value.ToString();
+        var jobtype = Request.Query.FirstOrDefault(q => q.Key.Equals("jobtype", StringComparison.OrdinalIgnoreCase)).Value.ToString();
+        var view = Request.Query.FirstOrDefault(q => q.Key.Equals("view", StringComparison.OrdinalIgnoreCase)).Value.ToString();
+        var rptType = Request.Query.FirstOrDefault(q => q.Key.Equals("rptType", StringComparison.OrdinalIgnoreCase)).Value.ToString();
+
+        // ตรวจสอบสิทธิ์
         if (User.Identity == null || !User.Identity.IsAuthenticated)
             return RedirectToAction("Login", "Home");
 
@@ -41,8 +56,10 @@ public class ReportController(ApiService apiService) : Controller
         List<MaintenanceApiModels> rawData = new();
         using (HttpClient client = new HttpClient())
         {
+            client.DefaultRequestHeaders.Add("accept", "application/json");
             client.DefaultRequestHeaders.Add("username", sessionUser);
             client.DefaultRequestHeaders.Add("password", sessionPass);
+
             var response = await client.GetAsync(apiUrl);
             if (response.IsSuccessStatusCode)
             {
@@ -50,40 +67,70 @@ public class ReportController(ApiService apiService) : Controller
                 if (json.Trim().StartsWith("{")) json = "[" + json + "]";
                 var allData = JsonConvert.DeserializeObject<List<MaintenanceApiModels>>(json) ?? new();
 
-                // กรองข้อมูลตามเงื่อนไขที่เลือกจากหน้าเว็บ
+                // 💡 กรองข้อมูลแบบดักจับช่องว่างและค่า Default "ทั้งหมด" อย่างเข้มงวด
                 rawData = allData.Where((MaintenanceApiModels x) => {
                     var target = (x.sectioncreate ?? x.section ?? "").Trim().ToUpper();
-                    bool mFrom = string.IsNullOrEmpty(sectionFrom) || sectionFrom == "ทั้งหมด" || string.Compare(target, sectionFrom.Trim().ToUpper()) >= 0;
-                    bool mTo = string.IsNullOrEmpty(sectionTo) || sectionTo == "ทั้งหมด" || string.Compare(target, sectionTo.Trim().ToUpper()) <= 0;
-                    bool mStatus = string.IsNullOrEmpty(status) || status == "ทั้งหมด" || status == "ALL" ||
+
+                    bool mFrom = string.IsNullOrEmpty(sectionFrom) ||
+                                 sectionFrom.Trim() == "" ||
+                                 sectionFrom.Trim() == "ทั้งหมด" ||
+                                 sectionFrom.Trim().ToUpper() == "ALL" ||
+                                 string.Compare(target, sectionFrom.Trim().ToUpper()) >= 0;
+
+                    bool mTo = string.IsNullOrEmpty(sectionTo) ||
+                               sectionTo.Trim() == "" ||
+                               sectionTo.Trim() == "ทั้งหมด" ||
+                               sectionTo.Trim().ToUpper() == "ALL" ||
+                               string.Compare(target, sectionTo.Trim().ToUpper()) <= 0;
+
+                    bool mStatus = string.IsNullOrEmpty(status) ||
+                                   status.Trim() == "" ||
+                                   status.Trim() == "ทั้งหมด" ||
+                                   status.Trim().ToUpper() == "ALL" ||
                                    x.status?.Trim().Equals(status.Trim(), StringComparison.OrdinalIgnoreCase) == true;
+
                     return mStatus && mFrom && mTo;
                 }).ToList();
             }
         }
 
-        // 5. Summary Logic (สำหรับกลุ่มรายงานสถิติ)
+        // ==========================================================
+        // 🛠️ 5. Summary Logic
+        // ==========================================================
         var summaryData = rawData
             .GroupBy(x => (x.sectioncreate ?? x.section ?? "N/A").Trim())
             .Select(g => new ReportSummary
             {
                 SectionName = sectionDict.TryGetValue(g.Key, out var name) ? name : g.Key,
+
                 CarriedOver = g.Count(x => {
                     var cDate = ParseDate(x.timecreate);
-                    var fDate = ParseDate(x.timeclose);
-                    return cDate < dStart && (string.IsNullOrEmpty(x.timeclose) || fDate >= dStart);
+                    var fDate = ParseDate(x.timeclose ?? x.timefinish);
+                    return cDate < dStart && (string.IsNullOrEmpty(x.timeclose ?? x.timefinish) || fDate >= dStart);
                 }),
+
                 OpenedToday = g.Count(x => {
                     var d = ParseDate(x.timecreate);
                     return d >= dStart && d <= dEnd;
                 }),
-                AcceptJob = g.Count(x => x.status == "Accept"),
-                Repair = g.Count(x => x.status == "Assign"),
-                Finished = g.Count(x => (x.status == "Finish" || x.status == "Confirm") &&
-                                         !string.IsNullOrEmpty(x.timeclose) &&
-                                         ParseDate(x.timeclose) >= dStart && ParseDate(x.timeclose) <= dEnd),
-                RejectedToday = g.Count(x => x.status == "Reject" || x.status == "Deny"),
-                WaitPart = g.Count(x => (x.status?.Contains("Spare") ?? false) || (x.statustext?.Contains("อะไหล่") ?? false))
+
+                NotApproved = g.Count(x => (x.status ?? "").Trim().ToLower() == "pending"),
+                NotAccepted = g.Count(x => (x.status ?? "").Trim().ToLower() == "create"),
+                AcceptJob = g.Count(x => (x.status ?? "").Trim().ToLower() == "accept"),
+                Repair = g.Count(x => (x.status ?? "").Trim().ToLower() == "assign" || (x.status ?? "").Trim().ToLower() == "repair"),
+
+                Finished = g.Count(x => {
+                    string currentStatus = (x.status ?? "").Trim().ToLower();
+                    return currentStatus == "finish" || currentStatus == "confirm";
+                }),
+
+                RejectedToday = g.Count(x => {
+                    string currentStatus = (x.status ?? "").Trim().ToLower();
+                    return currentStatus == "reject" || currentStatus == "deny";
+                }),
+
+                WaitPart = g.Count(x => (x.status?.Contains("Spare", StringComparison.OrdinalIgnoreCase) ?? false) ||
+                                        (x.statustext?.Contains("อะไหล่") ?? false))
             })
             .OrderBy(x => x.SectionName).ToList();
 
@@ -95,58 +142,52 @@ public class ReportController(ApiService apiService) : Controller
         ViewBag.EndDate = eDate;
         ViewBag.SectionFrom = sectionFrom;
         ViewBag.SectionTo = sectionTo;
+        ViewBag.SectionDict = sectionDict;
 
         // ==========================================================
-        // 🛠️ คัดแยกประเภทรายงานแยก View เด็ดขาด (แก้ไขจุดบั๊กหลัก)
+        // 7. คัดแยกประเภทรายงานแยก View เด็ดขาด
         // ==========================================================
         string normalizedRptType = rptType?.ToUpper() ?? "DEFAULT";
         string viewName = "";
 
-        // ตั้งค่าหัวกระดาษฟอร์มหลักจากฟังก์ชัน Metadata
         SetReportMetadata(normalizedRptType);
 
         switch (normalizedRptType)
         {
             case "JTR":
-                viewName = "PrintReport_Jobdaily_Checked"; // หน้าสิทธิ์ผู้แจ้งงาน
+                viewName = "PrintReport_Jobdaily_Checked";
                 ViewBag.DepartmentName = "ผู้แจ้งงานตรวจสอบ";
                 break;
-
             case "JTR_INTERNAL":
-                viewName = "PrintReport_Receiver_Checked"; // หน้าสิทธิ์ช่าง/ผู้รับแจ้ง
+                viewName = "PrintReport_Receiver_Checked";
                 ViewBag.DepartmentName = "ตรวจสอบ (ผู้รับแจ้ง/ช่าง)";
                 break;
-
             case "HOTLINE":
                 viewName = "PrintHotlineReport";
                 ViewBag.DepartmentName = "ฝ่ายซ่อมบำรุง (Hotline)";
                 break;
-
             case "PM":
                 viewName = "PrintPMReport";
                 ViewBag.DepartmentName = "ฝ่ายวิศวกรรม (PM)";
                 break;
-
             case "MONTHLY":
                 viewName = "PrintMonthlyReport";
                 ViewBag.DepartmentName = "ฝ่ายบริหาร/สรุปประจำเดือน";
                 break;
-
             default:
                 viewName = "PrintReport_Jobdaily_Checked";
                 ViewBag.DepartmentName = "ผู้แจ้งงานตรวจสอบ";
                 break;
         }
 
-        // 7. ทำการส่ง Model แยกตามสถาปัตยกรรมข้อมูล
         if (normalizedRptType == "JTR" || normalizedRptType == "JTR_INTERNAL")
         {
-            var sortedRawData = rawData.OrderByDescending(x => x.job_no ?? x.id).ToList();
-            return View(viewName, sortedRawData); // ส่งข้อมูลดิบลิสต์งาน
+            var sortedRawData = rawData.OrderByDescending(x => x.id).ToList();
+            return View(viewName, sortedRawData);
         }
         else
         {
-            return View(viewName, summaryData); // ส่งข้อมูลกลุ่มคำนวณสรุปยอดสถิติ
+            return View(viewName, summaryData);
         }
     }
 

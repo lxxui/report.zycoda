@@ -11,17 +11,20 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+
 public class MaintenanceWorker : BackgroundService
 {
     private readonly ILogger<MaintenanceWorker> _logger;
-    private readonly LatestSyncStore _syncStore; // 🔥 เพิ่มตัวนี้เข้ามาครับ
+    private readonly LatestSyncStore _syncStore;
+    private readonly IHttpClientFactory _httpClientFactory; // 🔥 เปลี่ยนมาใช้ Factory ป้องกัน Socket เต็ม
     private readonly string _connectionString = "Server=CPU1921\\SQLEXPRESS01;Database=ZycodaApiByPB;Trusted_Connection=True;TrustServerCertificate=True;";
 
-    // รับค่าผ่าน Constructor
-    public MaintenanceWorker(ILogger<MaintenanceWorker> logger, LatestSyncStore syncStore)
+    // รับ IHttpClientFactory เพิ่มเข้ามาใน Constructor
+    public MaintenanceWorker(ILogger<MaintenanceWorker> logger, LatestSyncStore syncStore, IHttpClientFactory httpClientFactory)
     {
         _logger = logger;
         _syncStore = syncStore;
+        _httpClientFactory = httpClientFactory;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -30,33 +33,43 @@ public class MaintenanceWorker : BackgroundService
         {
             try
             {
-                var jobs = await FetchJobsFromApi("adminfarmhouse", "adminfarmhouse#241024", "EM,CM", "2026-01-01", "2026-12-31");
+                // 💡 แนะนำ: ปรับช่วงเวลาลดลงแทนการดึงทั้งปี เช่น ดึงย้อนหลัง 7 วัน หรือปรับตามความเหมาะสมของธุรกิจ
+                string startDate = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd");
+                string endDate = DateTime.Now.ToString("yyyy-MM-dd");
+
+                _logger.LogInformation($"🔄 เริ่มดึงข้อมูลซ่อมบำรุง ช่วงวันที่ {startDate} ถึง {endDate}");
+
+                var jobs = await FetchJobsFromApi("adminfarmhouse", "adminfarmhouse#241024", "EM,CM", startDate, endDate);
 
                 if (jobs != null && jobs.Any())
                 {
                     await UpsertToDatabase(jobs);
-
-                    // 🔥 บันทึกเวลาความสำเร็จลงใน Store ส่วนกลางหลังบันทึก DB เสร็จ
                     _syncStore.LastSyncTime = DateTime.Now;
+                }
+                else
+                {
+                    _logger.LogInformation("ℹ️ ไม่มีข้อมูลใหม่จาก API ในรอบนี้");
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError($"❌ Error: {ex.Message}");
+                _logger.LogError($"❌ Error ในรอบการทำงาน: {ex.Message}");
             }
 
-            await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken); // ดึงทุก 5 นาทีตามที่คุณฝ้ายตั้งไว้
+            // รอ 5 นาทีค่อยทำรอบถัดไป
+            await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
         }
     }
 
-    // 🌐 ฟังก์ชัน Fetch ดึงข้อมูลจาก API
+    // 🌐 ฟังก์ชัน Fetch ดึงข้อมูลจาก API (ปรับปรุง HttpClient)
     private async Task<List<MaintenanceApiModels>> FetchJobsFromApi(string sessionUser, string sessionPass, string jobtype, string start, string end, string view = "followup")
     {
         var combined = new List<MaintenanceApiModels>();
         var viewsToCall = (view == "all") ? new List<string> { "followup", "myjob" } : new List<string> { view };
 
-        using var client = new HttpClient();
-        client.Timeout = TimeSpan.FromSeconds(30);
+        // 🔥 สร้าง Client จาก Factory (จะช่วย Reuse พอร์ตและลดปัญหา Timeout ได้อย่างดี)
+        var client = _httpClientFactory.CreateClient();
+        client.Timeout = TimeSpan.FromSeconds(60); // ⏱️ เพิ่มเวลาเป็น 60 วินาที เผื่อ API ปลายทางตอบสนองช้า
         client.DefaultRequestHeaders.Clear();
         client.DefaultRequestHeaders.Add("username", sessionUser);
         client.DefaultRequestHeaders.Add("password", sessionPass);
@@ -68,9 +81,16 @@ public class MaintenanceWorker : BackgroundService
             try
             {
                 var res = await client.GetAsync(url);
+
+                if (!res.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning($"⚠️ {v} Fetch ล้มเหลวด้วย Status Code: {res.StatusCode}");
+                    continue;
+                }
+
                 var json = await res.Content.ReadAsStringAsync();
 
-                if (res.IsSuccessStatusCode && !string.IsNullOrWhiteSpace(json))
+                if (!string.IsNullOrWhiteSpace(json))
                 {
                     if (json.Trim().StartsWith("{")) json = "[" + json + "]";
 
@@ -97,10 +117,8 @@ public class MaintenanceWorker : BackgroundService
         int updateCount = 0;
         int insertCount = 0;
 
-        // 🔍 1. เช็คซ้ำจากคอลัมน์ [id] (รหัสจาก API เช่น "0M001204")
         string checkSql = "SELECT COUNT(1) FROM [ZycodaApiByPB].[dbo].[Job_order] WHERE [id] = @id;";
 
-        // 📝 2. คำสั่ง UPDATE ครบทุกคอลัมน์ (ยกเว้น id และ id_db)
         string updateSql = @"
             UPDATE [ZycodaApiByPB].[dbo].[Job_order]
             SET [refid] = @refid, [reforder] = @reforder, [MN] = @MN, [MO] = @MO, [detail] = @detail, 
@@ -114,13 +132,12 @@ public class MaintenanceWorker : BackgroundService
                 [timefinish] = @timefinish, [timeaccept] = @timeaccept, [timestartrepair] = @timestartrepair, 
                 [timeendrepair] = @timeendrepair, [timeclose] = @timeclose, [timerunning] = @timerunning, 
                 [timeday] = @timeday, [fldetail] = @fldetail, [flrank] = @flrank, [flpngrp] = @flpngrp, 
-                [priority] = @priority, [status] = @status, [usercreate] = @usercreate, 
-                [sectioncreate] = @sectioncreate, [useraccept] = @useraccept, [userfinish] = @userfinish, 
+                [priority] = @priority, [status] = @status, 
+                [usercreate] = @usercreate, [sectioncreate] = @sectioncreate, [useraccept] = @useraccept, [userfinish] = @userfinish, 
                 [comment] = @comment, [solution] = @solution, [problem] = @problem, [causes] = @causes, 
                 [preventive] = @preventive, [ordertype] = @ordertype, [submiss] = @submiss, [bdfac] = @bdfac
             WHERE [id] = @id;";
 
-        // 📥 3. คำสั่ง INSERT ครบทุกคอลัมน์ (ปล่อย id_db ที่อยู่ท้ายตารางให้รัน Auto เองเงียบ ๆ)
         string insertSql = @"
             INSERT INTO [ZycodaApiByPB].[dbo].[Job_order] 
                 ([id], [refid], [reforder], [MN], [MO], [detail], [safety], [code], [fl], [downtime], 
@@ -143,30 +160,28 @@ public class MaintenanceWorker : BackgroundService
 
         foreach (var job in jobs)
         {
-            // 💡 4. แมปค่าและแก้ไข Logic ตัวแปรที่ซับซ้อนให้ลงล็อกกับ SQL Server
             var param = new
             {
-                id = job.id ?? job.id_h,                           // ถ้าระบบใหม่ไม่มี ให้ถอยไปใช้รหัสระบบเดิม
+                id = job.id ?? job.id_h,
                 refid = job.refId,
                 reforder = job.reforder,
                 MN = job.Mn,
                 MO = job.Mo,
-                detail = job.detail ?? job.detail_h,               // ถ้าระบบใหม่ไม่มี ให้ถอยไปใช้รายละเอียดระบบเดิม
-                safety = (string?)null,                            // ฟิล์ดเผื่อไว้ รองรับค่า Null ป้องกันโครงสร้างพัง
-                code = job.job_no,                                 // แมปรหัสบิล (job_no) เข้าช่อง code
+                detail = job.detail ?? job.detail_h,
+                safety = (string?)null,
+                code = job.id,
                 fl = job.fl,
                 downtime = job.downtime,
-                difftime = job.timedelay,                          // ใช้ระยะเวลาดีเลย์ซ่อมบำรุง
+                difftime = job.timedelay,
                 timerepair = (string?)null,
                 timerepair_ot = (string?)null,
                 tag_abnormal = (string?)null,
                 tag = (string?)null,
-                // แปลง List<string> ของช่างรับผิดชอบให้กลายเป็น String คั่นด้วยคอมม่าลง DB ป้องกันบ่นเรื่อง Type mismatch
                 tags = job.uassign != null ? string.Join(", ", job.uassign) : (string?)null,
                 jobtype = job.jobtype,
                 section = job.section,
                 productionstop = (string?)null,
-                planner = job.createby ?? job.workby,              // แมปตัวคนวางแผน/คนสร้างบิล
+                planner = job.createby ?? job.workby,
                 statustext = job.statustext,
                 statussection = (string?)null,
                 opt_5s = (string?)null,
@@ -190,12 +205,11 @@ public class MaintenanceWorker : BackgroundService
                 flpngrp = (string?)null,
                 priority = job.priority,
                 status = job.status,
-                // 🔥 เรียกใช้ Getter Property (UserDisplayName) ที่คุณฝ้ายแกะชื่อคนแจ้งงานไว้แล้ว มั่นใจได้ว่าข้อมูลไม่พังชัวร์
                 usercreate = job.UserDisplayName,
                 sectioncreate = job.sectioncreate ?? job.SectionName,
                 useraccept = job.useraccept,
                 userfinish = job.userfinish,
-                comment = job.view,                                // แฝง Comment หรือ View สรุปย่อยลงไป
+                comment = job.view,
                 solution = (string?)null,
                 problem = (string?)null,
                 causes = (string?)null,
@@ -205,7 +219,6 @@ public class MaintenanceWorker : BackgroundService
                 bdfac = (string?)null
             };
 
-            // 🛠️ ตรวจสอบความซ้ำซ้อนผ่านตัวแปร id หลัก
             var isExist = await connection.ExecuteScalarAsync<int>(checkSql, new { id = param.id });
 
             if (isExist > 0)
@@ -220,6 +233,6 @@ public class MaintenanceWorker : BackgroundService
             }
         }
 
-        _logger.LogInformation($"💾 [SUCCESS] ดึงและบันทึกข้อมูลเรียบร้อย -> เพิ่มงานใหม่: {insertCount} รายการ | อัปเดตงานซ้ำ: {updateCount} รายการ");
+        _logger.LogInformation($"💾 [SUCCESS] บันทึกข้อมูลเสร็จสิ้น -> เพิ่มใหม่: {insertCount} | อัปเดต: {updateCount}");
     }
 }

@@ -18,7 +18,6 @@ CultureInfo.DefaultThreadCurrentUICulture = culture;
 // 2. DB
 // ===============================
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
 builder.Services.AddDbContext<myDbContext>(options =>
     options.UseSqlServer(connectionString));
 
@@ -48,12 +47,10 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.SameSite = SameSiteMode.Lax;
     });
 
-builder.Services.AddHostedService<MaintenanceWorker>();
 // ===============================
 // 5. SESSION
 // ===============================
 builder.Services.AddDistributedMemoryCache();
-
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(60);
@@ -66,12 +63,16 @@ builder.Services.AddSession(options =>
 });
 
 // ===============================
-// 6. SERVICES
+// 6. SERVICES & BACKGROUND WORKER
 // ===============================
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddHttpClient();
+builder.Services.AddHttpClient(); // ✨ มีตัวนี้อยู่แล้ว ดีมากครับสำหรับใช้ใน Worker ตัวใหม่
 builder.Services.AddScoped<ApiService>();
-builder.Services.AddSingleton<LatestSyncStore>();
+builder.Services.AddSingleton<LatestSyncStore>(); // ✨ ลงทะเบียนตัวนี้ก่อน...
+
+// 🚀 ย้ายลงมาตรงนี้: เพื่อให้มั่นใจว่าดึง HttpClient และ LatestSyncStore ไปใช้งานใน Worker ได้อย่างปลอดภัย
+//builder.Services.AddHostedService<MaintenanceWorker>();
+
 var app = builder.Build();
 
 // ===============================
@@ -111,9 +112,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
