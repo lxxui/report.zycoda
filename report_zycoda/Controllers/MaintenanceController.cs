@@ -9,16 +9,21 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient; // 💡 ดึงตัวเชื่อมต่อ SQL เข้ามาใช้งาน
+using System.Data;
 
 namespace report_zycoda.Controllers
 {
     public class MaintenanceController : Controller
     {
         private readonly ApiService _apiService;
+        private readonly string _connectionString; // 💡 สร้างตัวแปรเก็บสายเชื่อมต่อดีบี
 
-        public MaintenanceController(ApiService apiService)
+        // อัปเดต Constructor ให้รับ IConfiguration เข้ามาด้วยเพื่อดึงค่าจาก appsettings.json
+        public MaintenanceController(ApiService apiService, IConfiguration configuration)
         {
             _apiService = apiService;
+            _connectionString = configuration.GetConnectionString("DefaultConnection") ?? "";
         }
 
         // ==================================================
@@ -35,7 +40,6 @@ namespace report_zycoda.Controllers
             var combined = new List<MaintenanceApiModels>();
             var culture = CultureInfo.InvariantCulture;
 
-            // ตรวจสอบสตริงวันที่และแปลงเป็น DateTime (เพื่อทำความสะอาด Format ให้แน่ใจว่าเป็น yyyy-MM-dd)
             if (!DateTime.TryParseExact(start, "yyyy-MM-dd", culture, DateTimeStyles.None, out var globalStart))
             {
                 if (!DateTime.TryParse(start, culture, DateTimeStyles.None, out globalStart))
@@ -55,7 +59,6 @@ namespace report_zycoda.Controllers
             string finalEndStr = globalEnd.ToString("yyyy-MM-dd", culture);
             var finalJobType = string.IsNullOrWhiteSpace(jobtype) ? "EM,CM" : jobtype;
 
-            // ปรับจากลูปเปลี่ยนเป็นเรียกตามค่า view ที่ส่งมาตรงๆ (หรือถ้า 'all' ก็ให้เรียกดึงทั้ง 2 view มารวมกัน)
             var viewsToCall = (view == "all") ? new List<string> { "followup", "myjob" } : new List<string> { view };
 
             var handler = new HttpClientHandler
@@ -64,7 +67,7 @@ namespace report_zycoda.Controllers
             };
 
             using var client = new HttpClient(handler);
-            client.Timeout = TimeSpan.FromMinutes(5); // ตั้งไว้ 5 นาทีเผื่อกรณีข้อมูลก้อนใหญ่มาก
+            client.Timeout = TimeSpan.FromMinutes(5);
             client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Add("accept", "application/json");
             client.DefaultRequestHeaders.Add("username", sessionUser);
@@ -111,7 +114,6 @@ namespace report_zycoda.Controllers
                 }
             }
 
-            // ตัดตัวซ้ำออก เผื่อกรณีดึง 'all' (followup + myjob) แล้วได้งาน ID ซ้ำกันมา
             combined = combined.GroupBy(x => x.id).Select(g => g.First()).ToList();
             System.Diagnostics.Debug.WriteLine($"[FETCH COMPLETE] 📊 ยอดรวมข้อมูลดิบทั้งหมดที่ดึงได้: {combined.Count} รายการ");
 
@@ -236,9 +238,6 @@ namespace report_zycoda.Controllers
             }
         }
 
-        // ==================================================
-        // PRIVATE FILTER LOGIC
-        // ==================================================
         private List<MaintenanceApiModels> FilterAndOrderJobs(List<MaintenanceApiModels> combined, string status, string sectionFrom, string sectionTo)
         {
             string searchStatus = (status ?? "").Trim().ToLower();
@@ -293,21 +292,43 @@ namespace report_zycoda.Controllers
             .ToList();
         }
 
-
+        // MACHINE: ดึงข้อมูลจาก SQL Server ไปใส่ ViewBag
+        // ==================================================
         [HttpGet]
-        public IActionResult Machine()
+        public async Task<IActionResult> Machine()
         {
-            // 🟢 คอมเมนต์หรือลบการเช็คสิทธิ์ Class 9 ออกชั่วคราว เพื่อบังคับให้เข้าหน้าเว็บได้ทันที
+            // 🟢 คอมเมนต์การเช็คสิทธิ์ออกตามเดิมของฝ้าย
             /*
             var userClass = User.Claims.FirstOrDefault(c => c.Type == "UserClass")?.Value;
-
-            if (userClass != "9")
-            {
-                return RedirectToAction("Index", "Maintenance");
-            }
+            if (userClass != "9") { return RedirectToAction("Index", "Maintenance"); }
             */
 
-            // ✅ ปล่อยให้ระบบเปิดไฟล์ Views/Maintenance/Machine.cshtml ได้เลยทันที
+            var machineList = new DataTable();
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(_connectionString))
+                {
+                    await conn.OpenAsync();
+                    string query = "SELECT * FROM [dbo].[Machine] WHERE [IsActive] = 1 ORDER BY [Id] DESC";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                        {
+                            machineList.Load(reader);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ SQL Query Error: {ex.Message}");
+            }
+
+            // ✅ ฝากตารางไว้ใน ViewBag แทน เพื่อไม่ให้ตีกับ Model บนหน้าจอเดิมของฝ้าย
+            ViewBag.MachineTable = machineList;
+
             return View();
         }
     }

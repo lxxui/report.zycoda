@@ -1499,7 +1499,7 @@
                             @{
                                 // 💡 1. UPDATED: แก้ไขชื่อตัวแปรให้ตรงกันทั้งหมด ป้องกันการพังของโค้ดเช็คสิทธิ์
                                 var userSection = User.FindFirst("Section")?.Value ?? "";
-                                var userClass = User.FindFirst("UserClass")?.Value ?? ""; // เปลี่ยนจาก adminClass เป็น userClass ให้แมตช์ด้านล่าง
+                                // var userClass = User.FindFirst("UserClass")?.Value ?? ""; เปลี่ยนจาก adminClass เป็น userClass ให้แมตช์ด้านล่าง
 
                                 // เช็คว่าเป็นกลุ่มทีมช่าง/วิศวกร (รหัสแผนกขึ้นต้นด้วย 310, 317, 320)
                                 bool isMaintenanceGroup = userSection.StartsWith("310") ||

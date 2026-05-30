@@ -1,6 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Http
+@using System.Data
 @inject IHttpContextAccessor HttpContextAccessor
 @model List<report_zycoda.Models.MaintenanceApiModels>
+
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -21,11 +23,15 @@
         background-color: #f8fafc;
         color: #1e293b;
     }
-    .text-navy { color: #0f172a !important; }
+
+    .text-navy {
+        color: #0f172a !important;
+    }
+
     .bg-navy-gradient {
         background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     }
-    
+
     /* Luxury Dashboard Header */
     .glass-header {
         background: #ffffff;
@@ -40,22 +46,25 @@
         border-radius: 14px;
         border: none;
     }
-    .custom-nav-pills .nav-link {
-        color: #64748b;
-        border-radius: 10px;
-        padding: 10px 20px;
-        font-weight: 600;
-        transition: all 0.25s ease;
-    }
-    .custom-nav-pills .nav-link.active {
-        background: #ffffff !important;
-        color: #0f172a !important;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08) !important;
-    }
-    .custom-nav-pills .nav-link:hover:not(.active) {
-        color: #334155;
-        background: rgba(255,255,255,0.5);
-    }
+
+        .custom-nav-pills .nav-link {
+            color: #64748b;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: all 0.25s ease;
+        }
+
+            .custom-nav-pills .nav-link.active {
+                background: #ffffff !important;
+                color: #0f172a !important;
+                box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08) !important;
+            }
+
+            .custom-nav-pills .nav-link:hover:not(.active) {
+                color: #334155;
+                background: rgba(255,255,255,0.5);
+            }
 
     /* Elegant Cards */
     .premium-card {
@@ -70,39 +79,45 @@
         border-collapse: separate;
         border-spacing: 0 8px !important;
     }
-    .modern-table thead th {
-        background: transparent !important;
-        border: none !important;
-        color: #94a3b8 !important;
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 0.05em;
-        padding: 12px 24px;
-    }
-    .modern-table tbody tr {
-        background: #ffffff;
-        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.02);
-        transition: all 0.2s ease;
-    }
-    .modern-table tbody tr:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
-        background: #ffffff !important;
-    }
-    .modern-table tbody td {
-        padding: 18px 24px !important;
-        border: none !important;
-        background: transparent !important;
-    }
-    .modern-table tbody tr td:first-child {
-        border-top-left-radius: 12px !important;
-        border-bottom-left-radius: 12px !important;
-    }
-    .modern-table tbody tr td:last-child {
-        border-top-right-radius: 12px !important;
-        border-bottom-right-radius: 12px !important;
-    }
+
+        .modern-table thead th {
+            background: transparent !important;
+            border: none !important;
+            color: #94a3b8 !important;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            padding: 12px 24px;
+        }
+
+        .modern-table tbody tr {
+            background: #ffffff;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.02);
+            transition: all 0.2s ease;
+        }
+
+            .modern-table tbody tr:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+                background: #ffffff !important;
+            }
+
+        .modern-table tbody td {
+            padding: 14px 24px !important;
+            border: none !important;
+            background: transparent !important;
+        }
+
+        .modern-table tbody tr td:first-child {
+            border-top-left-radius: 12px !important;
+            border-bottom-left-radius: 12px !important;
+        }
+
+        .modern-table tbody tr td:last-child {
+            border-top-right-radius: 12px !important;
+            border-bottom-right-radius: 12px !important;
+        }
 
     /* Minimalist Glow Buttons */
     .btn-action {
@@ -116,10 +131,24 @@
         transition: all 0.2s ease;
         background: #f8fafc;
     }
-    .btn-action-edit { color: #3b82f6; }
-    .btn-action-edit:hover { background: #dbeafe; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2); }
-    .btn-action-delete { color: #ef4444; }
-    .btn-action-delete:hover { background: #fee2e2; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
+
+    .btn-action-edit {
+        color: #3b82f6;
+    }
+
+        .btn-action-edit:hover {
+            background: #dbeafe;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+
+    .btn-action-delete {
+        color: #ef4444;
+    }
+
+        .btn-action-delete:hover {
+            background: #fee2e2;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
 
     .btn-add-new {
         background: #0f172a;
@@ -130,12 +159,13 @@
         border-radius: 12px;
         transition: all 0.2s ease;
     }
-    .btn-add-new:hover {
-        background: #1e293b;
-        transform: translateY(-1px);
-        box-shadow: 0 6px 20px rgba(15, 23, 42, 0.15);
-        color: #ffffff;
-    }
+
+        .btn-add-new:hover {
+            background: #1e293b;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.15);
+            color: #ffffff;
+        }
 
     /* Advanced DataTables UI Overrides */
     .dataTables_wrapper .dataTables_filter input {
@@ -146,15 +176,24 @@
         font-size: 0.9rem;
         outline: none;
     }
-    .dataTables_wrapper .dataTables_filter input:focus {
-        border-color: #94a3b8 !important;
-        box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.1);
-    }
+
+        .dataTables_wrapper .dataTables_filter input:focus {
+            border-color: #94a3b8 !important;
+            box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.1);
+        }
+
     .paginate_button.page-item.active .page-link {
         background-color: #0f172a !important;
         border-color: #0f172a !important;
     }
-    .page-link { color: #475569; border-radius: 8px !important; margin: 0 2px; border: none !important; background: #f1f5f9; }
+
+    .page-link {
+        color: #475569;
+        border-radius: 8px !important;
+        margin: 0 2px;
+        border: none !important;
+        background: #f1f5f9;
+    }
 </style>
 
 @{
@@ -162,7 +201,6 @@
 }
 
 <div class="container-fluid py-4 px-md-5">
-    
     <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between p-4 mb-4 glass-header shadow-sm">
         <div class="d-flex align-items-center mb-3 mb-md-0">
             <div class="bg-navy-gradient text-white rounded-3 p-3 me-3 d-flex align-items-center justify-content-center shadow" style="width: 56px; height: 56px; border-radius: 14px !important;">
@@ -204,132 +242,393 @@
     </ul>
 
     <div class="tab-content" id="adminTabContent">
-        
+        <!-- TAB 1: MACHINE MANAGEMENT -->
         <div class="tab-pane fade show active" id="machine-pane" role="tabpanel">
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-check-circle-fill text-success fs-4 me-2"></i>
+                        <div>
+                            <strong class="text-success">นำเข้าข้อมูลสำเร็จ!</strong> @TempData["Success"]
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-exclamation-triangle-fill text-danger fs-4 me-2"></i>
+                        <div>
+                            <strong class="text-danger">เกิดข้อผิดพลาด!</strong> @TempData["Error"]
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            @* 🟢 แกะก้อนข้อมูลตารางจาก ViewBag มาเตรียมใช้งานใน Dashboard และตาราง *@
+            @{
+                var machineTableData = ViewBag.MachineTable as System.Data.DataTable;
+                int totalMachines = machineTableData != null ? machineTableData.Rows.Count : 0;
+                int activeMachines = machineTableData != null ? machineTableData.Rows.Cast<System.Data.DataRow>().Count(r => r["IsActive"] != DBNull.Value && Convert.ToBoolean(r["IsActive"])) : 0;
+            }
+
             <div class="row g-3 mb-4">
                 <div class="col-6 col-md-3">
                     <div class="p-3 bg-white rounded-4 border-0 shadow-sm d-flex align-items-center">
                         <div class="p-2.5 bg-primary-subtle text-primary rounded-3 me-3"><i class="bi bi-box-seam fs-4"></i></div>
-                        <div><small class="text-muted d-block">เครื่องจักรทั้งหมด</small><span class="fw-bold fs-5">124 เครื่อง</span></div>
+                        <div>
+                            <small class="text-muted d-block">เครื่องจักรทั้งหมด</small>
+                            <span class="fw-bold fs-5">@totalMachines เครื่อง</span>
+                        </div>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
                     <div class="p-3 bg-white rounded-4 border-0 shadow-sm d-flex align-items-center">
                         <div class="p-2.5 bg-success-subtle text-success rounded-3 me-3"><i class="bi bi-activity fs-4"></i></div>
-                        <div><small class="text-muted d-block">Active Status</small><span class="fw-bold fs-5">120 เครื่อง</span></div>
+                        <div>
+                            <small class="text-muted d-block">Active Status</small>
+                            <span class="fw-bold fs-5">@activeMachines เครื่อง</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card premium-card">
-                <div class="card-body p-4">
-                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-3">
-                        <h5 class="fw-bold mb-0 text-navy">ทะเบียนทรัพยากรเครื่องจักร</h5>
-                        <button class="btn btn-add-new shadow-sm" onclick="openAddMachineModal()">
+            <div class="card border-0 shadow-sm rounded-4 overlay-container overflow-hidden">
+                <div class="card-header bg-white border-0 pt-4 pb-0 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+                    <div>
+                        <h5 class="fw-bold text-slate-800 mb-1 d-flex align-items-center">
+                            <i class="bi bi-cpu-fill me-2 text-navy fs-4"></i>ทะเบียนทรัพยากรเครื่องจักร (Mapped with Excel Layout)
+                        </h5>
+                        <p class="text-muted small mb-0">โครงสร้างหน่วยงานและผังข้อมูลเกตเวย์ระดับเทคนิคคอร์เซิร์ฟเวอร์</p>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-outline-success shadow-sm d-flex align-items-center py-2 px-3 rounded-3"
+                                style="font-size: 0.9rem;"
+                                data-bs-toggle="modal"
+                                data-bs-target="#importExcelModal">
+                            <i class="bi bi-file-earmark-excel-fill me-2"></i>นำเข้าผ่าน Excel
+                        </button>
+
+                        <button class="btn btn-add-new shadow-sm py-2 px-3 rounded-3 d-flex align-items-center" onclick="openAddMachineModal()" style="font-size: 0.9rem;">
                             <i class="bi bi-plus-lg me-2"></i>เพิ่มเครื่องจักรใหม่
                         </button>
                     </div>
-                    <div class="table-responsive">
-                        <table class="table modern-table align-middle" id="machineTable">
-                            <thead>
+                </div>
+
+                <div class="card-body p-4 pt-3">
+                    <div class="row g-3 mb-3 align-items-center">
+                        <div class="col-sm-6 d-flex align-items-center gap-2">
+                            <span class="text-secondary small text-nowrap">แสดงผลสูงสุด:</span>
+                            <select id="customPageLength" class="form-select form-select-sm rounded-3 bg-light border-0 px-3 py-1.5" style="width: 100px; font-weight: 500;">
+                                <option value="10">10 แถว</option>
+                                <option value="25">25 แถว</option>
+                                <option value="50">50 แถว</option>
+                                <option value="100">100 แถว</option>
+                                <option value="500">500 แถว</option>
+                                <option value="-1">ทั้งหมด</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6 d-flex justify-content-sm-end">
+                            <div id="customSearchWrapper" class="position-relative" style="max-width: 340px; width: 100%;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive rounded-3 border border-light">
+                        <table class="table modern-table table-hover align-middle mb-0" id="machineTable" style="width:100%">
+                            <thead class="table-light text-secondary small text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">
                                 <tr>
-                                    <th width="25%">รหัสเครื่องจักร (Machine ID)</th>
-                                    <th width="45%">ชื่อเครื่องจักรประจำการ</th>
-                                    <th width="15%">สถานะเซิร์ฟเวอร์</th>
-                                    <th width="15%" class="text-center">การจัดการ</th>
+                                    <th width="12%" class="py-3">ID / Parent</th>
+                                    <th width="28%" class="py-3">ชื่อเครื่องจักร / รายละเอียดประจำการ</th>
+                                    <th width="18%" class="py-3">โครงสร้างหน่วยงาน (Plant / Sec)</th>
+                                    <th width="14%" class="py-3">Asset / Zone / CID</th>
+                                    <th width="10%" class="py-3 text-center">ระดับ (Rank/Lvl)</th>
+                                    <th width="10%" class="py-3 text-center">สถานะ</th>
+                                    <th width="8%" class="text-center py-3">การจัดการ</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="fw-bold text-navy">MC-001</td>
-                                    <td class="fw-medium text-secondary">CNC Lathe Intelligent V2</td>
-                                    <td><span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1.5 rounded-pill fw-semibold">Operational</span></td>
-                                    <td class="text-center">
-                                        <button class="btn-action btn-action-edit me-1" onclick="openEditModal('MC-001', 'CNC Lathe Intelligent V2')" title="แก้ไขข้อมูล">
-                                            <i class="bi bi-pencil-fill"></i>
-                                        </button>
-                                        <button class="btn-action btn-action-delete" onclick="deleteMachine('MC-001')" title="ลบออกจากระบบ">
-                                            <i class="bi bi-trash3-fill"></i>
-                                        </button>
-                                    </td>
-                                </tr>
+                            <tbody class="small text-slate-700">
                             </tbody>
                         </table>
                     </div>
+
+                    @* <div class="table-responsive rounded-3 border border-light">
+
+                        <table class="table modern-table table-hover align-middle mb-0" id="machineTable" style="width:100%">
+                            <thead class="table-light text-secondary small text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">
+                                <tr>
+                                    <th width="12%" class="py-3">ID / Parent</th>
+                                    <th width="28%" class="py-3">ชื่อเครื่องจักร / รายละเอียดประจำการ</th>
+                                    <th width="18%" class="py-3">โครงสร้างหน่วยงาน (Plant / Sec)</th>
+                                    <th width="14%" class="py-3">Asset / Zone / CID</th>
+                                    <th width="10%" class="py-3 text-center">ระดับ (Rank/Lvl)</th>
+                                    <th width="10%" class="py-3 text-center">สถานะ</th>
+                                    <th width="8%" class="text-center py-3">การจัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody class="small text-slate-700">
+                                @if (machineTableData != null && machineTableData.Rows.Count > 0)
+                                {
+                                    foreach (System.Data.DataRow row in machineTableData.Rows)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="fw-bold text-navy">@row["MachineCode"]</div>
+                                                <small class="text-muted font-monospace" style="font-size:0.72rem;">
+                                                    Parent: @(string.IsNullOrEmpty(row["ParentCode"]?.ToString()) ? "Root" : row["ParentCode"])
+                                                </small>
+                                            </td>
+
+                                            <td>
+                                                <div class="fw-semibold text-secondary">@row["MachineName"]</div>
+                                                <small class="text-muted text-truncate d-block" style="max-width: 250px;" title="@row["Description"]">
+                                                    @(string.IsNullOrEmpty(row["Description"]?.ToString()) ? "-" : row["Description"])
+                                                </small>
+                                            </td>
+
+                                            <td>
+                                                <div class="mb-1">
+                                                    <span class="badge bg-light text-dark border rounded-pill px-2 py-0.5" style="font-size:0.75rem;">
+                                                        🏭 @(string.IsNullOrEmpty(row["Plant"]?.ToString()) ? "N/A" : row["Plant"])
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <span class="badge bg-light text-secondary border rounded-pill px-2 py-0.5" style="font-size:0.75rem;">
+                                                        📂 Sec @row["Sections"] - @(string.IsNullOrEmpty(row["SectionName"]?.ToString()) ? "ทั่วไป" : row["SectionName"])
+                                                    </span>
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                <div class="small fw-medium text-navy">@(string.IsNullOrEmpty(row["AssetNumber"]?.ToString()) ? "-" : row["AssetNumber"])</div>
+                                                <div class="small text-muted font-monospace" style="font-size:0.72rem;">
+                                                    Z: @(string.IsNullOrEmpty(row["Zone"]?.ToString()) ? "-" : row["Zone"]) | CID: @(string.IsNullOrEmpty(row["CID"]?.ToString()) ? "-" : row["CID"])
+                                                </div>
+                                            </td>
+
+                                            <td class="text-center">
+                                                <div class="small fw-bold text-dark">Rank: @(string.IsNullOrEmpty(row["MachineRank"]?.ToString()) ? "-" : row["MachineRank"])</div>
+                                                <div class="small text-muted" style="font-size:0.75rem;">Level: @row["MachineLevel"]</div>
+                                            </td>
+
+                                            <td class="text-center">
+                                                @if (row["IsActive"] != DBNull.Value && Convert.ToBoolean(row["IsActive"]))
+                                                {
+                                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 rounded-pill fw-semibold" style="font-size:0.75rem;">Active</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-1 rounded-pill fw-semibold" style="font-size:0.75rem;">Inactive</span>
+                                                }
+                                            </td>
+
+                                            <td class="text-center">
+                                                <button class="btn-action btn-action-edit me-1"
+                                                        onclick="openEditModal('@row["MachineCode"]', '@row["MachineName"]', '@row["ParentCode"]', '@row["MachineRank"]', @row["MachineLevel"], '@row["Description"]', '@row["Plant"]', '', '@row["Sections"]', '@row["SectionName"]', '@row["AssetNumber"]', '@row["Zone"]', '@row["CID"]', 1, 100, 100, 100, 100)"
+                                                        title="แก้ไขข้อมูล">
+                                                    <i class="bi bi-pencil-fill"></i>
+                                                </button>
+                                                <button class="btn-action btn-action-delete" onclick="deleteMachine('@row["MachineCode"]')" title="ลบออกจากระบบ">
+                                                    <i class="bi bi-trash3-fill"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                }
+                            </tbody>
+                        </table>
+                    </div> *@
                 </div>
             </div>
+
+            <style>
+                /* CSS ตกแต่งสไตล์ Enterprise คลีนๆ */
+                .text-slate-800 {
+                    color: #1e293b;
+                }
+
+                .text-slate-700 {
+                    color: #334155;
+                }
+
+                .rounded-4 {
+                    border-radius: 1rem !important;
+                }
+
+                .modern-table tbody tr:hover {
+                    background-color: #f8fafc;
+                    transition: background 0.1s ease-in-out;
+                }
+
+                .form-select-sm:focus {
+                    border-color: #cbd5e1;
+                    box-shadow: none;
+                }
+            </style>
         </div>
+        <!-- TAB 2: SECTION MANAGEMENT -->
 
         <div class="tab-pane fade" id="section-pane" role="tabpanel">
-            <div class="card premium-card">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h5 class="fw-bold mb-0 text-navy">โครงสร้างหน่วยงาน / ฝ่ายปฏิบัติการ</h5>
-                        <button class="btn btn-add-new shadow-sm">
+
+            @* 🟢 แกะข้อมูลและคำนวณสถิติของแผนก (สมมติว่าส่งผ่านมาทาง ViewBag.SectionTable หรือดึงจาก Data) *@
+            @{
+                var sectionTableData = ViewBag.SectionTable as System.Data.DataTable;
+                int totalSections = sectionTableData != null ? sectionTableData.Rows.Count : 0;
+                // แผนกส่วนใหญ่จะ Active เสมอ หรือถ้ามี Flag สามารถปรับเงื่อนไขตรงนี้ได้ครับฝ้าย
+                int activeSections = totalSections;
+            }
+
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-white rounded-4 border-0 shadow-sm d-flex align-items-center">
+                        <div class="p-2.5 bg-dark-subtle text-dark rounded-3 me-3" style="background-color: #f1f5f9 !important;"><i class="bi bi-diagram-3-fill fs-4"></i></div>
+                        <div>
+                            <small class="text-muted d-block">แผนกทั้งหมด</small>
+                            <span class="fw-bold fs-5" id="totalSectionsCount">0</span> แผนก
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-white rounded-4 border-0 shadow-sm d-flex align-items-center">
+                        <div class="p-2.5 bg-success-subtle text-success rounded-3 me-3"><i class="bi bi-shield-check fs-4"></i></div>
+                        <div>
+                            <small class="text-muted d-block">เปิดใช้งานอยู่</small>
+                            <span class="fw-bold fs-5 text-success" id="activeSectionsCount">0</span> แผนก
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 overlay-container overflow-hidden">
+                <div class="card-header bg-white border-0 pt-4 pb-0 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+                    <div>
+                        <h5 class="fw-bold text-slate-800 mb-1 d-flex align-items-center">
+                            <i class="bi bi-folder-fill me-2 text-dark fs-4"></i>โครงสร้างหน่วยงาน / ฝ่ายปฏิบัติการ
+                        </h5>
+                        <p class="text-muted small mb-0">จัดการและซิงค์ข้อมูลรหัสแผนกย่อยภายในโรงงานผ่านระบบควบคุมศูนย์กลาง</p>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2">
+                        <form asp-controller="Section" asp-action="UploadExcel" method="post" enctype="multipart/form-data" class="d-flex align-items-center gap-2 border border-dashed border-secondary-subtle p-1.5 rounded-3 bg-light-subtle">
+                            @Html.AntiForgeryToken()
+                            <input type="file" name="excelFile" class="form-control form-control-sm border-0 bg-transparent text-muted text-truncate" style="max-width: 160px; font-size: 0.78rem;" required />
+                            <button type="submit" class="btn btn-sm btn-outline-success border-0 rounded-2 py-1 px-2.5 fw-semibold d-flex align-items-center gap-1">
+                                <i class="bi bi-file-earmark-excel-fill"></i> Import
+                            </button>
+                        </form>
+
+                        <button class="btn btn-add-new shadow-sm py-2 px-3 rounded-3 d-flex align-items-center text-white" style="background-color: #0f172a; font-size: 0.9rem;" onclick="openAddSectionModal()">
                             <i class="bi bi-plus-lg me-2"></i>เพิ่มแผนกใหม่
                         </button>
                     </div>
-                    <div class="table-responsive">
-                        <table class="table modern-table align-middle" id="sectionTable">
-                            <thead>
+                </div>
+
+                <div class="card-body p-4 pt-4">
+                    <div class="table-responsive rounded-3 border border-light">
+                        <table class="table modern-table table-hover align-middle mb-0" id="sectionTable" style="width:100%;">
+                            <thead class="table-light text-secondary small text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">
                                 <tr>
-                                    <th width="25%">Section ID</th>
-                                    <th width="60%">ชื่อหน่วยงานประจำโรงงาน</th>
-                                    <th width="15%" class="text-center">การจัดการ</th>
+                                    <th class="py-3 px-3" style="width: 15%;">Section ID</th>
+                                    <th class="py-3" style="width: 35%;">ชื่อหน่วยงาน / ฝ่ายปฏิบัติการ</th>
+                                    <th class="py-3" style="width: 20%;">สังกัดโรงงาน (Plant)</th>
+                                    <th class="py-3 font-monospace" style="width: 15%;">Work Center</th>
+                                    <th class="py-3 text-center" style="width: 15%;">การจัดการ</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="fw-bold text-navy">SEC-101</td>
-                                    <td class="fw-medium text-secondary">ฝ่ายซ่อมบำรุงวิศวกรรมหลัก (Engineering Maintenance Department)</td>
-                                    <td class="text-center">
-                                        <button class="btn-action btn-action-edit me-1"><i class="bi bi-pencil-fill"></i></button>
-                                        <button class="btn-action btn-action-delete" onclick="deleteSection('SEC-101')"><i class="bi bi-trash3-fill"></i></button>
-                                    </td>
-                                </tr>
+                            <tbody class="small text-slate-700">
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
+        <!-- TAB 3: User MANAGEMENT -->
 
         <div class="tab-pane fade" id="user-pane" role="tabpanel">
-            <div class="card premium-card">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h5 class="fw-bold mb-0 text-navy"><i class="bi bi-people-fill me-2"></i>ทะเบียนสิทธิ์และคุมบัญชีพนักงาน</h5>
-                        <div>
-                            <input type="file" id="excelFileInput" accept=".xlsx, .xls" style="display: none;" onchange="uploadExcelFile()" />
 
-                            <button class="btn btn-success rounded-3 px-4 py-2 fw-bold shadow-sm border-0 bg-success" onclick="document.getElementById('excelFileInput').click()">
-                                <i class="bi bi-file-earmark-excel-fill me-2"></i> นำเข้าข้อมูลพนักงาน (Import Excel)
-                            </button>
+            @* 🟢 แกะข้อมูลและคำนวณสถิติของพนักงานแยกสถิติ Active / Inactive ชัดเจน *@
+            @{
+                var userTableData = ViewBag.UserTable as System.Data.DataTable;
+                int totalUsers = userTableData != null ? userTableData.Rows.Count : 0;
+
+                // นับจำนวนพนักงานที่เป็น Active และ Inactive (อิงตามคอลัมน์ IsActive ใน DB ของระบบฝ้าย)
+                int activeUsers = userTableData != null ? userTableData.Rows.Cast<System.Data.DataRow>().Count(r => r["IsActive"] != DBNull.Value && Convert.ToBoolean(r["IsActive"])) : 0;
+                int inactiveUsers = totalUsers - activeUsers;
+            }
+
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-white rounded-4 border-0 shadow-sm d-flex align-items-center">
+                        <div class="p-2.5 bg-primary-subtle text-primary rounded-3 me-3"><i class="bi bi-people-fill fs-4"></i></div>
+                        <div>
+                            <small class="text-muted d-block">พนักงานทั้งหมด</small>
+                            <span class="fw-bold fs-5" id="totalUsersCount">0</span> คน
                         </div>
                     </div>
-                    <div class="table-responsive">
-                        <table class="table modern-table align-middle" id="userTable">
-                            <thead>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-white rounded-4 border-0 shadow-sm d-flex align-items-center">
+                        <div class="p-2.5 bg-success-subtle text-success rounded-3 me-3"><i class="bi bi-person-check-fill fs-4"></i></div>
+                        <div>
+                            <small class="text-muted d-block">Active Status</small>
+                            <span class="fw-bold fs-5 text-success" id="activeUsersCount">0</span> คน
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-white rounded-4 border-0 shadow-sm d-flex align-items-center">
+                        <div class="p-2.5 bg-danger-subtle text-danger rounded-3 me-3"><i class="bi bi-person-x-fill fs-4"></i></div>
+                        <div>
+                            <small class="text-muted d-block">Inactive Status</small>
+                            <span class="fw-bold fs-5 text-danger">0</span> คน
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 overlay-container overflow-hidden">
+                <div class="card-header bg-white border-0 pt-4 pb-0 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+                    <div>
+                        <h5 class="fw-bold text-slate-800 mb-1 d-flex align-items-center">
+                            <i class="bi bi-shield-lock-fill me-2 text-dark fs-4"></i>ทะเบียนสิทธิ์และคุมบัญชีพนักงาน
+                        </h5>
+                        <p class="text-muted small mb-0">ตรวจสอบโครงสร้างระดับสิทธิ์ (Class) บัญชีเข้าใช้งาน และจัดการซิงค์ข้อมูลผ่านระบบกลาง</p>
+                    </div>
+
+                    <div>
+                        <form id="userExcelForm" asp-controller="User" asp-action="UploadExcel" method="post" enctype="multipart/form-data" class="d-inline-block">
+                            @Html.AntiForgeryToken()
+                            <input type="file" id="excelFileInput" name="excelFile" accept=".xlsx, .xls" style="display: none;" onchange="submitUserExcel()" />
+                            <button type="button" class="btn btn-outline-success shadow-sm d-flex align-items-center py-2 px-3 rounded-3" style="font-size: 0.9rem;" onclick="document.getElementById('excelFileInput').click()">
+                                <i class="bi bi-file-earmark-excel-fill me-2"></i>นำเข้าผ่าน Excel
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card-body p-4 pt-4">
+                    <div class="table-responsive rounded-3 border border-light">
+                        <table class="table modern-table table-hover align-middle mb-0" id="userTable" style="width: 100%;">
+                            <thead class="table-light text-secondary small text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">
                                 <tr>
-                                    <th>ชื่อผู้ใช้งาน</th>
-                                    <th>ชื่อ-นามสกุลพนักงาน</th>
-                                    <th>ฝ่ายงานต้นสังกัด</th>
-                                    <th>ระดับความปลอดภัย (Class)</th>
-                                    <th class="text-center">จัดการสิทธิ์</th>
+                                    <th class="py-3 px-3" style="width: 15%;">ชื่อผู้ใช้งาน</th>
+                                    <th class="py-3" style="width: 25%;">ชื่อ-นามสกุลพนักงาน</th>
+                                    <th class="py-3" style="width: 20%;">อีเมล</th>
+                                    <th class="py-3" style="width: 15%;">ฝ่ายงาน (Section)</th>
+                                    <th class="py-3 text-center" style="width: 13%;">สิทธิ์ (Class)</th>
+                                    <th class="py-3 text-center" style="width: 12%;">จัดการ</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="fw-bold text-navy">admin_zycoda</td>
-                                    <td class="text-secondary fw-medium">สมชาย มั่นคงเจริญ</td>
-                                    <td class="text-muted small">Automation Engineering</td>
-                                    <td><span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1.5 rounded-pill fw-bold">Class 9 (Root Admin)</span></td>
-                                    <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-dark px-3 rounded-3 fw-semibold">
-                                            <i class="bi bi-shield-shaded me-1"></i> ปรับระดับสิทธิ์
-                                        </button>
-                                    </td>
-                                </tr>
+                            <tbody class="small text-slate-700">
                             </tbody>
                         </table>
                     </div>
@@ -337,114 +636,717 @@
             </div>
         </div>
 
+
+
+        <!-- TAB 4: Sync from Zycoda -->
         <div class="tab-pane fade" id="sync-pane" role="tabpanel">
-            <div class="card premium-card">
-                <div class="card-body p-4">
-                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 border-bottom pb-4">
-                        <div>
-                            <h5 class="fw-bold mb-1 text-navy">สถานะดาต้าเกตเวย์เว็บเซิร์ฟเวอร์</h5>
-                            <p class="text-muted small mb-0">ข้อมูลบันทึกสถิติรวมของระบบ RawData ล่าสุดจาก API เครือข่ายหลัก</p>
-                        </div>
-                        <button class="btn btn-success rounded-3 px-4 py-2.5 fw-bold shadow-sm border-0 bg-success" onclick="triggerManualSync()" style="box-shadow: 0 4px 14px rgba(25, 135, 84, 0.3) !important;">
+            <div class="card border-0 shadow-sm rounded-4 overlay-container overflow-hidden">
+
+                <div class="card-header bg-white border-0 pt-4 pb-2 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+                    <div>
+                        <h5 class="fw-bold text-slate-800 mb-1 d-flex align-items-center">
+                            <i class="bi bi-hdd-network-fill me-2 text-dark fs-4"></i>สถานะดาต้าเกตเวย์เว็บเซิร์ฟเวอร์
+                        </h5>
+                        <p class="text-muted small mb-0">ข้อมูลบันทึกสถิติรวมของระบบ RawData ล่าสุดจาก API เครือข่ายหลัก</p>
+                    </div>
+                    <div>
+                        <button class="btn shadow-sm py-2 px-3 rounded-3 d-flex align-items-center text-white fw-semibold" onclick="triggerManualSync()" style="background-color: #198754; font-size: 0.9rem;">
                             <i class="bi bi-arrow-clockwise me-2"></i>บังคับซิงค์ข้อมูลเดี๋ยวนี้ (Sync Global)
                         </button>
                     </div>
-                    
-                    <div class="row g-4">
-                        <div class="col-md-4">
-                            <div class="p-4 border border-slate rounded-4 bg-light shadow-none">
-                                <div class="text-muted small mb-1 fw-semibold text-uppercase">ปริมาณข้อมูลสต็อก (RawData)</div>
-                                <div class="fw-bold text-dark fs-3">@Model?.Count <span class="fs-6 text-muted font-monospace">records</span></div>
+                </div>
+
+                <div class="card-body p-4 pt-3">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-4">
+                            <div class="p-3 bg-white rounded-4 border border-light shadow-sm d-flex align-items-center">
+                                <div class="p-2.5 bg-dark-subtle text-dark rounded-3 me-3" style="background-color: #f1f5f9 !important;"><i class="bi bi-database-fill-gear fs-4"></i></div>
+                                <div>
+                                    <small class="text-muted d-block">ปริมาณข้อมูลสต็อก (RawData)</small>
+                                    <span class="fw-bold fs-5">@Model?.Count <span class="fs-7 text-muted font-monospace fw-normal">records</span></span>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="p-4 border border-slate rounded-4 bg-light shadow-none">
-                                <div class="text-muted small mb-1 fw-semibold text-uppercase">Auto Sync ล่าสุดเครือข่าย</div>
-                                <div class="fw-bold text-success fs-5 pt-1"><i class="bi bi-check-all me-1"></i>วันนี้, 16:33 น.</div>
+                        <div class="col-12 col-md-4">
+                            <div class="p-3 bg-white rounded-4 border border-light shadow-sm d-flex align-items-center">
+                                <div class="p-2.5 bg-success-subtle text-success rounded-3 me-3"><i class="bi bi-check-all fs-4"></i></div>
+                                <div>
+                                    <small class="text-muted d-block">Auto Sync ล่าสุดเครือข่าย</small>
+                                    <span class="fw-bold fs-5 text-success">วันนี้, 16:33 น.</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="p-4 border border-slate rounded-4 bg-light shadow-none">
-                                <div class="text-muted small mb-1 fw-semibold text-uppercase">Node API Connection</div>
-                                <div class="pt-1"><span class="badge bg-success px-3 py-2 rounded-pill fw-semibold"><i class="bi bi-hdd-network-fill me-1"></i> Connected / Stable</span></div>
+                        <div class="col-12 col-md-4">
+                            <div class="p-3 bg-white rounded-4 border border-light shadow-sm d-flex align-items-center">
+                                <div class="p-2.5 bg-primary-subtle text-primary rounded-3 me-3"><i class="bi bi-router-fill fs-4"></i></div>
+                                <div>
+                                    <small class="text-muted d-block">Node API Connection</small>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 rounded-pill fw-bold small mt-1" style="font-size: 0.8rem;">Connected / Stable</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
+
+        <style>
+            .text-slate-800 {
+                color: #1e293b;
+            }
+
+            .text-slate-700 {
+                color: #334155;
+            }
+
+            .rounded-4 {
+                border-radius: 1rem !important;
+            }
+
+            .bg-light-subtle {
+                background-color: #f8fafc !important;
+            }
+
+            /* สไตล์สำหรับตารางโมเดิร์นคอร์เซิร์ฟเวอร์ */
+            .modern-table thead th {
+                font-weight: 600;
+                font-size: 0.75rem;
+                letter-spacing: 0.5px;
+                color: #64748b !important;
+                border-bottom: 2px solid #f1f5f9 !important;
+                background-color: #f8fafc;
+            }
+
+            .modern-table tbody tr {
+                border-bottom: 1px solid #f1f5f9;
+                transition: all 0.15s ease-in-out;
+            }
+
+                .modern-table tbody tr:hover {
+                    background-color: #f8fafc !important;
+                }
+
+            /* ปุ่ม Action ประจำแถวสำหรับการลบและแก้ไขข้อมูล */
+            .btn-action {
+                width: 32px;
+                height: 32px;
+                border-radius: 8px;
+                border: none;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s;
+                background-color: #f1f5f9;
+                color: #475569;
+            }
+
+            .btn-action-edit:hover {
+                background-color: #e0f2fe;
+                color: #0284c7;
+            }
+
+            .btn-action-delete:hover {
+                background-color: #fee2e2;
+                color: #dc2626;
+            }
+
+            .tracking-wider {
+                letter-spacing: 0.05em;
+            }
+        </style>
+
+       
 
     </div>
 </div>
 
-<div class="modal fade" id="editMachineModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered">
+<!-- DYNAMIC COMPREHENSIVE EXCEL-READY MODAL -->
+<div class="modal fade" id="machineModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow:hidden;">
             <div class="modal-header bg-navy-gradient text-white py-3 px-4 border-0">
-                <h5 class="modal-title fw-bold d-flex align-items-center"><i class="bi bi-sliders2-vertical me-2.5"></i>แก้ไขข้อมูลเครื่องจักรเทคนิค</h5>
+                <h5 class="modal-title fw-bold d-flex align-items-center" id="modalTitle">
+                    <i class="bi bi-sliders2-vertical me-2.5"></i>รายละเอียดข้อมูลเชิงโครงข่ายเครื่องจักร
+                </h5>
                 <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-4 bg-white">
-                <div class="mb-3">
-                    <label class="form-label small fw-bold text-uppercase text-muted">Machine ID (รหัสระบบล็อก)</label>
-                    <input type="text" id="editMachineID" class="form-control bg-light border-0 fw-bold px-3 py-2.5 text-secondary rounded-3" readonly />
-                </div>
-                <div class="mb-2">
-                    <label class="form-label small fw-bold text-uppercase text-muted">Machine Name (ชื่อเครื่องจักรใหม่)</label>
-                    <input type="text" id="editMachineName" class="form-control px-3 py-2.5 border-slate rounded-3" placeholder="กรอกชื่อใหม่ประจำการ..." style="border: 1px solid #cbd5e1;" />
-                </div>
+            <div class="modal-body p-4 bg-white" style="max-height: 75vh; overflow-y: auto;">
+                <form id="machineForm">
+
+                    <!-- SECTION 1: IDENTITY & DETAILS -->
+                    <h6 class="fw-bold text-navy mb-3 pb-2 border-bottom d-flex align-items-center">
+                        <i class="bi bi-info-square-fill me-2 text-primary"></i> ข้อมูลหลักระบุตัวตน (Identity & Details)
+                    </h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Machine ID (id)</label>
+                            <input type="text" id="excel_id" class="form-control px-3 py-2" placeholder="เช่น MC-001" style="border-radius: 10px;" />
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label small fw-bold text-uppercase text-muted">คำอธิบาย/รายละเอียดเชิงเทคนิค (detail)</label>
+                            <input type="text" id="excel_detail" class="form-control px-3 py-2" placeholder="กรอกชื่อเรียกแผนกปฏิบัติการหรือรายละเอียดเครื่อง..." style="border-radius: 10px;" />
+                        </div>
+                    </div>
+
+                    <!-- SECTION 2: HIERARCHY STRUCTURE -->
+                    <h6 class="fw-bold text-navy mb-3 pb-2 border-bottom d-flex align-items-center">
+                        <i class="bi bi-diagram-3-fill me-2 text-secondary"></i> ระดับชั้นและผังโครงสร้าง (Hierarchy Layout)
+                    </h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Parent ID</label>
+                            <input type="text" id="excel_parent" class="form-control px-3 py-2" placeholder="เครื่องหลักอ้างอิง..." style="border-radius: 10px;" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Rank</label>
+                            <input type="text" id="excel_rank" class="form-control px-3 py-2" placeholder="เช่น A, B, C" style="border-radius: 10px;" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Level</label>
+                            <input type="number" id="excel_level" class="form-control px-3 py-2" placeholder="1" style="border-radius: 10px;" />
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Is Last?</label>
+                            <div class="form-check form-switch pt-2">
+                                <input class="form-check-input" type="checkbox" id="excel_is_last" style="transform: scale(1.15);">
+                                <label class="form-check-label small ms-1" for="excel_is_last">ใช่</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 3: LINE DEPT & GROUPS -->
+                    <h6 class="fw-bold text-navy mb-3 pb-2 border-bottom d-flex align-items-center">
+                        <i class="bi bi-geo-alt-fill me-2 text-danger"></i> พิกัดโรงงานและกลุ่มงานสังกัด (Location & Mapping)
+                    </h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Plant Name</label>
+                            <input type="text" id="excel_plant" class="form-control px-3 py-2" placeholder="Plant Name" style="border-radius: 10px;" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Plant Group</label>
+                            <input type="text" id="excel_plantgroup" class="form-control px-3 py-2" placeholder="Group..." style="border-radius: 10px;" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Section</label>
+                            <input type="text" id="excel_section" class="form-control px-3 py-2" placeholder="Section" style="border-radius: 10px;" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Section ID</label>
+                            <input type="text" id="excel_section_id" class="form-control px-3 py-2" placeholder="SEC-XX" style="border-radius: 10px;" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Small Group</label>
+                            <input type="text" id="excel_smallgroup" class="form-control px-3 py-2" placeholder="กลุ่มย่อย..." style="border-radius: 10px;" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Small Group ID</label>
+                            <input type="text" id="excel_smallgroup_id" class="form-control px-3 py-2" placeholder="SG-XX" style="border-radius: 10px;" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Planner</label>
+                            <input type="text" id="excel_planner" class="form-control px-3 py-2" placeholder="ผู้รับผิดชอบ..." style="border-radius: 10px;" />
+                        </div>
+                    </div>
+
+                    <!-- SECTION 4: HARDWARE TAGS & STATUS -->
+                    <h6 class="fw-bold text-navy mb-3 pb-2 border-bottom d-flex align-items-center">
+                        <i class="bi bi-tags-fill me-2 text-warning"></i> แท็กอ้างอิงและเครือข่ายระบบ (Hardware Logs)
+                    </h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Asset Register No.</label>
+                            <input type="text" id="excel_asset_id" class="form-control px-3 py-2" placeholder="Asset No..." style="border-radius: 10px;" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Zone ID</label>
+                            <input type="text" id="excel_zone_id" class="form-control px-3 py-2" placeholder="Zone ID" style="border-radius: 10px;" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-uppercase text-muted">CID (Connection Class)</label>
+                            <input type="text" id="excel_cid" class="form-control px-3 py-2" placeholder="CID Tag" style="border-radius: 10px;" />
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Active (สถานะ)</label>
+                            <div class="form-check form-switch pt-2">
+                                <input class="form-check-input" type="checkbox" id="excel_active" checked style="transform: scale(1.2);">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 5: METRIC KPI TARGETS -->
+                    <h6 class="fw-bold text-navy mb-3 pb-2 border-bottom d-flex align-items-center">
+                        <i class="bi bi-speedometer2 me-2 text-success"></i> ค่าขีดจำกัดและเป้าหมายประสิทธิภาพ (KPI Targets)
+                    </h6>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted">Target L</label>
+                            <input type="number" id="excel_target_l" class="form-control px-3 py-2" placeholder="0" style="border-radius: 10px;" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted">Target O</label>
+                            <input type="number" id="excel_target_o" class="form-control px-3 py-2" placeholder="0" style="border-radius: 10px;" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted">Target A</label>
+                            <input type="number" id="excel_target_a" class="form-control px-3 py-2" placeholder="0" style="border-radius: 10px;" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted">Target Q</label>
+                            <input type="number" id="excel_target_q" class="form-control px-3 py-2" placeholder="0" style="border-radius: 10px;" />
+                        </div>
+                    </div>
+
+                </form>
             </div>
             <div class="modal-footer bg-light border-0 py-3 px-4">
                 <button type="button" class="btn btn-link text-muted fw-bold text-decoration-none" data-bs-dismiss="modal">ปิดหน้าต่าง</button>
-                <button type="button" class="btn btn-dark px-4 py-2 rounded-3 fw-bold shadow-sm" onclick="saveMachineChange()" style="background:#0f172a;">
-                    <i class="bi bi-save2 me-2"></i>อัปเดตข้อมูล
+                <button type="button" class="btn btn-dark px-4 py-2 rounded-3 fw-bold shadow-sm" onclick="saveMachineChanges()" style="background:#0f172a;">
+                    <i class="bi bi-save2 me-2"></i>อัปเดตชุดข้อมูลแมปปิ้ง
                 </button>
             </div>
         </div>
     </div>
 </div>
 
+<div class="modal fade" id="importExcelModal" tabindex="-1" aria-labelledby="importExcelModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header border-0 pt-4 px-4 pb-2">
+                <h5 class="modal-title fw-bold text-navy d-flex align-items-center" id="importExcelModalLabel">
+                    <i class="bi bi-file-earmark-excel-fill text-success me-2 fs-4"></i> นำเข้าข้อมูลเครื่องจักรผ่าน Excel
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body px-4 pb-4">
+
+                <form asp-controller="Machine" asp-action="UploadExcel" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+
+                    <div class="p-4 bg-light rounded-3 text-center border border-2 border-dashed mb-3 position-relative">
+                        <i class="bi bi-cloud-arrow-up-fill text-success display-4 d-block mb-2"></i>
+                        <h6 class="fw-bold text-navy mb-1">เลือกไฟล์สเปรดชีตแม่แบบที่ต้องการนำเข้า</h6>
+                        <p class="small text-muted mb-3" style="font-size: 0.8rem;">รองรับเฉพาะรูปแบบไฟล์ประเภท .xlsx หรือ .xls เท่านั้น</p>
+
+                        <div class="row justify-content-center">
+                            <div class="col-md-10">
+                                <div class="input-group shadow-sm rounded-2 overflow-hidden">
+                                    <input type="file" name="excelFile" class="form-control border-white py-2" accept=".xlsx, .xls" required />
+                                    <button type="submit" class="btn btn-success px-4 fw-bold">
+                                        <i class="bi bi-upload me-2"></i>เริ่มนำเข้า
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="p-3 bg-light rounded-2 border-start border-3 border-success" style="font-size: 0.825rem;">
+                    <span class="fw-bold text-navy d-block mb-1">
+                        <i class="bi bi-info-circle-fill me-1 text-success"></i> ข้อกำหนดโครงสร้างคอลัมน์ (Template):
+                    </span>
+                    <ul class="text-muted mb-0 ps-3">
+                        <li>แถวแรก (Row 1) ต้องตั้งชื่อหัวตามนี้: <code class="bg-white px-1 py-0.5 rounded text-danger font-monospace">MachineCode</code>, <code class="bg-white px-1 py-0.5 rounded text-danger font-monospace">MachineName</code>, <code class="bg-white px-1 py-0.5 rounded text-danger font-monospace">Location</code></li>
+                        <li>จำกัดขนาดไฟล์ไม่เกิน 10 MB ต่อการอัปโหลด</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .border-dashed {
+        border-style: dashed !important;
+        border-color: #dee2e6 !important;
+        transition: all 0.2s ease-in-out;
+    }
+
+        .border-dashed:hover {
+            border-color: #198754 !important;
+            background-color: #f4faf7 !important;
+        }
+</style>
+
 @section Scripts {
     <script>
         $(document).ready(function () {
-            // โหลดโมเดิร์น DataTables
-            $('#machineTable, #sectionTable, #userTable').DataTable({
-                "pageLength": 10,
-                "lengthChange": false,
-                "ordering": false,
-                "language": {
-                    "search": "",
-                    "searchPlaceholder": "🔍 พิมพ์คำเพื่อค้นหาข้อมูลด่วน...",
-                    "paginate": {
-                        "next": "<i class='bi bi-chevron-right'></i>",
-                        "previous": "<i class='bi bi-chevron-left'></i>"
+
+            // ========================================================
+            // 🟢 1. ตั้งค่าตารางทะเบียนเครื่องจักร (Machine Table)
+            // ========================================================
+            if ($('#machineTable').length) {
+                var table = $('#machineTable').DataTable({
+                    "processing": true,
+                    "ajax": {
+                        "url": "/Machine/GetMachineData",
+                        "type": "GET",
+                        "dataSrc": "data"
                     },
-                    "info": "แสดงลำดับที่ _START_ ถึง _END_ จากทั้งหมด _TOTAL_ รายการในระบบ"
+                    "pageLength": 10,
+                    "lengthChange": true,
+                    "ordering": false,
+                    "bDestroy": true,
+                    "autoWidth": false,
+                    "dom": "<'row'<'col-sm-12'tr>><'row'<'col-sm-5'i><'col-sm-7'p>>",
+                    "columnDefs": [
+                        { "targets": [0, 1, 2, 3], "className": "align-middle" },
+                        { "targets": [4, 5, 6], "className": "align-middle text-center" }
+                    ],
+                    "columns": [
+                        {
+                            "data": "MachineCode",
+                            "render": function (data, type, row) {
+                                var parent = row.ParentCode ? row.ParentCode : "Root";
+                                return `<div class="fw-bold text-navy">${data}</div>
+                                        <small class="text-muted font-monospace" style="font-size:0.72rem;">Parent: ${parent}</small>`;
+                            }
+                        },
+                        {
+                            "data": "MachineName",
+                            "render": function (data, type, row) {
+                                var desc = row.Description ? row.Description : "-";
+                                return `<div class="fw-semibold text-secondary">${data}</div>
+                                        <small class="text-muted text-truncate d-block" style="max-width: 250px;" title="${desc}">${desc}</small>`;
+                            }
+                        },
+                        {
+                            "data": "Plant",
+                            "render": function (data, type, row) {
+                                var plant = data ? data : "N/A";
+                                var secName = row.SectionName ? row.SectionName : "ทั่วไป";
+                                var secId = row.Sections ? row.Sections : "-";
+                                return `<div class="mb-1">
+                                            <span class="badge bg-light text-dark border rounded-pill px-2 py-0.5" style="font-size:0.75rem;">🏭 ${plant}</span>
+                                        </div>
+                                        <div>
+                                            <span class="badge bg-light text-secondary border rounded-pill px-2 py-0.5" style="font-size:0.75rem;">📂 Sec ${secId} - ${secName}</span>
+                                        </div>`;
+                            }
+                        },
+                        {
+                            "data": "AssetNumber",
+                            "render": function (data, type, row) {
+                                var asset = data ? data : "-";
+                                var zone = row.Zone ? row.Zone : "-";
+                                var cid = row.CID ? row.CID : "-";
+                                return `<div class="small fw-medium text-navy">${asset}</div>
+                                        <small class="text-muted font-monospace" style="font-size:0.72rem;">Z: ${zone} | CID: ${cid}</small>`;
+                            }
+                        },
+                        {
+                            "data": "MachineRank",
+                            "render": function (data, type, row) {
+                                var rank = data ? data : "-";
+                                var lvl = row.MachineLevel !== undefined ? row.MachineLevel : "-";
+                                return `<div class="small fw-bold text-dark">Rank: ${rank}</div>
+                                        <div class="small text-muted" style="font-size:0.75rem;">Level: ${lvl}</div>`;
+                            }
+                        },
+                        {
+                            "data": "IsActive",
+                            "render": function (data) {
+                                if (data === true || data === "True" || data === 1) {
+                                    return `<span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 rounded-pill fw-semibold" style="font-size:0.75rem;">Active</span>`;
+                                } else {
+                                    return `<span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-1 rounded-pill fw-semibold" style="font-size:0.75rem;">Inactive</span>`;
+                                }
+                            }
+                        },
+                        {
+                            "data": null,
+                            "orderable": false,
+                            "render": function (data, type, row) {
+                                var rowStr = encodeURIComponent(JSON.stringify(row));
+                                return `<button class="btn-action btn-action-edit me-1" onclick="openEditMachineModalFromAjax('${rowStr}')" title="แก้ไขข้อมูล">
+                                            <i class="bi bi-pencil-fill"></i>
+                                        </button>
+                                        <button class="btn-action btn-action-delete" onclick="deleteMachine('${row.MachineCode}')" title="ลบออกจากระบบ">
+                                            <i class="bi bi-trash3-fill"></i>
+                                        </button>`;
+                            }
+                        }
+                    ],
+                    "language": {
+                        "processing": "🔄 กำลังประมวลผลโครงข่ายและดึงข้อมูลระบบ Zycoda...",
+                        "search": "",
+                        "paginate": {
+                            "next": "<i class='bi bi-chevron-right'></i>",
+                            "previous": "<i class='bi bi-chevron-left'></i>"
+                        },
+                        "info": "แสดงลำดับที่ <strong>_START_ - _END_</strong> จากทั้งหมด <strong>_TOTAL_</strong> รายการ",
+                        "infoEmpty": "ไม่มีข้อมูลที่จะแสดง",
+                        "zeroRecords": "ไม่พบข้อมูลที่ตรงกับการค้นหาค่ะ",
+                        "emptyTable": `<div class="py-5 text-center text-muted">
+                                            <i class="bi bi-folder-x display-6 d-block mb-2 text-secondary"></i>
+                                            <span class="small">ไม่พบข้อมูลทะเบียนเครื่องจักรในระบบเลยค่ะ กรุณากดปุ่มนำเข้าผ่านไฟล์ Excel ด้านบน</span>
+                                       </div>`
+                    }
+                });
+
+                $('#customPageLength').on('change', function () {
+                    table.page.len(parseInt($(this).val())).draw();
+                });
+
+                $('#customSearchWrapper').html('<input type="search" class="form-control form-control-sm rounded-3 ps-3 py-1.5" placeholder="🔍 ค้นหารหัส, ชื่อ หรือหน่วยงานด่วน...">');
+                $('#customSearchWrapper input').on('keyup', function () {
+                    table.search(this.value).draw();
+                });
+            }
+
+            // ========================================================
+            // 🏢 2. ตั้งค่าตารางสังกัดแผนก (Section Table) + คำนวณจำนวนรวม
+            // ========================================================
+            if ($('#sectionTable').length) {
+                $('#sectionTable').DataTable({
+                    "processing": true,
+                    "ajax": {
+                        "url": "/Section/GetSectionData",
+                        "type": "GET",
+                        "dataSrc": "data"
+                    },
+                    "pageLength": 10,
+                    "lengthChange": false,
+                    "ordering": false,
+                    "autoWidth": false,
+                    "columnDefs": [
+                        { "targets": [0, 1, 2, 3, 4], "className": "align-middle" }
+                    ],
+                    "columns": [
+                        {
+                            "data": "Sections",
+                            "render": function(data) {
+                                return `<span class="badge bg-dark-subtle text-dark border font-monospace fw-bold px-2 py-1 rounded">Sec ${data}</span>`;
+                            }
+                        },
+                        {
+                            "data": "Name",
+                            "render": function(data) {
+                                return `<div class="fw-semibold text-secondary">${data || '-'}</div>`;
+                            }
+                        },
+                        {
+                            "data": "Plant",
+                            "render": function(data) {
+                                return `<span class="badge bg-light text-dark border rounded-pill px-2.5 py-0.5"><i class="bi bi-building"></i> ${data || 'N/A'}</span>`;
+                            }
+                        },
+                        {
+                            "data": "WorkCenter",
+                            "render": function(data) {
+                                return `<code class="text-navy font-monospace small">${data || '-'}</code>`;
+                            }
+                        },
+                        {
+                            "data": "LastUpdateBy",
+                            "render": function(data, type, row) {
+                                var dateStr = row.LastUpdateDate ? new Date(row.LastUpdateDate).toLocaleDateString('th-TH') : '-';
+                                return `<div class="small fw-medium text-muted">${data || 'System'}</div>
+                                        <small class="text-muted" style="font-size:0.7rem;">📅 อัปเดต: ${dateStr}</small>`;
+                            }
+                        }
+                    ],
+                    "language": getTableLanguage("แผนกย่อย"),
+                    // 🎯 ดักจับ Event เมื่อวาดตารางเสร็จเพื่อนำจำนวนข้อมูลไปแสดงหน้าบอร์ด
+                    "drawCallback": function (settings) {
+                        var totalSections = this.api().data().length;
+                        $('#totalSectionsCount').text(totalSections);
+                        $('#activeSectionsCount').text(totalSections); // สามารถปรับลอจิกคัดแยกเพิ่มได้ตามฟิลด์
+                    }
+                });
+            }
+
+            // ========================================================
+            // 👥 3. ตารางผู้ใช้งานระบบ (User Table) + คำนวณจำนวนรวม
+            // ========================================================
+            if ($('#userTable').length) {
+                // เคลียร์ Instance เก่าก่อนโหลดใหม่ป้องกัน DataTables ตีกัน
+                if ($.fn.DataTable.isDataTable('#userTable')) {
+                    $('#userTable').DataTable().destroy();
                 }
-            });
-            
-            // ขยับช่องเสิร์ชไปด้านขวาให้เนียนตาแบบสากล
-            $('.dataTables_filter').addClass('text-end mb-2');
+
+                $('#userTable').DataTable({
+                    "ajax": {
+                        "url": "/User/GetUserData",
+                        "type": "GET",
+                        "dataSrc": "data"
+                    },
+                    "columns": [
+                        {
+                            "data": "Username",
+                            "render": function(data) {
+                                return `<span class="fw-bold text-dark font-monospace">${data}</span>`;
+                            }
+                        },
+                        {
+                            "data": null,
+                            "render": function(data, type, row) {
+                                return `<div class="fw-medium text-secondary">${row.FirstName || ''} ${row.LastName || ''}</div>
+                                        <small class="text-muted d-block" style="font-size:0.75rem;">${row.Position || '-'}</small>`;
+                            }
+                        },
+                        {
+                            "data": "Email",
+                            "render": function(data) {
+                                return data ? `<span class="text-muted small">${data}</span>` : `<span class="text-black-50 small">-</span>`;
+                            }
+                        },
+                        {
+                            "data": "Section",
+                            "render": function(data) {
+                                return `<span class="badge bg-light text-dark border border-light-subtle rounded-2 px-2.5 py-1.5 fw-medium">${data || ' ไม่ระบุ '}</span>`;
+                            }
+                        },
+                        {
+                            "data": "Class",
+                            "render": function(data) {
+                                let badgeClass = "bg-light text-dark";
+                                if (data == "9") badgeClass = "bg-danger-subtle text-danger border border-danger-subtle";
+                                else if (data == "1" || data == "2") badgeClass = "bg-success-subtle text-success border border-success-subtle";
+                                else if (data) badgeClass = "bg-primary-subtle text-primary border border-primary-subtle";
+
+                                return `<span class="badge ${badgeClass} px-3 py-1.5 rounded-pill fw-bold">Class ${data || '0'}</span>`;
+                            }
+                        },
+                        {
+                            "data": null,
+                            "orderable": false,
+                            "className": "text-center",
+                            "render": function (data, type, row) {
+                                return `
+                                    <button class="btn btn-sm btn-outline-dark px-2.5 rounded-2 fw-semibold" style="font-size:0.8rem;" onclick="manageUserRole('${row.Username}')">
+                                        <i class="bi bi-shield-shaded me-1"></i> ปรับสิทธิ์
+                                    </button>
+                                `;
+                            }
+                        }
+                    ],
+                    "language": {
+                        "search": "ค้นหาพนักงาน:",
+                        "lengthMenu": "แสดง _MENU_ รายการต่อหน้า",
+                        "info": "แสดงรายการที่ _START_ ถึง _END_ จากทั้งหมด _TOTAL_ พนักงาน",
+                        "infoEmpty": "ไม่พบข้อมูลพนักงานในระบบ Zycoda",
+                        "zeroRecords": "ไม่พบพนักงานที่คุณต้องการค้นหาค่ะฝ้าย",
+                        "paginate": {
+                            "next": '<i class="bi bi-chevron-right"></i>',
+                            "previous": '<i class="bi bi-chevron-left"></i>'
+                        }
+                    },
+                    "responsive": true,
+                    "pageLength": 10,
+                    "order": [[0, "asc"]],
+                    // 🎯 นับและจัดกรองสถานะพนักงานแบบเรียลไทม์จาก JSON Data
+                    "drawCallback": function (settings) {
+                        var api = this.api();
+                        var totalUsers = api.data().length;
+                        var activeUsers = 0;
+
+                        api.data().each(function (rowData) {
+                            // ปรับเงื่อนไขให้ตรงกับสถานะพนักงานใน Object (รองรับ True/False และ บิต 1/0)
+                            if (rowData.IsActive === true || rowData.IsActive === "True" || rowData.IsActive == 1 || rowData.isActive == 1) {
+                                activeUsers++;
+                            }
+                        });
+
+                        var inactiveUsers = totalUsers - activeUsers;
+
+                        // ส่งค่าเข้า Element IDs หน้า Dashboard
+                        $('#totalUsersCount').text(totalUsers);
+                        $('#activeUsersCount').text(activeUsers);
+                        $('#inactiveUsersCount').text(inactiveUsers);
+                    }
+                });
+            }
+
+            $('.dataTables_filter').addClass('text-end mb-3');
         });
 
-        function openEditModal(id, name) {
-            $('#editMachineID').val(id);
-            $('#editMachineName').val(name);
-            var myModal = new bootstrap.Modal(document.getElementById('editMachineModal'));
-            myModal.show();
+        // ========================================================
+        // 📝 ฟังก์ชันเสริมและลอจิก Modals ต่าง ๆ
+        // ========================================================
+        function getTableLanguage(moduleName) {
+            return {
+                "processing": `🔄 กำลังดึงข้อมูลระเบียน ${moduleName}...`,
+                "search": "",
+                "searchPlaceholder": "🔍 พิมพ์คำเพื่อค้นหาข้อมูลด่วน...",
+                "paginate": {
+                    "next": "<i class='bi bi-chevron-right'></i>",
+                    "previous": "<i class='bi bi-chevron-left'></i>"
+                },
+                "info": "แสดงรายการที่ _START_ ถึง _END_ จากทั้งหมด _TOTAL_ รายการในระบบ",
+                "infoEmpty": "ไม่มีข้อมูลสถิติแสดงในระบบ",
+                "zeroRecords": "ไม่พบข้อมูลที่ตรงกับการค้นหาค่ะ",
+                "emptyTable": `<div class="py-4 text-center text-muted">ไม่พบข้อมูลทะเบียน ${moduleName} ในระบบเลยค่ะ</div>`
+            };
         }
 
-        function saveMachineChange() {
-            var id = $('#editMachineID').val();
-            var newName = $('#editMachineName').val();
+        function openAddMachineModal() {
+            $('#modalTitle').html('<i class="bi bi-plus-circle-fill me-2.5 text-success"></i>เพิ่มและแมปโครงสร้างเครื่องจักรใหม่');
+            $('#machineForm')[0].reset();
+            $('#excel_id').removeAttr('readonly').removeClass('bg-light');
+            $('#excel_active').prop('checked', true);
+            $('#excel_is_last').prop('checked', false);
 
-            if(!newName.trim()) {
-                Swal.fire({ icon: 'warning', title: 'กรุณาระบุข้อมูล', text: 'ชื่อเครื่องจักรห้ามเป็นค่าว่างเปล่าครับพี่', confirmButtonColor: '#0f172a' });
+            var modal = new bootstrap.Modal(document.getElementById('machineModal'));
+            modal.show();
+        }
+
+        function openEditMachineModalFromAjax(encodedRowData) {
+            var row = JSON.parse(decodeURIComponent(encodedRowData));
+
+            $('#modalTitle').html('<i class="bi bi-sliders2-vertical me-2.5 text-primary"></i>แก้ไขข้อมูลเทคนิคระดับฟิลด์คอร์เซิร์ฟเวอร์');
+            $('#machineForm')[0].reset();
+
+            $('#excel_id').val(row.MachineCode).attr('readonly', 'readonly').addClass('bg-light');
+            $('#excel_detail').val(row.MachineName);
+            $('#excel_parent').val(row.ParentCode);
+            $('#excel_rank').val(row.MachineRank);
+            $('#excel_level').val(row.MachineLevel);
+
+            var statusActive = (row.IsActive === true || row.IsActive === "True" || row.IsActive == 1);
+            $('#excel_active').prop('checked', statusActive);
+            $('#excel_is_last').prop('checked', !statusActive);
+
+            $('#excel_plant').val(row.Plant);
+            $('#excel_section').val(row.SectionName);
+            $('#excel_section_id').val(row.Sections);
+            $('#excel_asset_id').val(row.AssetNumber);
+            $('#excel_zone_id').val(row.Zone);
+            $('#excel_cid').val(row.CID);
+
+            $('#excel_target_l').val(row.TargetL || 100);
+            $('#excel_target_o').val(row.TargetO || 100);
+            $('#excel_target_a').val(row.TargetA || 100);
+            $('#excel_target_q').val(row.TargetQ || 100);
+
+            var modal = new bootstrap.Modal(document.getElementById('machineModal'));
+            modal.show();
+        }
+
+        function submitUserExcel() {
+            const fileInput = document.getElementById('excelFileInput');
+            if (fileInput.files.length > 0) {
+                document.getElementById('userExcelForm').submit();
+            }
+        }
+
+        function manageUserRole(username) {
+            console.log("กำลังจัดการสิทธิ์ของ User: " + username);
+        }
+
+        function saveMachineChanges() {
+            var id = $('#excel_id').val();
+            var detail = $('#excel_detail').val();
+
+            if(!id.trim() || !detail.trim()) {
+                Swal.fire({ icon: 'warning', title: 'กรุณากรอกข้อมูลหลัก', text: 'Machine ID และ รายละเอียดเทคนิค ห้ามเว้นว่างเด็ดขาดค่ะ', confirmButtonColor: '#0f172a' });
                 return;
             }
 
             Swal.fire({
-                title: 'กำลังเชื่อมโยงเซิร์ฟเวอร์...',
+                title: 'กำลังเชื่อมโยงเซิร์ฟเวอร์ฐานข้อมูล...',
                 allowOutsideClick: false,
                 didOpen: () => { Swal.showLoading(); }
             });
@@ -452,29 +1354,41 @@
             setTimeout(() => {
                 Swal.fire({
                     icon: 'success',
-                    title: 'บันทึกสำเร็จ!',
-                    text: 'อัปเดตข้อมูลเครื่องจักรระบบรหัส ' + id + ' เรียบร้อย',
+                    title: 'Sync โครงข่ายเรียบร้อย!',
+                    text: 'อัปเดตและจับคู่ชุดคอลัมน์เครื่องจักรเทคนิค รหัส ' + id + ' สำเร็จแล้วค่ะ',
                     confirmButtonColor: '#0f172a'
                 }).then(() => {
-                    $('#editMachineModal').modal('hide');
+                    $('#machineModal').modal('hide');
+                    if($('#machineTable').DataTable()) {
+                        $('#machineTable').DataTable().ajax.reload(null, false);
+                    } else {
+                        location.reload();
+                    }
                 });
-            }, 1000);
+            }, 1200);
         }
 
         function deleteMachine(id) {
             Swal.fire({
-                title: 'ยืนยันการทำลายข้อมูล?',
-                text: "พี่มั่นใจไหมที่จะลบเครื่องจักร " + id + " ออกจากฐานข้อมูลถาวร?",
+                title: 'ยืนยันการทำลายข้อมูลโครงสร้าง?',
+                text: "คุณฝ้ายมั่นใจไหมคะที่จะลบเครื่องจักรกลุ่มย่อยรหัส " + id + " ออกจากฐานข้อมูลระบบถาวร?",
                 icon: 'error',
                 showCancelButton: true,
                 confirmButtonColor: '#ef4444',
                 cancelButtonColor: '#64748b',
-                confirmButtonText: 'ใช่, ฉันต้องการลบ',
-                cancelButtonText: 'ยกเลิกข้อมูล',
+                confirmButtonText: 'ใช่, ลบข้อมูลทิ้ง',
+                cancelButtonText: 'ยกเลิก',
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    Swal.fire({ icon: 'success', title: 'ลบข้อมูลสำเร็จ!', text: 'ระบบลบเครื่องออกจากสารบบแล้วครับ', confirmButtonColor: '#0f172a' });
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'ลบข้อมูลสำเร็จ!',
+                        text: 'ระบบถอนการติดตั้งรหัสนี้ออกจากศูนย์สารระบบเรียบร้อยแล้วค่ะ',
+                        confirmButtonColor: '#0f172a'
+                    }).then(() => {
+                        $('#machineTable').DataTable().ajax.reload(null, false);
+                    });
                 }
             });
         }
@@ -491,8 +1405,10 @@
                 Swal.fire({
                     icon: 'success',
                     title: 'Sync Global Success',
-                    text: 'ฐานข้อมูลระบบทั้งหมดถูกซิงโครไนซ์สมบูรณ์แล้วครับ',
+                    text: 'ฐานข้อมูลระบบทั้งหมดถูกซิงโครไนซ์สมบูรณ์แล้วค่ะ',
                     confirmButtonColor: '#0f172a'
+                }).then(() => {
+                    $('#machineTable').DataTable().ajax.reload(null, false);
                 });
             }, 1800);
         }
