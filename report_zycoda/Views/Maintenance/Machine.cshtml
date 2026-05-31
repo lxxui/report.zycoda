@@ -194,6 +194,233 @@
         border: none !important;
         background: #f1f5f9;
     }
+
+    /* ฉากหลังแบบเต็มจอ โทน Dark Mode ดุดัน */
+    #loader-wrapper {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #0b0f19; /* สีน้ำเงินเข้มเกือบดำ สไตล์ Enterprise Dark */
+        z-index: 99999; /* อยู่เหนือทุก Element ในหน้าเว็บ */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .loader-content {
+        text-align: center;
+    }
+
+    /* สไตล์ไอคอนและการตั้งค่าสำหรับเส้นสแกน */
+    .icon-wrapper {
+        position: relative;
+        display: inline-block;
+        font-size: 4.5rem; /* ขนาดไอคอน CPU */
+        line-height: 1;
+    }
+
+    /* สีเขียวเข้มพรีเมียม (Emerald/Dark Green ที่ดูซอฟต์และแพง) */
+    .text-emerald {
+        color: #10b981;
+        filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.4));
+    }
+
+    /* 🟢 เส้นเลเซอร์สีเขียวที่ใช้วิ่งสแกนขึ้น-ลง */
+    .scanner-line {
+        position: absolute;
+        top: 0;
+        left: -10%;
+        width: 120%;
+        height: 3px;
+        background: linear-gradient(90deg, transparent, #10b981, transparent);
+        box-shadow: 0 0 8px #10b981;
+        animation: scanMove 2s ease-in-out infinite;
+    }
+
+    @@keyframes scanMove {
+        0%, 100% {
+            top: 0%;
+            opacity: 0.3;
+        }
+
+        50% {
+            top: 100%;
+            opacity: 1;
+        }
+    }
+
+    /* 🎯 สไตล์ตัวอักษร GENERATING แอนิเมชันแบบสุ่มกะพริบเรียงตัว */
+    .loading-text {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-weight: 800;
+        font-size: 1.25rem;
+        letter-spacing: 6px;
+        color: #f8fafc;
+        padding-left: 6px; /* ชดเชย space ตัวสุดท้ายให้อยู่กึ่งกลางพอดี */
+    }
+
+        .loading-text span {
+            display: inline-block;
+            animation: textGlow 1.4s infinite both;
+        }
+
+            /* ใส่ Delay ให้ตัวอักษรแต่ละตัว เพื่อให้มันค่อยๆ เด้งตามลำดับ */
+            .loading-text span:nth-child(1) {
+                animation-delay: 0s;
+            }
+
+            .loading-text span:nth-child(2) {
+                animation-delay: 0.1s;
+            }
+
+            .loading-text span:nth-child(3) {
+                animation-delay: 0.2s;
+            }
+
+            .loading-text span:nth-child(4) {
+                animation-delay: 0.3s;
+            }
+
+            .loading-text span:nth-child(5) {
+                animation-delay: 0.4s;
+            }
+
+            .loading-text span:nth-child(6) {
+                animation-delay: 0.5s;
+            }
+
+            .loading-text span:nth-child(7) {
+                animation-delay: 0.6s;
+            }
+
+            .loading-text span:nth-child(8) {
+                animation-delay: 0.7s;
+            }
+
+            .loading-text span:nth-child(9) {
+                animation-delay: 0.8s;
+            }
+
+            .loading-text span:nth-child(10) {
+                animation-delay: 0.9s;
+            }
+
+    @@keyframes textGlow {
+        0%, 100% {
+            opacity: 0.3;
+            transform: scale(1);
+        }
+
+        50% {
+            opacity: 1;
+            transform: scale(1.1);
+            color: #10b981;
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+    }
+
+    .sub-text {
+        font-size: 0.75rem;
+        letter-spacing: 2px;
+    }
+
+    /* CSS ตกแต่งสไตล์ Enterprise คลีนๆ */
+    .text-slate-800 {
+        color: #1e293b;
+    }
+
+    .text-slate-700 {
+        color: #334155;
+    }
+
+    .rounded-4 {
+        border-radius: 1rem !important;
+    }
+
+    .modern-table tbody tr:hover {
+        background-color: #f8fafc;
+        transition: background 0.1s ease-in-out;
+    }
+
+    .form-select-sm:focus {
+        border-color: #cbd5e1;
+        box-shadow: none;
+    }
+
+    .text-slate-800 {
+        color: #1e293b;
+    }
+
+    .text-slate-700 {
+        color: #334155;
+    }
+
+    .rounded-4 {
+        border-radius: 1rem !important;
+    }
+
+    .bg-light-subtle {
+        background-color: #f8fafc !important;
+    }
+
+    /* สไตล์สำหรับตารางโมเดิร์นคอร์เซิร์ฟเวอร์ */
+    .modern-table thead th {
+        font-weight: 600;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        color: #64748b !important;
+        border-bottom: 2px solid #f1f5f9 !important;
+        background-color: #f8fafc;
+    }
+
+    .modern-table tbody tr {
+        border-bottom: 1px solid #f1f5f9;
+        transition: all 0.15s ease-in-out;
+    }
+
+        .modern-table tbody tr:hover {
+            background-color: #f8fafc !important;
+        }
+
+    /* ปุ่ม Action ประจำแถวสำหรับการลบและแก้ไขข้อมูล */
+    .btn-action {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        background-color: #f1f5f9;
+        color: #475569;
+    }
+
+    .btn-action-edit:hover {
+        background-color: #e0f2fe;
+        color: #0284c7;
+    }
+
+    .btn-action-delete:hover {
+        background-color: #fee2e2;
+        color: #dc2626;
+    }
+
+    .tracking-wider {
+        letter-spacing: 0.05em;
+    }
+    .border-dashed {
+        border-style: dashed !important;
+        border-color: #dee2e6 !important;
+        transition: all 0.2s ease-in-out;
+    }
+
+        .border-dashed:hover {
+            border-color: #198754 !important;
+            background-color: #f4faf7 !important;
+        }
 </style>
 
 @{
@@ -358,122 +585,27 @@
                         </table>
                     </div>
 
-                    @* <div class="table-responsive rounded-3 border border-light">
 
-                        <table class="table modern-table table-hover align-middle mb-0" id="machineTable" style="width:100%">
-                            <thead class="table-light text-secondary small text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">
-                                <tr>
-                                    <th width="12%" class="py-3">ID / Parent</th>
-                                    <th width="28%" class="py-3">ชื่อเครื่องจักร / รายละเอียดประจำการ</th>
-                                    <th width="18%" class="py-3">โครงสร้างหน่วยงาน (Plant / Sec)</th>
-                                    <th width="14%" class="py-3">Asset / Zone / CID</th>
-                                    <th width="10%" class="py-3 text-center">ระดับ (Rank/Lvl)</th>
-                                    <th width="10%" class="py-3 text-center">สถานะ</th>
-                                    <th width="8%" class="text-center py-3">การจัดการ</th>
-                                </tr>
-                            </thead>
-                            <tbody class="small text-slate-700">
-                                @if (machineTableData != null && machineTableData.Rows.Count > 0)
-                                {
-                                    foreach (System.Data.DataRow row in machineTableData.Rows)
-                                    {
-                                        <tr>
-                                            <td>
-                                                <div class="fw-bold text-navy">@row["MachineCode"]</div>
-                                                <small class="text-muted font-monospace" style="font-size:0.72rem;">
-                                                    Parent: @(string.IsNullOrEmpty(row["ParentCode"]?.ToString()) ? "Root" : row["ParentCode"])
-                                                </small>
-                                            </td>
+                    <div id="loader-wrapper">
+                        <div class="loader-content">
+                            <div class="icon-wrapper mb-4">
+                                <i class="bi bi-cpu-fill text-emerald"></i>
+                                <div class="scanner-line"></div>
+                            </div>
 
-                                            <td>
-                                                <div class="fw-semibold text-secondary">@row["MachineName"]</div>
-                                                <small class="text-muted text-truncate d-block" style="max-width: 250px;" title="@row["Description"]">
-                                                    @(string.IsNullOrEmpty(row["Description"]?.ToString()) ? "-" : row["Description"])
-                                                </small>
-                                            </td>
+                            <div class="loading-text mb-2">
+                                <span>G</span><span>E</span><span>N</span><span>E</span><span>R</span><span>A</span><span>T</span><span>I</span><span>N</span><span>G</span>
+                            </div>
 
-                                            <td>
-                                                <div class="mb-1">
-                                                    <span class="badge bg-light text-dark border rounded-pill px-2 py-0.5" style="font-size:0.75rem;">
-                                                        🏭 @(string.IsNullOrEmpty(row["Plant"]?.ToString()) ? "N/A" : row["Plant"])
-                                                    </span>
-                                                </div>
-                                                <div>
-                                                    <span class="badge bg-light text-secondary border rounded-pill px-2 py-0.5" style="font-size:0.75rem;">
-                                                        📂 Sec @row["Sections"] - @(string.IsNullOrEmpty(row["SectionName"]?.ToString()) ? "ทั่วไป" : row["SectionName"])
-                                                    </span>
-                                                </div>
-                                            </td>
+                            <p class="sub-text text-muted font-monospace m-0">SYSTEM IS PROCESSING DATA...</p>
+                        </div>
+                    </div>
 
-                                            <td>
-                                                <div class="small fw-medium text-navy">@(string.IsNullOrEmpty(row["AssetNumber"]?.ToString()) ? "-" : row["AssetNumber"])</div>
-                                                <div class="small text-muted font-monospace" style="font-size:0.72rem;">
-                                                    Z: @(string.IsNullOrEmpty(row["Zone"]?.ToString()) ? "-" : row["Zone"]) | CID: @(string.IsNullOrEmpty(row["CID"]?.ToString()) ? "-" : row["CID"])
-                                                </div>
-                                            </td>
 
-                                            <td class="text-center">
-                                                <div class="small fw-bold text-dark">Rank: @(string.IsNullOrEmpty(row["MachineRank"]?.ToString()) ? "-" : row["MachineRank"])</div>
-                                                <div class="small text-muted" style="font-size:0.75rem;">Level: @row["MachineLevel"]</div>
-                                            </td>
-
-                                            <td class="text-center">
-                                                @if (row["IsActive"] != DBNull.Value && Convert.ToBoolean(row["IsActive"]))
-                                                {
-                                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 rounded-pill fw-semibold" style="font-size:0.75rem;">Active</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-1 rounded-pill fw-semibold" style="font-size:0.75rem;">Inactive</span>
-                                                }
-                                            </td>
-
-                                            <td class="text-center">
-                                                <button class="btn-action btn-action-edit me-1"
-                                                        onclick="openEditModal('@row["MachineCode"]', '@row["MachineName"]', '@row["ParentCode"]', '@row["MachineRank"]', @row["MachineLevel"], '@row["Description"]', '@row["Plant"]', '', '@row["Sections"]', '@row["SectionName"]', '@row["AssetNumber"]', '@row["Zone"]', '@row["CID"]', 1, 100, 100, 100, 100)"
-                                                        title="แก้ไขข้อมูล">
-                                                    <i class="bi bi-pencil-fill"></i>
-                                                </button>
-                                                <button class="btn-action btn-action-delete" onclick="deleteMachine('@row["MachineCode"]')" title="ลบออกจากระบบ">
-                                                    <i class="bi bi-trash3-fill"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    }
-                                }
-                                else
-                                {
-                                }
-                            </tbody>
-                        </table>
-                    </div> *@
                 </div>
             </div>
 
-            <style>
-                /* CSS ตกแต่งสไตล์ Enterprise คลีนๆ */
-                .text-slate-800 {
-                    color: #1e293b;
-                }
 
-                .text-slate-700 {
-                    color: #334155;
-                }
-
-                .rounded-4 {
-                    border-radius: 1rem !important;
-                }
-
-                .modern-table tbody tr:hover {
-                    background-color: #f8fafc;
-                    transition: background 0.1s ease-in-out;
-                }
-
-                .form-select-sm:focus {
-                    border-color: #cbd5e1;
-                    box-shadow: none;
-                }
-            </style>
         </div>
         <!-- TAB 2: SECTION MANAGEMENT -->
 
@@ -690,74 +822,6 @@
 
             </div>
         </div>
-
-        <style>
-            .text-slate-800 {
-                color: #1e293b;
-            }
-
-            .text-slate-700 {
-                color: #334155;
-            }
-
-            .rounded-4 {
-                border-radius: 1rem !important;
-            }
-
-            .bg-light-subtle {
-                background-color: #f8fafc !important;
-            }
-
-            /* สไตล์สำหรับตารางโมเดิร์นคอร์เซิร์ฟเวอร์ */
-            .modern-table thead th {
-                font-weight: 600;
-                font-size: 0.75rem;
-                letter-spacing: 0.5px;
-                color: #64748b !important;
-                border-bottom: 2px solid #f1f5f9 !important;
-                background-color: #f8fafc;
-            }
-
-            .modern-table tbody tr {
-                border-bottom: 1px solid #f1f5f9;
-                transition: all 0.15s ease-in-out;
-            }
-
-                .modern-table tbody tr:hover {
-                    background-color: #f8fafc !important;
-                }
-
-            /* ปุ่ม Action ประจำแถวสำหรับการลบและแก้ไขข้อมูล */
-            .btn-action {
-                width: 32px;
-                height: 32px;
-                border-radius: 8px;
-                border: none;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                transition: all 0.2s;
-                background-color: #f1f5f9;
-                color: #475569;
-            }
-
-            .btn-action-edit:hover {
-                background-color: #e0f2fe;
-                color: #0284c7;
-            }
-
-            .btn-action-delete:hover {
-                background-color: #fee2e2;
-                color: #dc2626;
-            }
-
-            .tracking-wider {
-                letter-spacing: 0.05em;
-            }
-        </style>
-
-       
-
     </div>
 </div>
 
@@ -957,27 +1021,39 @@
     </div>
 </div>
 
-<style>
-    .border-dashed {
-        border-style: dashed !important;
-        border-color: #dee2e6 !important;
-        transition: all 0.2s ease-in-out;
-    }
 
-        .border-dashed:hover {
-            border-color: #198754 !important;
-            background-color: #f4faf7 !important;
-        }
-</style>
 
 @section Scripts {
     <script>
         $(document).ready(function () {
 
             // ========================================================
+            // ⚡ [NEW] ส่วนควบคุมหน้าจอโหลดหลัก (Global Page Loader)
+            // ========================================================
+            // 1. ดักจับเมื่อหน้าต่างเว็บและ Assets ทั้งหมดโหลดสมบูรณ์ เพื่อสั่งปิด Loader
+            $(window).on('load', function () {
+                $('#loader-wrapper').fadeOut(500, function () {
+                    $(this).css('display', 'none');
+                });
+            });
+
+            // 2. Timeout Protection: สั่งปิดตัวโหลดอัตโนมัติภายใน 5 วินาที เผื่อกรณีเซิร์ฟเวอร์หรือ Ajax ค้าง
+            setTimeout(function () {
+                if ($('#loader-wrapper').is(':visible')) {
+                    console.log("Loader timeout reached. Forcing dismiss.");
+                    $('#loader-wrapper').fadeOut(300);
+                }
+            }, 5000);
+
+
+            // ========================================================
             // 🟢 1. ตั้งค่าตารางทะเบียนเครื่องจักร (Machine Table)
             // ========================================================
             if ($('#machineTable').length) {
+                if ($.fn.DataTable.isDataTable('#machineTable')) {
+                    $('#machineTable').DataTable().destroy();
+                }
+
                 var table = $('#machineTable').DataTable({
                     "processing": true,
                     "ajax": {
@@ -1069,20 +1145,10 @@
                             }
                         }
                     ],
-                    "language": {
-                        "processing": "🔄 กำลังประมวลผลโครงข่ายและดึงข้อมูลระบบ Zycoda...",
-                        "search": "",
-                        "paginate": {
-                            "next": "<i class='bi bi-chevron-right'></i>",
-                            "previous": "<i class='bi bi-chevron-left'></i>"
-                        },
-                        "info": "แสดงลำดับที่ <strong>_START_ - _END_</strong> จากทั้งหมด <strong>_TOTAL_</strong> รายการ",
-                        "infoEmpty": "ไม่มีข้อมูลที่จะแสดง",
-                        "zeroRecords": "ไม่พบข้อมูลที่ตรงกับการค้นหาค่ะ",
-                        "emptyTable": `<div class="py-5 text-center text-muted">
-                                            <i class="bi bi-folder-x display-6 d-block mb-2 text-secondary"></i>
-                                            <span class="small">ไม่พบข้อมูลทะเบียนเครื่องจักรในระบบเลยค่ะ กรุณากดปุ่มนำเข้าผ่านไฟล์ Excel ด้านบน</span>
-                                       </div>`
+                    // "language": getTableLanguage("โครงข่ายและดึงข้อมูลระบบ Zycoda"),
+                    "drawCallback": function (settings) {
+                        var totalMachines = this.api().data().length;
+                        $('#totalMachinesCount').text(totalMachines);
                     }
                 });
 
@@ -1100,6 +1166,10 @@
             // 🏢 2. ตั้งค่าตารางสังกัดแผนก (Section Table) + คำนวณจำนวนรวม
             // ========================================================
             if ($('#sectionTable').length) {
+                if ($.fn.DataTable.isDataTable('#sectionTable')) {
+                    $('#sectionTable').DataTable().destroy();
+                }
+
                 $('#sectionTable').DataTable({
                     "processing": true,
                     "ajax": {
@@ -1148,12 +1218,11 @@
                             }
                         }
                     ],
-                    "language": getTableLanguage("แผนกย่อย"),
-                    // 🎯 ดักจับ Event เมื่อวาดตารางเสร็จเพื่อนำจำนวนข้อมูลไปแสดงหน้าบอร์ด
+                    "language": getTableLanguage("ระเบียนแผนกย่อย"),
                     "drawCallback": function (settings) {
                         var totalSections = this.api().data().length;
                         $('#totalSectionsCount').text(totalSections);
-                        $('#activeSectionsCount').text(totalSections); // สามารถปรับลอจิกคัดแยกเพิ่มได้ตามฟิลด์
+                        $('#activeSectionsCount').text(totalSections);
                     }
                 });
             }
@@ -1162,12 +1231,12 @@
             // 👥 3. ตารางผู้ใช้งานระบบ (User Table) + คำนวณจำนวนรวม
             // ========================================================
             if ($('#userTable').length) {
-                // เคลียร์ Instance เก่าก่อนโหลดใหม่ป้องกัน DataTables ตีกัน
                 if ($.fn.DataTable.isDataTable('#userTable')) {
                     $('#userTable').DataTable().destroy();
                 }
 
                 $('#userTable').DataTable({
+                    "processing": true,
                     "ajax": {
                         "url": "/User/GetUserData",
                         "type": "GET",
@@ -1223,28 +1292,16 @@
                             }
                         }
                     ],
-                    "language": {
-                        "search": "ค้นหาพนักงาน:",
-                        "lengthMenu": "แสดง _MENU_ รายการต่อหน้า",
-                        "info": "แสดงรายการที่ _START_ ถึง _END_ จากทั้งหมด _TOTAL_ พนักงาน",
-                        "infoEmpty": "ไม่พบข้อมูลพนักงานในระบบ Zycoda",
-                        "zeroRecords": "ไม่พบพนักงานที่คุณต้องการค้นหาค่ะฝ้าย",
-                        "paginate": {
-                            "next": '<i class="bi bi-chevron-right"></i>',
-                            "previous": '<i class="bi bi-chevron-left"></i>'
-                        }
-                    },
+                    "language": getTableLanguage("พนักงานในระบบ Zycoda"),
                     "responsive": true,
                     "pageLength": 10,
                     "order": [[0, "asc"]],
-                    // 🎯 นับและจัดกรองสถานะพนักงานแบบเรียลไทม์จาก JSON Data
                     "drawCallback": function (settings) {
                         var api = this.api();
                         var totalUsers = api.data().length;
                         var activeUsers = 0;
 
                         api.data().each(function (rowData) {
-                            // ปรับเงื่อนไขให้ตรงกับสถานะพนักงานใน Object (รองรับ True/False และ บิต 1/0)
                             if (rowData.IsActive === true || rowData.IsActive === "True" || rowData.IsActive == 1 || rowData.isActive == 1) {
                                 activeUsers++;
                             }
@@ -1252,7 +1309,6 @@
 
                         var inactiveUsers = totalUsers - activeUsers;
 
-                        // ส่งค่าเข้า Element IDs หน้า Dashboard
                         $('#totalUsersCount').text(totalUsers);
                         $('#activeUsersCount').text(activeUsers);
                         $('#inactiveUsersCount').text(inactiveUsers);
@@ -1266,19 +1322,33 @@
         // ========================================================
         // 📝 ฟังก์ชันเสริมและลอจิก Modals ต่าง ๆ
         // ========================================================
+
+        // 🎯 ฟังก์ชันดัก CSS และ Render Loading ภายในกล่องตารางแต่ละโมดูล (Bootstrap 5 Elements)
         function getTableLanguage(moduleName) {
             return {
-                "processing": `🔄 กำลังดึงข้อมูลระเบียน ${moduleName}...`,
-                "search": "",
-                "searchPlaceholder": "🔍 พิมพ์คำเพื่อค้นหาข้อมูลด่วน...",
+                "processing": `<div class="position-absolute top-50 start-50 translate-middle d-flex flex-column align-items-center justify-content-center w-100 h-100 rounded-3 shadow-sm"
+                                    style="background: rgba(255, 255, 255, 0.88); backdrop-filter: blur(2px); z-index: 1050; min-height: 220px; border: 1px solid rgba(0,0,0,0.05);">
+                                    <div class="spinner-border text-primary mb-3" role="status" style="width: 2rem; height: 2rem; border-width: 0.18em;">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <div class="fw-semibold text-secondary small text-center px-3" style="letter-spacing: 0.5px;">
+                                        กำลังประมวลผล${moduleName}...
+                                    </div>
+                               </div>`,
+                "search": "ค้นหาด่วน:",
+                "searchPlaceholder": "🔍 พิมพ์คำเพื่อค้นหาข้อมูล...",
+                "lengthMenu": "แสดง _MENU_ รายการต่อหน้า",
                 "paginate": {
                     "next": "<i class='bi bi-chevron-right'></i>",
                     "previous": "<i class='bi bi-chevron-left'></i>"
                 },
-                "info": "แสดงรายการที่ _START_ ถึง _END_ จากทั้งหมด _TOTAL_ รายการในระบบ",
+                "info": "แสดงรายการที่ _START_ ถึง _END_ จากทั้งหมด _TOTAL_ รายการ",
                 "infoEmpty": "ไม่มีข้อมูลสถิติแสดงในระบบ",
                 "zeroRecords": "ไม่พบข้อมูลที่ตรงกับการค้นหาค่ะ",
-                "emptyTable": `<div class="py-4 text-center text-muted">ไม่พบข้อมูลทะเบียน ${moduleName} ในระบบเลยค่ะ</div>`
+                "emptyTable": `<div class="py-5 text-center text-muted">
+                                    <i class="bi bi-folder-x display-6 d-block mb-2 text-secondary"></i>
+                                    <span class="small">ไม่พบข้อมูลทะเบียนเครื่องจักรในระบบเลยค่ะ กรุณากดปุ่มนำเข้าผ่านไฟล์ Excel ด้านบน</span>
+                               </div>`
             };
         }
 
@@ -1371,7 +1441,7 @@
         function deleteMachine(id) {
             Swal.fire({
                 title: 'ยืนยันการทำลายข้อมูลโครงสร้าง?',
-                text: "คุณฝ้ายมั่นใจไหมคะที่จะลบเครื่องจักรกลุ่มย่อยรหัส " + id + " ออกจากฐานข้อมูลระบบถาวร?",
+                text: "คุณมั่นใจไหมคะที่จะลบเครื่องจักรกลุ่มย่อยรหัส " + id + " ออกจากฐานข้อมูลระบบถาวร?",
                 icon: 'error',
                 showCancelButton: true,
                 confirmButtonColor: '#ef4444',
