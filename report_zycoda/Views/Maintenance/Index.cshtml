@@ -1557,12 +1557,12 @@
                                 </button>
                             }
 
-                            <button type="button" onclick="PrintReport('MONTHLY')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3 rounded border">
+                            <button type="button" onclick="PrintKpiReport()" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3 rounded border">
                                 <div class="print-icon-box bg-soft-success me-3" style="background-color: #f0fdf4; color: #16a34a; padding: 10px; border-radius: 8px;">
                                     <i class="bi bi-calendar2-check-fill fs-4"></i>
                                 </div>
                                 <div class="flex-grow-1">
-                                    <div class="fw-bold text-dark">รายงานสรุปประสิทธิภาพรายเดือน</div>
+                                    <div class="fw-bold text-dark">รายงานสรุปประสิทธิภาพรายเดือน (KPI)</div>
                                     <div class="text-muted" style="font-size: 0.75rem;">ภาพรวมดัชนีชี้วัดสถิติและประสิทธิภาพ KPI การซ่อมบำรุงประจำเดือน</div>
                                 </div>
                                 <i class="bi bi-chevron-right text-muted"></i>
@@ -2045,6 +2045,29 @@
             // 2. ตั้งเวลาดึงซ้ำทุกๆ 5 นาทีอัตโนมัติ (5 นาที * 60 วินาที * 1000 มิลลิวินาที)
             setInterval(checkLastSyncTime, 5 * 60 * 1000); 
         });
+
+        // 🔥 แปะฟังก์ชันนี้เพิ่มเข้าไปด้านล่างสุดของโซน <script> ได้เลยค่ะฝ้าย
+        function PrintKpiReport() {
+            // 1. ดึงค่าวันที่และแผนกจากหน้าจอหลัก (ดู ID ของ Input หน้าจอฝ้ายให้ตรงน้า)
+            var start = $("#startDate").val() || "";
+            var end = $("#endDate").val() || "";
+            var status = $("#statusSelect").val() || "";
+            var sectionFrom = $("#sectionFromSelect").val() || "";
+            var sectionTo = $("#sectionToSelect").val() || "";
+            var jobtype = $("#jobTypeSelect").val() || "";
+
+            // 2. สั่งให้มันวิ่งไปหาประตูเปิดรายงานอันใหม่ (KpiReport) ที่เราร่วมแรงร่วมใจแก้กันเมื่อกี้
+            var url = '/Report/KpiReport?start=' + start + 
+                      '&end=' + end + 
+                      '&status=' + status + 
+                      '&sectionFrom=' + sectionFrom + 
+                      '&sectionTo=' + sectionTo + 
+                      '&jobtype=' + jobtype;
+
+            // 3. สั่งเปิดแท็บใหม่เล้ย!
+            window.open(url, '_blank');
+
+        }
     </script>
 
 

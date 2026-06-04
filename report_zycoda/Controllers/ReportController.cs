@@ -145,7 +145,7 @@ public class ReportController(ApiService apiService) : Controller
         ViewBag.SectionDict = sectionDict;
 
         // ==========================================================
-        // 7. คัดแยกประเภทรายงานแยก View เด็ดขาด
+        // 7. คัดแยกประเภทรายงานแยก View เด็ดขาด 
         // ==========================================================
         string normalizedRptType = rptType?.ToUpper() ?? "DEFAULT";
         string viewName = "";
@@ -180,7 +180,7 @@ public class ReportController(ApiService apiService) : Controller
                 break;
         }
 
-        if (normalizedRptType == "JTR" || normalizedRptType == "JTR_INTERNAL")
+        if (normalizedRptType == "JTR" || normalizedRptType == "JTR_INTERNAL" || normalizedRptType == "DEFAULT")
         {
             var sortedRawData = rawData.OrderByDescending(x => x.id).ToList();
             return View(viewName, sortedRawData);
@@ -189,6 +189,112 @@ public class ReportController(ApiService apiService) : Controller
         {
             return View(viewName, summaryData);
         }
+    }
+
+    // ==========================================================
+    // 🟢 🔥 ฟังก์ชันรายงาน KPI ตัวจริง แก้ไขการหลุดของระบบสรุปผล
+    // ==========================================================
+    [HttpGet]
+    public async Task<IActionResult> KpiReport()
+    {
+        // 1. ดักจับ Query String สำหรับกรองข้อมูลในหน้า KPI ให้ครบเหมือนหน้าหลัก
+        var start = Request.Query.FirstOrDefault(q => q.Key.Equals("start", StringComparison.OrdinalIgnoreCase)).Value.ToString();
+        var end = Request.Query.FirstOrDefault(q => q.Key.Equals("end", StringComparison.OrdinalIgnoreCase)).Value.ToString();
+        var status = Request.Query.FirstOrDefault(q => q.Key.Equals("status", StringComparison.OrdinalIgnoreCase)).Value.ToString();
+        var sectionFrom = Request.Query.FirstOrDefault(q => q.Key.Equals("sectionFrom", StringComparison.OrdinalIgnoreCase)).Value.ToString();
+        var sectionTo = Request.Query.FirstOrDefault(q => q.Key.Equals("sectionTo", StringComparison.OrdinalIgnoreCase)).Value.ToString();
+        var jobtype = Request.Query.FirstOrDefault(q => q.Key.Equals("jobtype", StringComparison.OrdinalIgnoreCase)).Value.ToString();
+        var view = Request.Query.FirstOrDefault(q => q.Key.Equals("view", StringComparison.OrdinalIgnoreCase)).Value.ToString();
+
+        // ตรวจสอบสิทธิ์การใช้งานระบบ
+        if (User.Identity == null || !User.Identity.IsAuthenticated)
+            return RedirectToAction("Login", "Home");
+
+        var sessionUser = User.Identity.Name;
+        var sessionPass = User.Claims.FirstOrDefault(c => c.Type == "ApiPassword")?.Value;
+
+        // ตั้งค่าตัวแปรวันที่ Default (ถ้าไม่ได้ส่งมาให้เอาวันปัจจุบัน)
+        var sDate = string.IsNullOrEmpty(start) ? DateTime.Now.ToString("yyyy-MM-dd") : start;
+        var eDate = string.IsNullOrEmpty(end) ? DateTime.Now.ToString("yyyy-MM-dd") : end;
+        var jType = string.IsNullOrEmpty(jobtype) ? "EM,CM" : jobtype;
+        var vMode = string.IsNullOrEmpty(view) ? "followup" : view;
+
+        // 2. ดึง Master Data มาพ่วงเพื่อใช้แปลรหัสแผนกในหน้าจอสรุป (ถ้ามีเรียกใช้)
+        var sectionMaster = await _apiService.GetSectionsFromApiAsync();
+        var sectionDict = sectionMaster?.Where(s => !string.IsNullOrEmpty(s.Sections))
+            .ToDictionary(s => s.Sections.Trim(), s => s.Name ?? s.Sections) ?? new Dictionary<string, string>();
+
+        // 3. เรียกเอาข้อมูลดิบมาจาก endpoint ใบงานซ่อมบำรุงของเครือฟาร์มเฮ้าส์
+        var queryParams = new Dictionary<string, string?> {
+            { "plant", "FARMHOUSE" }, { "jobtype", jType }, { "start", sDate }, { "end", eDate }, { "view", vMode }
+        };
+        var apiUrl = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString("https://farmhouse.zycoda.com/apimpros/get_job_order", queryParams);
+
+        List<MaintenanceApiModels> kpiRawData = new();
+        using (HttpClient client = new HttpClient())
+        {
+            client.DefaultRequestHeaders.Add("accept", "application/json");
+            client.DefaultRequestHeaders.Add("username", sessionUser);
+            client.DefaultRequestHeaders.Add("password", sessionPass);
+
+            var response = await client.GetAsync(apiUrl);
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                if (json.Trim().StartsWith("{")) json = "[" + json + "]";
+                var allData = JsonConvert.DeserializeObject<List<MaintenanceApiModels>>(json) ?? new();
+
+                // 4. กรองตามเงื่อนไขที่เลือกบนหน้าจออย่างละเอียด
+                kpiRawData = allData.Where(x => {
+                    var target = (x.sectioncreate ?? x.section ?? "").Trim().ToUpper();
+
+                    bool mFrom = string.IsNullOrEmpty(sectionFrom) || sectionFrom.Trim() == "" || sectionFrom.Trim() == "ทั้งหมด" || sectionFrom.Trim().ToUpper() == "ALL" || string.Compare(target, sectionFrom.Trim().ToUpper()) >= 0;
+                    bool mTo = string.IsNullOrEmpty(sectionTo) || sectionTo.Trim() == "" || sectionTo.Trim() == "ทั้งหมด" || sectionTo.Trim().ToUpper() == "ALL" || string.Compare(target, sectionTo.Trim().ToUpper()) <= 0;
+                    bool mStatus = string.IsNullOrEmpty(status) || status.Trim() == "" || status.Trim() == "ทั้งหมด" || status.Trim().ToUpper() == "ALL" || x.status?.Trim().Equals(status.Trim(), StringComparison.OrdinalIgnoreCase) == true;
+
+                    return mStatus && mFrom && mTo;
+                }).OrderByDescending(x => x.id).ToList();
+            }
+        }
+
+        // --- [เพิ่มส่วนนี้เข้าไปในฟังก์ชัน KpiReport หลังจบส่วนดึงข้อมูล] ---
+
+        // 5. คำนวณสรุปยอดจาก rawData ที่ได้มา
+        DateTime dStart = DateTime.Parse(sDate).Date;
+        DateTime dEnd = DateTime.Parse(eDate).Date;
+
+        // ในฟังก์ชัน KpiReport() ปรับตรงส่วน summaryData เป็นแบบนี้ครับ
+        var summaryData = kpiRawData
+            .GroupBy(x => {
+                // ดึงชื่อช่างจากฟิลด์ที่มี (ปรับชื่อฟิลด์ให้ตรงกับ Model ของฝ้ายนะครับ)
+                var name = (x.uassign != null && x.uassign.Any()) ? string.Join(", ", x.uassign) : ("ยังไม่มอบหมาย");
+                return name.Trim();
+            })
+            .Select(g => new ReportSummary
+            {
+                SectionName = g.Key, // ตอนนี้คือ "ชื่อช่าง"
+                CarriedOver = g.Count(x => {
+                    var cDate = ParseDate(x.timecreate);
+                    var fDate = ParseDate(x.timeclose ?? x.timefinish);
+                    return cDate < dStart && (string.IsNullOrEmpty(x.timeclose ?? x.timefinish) || fDate >= dStart);
+                }),
+                OpenedToday = g.Count(x => {
+                    var d = ParseDate(x.timecreate);
+                    return d >= dStart && d <= dEnd;
+                }),
+                Finished = g.Count(x => {
+                    string currentStatus = (x.status ?? "").Trim().ToLower();
+                    return currentStatus == "finish" || currentStatus == "confirm";
+                }),
+                Repair = g.Count(x => (x.status ?? "").Trim().ToLower() == "assign" || (x.status ?? "").Trim().ToLower() == "repair")
+                // ... (ใส่ฟิลด์อื่นๆ ตามต้องการ)
+            })
+            .OrderBy(x => x.SectionName).ToList();
+
+        return View("PrintMonthlyReport", summaryData);
+
+        // 6. ส่ง summaryData ไปที่ View (เปลี่ยนจาก kpiRawData เป็น summaryData)
+        return View("PrintMonthlyReport", summaryData);
     }
 
     private DateTime ParseDate(string? dateStr)

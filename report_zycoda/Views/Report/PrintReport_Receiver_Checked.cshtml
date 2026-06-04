@@ -9,113 +9,203 @@
     <title>@ViewBag.Title</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #1e40af;
-            --primary-light: #eff6ff;
-            --primary-border: #bfdbfe;
-            --success: #15803d;
-            --success-light: #f0fdf4;
-            --success-border: #bbf7d0;
-            --danger: #b91c1c;
-            --danger-light: #fef2f2;
-            --danger-border: #fecaca;
-            --warning: #b45309;
-            --warning-light: #fffbeb;
-            --warning-border: #fef3c7;
-            --slate-800: #1e293b;
-            --slate-600: #475569;
-            --slate-400: #94a3b8;
-            --bg-body: #f8fafc;
-            --card-bg: #ffffff;
-            --border-split: #f1f5f9;
-        }
-        @@page { size: A4 landscape; margin: 0.5cm; }
-        body {
-            font-family: 'Sarabun', sans-serif;
-            font-size: 11.5px;
-            color: var(--slate-800);
-            margin: 0;
-            padding: 10px;
-            background-color: var(--bg-body);
-            -webkit-print-color-adjust: exact;
-        }
-        .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--card-bg);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-        .system-title h1 { font-size: 19px; font-weight: 700; color: var(--primary); margin: 0; }
-        .system-title p { margin: 3px 0 0 0; color: var(--slate-600); font-size: 11.5px; }
-        .meta-print-info { text-align: right; font-size: 11px; color: var(--slate-600); }
+            :root {
+                --primary: #1e40af;
+                --primary-light: #eff6ff;
+                --primary-border: #bfdbfe;
+                --success: #15803d;
+                --success-light: #f0fdf4;
+                --success-border: #bbf7d0;
+                --danger: #b91c1c;
+                --danger-light: #fef2f2;
+                --danger-border: #fecaca;
+                --warning: #b45309;
+                --warning-light: #fffbeb;
+                --warning-border: #fef3c7;
+                --slate-800: #1e293b;
+                --slate-600: #475569;
+                --slate-400: #94a3b8;
+                --bg-body: #f8fafc;
+                --card-bg: #ffffff;
+                --border-color: #e2e8f0;
+            }
 
-        .info-strip {
-            background: linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%);
-            color: #ffffff;
-            border-radius: 6px;
-            padding: 8px 15px;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 11.5px;
-        }
-        .info-strip b { color: #fef08a; }
+            @@page {
+                size: A4 landscape;
+                margin: 0.5cm;
+            }
 
-        .cards-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .job-card {
-            background: var(--card-bg);
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 12px 14px;
-            position: relative;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            page-break-inside: avoid;
-        }
-        .job-card::before {
-            content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
-            border-top-left-radius: 8px; border-bottom-left-radius: 8px;
-        }
-        .card-em::before { background-color: var(--danger); }
-        .card-cm::before { background-color: var(--primary); }
+            body {
+                font-family: 'Sarabun', sans-serif;
+                font-size: 11px;
+                color: var(--slate-800);
+                margin: 0;
+                padding: 10px;
+                background-color: var(--bg-body);
+                -webkit-print-color-adjust: exact;
+            }
 
-        .card-top { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-split); padding-bottom: 6px; margin-bottom: 6px; }
-        .job-id { font-size: 12.5px; font-weight: 700; color: var(--primary); }
-        .card-em .job-id { color: var(--danger); }
-        
-        .job-type-tag { font-size: 9.5px; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
-        .tag-em { background: var(--danger-light); color: var(--danger); border: 1px solid var(--danger-border); }
-        .tag-cm { background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary-border); }
+            .dashboard-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                background: var(--card-bg);
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 12px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+                border-bottom: 2px solid var(--primary);
+            }
 
-        .job-main-detail { font-size: 12.5px; font-weight: 600; color: var(--slate-800); margin: 6px 0; line-height: 1.4; word-break: break-word; }
-        
-        .card-data-split { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 10px; background: #fafafa; padding: 8px; border-radius: 6px; margin-bottom: 6px; }
-        .data-block-title { font-size: 9px; color: var(--slate-400); text-transform: uppercase; font-weight: 600; margin-bottom: 2px; }
-        .people-info { font-size: 11px; }
+            .system-title h1 {
+                font-size: 19px;
+                font-weight: 700;
+                color: var(--primary);
+                margin: 0;
+            }
 
-        .timeline-comparison { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; font-size: 10px; border-top: 1px dashed #e2e8f0; padding-top: 6px; }
-        .time-row { display: flex; flex-direction: column; }
-        .time-row span { color: var(--slate-600); }
+            .system-title p {
+                margin: 3px 0 0 0;
+                color: var(--slate-600);
+                font-size: 11.5px;
+            }
 
-        .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border-split); }
-        .status-badge { font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 12px; }
-        .status-finish { background: var(--success-light); color: var(--success); border: 1px solid var(--success-border); }
-        .status-pending { background: var(--warning-light); color: var(--warning); border: 1px solid var(--warning-border); }
-        .delay-pill { background: var(--danger-light); color: var(--danger); border: 1px solid var(--danger-border); font-weight: 700; padding: 1px 5px; border-radius: 4px; font-size: 9.5px; }
+            .meta-print-info {
+                text-align: right;
+                font-size: 11px;
+                color: var(--slate-600);
+            }
 
-        @@media print {
-            body { background-color: #ffffff; padding: 0; }
-            .no-print { display: none !important; }
-            .dashboard-header { box-shadow: none; border: 1px solid #cbd5e1; }
-            .job-card { box-shadow: none; border: 1px solid #94a3b8 !important; }
-            .card-data-split { background: #f8fafc !important; border: 1px solid #e2e8f0; }
-        }
+            .info-strip {
+                background: linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%);
+                color: #ffffff;
+                border-radius: 6px;
+                padding: 8px 15px;
+                margin-bottom: 15px;
+                display: flex;
+                justify-content: space-between;
+                font-size: 11.5px;
+            }
+
+                .info-strip b {
+                    color: #fef08a;
+                }
+
+            /* Report Table Styles */
+            .report-table {
+                width: 100%;
+                border-collapse: collapse;
+                background: var(--card-bg);
+                box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+                border-radius: 4px;
+                overflow: hidden;
+            }
+
+                .report-table th {
+                    background: #f1f5f9;
+                    color: var(--slate-600);
+                    font-weight: 700;
+                    text-align: left;
+                    padding: 8px 6px;
+                    border: 1px solid var(--border-color);
+                    font-size: 10.5px;
+                }
+
+                .report-table td {
+                    padding: 8px 6px;
+                    border: 1px solid var(--border-color);
+                    vertical-align: top;
+                    line-height: 1.4;
+                }
+
+            /* Row Alert State */
+            .row-em {
+                background-color: #fff1f2;
+            }
+
+            .job-id {
+                font-weight: 700;
+                color: var(--primary);
+            }
+
+            .row-em .job-id {
+                color: var(--danger);
+            }
+
+            /* Badges & Pills */
+            .badge {
+                display: inline-block;
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-weight: 700;
+                font-size: 9.5px;
+                white-space: nowrap;
+            }
+
+            .badge-em {
+                background: var(--danger-light);
+                color: var(--danger);
+                border: 1px solid var(--danger-border);
+            }
+
+            .badge-cm {
+                background: var(--primary-light);
+                color: var(--primary);
+                border: 1px solid var(--primary-border);
+            }
+
+            .badge-finish {
+                background: var(--success-light);
+                color: var(--success);
+                border: 1px solid var(--success-border);
+            }
+
+            .badge-pending {
+                background: var(--warning-light);
+                color: var(--warning);
+                border: 1px solid var(--warning-border);
+            }
+
+            .delay-text {
+                color: var(--danger);
+                font-weight: 700;
+                font-size: 10.5px;
+            }
+
+            @@media print {
+                body {
+                    background-color: #ffffff;
+                    padding: 0;
+                }
+
+                .no-print {
+                    display: none !important;
+                }
+
+                .dashboard-header {
+                    box-shadow: none;
+                    border: 1px solid #cbd5e1;
+                }
+
+                .report-table {
+                    box-shadow: none;
+                    border: 1px solid #94a3b8 !important;
+                }
+
+                    .report-table th {
+                        background: #f1f5f9 !important;
+                        border: 1px solid #94a3b8 !important;
+                    }
+
+                    .report-table td {
+                        border: 1px solid #cbd5e1 !important;
+                    }
+
+                .row-em {
+                    background-color: #fff1f2 !important;
+                    -webkit-print-color-adjust: exact;
+                }
+            }
     </style>
 </head>
 <body>
@@ -136,84 +226,95 @@
         <div>📅 ช่วงวันที่บันทึกข้อมูล: <b>@ViewBag.StartDate</b> ถึง <b>@ViewBag.EndDate</b></div>
     </div>
 
-    <div class="cards-container">
-        @if (Model != null && Model.Any())
-        {
-            foreach (var item in Model)
+    <table class="report-table">
+        <thead>
+            <tr>
+                <th style="width: 5%;">Job ID</th>
+                <th style="width: 8%;">ประเภทงาน</th>
+                <th>รายละเอียดปัญหา</th>
+                <th style="width: 14%;">ผู้แจ้ง / หน่วยงาน</th>
+                <th style="width: 12%;">ช่างผู้รับผิดชอบ</th>
+                <th style="width: 13%;">แผนกำหนดการ (Target)</th>
+                <th style="width: 13%;">เวลาหน้างานจริง (Actual)</th>
+                <th style="width: 7%;">ล่าช้า</th>
+                <th style="width: 10%;">สถานะงาน</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
             {
-                bool isEM = item.jobtype == "EM";
-                string statusStr = item.status ?? "";
-                bool isClosed = statusStr.Contains("Finish") || statusStr.Contains("Confirm");
+                foreach (var item in Model)
+                {
+                    bool isEM = item.jobtype == "EM";
+                    string statusStr = item.status ?? "";
+                    bool isClosed = statusStr.Contains("Finish") || statusStr.Contains("Confirm");
 
-                <div class="job-card @(isEM ? "card-em" : "card-cm")">
-                    <div>
-                        <div class="card-top">
-                            <span class="job-id">🆔 Job No: @(item.job_no ?? item.id)</span>
-                            <span class="job-type-tag @(isEM ? "tag-em" : "tag-cm")">
-                                @(isEM ? "🚨 EMERGENCY งานฉุกเฉิน" : "🔧 GENERAL งานทั่วไป")
+                    <tr class="@(isEM ? "row-em" : "")">
+                        <td class="job-id">@item.id</td>
+
+                        <td>
+                            <span class="badge @(isEM ? "badge-em" : "badge-cm")">
+                                @(isEM ? "EMERGENCY" : "GENERAL")
                             </span>
-                        </div>
+                        </td>
 
-                        <div class="job-main-detail">@item.detail</div>
+                        <td style="word-break: break-word;">@item.detail</td>
 
-                        <div class="card-data-split">
-                            <div class="people-info">
-                                <div class="data-block-title">📌 ฝั่งผู้แจ้งงาน</div>
-                                <div>หน่วยงาน: <strong>@item.sectioncreate</strong></div>
-                                <div>ผู้แจ้ง: @item.usercreate</div>
-                                <div style="font-size: 9.5px; color: var(--slate-400); margin-top: 1px;">
-                                    ยื่นเมื่อ: @(DateTime.TryParse(item.timecreate, out DateTime dtC) ? dtC.ToString("dd/MM/yy HH:mm") : "-")
-                                </div>
+                        <td>
+                            <strong>@item.usercreate</strong>
+                            <div style="font-size: 9.5px; color: var(--slate-600); margin-top: 2px;">
+                                แผนก: @item.sectioncreate
                             </div>
-                            <div class="people-info" style="border-left: 1px solid #e2e8f0; padding-left: 8px;">
-                                <div class="data-block-title">🛠️ ช่างผู้รับผิดชอบ</div>
-                                <div style="font-size: 11.5px; font-weight: bold; color: #0f172a; margin-top: 2px;">
-                                    @(string.IsNullOrEmpty(item.userrepair) ? "⚠️ ยังไม่ลงชื่อช่าง" : item.userrepair)
-                                </div>
+                            <div style="font-size: 9px; color: var(--slate-400);">
+                                ยื่นเมื่อ: @(DateTime.TryParse(item.timecreate, out DateTime dtC) ? dtC.ToString("dd/MM/yy HH:mm") : "-")
                             </div>
-                        </div>
-                    </div>
+                        </td>
 
-                    <div>
-                        <div class="timeline-comparison">
-                            <div class="time-row">
-                                <div class="data-block-title">📅 กำหนดการตามแผน (Target)</div>
-                                <span>เริ่มแผน: <strong>@(DateTime.TryParse(item.timestart, out DateTime ts) ? ts.ToString("dd/MM/yy HH:mm") : "-")</strong></span>
-                                <span>เสร็จแผน: <strong>@(DateTime.TryParse(item.timeend, out DateTime te) ? te.ToString("dd/MM/yy HH:mm") : "-")</strong></span>
+                        <td>
+                            <div style="font-weight: 500;">
+                                @(item.uassign != null && item.uassign.Count > 0 ? string.Join(", ", item.uassign) : "-")
                             </div>
-                            <div class="time-row" style="border-left: 1px dashed #e2e8f0; padding-left: 6px;">
-                                <div class="data-block-title">⏱️ เวลาหน้างานจริง (Actual)</div>
-                                <span>เวลาเข้า: @(DateTime.TryParse(item.timestartrepair, out DateTime trs) ? trs.ToString("dd/MM/yy HH:mm") : "-")</span>
-                                <span style="color: var(--success);">เวลาเสร็จ: <b>@(DateTime.TryParse(item.timeendrepair, out DateTime tre) ? tre.ToString("dd/MM/yy HH:mm") : "-")</b></span>
-                            </div>
-                        </div>
+                        </td>
 
-                        <div class="card-footer">
-                            <div>
-                                @if (!string.IsNullOrEmpty(item.timedelay) && item.timedelay != "0" && item.timedelay != "00:00:00")
-                                {
-                                    <span class="delay-pill">⚠️ ล่าช้า @item.timedelay วัน</span>
-                                }
-                                else
-                                {
-                                    <span style="color: var(--slate-400); font-size: 9.5px;">🕒 On Schedule</span>
-                                }
-                            </div>
-                            <span class="status-badge @(isClosed ? "status-finish" : "status-pending")">
+                        <td style="font-size: 10px; color: var(--slate-600);">
+                            <div>เริ่ม: <b>@(DateTime.TryParse(item.timestart, out DateTime ts) ? ts.ToString("dd/MM/yy HH:mm") : "-")</b></div>
+                            <div style="margin-top: 2px;">เสร็จ: <b>@(DateTime.TryParse(item.timeend, out DateTime te) ? te.ToString("dd/MM/yy HH:mm") : "-")</b></div>
+                        </td>
+
+                        <td style="font-size: 10px;">
+                            <div>เข้า: @(DateTime.TryParse(item.timestartrepair, out DateTime trs) ? trs.ToString("dd/MM/yy HH:mm") : "-")</div>
+                            <div style="margin-top: 2px; color: var(--success);">เสร็จ: <b>@(DateTime.TryParse(item.timeendrepair, out DateTime tre) ? tre.ToString("dd/MM/yy HH:mm") : "-")</b></div>
+                        </td>
+
+                        <td class="delay-text">
+                            @if (!string.IsNullOrEmpty(item.timedelay) && item.timedelay != "0" && item.timedelay != "00:00:00")
+                            {
+                                <span>⚠️ @item.timedelay วัน</span>
+                            }
+                            else
+                            {
+                                <span style="color: var(--slate-400); font-weight: normal; font-size: 9.5px;">-</span>
+                            }
+                        </td>
+
+                        <td>
+                            <span class="badge @(isClosed ? "badge-finish" : "badge-pending")">
                                 @(isClosed ? "✅ " + statusStr : "⏳ " + statusStr)
                             </span>
-                        </div>
-                    </div>
-                </div>
+                        </td>
+                    </tr>
+                }
             }
-        }
-        else
-        {
-            <div style="grid-column: span 2; text-align: center; padding: 40px; background: #fff; border-radius: 8px; color: var(--slate-400); font-style: italic;">
-                📭 ไม่พบข้อมูลใบสั่งซ่อมบำรุงที่ตรงกับเงื่อนไขในระบบขณะนี้
-            </div>
-        }
-    </div>
+            else
+            {
+                <tr>
+                    <td colspan="9" style="text-align: center; padding: 30px; color: var(--slate-400); font-style: italic;">
+                        📭 ไม่พบข้อมูลใบสั่งซ่อมบำรุงที่ตรงกับเงื่อนไขในระบบขณะนี้
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 
     <div class="no-print" style="position: fixed; bottom: 25px; right: 25px;">
         <button onclick="window.print()" style="background: #1e3a8a; color: white; border: none; padding: 11px 26px; border-radius: 20px; cursor: pointer; font-family: 'Sarabun'; font-weight: 600; font-size: 12px; box-shadow: 0 4px 14px rgba(30,58,138,0.35);">

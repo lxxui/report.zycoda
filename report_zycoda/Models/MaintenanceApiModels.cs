@@ -133,4 +133,5 @@ namespace report_zycoda.Models
 
         public int NotAccepted { get; set; }
     }
+
 }
