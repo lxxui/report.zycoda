@@ -2,16 +2,11 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration; // เพิ่มเพื่อให้มองเห็น IConfiguration
+using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections.Generic; // สำหรับ List
-using System.Linq; // สำหรับ .Any()
-using System.Net.Http; // สำหรับ HttpClient
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using report_zycoda.Data;
-using Microsoft.AspNetCore.WebUtilities;
-using Newtonsoft.Json;
 
 namespace report_zycoda.Services
 {
@@ -19,36 +14,56 @@ namespace report_zycoda.Services
     {
         private readonly IServiceProvider _services;
         private readonly ILogger<JobSyncService> _logger;
+        private readonly IConfiguration _configuration;
 
-        // ลบ IConfiguration หรือ ApiService ออกจาก Constructor ให้เหลือแค่นี้
-        public JobSyncService(IServiceProvider services, ILogger<JobSyncService> logger)
+        // ดึง IConfiguration เข้ามาเพื่ออ่าน URL ของตัวระบบเอง (เช่น http://localhost:xxxx)
+        public JobSyncService(IServiceProvider services, ILogger<JobSyncService> logger, IConfiguration configuration)
         {
             _services = services;
             _logger = logger;
+            _configuration = configuration;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            _logger.LogInformation("🚀 [Auto Sync Worker] ระบบเริ่มต้นทำงาน Background Service สำเร็จ...");
+
             while (!stoppingToken.IsCancellationRequested)
             {
-                // สร้าง Scope ทุกครั้งที่ทำงานเพื่อดึง Scoped Service (DbContext, ApiService)
-                using (var scope = _services.CreateScope())
+                try
                 {
-                    var dbContext = scope.ServiceProvider.GetRequiredService<myDbContext>();
-                    // ถ้าจะใช้ ApiService ก็ดึงตรงนี้
-                    // var apiService = scope.ServiceProvider.GetRequiredService<ApiService>();
+                    _logger.LogInformation("⏳ [Auto Sync Worker] กำลังเริ่มรอบการซิงค์ข้อมูลตามเวลารอบอัตโนมัติ...");
 
-                    try
+                    // 1. อ่านค่า Domain หรือ Base URL ของเซิร์ฟเวอร์ระบบเราเอง (กำหนดไว้ใน appsettings.json หรือใช้ดีฟอลต์)
+                    string baseUrl = _configuration["AppUrl"] ?? "https://localhost:7197"; // ⚠️ เปลี่ยนให้ตรงกับ Port รันจริงของโปรเจกต์ฝ้ายน้า
+                    string apiEndpoint = $"{baseUrl.TrimEnd('/')}/api/Sync/trigger-sync";
+
+                    // 2. เรียกใช้งาน HttpClient ยิงไปกระตุ้น API ฝั่งคอนโทรลเลอร์
+                    using (var client = new HttpClient())
                     {
-                        _logger.LogInformation("Worker กำลังทำงาน...");
-                        // ... Logic การดึง API และ Save ลง job_order ...
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Worker Error");
+                        client.Timeout = TimeSpan.FromMinutes(10); // ตั้งเวลาเผื่อดึงดาต้าจ็อบก้อนใหญ่
+
+                        // จำลองยิงเป็น POST เปล่าๆ เข้าไป เพราะฝั่ง SyncController เราตั้งรับแบบ [HttpPost]
+                        var response = await client.PostAsync(apiEndpoint, null, stoppingToken);
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            string resultJson = await response.Content.ReadAsStringAsync();
+                            _logger.LogInformation($"✅ [Auto Sync Worker] ซิงค์ดาต้าเสร็จสิ้น! บันทึกจากข้อความตอบกลับ: {resultJson}");
+                        }
+                        else
+                        {
+                            _logger.LogWarning($"⚠️ [Auto Sync Worker] ปลายสาย API ตอบกลับด้วยรหัสสเตตัสขัดข้อง: {response.StatusCode}");
+                        }
                     }
                 }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "❌ [Auto Sync Worker] เกิดข้อผิดพลาดในระบบเกตเวย์ออโต้ซิงค์ข้อมูล");
+                }
 
+                // สั่งหน่วงเวลาการทำงานรอบถัดไปเป็นเวลา 30 นาที
+                _logger.LogInformation("💤 [Auto Sync Worker] สิ้นสุดการทำงานรอบปัจจุบัน กำลังสแตนด์บายรอรอบถัดไปอีก 30 นาที...");
                 await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken);
             }
         }

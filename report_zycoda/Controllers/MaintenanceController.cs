@@ -297,11 +297,6 @@ namespace report_zycoda.Controllers
         [HttpGet]
         public async Task<IActionResult> Machine()
         {
-            // 🟢 คอมเมนต์การเช็คสิทธิ์ออกตามเดิมของฝ้าย
-            /*
-            var userClass = User.Claims.FirstOrDefault(c => c.Type == "UserClass")?.Value;
-            if (userClass != "9") { return RedirectToAction("Index", "Maintenance"); }
-            */
 
             var machineList = new DataTable();
 

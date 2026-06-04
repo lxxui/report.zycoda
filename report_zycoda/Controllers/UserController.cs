@@ -65,7 +65,7 @@ namespace report_zycoda.Controllers
                                           ,[Last_modify]
                                           ,[Workpremit_class]
                                           ,[Plantoption]
-                                      FROM [ZycodaApiByPB_Lenovo].[dbo].[User]";
+                                      FROM [ZycodaApiByPB].[dbo].[User]";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
@@ -157,9 +157,9 @@ namespace report_zycoda.Controllers
 
                             // 🎯 SQL Upsert Logic: เพิ่ม SELECT 'UPDATED' และ SELECT 'INSERTED' กลับมาเช็คในโค้ด C#
                             string queryUpsert = @"
-                                IF EXISTS (SELECT 1 FROM [ZycodaApiByPB_Lenovo].[dbo].[User] WHERE [Username] = @Username)
+                                IF EXISTS (SELECT 1 FROM [ZycodaApiByPB].[dbo].[User] WHERE [Username] = @Username)
                                 BEGIN
-                                    UPDATE [ZycodaApiByPB_Lenovo].[dbo].[User]
+                                    UPDATE [ZycodaApiByPB].[dbo].[User]
                                     SET [Plant] = @Plant,
                                         [FirstName] = @FirstName,
                                         [LastName] = @LastName,
@@ -188,7 +188,7 @@ namespace report_zycoda.Controllers
                                 END
                                 ELSE
                                 BEGIN
-                                    INSERT INTO [ZycodaApiByPB_Lenovo].[dbo].[User] (
+                                    INSERT INTO [ZycodaApiByPB].[dbo].[User] (
                                         [Id_Zy], [Plant], [FirstName], [LastName], [Email], [Username], [Password],
                                         [Position], [Section], [PlannerGroup], [SectionOption], [Class], [Rule], [Active],
                                         [Smallgroup], [Tel], [Work_center], [UserAD], [SubUsers], [Expire_active],

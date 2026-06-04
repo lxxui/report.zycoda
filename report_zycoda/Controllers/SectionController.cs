@@ -33,7 +33,7 @@ namespace report_zycoda.Controllers
 
                     // 🏢 1. ดึงข้อมูล Section ทั้งหมดไปใส่นับจำนวนในระบบ
                     string sectionQuery = @"SELECT [Id], [Sections], [Plant], [Name], [WorkCenter] 
-                                           FROM [ZycodaApiByPB_Lenovo].[dbo].[Section]";
+                                           FROM [ZycodaApiByPB].[dbo].[Section]";
                     DataTable dtSection = new DataTable();
                     using (SqlCommand cmd = new SqlCommand(sectionQuery, conn))
                     using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
@@ -44,7 +44,7 @@ namespace report_zycoda.Controllers
 
                     // 👥 2. ดึงข้อมูล User ทั้งหมดมาใช้นับยอด Active / Inactive
                     string userQuery = @"SELECT [Username], [IsActive] 
-                                         FROM [ZycodaApiByPB_Lenovo].[dbo].[User]";
+                                         FROM [ZycodaApiByPB].[dbo].[User]";
                     DataTable dtUser = new DataTable();
                     using (SqlCommand cmd = new SqlCommand(userQuery, conn))
                     using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
@@ -81,7 +81,7 @@ namespace report_zycoda.Controllers
                     await conn.OpenAsync();
                     string query = @"SELECT [Id], [Id_Zy], [Sections], [Plant], [Name], 
                                             [PermitRequest], [WorkCenter], [LastUpdateDate], [LastUpdateBy]
-                                     FROM [ZycodaApiByPB_Lenovo].[dbo].[Section]";
+                                     FROM [ZycodaApiByPB].[dbo].[Section]";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     using (SqlDataReader reader = await cmd.ExecuteReaderAsync())

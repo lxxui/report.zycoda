@@ -13,7 +13,8 @@
     var sectionTo = ViewBag.CurrentSectionTo ?? "";
 
     var reports = Model ?? new List<report_zycoda.Models.MaintenanceApiModels>();
-    var userClass = User.FindFirst("UserClass")?.Value;
+    // 🟢 แก้จาก "UserClass" เป็น "Class" ให้ตรงกับหลังบ้านน้า
+    var userClass = User.FindFirst("Class")?.Value ?? "0";
 
     // 2. จัดการข้อมูลสำหรับ Chart (Top 10 Machines)
     var machineGroups = reports

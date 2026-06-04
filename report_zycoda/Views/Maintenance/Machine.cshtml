@@ -19,408 +19,409 @@
 
 <style>
     body {
-        font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
-        background-color: #f8fafc;
-        color: #1e293b;
+    font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+    background-color: #f8fafc;
+    color: #1e293b;
     }
 
     .text-navy {
-        color: #0f172a !important;
+    color: #0f172a !important;
     }
 
     .bg-navy-gradient {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     }
 
     /* Luxury Dashboard Header */
     .glass-header {
-        background: #ffffff;
-        border-radius: 16px;
-        border: 1px solid rgba(226, 232, 240, 0.8);
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid rgba(226, 232, 240, 0.8);
     }
 
     /* Premium Nav Pills & Tabs */
     .custom-nav-pills {
-        background: #f1f5f9;
-        padding: 6px;
-        border-radius: 14px;
-        border: none;
+    background: #f1f5f9;
+    padding: 6px;
+    border-radius: 14px;
+    border: none;
     }
 
-        .custom-nav-pills .nav-link {
-            color: #64748b;
-            border-radius: 10px;
-            padding: 10px 20px;
-            font-weight: 600;
-            transition: all 0.25s ease;
-        }
+    .custom-nav-pills .nav-link {
+    color: #64748b;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-weight: 600;
+    transition: all 0.25s ease;
+    }
 
-            .custom-nav-pills .nav-link.active {
-                background: #ffffff !important;
-                color: #0f172a !important;
-                box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08) !important;
-            }
+    .custom-nav-pills .nav-link.active {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08) !important;
+    }
 
-            .custom-nav-pills .nav-link:hover:not(.active) {
-                color: #334155;
-                background: rgba(255,255,255,0.5);
-            }
+    .custom-nav-pills .nav-link:hover:not(.active) {
+    color: #334155;
+    background: rgba(255,255,255,0.5);
+    }
 
     /* Elegant Cards */
     .premium-card {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 16px;
-        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.015);
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.015);
     }
 
     /* Sleek Modern Tables */
     .modern-table {
-        border-collapse: separate;
-        border-spacing: 0 8px !important;
+    border-collapse: separate;
+    border-spacing: 0 8px !important;
     }
 
-        .modern-table thead th {
-            background: transparent !important;
-            border: none !important;
-            color: #94a3b8 !important;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
-            padding: 12px 24px;
-        }
+    .modern-table thead th {
+    background: transparent !important;
+    border: none !important;
+    color: #94a3b8 !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    padding: 12px 24px;
+    }
 
-        .modern-table tbody tr {
-            background: #ffffff;
-            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.02);
-            transition: all 0.2s ease;
-        }
+    .modern-table tbody tr {
+    background: #ffffff;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.02);
+    transition: all 0.2s ease;
+    }
 
-            .modern-table tbody tr:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
-                background: #ffffff !important;
-            }
+    .modern-table tbody tr:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+    background: #ffffff !important;
+    }
 
-        .modern-table tbody td {
-            padding: 14px 24px !important;
-            border: none !important;
-            background: transparent !important;
-        }
+    .modern-table tbody td {
+    padding: 14px 24px !important;
+    border: none !important;
+    background: transparent !important;
+    }
 
-        .modern-table tbody tr td:first-child {
-            border-top-left-radius: 12px !important;
-            border-bottom-left-radius: 12px !important;
-        }
+    .modern-table tbody tr td:first-child {
+    border-top-left-radius: 12px !important;
+    border-bottom-left-radius: 12px !important;
+    }
 
-        .modern-table tbody tr td:last-child {
-            border-top-right-radius: 12px !important;
-            border-bottom-right-radius: 12px !important;
-        }
+    .modern-table tbody tr td:last-child {
+    border-top-right-radius: 12px !important;
+    border-bottom-right-radius: 12px !important;
+    }
 
     /* Minimalist Glow Buttons */
     .btn-action {
-        width: 36px;
-        height: 36px;
-        border-radius: 10px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border: none;
-        transition: all 0.2s ease;
-        background: #f8fafc;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    transition: all 0.2s ease;
+    background: #f8fafc;
     }
 
     .btn-action-edit {
-        color: #3b82f6;
+    color: #3b82f6;
     }
 
-        .btn-action-edit:hover {
-            background: #dbeafe;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
-        }
+    .btn-action-edit:hover {
+    background: #dbeafe;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+    }
 
     .btn-action-delete {
-        color: #ef4444;
+    color: #ef4444;
     }
 
-        .btn-action-delete:hover {
-            background: #fee2e2;
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
-        }
+    .btn-action-delete:hover {
+    background: #fee2e2;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    }
 
     .btn-add-new {
-        background: #0f172a;
-        color: #ffffff;
-        font-weight: 600;
-        border: none;
-        padding: 10px 24px;
-        border-radius: 12px;
-        transition: all 0.2s ease;
+    background: #0f172a;
+    color: #ffffff;
+    font-weight: 600;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 12px;
+    transition: all 0.2s ease;
     }
 
-        .btn-add-new:hover {
-            background: #1e293b;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.15);
-            color: #ffffff;
-        }
+    .btn-add-new:hover {
+    background: #1e293b;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.15);
+    color: #ffffff;
+    }
 
     /* Advanced DataTables UI Overrides */
     .dataTables_wrapper .dataTables_filter input {
-        border: 1px solid #e2e8f0 !important;
-        padding: 8px 16px !important;
-        border-radius: 10px !important;
-        background: #ffffff !important;
-        font-size: 0.9rem;
-        outline: none;
+    border: 1px solid #e2e8f0 !important;
+    padding: 8px 16px !important;
+    border-radius: 10px !important;
+    background: #ffffff !important;
+    font-size: 0.9rem;
+    outline: none;
     }
 
-        .dataTables_wrapper .dataTables_filter input:focus {
-            border-color: #94a3b8 !important;
-            box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.1);
-        }
+    .dataTables_wrapper .dataTables_filter input:focus {
+    border-color: #94a3b8 !important;
+    box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.1);
+    }
 
     .paginate_button.page-item.active .page-link {
-        background-color: #0f172a !important;
-        border-color: #0f172a !important;
+    background-color: #0f172a !important;
+    border-color: #0f172a !important;
     }
 
     .page-link {
-        color: #475569;
-        border-radius: 8px !important;
-        margin: 0 2px;
-        border: none !important;
-        background: #f1f5f9;
+    color: #475569;
+    border-radius: 8px !important;
+    margin: 0 2px;
+    border: none !important;
+    background: #f1f5f9;
     }
 
     /* ฉากหลังแบบเต็มจอ โทน Dark Mode ดุดัน */
     #loader-wrapper {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: #0b0f19; /* สีน้ำเงินเข้มเกือบดำ สไตล์ Enterprise Dark */
-        z-index: 99999; /* อยู่เหนือทุก Element ในหน้าเว็บ */
-        display: flex;
-        justify-content: center;
-        align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #0b0f19; /* สีน้ำเงินเข้มเกือบดำ สไตล์ Enterprise Dark */
+    z-index: 99999; /* อยู่เหนือทุก Element ในหน้าเว็บ */
+    display: flex;
+    justify-content: center;
+    align-items: center;
     }
 
     .loader-content {
-        text-align: center;
+    text-align: center;
     }
 
     /* สไตล์ไอคอนและการตั้งค่าสำหรับเส้นสแกน */
     .icon-wrapper {
-        position: relative;
-        display: inline-block;
-        font-size: 4.5rem; /* ขนาดไอคอน CPU */
-        line-height: 1;
+    position: relative;
+    display: inline-block;
+    font-size: 4.5rem; /* ขนาดไอคอน CPU */
+    line-height: 1;
     }
 
     /* สีเขียวเข้มพรีเมียม (Emerald/Dark Green ที่ดูซอฟต์และแพง) */
     .text-emerald {
-        color: #10b981;
-        filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.4));
+    color: #10b981;
+    filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.4));
     }
 
     /* 🟢 เส้นเลเซอร์สีเขียวที่ใช้วิ่งสแกนขึ้น-ลง */
     .scanner-line {
-        position: absolute;
-        top: 0;
-        left: -10%;
-        width: 120%;
-        height: 3px;
-        background: linear-gradient(90deg, transparent, #10b981, transparent);
-        box-shadow: 0 0 8px #10b981;
-        animation: scanMove 2s ease-in-out infinite;
+    position: absolute;
+    top: 0;
+    left: -10%;
+    width: 120%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #10b981, transparent);
+    box-shadow: 0 0 8px #10b981;
+    animation: scanMove 2s ease-in-out infinite;
     }
 
     @@keyframes scanMove {
-        0%, 100% {
-            top: 0%;
-            opacity: 0.3;
-        }
+    0%, 100% {
+    top: 0%;
+    opacity: 0.3;
+    }
 
-        50% {
-            top: 100%;
-            opacity: 1;
-        }
+    50% {
+    top: 100%;
+    opacity: 1;
+    }
     }
 
     /* 🎯 สไตล์ตัวอักษร GENERATING แอนิเมชันแบบสุ่มกะพริบเรียงตัว */
     .loading-text {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        font-weight: 800;
-        font-size: 1.25rem;
-        letter-spacing: 6px;
-        color: #f8fafc;
-        padding-left: 6px; /* ชดเชย space ตัวสุดท้ายให้อยู่กึ่งกลางพอดี */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 800;
+    font-size: 1.25rem;
+    letter-spacing: 6px;
+    color: #f8fafc;
+    padding-left: 6px; /* ชดเชย space ตัวสุดท้ายให้อยู่กึ่งกลางพอดี */
     }
 
-        .loading-text span {
-            display: inline-block;
-            animation: textGlow 1.4s infinite both;
-        }
+    .loading-text span {
+    display: inline-block;
+    animation: textGlow 1.4s infinite both;
+    }
 
-            /* ใส่ Delay ให้ตัวอักษรแต่ละตัว เพื่อให้มันค่อยๆ เด้งตามลำดับ */
-            .loading-text span:nth-child(1) {
-                animation-delay: 0s;
-            }
+    /* ใส่ Delay ให้ตัวอักษรแต่ละตัว เพื่อให้มันค่อยๆ เด้งตามลำดับ */
+    .loading-text span:nth-child(1) {
+    animation-delay: 0s;
+    }
 
-            .loading-text span:nth-child(2) {
-                animation-delay: 0.1s;
-            }
+    .loading-text span:nth-child(2) {
+    animation-delay: 0.1s;
+    }
 
-            .loading-text span:nth-child(3) {
-                animation-delay: 0.2s;
-            }
+    .loading-text span:nth-child(3) {
+    animation-delay: 0.2s;
+    }
 
-            .loading-text span:nth-child(4) {
-                animation-delay: 0.3s;
-            }
+    .loading-text span:nth-child(4) {
+    animation-delay: 0.3s;
+    }
 
-            .loading-text span:nth-child(5) {
-                animation-delay: 0.4s;
-            }
+    .loading-text span:nth-child(5) {
+    animation-delay: 0.4s;
+    }
 
-            .loading-text span:nth-child(6) {
-                animation-delay: 0.5s;
-            }
+    .loading-text span:nth-child(6) {
+    animation-delay: 0.5s;
+    }
 
-            .loading-text span:nth-child(7) {
-                animation-delay: 0.6s;
-            }
+    .loading-text span:nth-child(7) {
+    animation-delay: 0.6s;
+    }
 
-            .loading-text span:nth-child(8) {
-                animation-delay: 0.7s;
-            }
+    .loading-text span:nth-child(8) {
+    animation-delay: 0.7s;
+    }
 
-            .loading-text span:nth-child(9) {
-                animation-delay: 0.8s;
-            }
+    .loading-text span:nth-child(9) {
+    animation-delay: 0.8s;
+    }
 
-            .loading-text span:nth-child(10) {
-                animation-delay: 0.9s;
-            }
+    .loading-text span:nth-child(10) {
+    animation-delay: 0.9s;
+    }
 
     @@keyframes textGlow {
-        0%, 100% {
-            opacity: 0.3;
-            transform: scale(1);
-        }
+    0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+    }
 
-        50% {
-            opacity: 1;
-            transform: scale(1.1);
-            color: #10b981;
-            text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
-        }
+    50% {
+    opacity: 1;
+    transform: scale(1.1);
+    color: #10b981;
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+    }
     }
 
     .sub-text {
-        font-size: 0.75rem;
-        letter-spacing: 2px;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
     }
 
     /* CSS ตกแต่งสไตล์ Enterprise คลีนๆ */
     .text-slate-800 {
-        color: #1e293b;
+    color: #1e293b;
     }
 
     .text-slate-700 {
-        color: #334155;
+    color: #334155;
     }
 
     .rounded-4 {
-        border-radius: 1rem !important;
+    border-radius: 1rem !important;
     }
 
     .modern-table tbody tr:hover {
-        background-color: #f8fafc;
-        transition: background 0.1s ease-in-out;
+    background-color: #f8fafc;
+    transition: background 0.1s ease-in-out;
     }
 
     .form-select-sm:focus {
-        border-color: #cbd5e1;
-        box-shadow: none;
+    border-color: #cbd5e1;
+    box-shadow: none;
     }
 
     .text-slate-800 {
-        color: #1e293b;
+    color: #1e293b;
     }
 
     .text-slate-700 {
-        color: #334155;
+    color: #334155;
     }
 
     .rounded-4 {
-        border-radius: 1rem !important;
+    border-radius: 1rem !important;
     }
 
     .bg-light-subtle {
-        background-color: #f8fafc !important;
+    background-color: #f8fafc !important;
     }
 
     /* สไตล์สำหรับตารางโมเดิร์นคอร์เซิร์ฟเวอร์ */
     .modern-table thead th {
-        font-weight: 600;
-        font-size: 0.75rem;
-        letter-spacing: 0.5px;
-        color: #64748b !important;
-        border-bottom: 2px solid #f1f5f9 !important;
-        background-color: #f8fafc;
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    color: #64748b !important;
+    border-bottom: 2px solid #f1f5f9 !important;
+    background-color: #f8fafc;
     }
 
     .modern-table tbody tr {
-        border-bottom: 1px solid #f1f5f9;
-        transition: all 0.15s ease-in-out;
+    border-bottom: 1px solid #f1f5f9;
+    transition: all 0.15s ease-in-out;
     }
 
-        .modern-table tbody tr:hover {
-            background-color: #f8fafc !important;
-        }
+    .modern-table tbody tr:hover {
+    background-color: #f8fafc !important;
+    }
 
     /* ปุ่ม Action ประจำแถวสำหรับการลบและแก้ไขข้อมูล */
     .btn-action {
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        border: none;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s;
-        background-color: #f1f5f9;
-        color: #475569;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    background-color: #f1f5f9;
+    color: #475569;
     }
 
     .btn-action-edit:hover {
-        background-color: #e0f2fe;
-        color: #0284c7;
+    background-color: #e0f2fe;
+    color: #0284c7;
     }
 
     .btn-action-delete:hover {
-        background-color: #fee2e2;
-        color: #dc2626;
+    background-color: #fee2e2;
+    color: #dc2626;
     }
 
     .tracking-wider {
-        letter-spacing: 0.05em;
-    }
-    .border-dashed {
-        border-style: dashed !important;
-        border-color: #dee2e6 !important;
-        transition: all 0.2s ease-in-out;
+    letter-spacing: 0.05em;
     }
 
-        .border-dashed:hover {
-            border-color: #198754 !important;
-            background-color: #f4faf7 !important;
-        }
+    .border-dashed {
+    border-style: dashed !important;
+    border-color: #dee2e6 !important;
+    transition: all 0.2s ease-in-out;
+    }
+
+    .border-dashed:hover {
+    border-color: #198754 !important;
+    background-color: #f4faf7 !important;
+    }
 </style>
 
 @{
@@ -510,7 +511,7 @@
                         <div class="p-2.5 bg-primary-subtle text-primary rounded-3 me-3"><i class="bi bi-box-seam fs-4"></i></div>
                         <div>
                             <small class="text-muted d-block">เครื่องจักรทั้งหมด</small>
-                            <span class="fw-bold fs-5">@totalMachines เครื่อง</span>
+                            <span class="fw-bold fs-5"><span id="totalMachines">-</span> เครื่อง</span>
                         </div>
                     </div>
                 </div>
@@ -519,7 +520,7 @@
                         <div class="p-2.5 bg-success-subtle text-success rounded-3 me-3"><i class="bi bi-activity fs-4"></i></div>
                         <div>
                             <small class="text-muted d-block">Active Status</small>
-                            <span class="fw-bold fs-5">@activeMachines เครื่อง</span>
+                            <span class="fw-bold fs-5"><span id="activeMachines">-</span> เครื่อง</span>
                         </div>
                     </div>
                 </div>
@@ -687,23 +688,13 @@
 
         <div class="tab-pane fade" id="user-pane" role="tabpanel">
 
-            @* 🟢 แกะข้อมูลและคำนวณสถิติของพนักงานแยกสถิติ Active / Inactive ชัดเจน *@
-            @{
-                var userTableData = ViewBag.UserTable as System.Data.DataTable;
-                int totalUsers = userTableData != null ? userTableData.Rows.Count : 0;
-
-                // นับจำนวนพนักงานที่เป็น Active และ Inactive (อิงตามคอลัมน์ IsActive ใน DB ของระบบฝ้าย)
-                int activeUsers = userTableData != null ? userTableData.Rows.Cast<System.Data.DataRow>().Count(r => r["IsActive"] != DBNull.Value && Convert.ToBoolean(r["IsActive"])) : 0;
-                int inactiveUsers = totalUsers - activeUsers;
-            }
-
             <div class="row g-3 mb-4">
                 <div class="col-6 col-md-3">
                     <div class="p-3 bg-white rounded-4 border-0 shadow-sm d-flex align-items-center">
                         <div class="p-2.5 bg-primary-subtle text-primary rounded-3 me-3"><i class="bi bi-people-fill fs-4"></i></div>
                         <div>
                             <small class="text-muted d-block">พนักงานทั้งหมด</small>
-                            <span class="fw-bold fs-5" id="totalUsersCount">0</span> คน
+                            <span class="fw-bold fs-5" id="totalUsersCount">-</span> คน
                         </div>
                     </div>
                 </div>
@@ -712,7 +703,7 @@
                         <div class="p-2.5 bg-success-subtle text-success rounded-3 me-3"><i class="bi bi-person-check-fill fs-4"></i></div>
                         <div>
                             <small class="text-muted d-block">Active Status</small>
-                            <span class="fw-bold fs-5 text-success" id="activeUsersCount">0</span> คน
+                            <span class="fw-bold fs-5 text-success" id="activeUsersCount">-</span> คน
                         </div>
                     </div>
                 </div>
@@ -721,7 +712,7 @@
                         <div class="p-2.5 bg-danger-subtle text-danger rounded-3 me-3"><i class="bi bi-person-x-fill fs-4"></i></div>
                         <div>
                             <small class="text-muted d-block">Inactive Status</small>
-                            <span class="fw-bold fs-5 text-danger">0</span> คน
+                            <span class="fw-bold fs-5 text-danger" id="inactiveUsersCount">-</span> คน
                         </div>
                     </div>
                 </div>
@@ -752,12 +743,13 @@
                         <table class="table modern-table table-hover align-middle mb-0" id="userTable" style="width: 100%;">
                             <thead class="table-light text-secondary small text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">
                                 <tr>
-                                    <th class="py-3 px-3" style="width: 15%;">ชื่อผู้ใช้งาน</th>
-                                    <th class="py-3" style="width: 25%;">ชื่อ-นามสกุลพนักงาน</th>
+                                    <th class="py-3 px-3" style="width: 13%;">ชื่อผู้ใช้งาน</th>
+                                    <th class="py-3" style="width: 22%;">ชื่อ-นามสกุลพนักงาน</th>
                                     <th class="py-3" style="width: 20%;">อีเมล</th>
                                     <th class="py-3" style="width: 15%;">ฝ่ายงาน (Section)</th>
-                                    <th class="py-3 text-center" style="width: 13%;">สิทธิ์ (Class)</th>
-                                    <th class="py-3 text-center" style="width: 12%;">จัดการ</th>
+                                    <th class="py-3 text-center" style="width: 10%;">สิทธิ์ (Class)</th>
+                                    <th class="py-3 text-center" style="width: 10%;">สถานะ</th>
+                                    <th class="py-3 text-center" style="width: 10%;">จัดการ</th>
                                 </tr>
                             </thead>
                             <tbody class="small text-slate-700">
@@ -767,9 +759,6 @@
                 </div>
             </div>
         </div>
-
-
-
         <!-- TAB 4: Sync from Zycoda -->
         <div class="tab-pane fade" id="sync-pane" role="tabpanel">
             <div class="card border-0 shadow-sm rounded-4 overlay-container overflow-hidden">
@@ -804,7 +793,7 @@
                                 <div class="p-2.5 bg-success-subtle text-success rounded-3 me-3"><i class="bi bi-check-all fs-4"></i></div>
                                 <div>
                                     <small class="text-muted d-block">Auto Sync ล่าสุดเครือข่าย</small>
-                                    <span class="fw-bold fs-5 text-success">วันนี้, 16:33 น.</span>
+                                    <span id="lastSyncTime" class="fw-bold fs-6 text-success">-</span>
                                 </div>
                             </div>
                         </div>
@@ -818,8 +807,27 @@
                             </div>
                         </div>
                     </div>
-                </div>
 
+                    <div class="mt-4">
+                        <div class="table-responsive rounded-3 border border-light">
+                            <table class="table modern-table table-hover align-middle mb-0" id="jobOrderTable" style="width: 100%;">
+                                <thead class="table-light text-secondary small text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">
+                                    <tr>
+                                        <th class="py-3 px-3" style="width: 15%;">เลขที่ใบแจ้งซ่อม</th>
+                                        <th class="py-3" style="width: 15%;">รหัสเครื่อง (MN)</th>
+                                        <th class="py-3" style="width: 30%;">รายละเอียดอาการชำรุด (Detail)</th>
+                                        <th class="py-3" style="width: 15%;">แผนก (Section)</th>
+                                        <th class="py-3" style="width: 13%;">เวลาที่แจ้ง</th>
+                                        <th class="py-3 text-center" style="width: 12%;">สถานะ</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="small text-slate-700">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>
@@ -1028,16 +1036,14 @@
         $(document).ready(function () {
 
             // ========================================================
-            // ⚡ [NEW] ส่วนควบคุมหน้าจอโหลดหลัก (Global Page Loader)
+            // ⚡ ส่วนควบคุมหน้าจอโหลดหลัก (Global Page Loader)
             // ========================================================
-            // 1. ดักจับเมื่อหน้าต่างเว็บและ Assets ทั้งหมดโหลดสมบูรณ์ เพื่อสั่งปิด Loader
             $(window).on('load', function () {
                 $('#loader-wrapper').fadeOut(500, function () {
                     $(this).css('display', 'none');
                 });
             });
 
-            // 2. Timeout Protection: สั่งปิดตัวโหลดอัตโนมัติภายใน 5 วินาที เผื่อกรณีเซิร์ฟเวอร์หรือ Ajax ค้าง
             setTimeout(function () {
                 if ($('#loader-wrapper').is(':visible')) {
                     console.log("Loader timeout reached. Forcing dismiss.");
@@ -1077,7 +1083,7 @@
                             "render": function (data, type, row) {
                                 var parent = row.ParentCode ? row.ParentCode : "Root";
                                 return `<div class="fw-bold text-navy">${data}</div>
-                                        <small class="text-muted font-monospace" style="font-size:0.72rem;">Parent: ${parent}</small>`;
+                                <small class="text-muted font-monospace" style="font-size:0.72rem;">Parent: ${parent}</small>`;
                             }
                         },
                         {
@@ -1085,7 +1091,7 @@
                             "render": function (data, type, row) {
                                 var desc = row.Description ? row.Description : "-";
                                 return `<div class="fw-semibold text-secondary">${data}</div>
-                                        <small class="text-muted text-truncate d-block" style="max-width: 250px;" title="${desc}">${desc}</small>`;
+                                <small class="text-muted text-truncate d-block" style="max-width: 250px;" title="${desc}">${desc}</small>`;
                             }
                         },
                         {
@@ -1095,11 +1101,11 @@
                                 var secName = row.SectionName ? row.SectionName : "ทั่วไป";
                                 var secId = row.Sections ? row.Sections : "-";
                                 return `<div class="mb-1">
-                                            <span class="badge bg-light text-dark border rounded-pill px-2 py-0.5" style="font-size:0.75rem;">🏭 ${plant}</span>
-                                        </div>
-                                        <div>
-                                            <span class="badge bg-light text-secondary border rounded-pill px-2 py-0.5" style="font-size:0.75rem;">📂 Sec ${secId} - ${secName}</span>
-                                        </div>`;
+                                <span class="badge bg-light text-dark border rounded-pill px-2 py-0.5" style="font-size:0.75rem;">🏭 ${plant}</span>
+                                </div>
+                                <div>
+                                <span class="badge bg-light text-secondary border rounded-pill px-2 py-0.5" style="font-size:0.75rem;">📂 Sec ${secId} - ${secName}</span>
+                                </div>`;
                             }
                         },
                         {
@@ -1109,7 +1115,7 @@
                                 var zone = row.Zone ? row.Zone : "-";
                                 var cid = row.CID ? row.CID : "-";
                                 return `<div class="small fw-medium text-navy">${asset}</div>
-                                        <small class="text-muted font-monospace" style="font-size:0.72rem;">Z: ${zone} | CID: ${cid}</small>`;
+                                <small class="text-muted font-monospace" style="font-size:0.72rem;">Z: ${zone} | CID: ${cid}</small>`;
                             }
                         },
                         {
@@ -1118,13 +1124,13 @@
                                 var rank = data ? data : "-";
                                 var lvl = row.MachineLevel !== undefined ? row.MachineLevel : "-";
                                 return `<div class="small fw-bold text-dark">Rank: ${rank}</div>
-                                        <div class="small text-muted" style="font-size:0.75rem;">Level: ${lvl}</div>`;
+                                <div class="small text-muted" style="font-size:0.75rem;">Level: ${lvl}</div>`;
                             }
                         },
                         {
                             "data": "IsActive",
                             "render": function (data) {
-                                if (data === true || data === "True" || data === 1) {
+                                if (data === true || data === "True" || data === 1 || String(data).toLowerCase() === 'active') {
                                     return `<span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 rounded-pill fw-semibold" style="font-size:0.75rem;">Active</span>`;
                                 } else {
                                     return `<span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-1 rounded-pill fw-semibold" style="font-size:0.75rem;">Inactive</span>`;
@@ -1137,18 +1143,29 @@
                             "render": function (data, type, row) {
                                 var rowStr = encodeURIComponent(JSON.stringify(row));
                                 return `<button class="btn-action btn-action-edit me-1" onclick="openEditMachineModalFromAjax('${rowStr}')" title="แก้ไขข้อมูล">
-                                            <i class="bi bi-pencil-fill"></i>
-                                        </button>
-                                        <button class="btn-action btn-action-delete" onclick="deleteMachine('${row.MachineCode}')" title="ลบออกจากระบบ">
-                                            <i class="bi bi-trash3-fill"></i>
-                                        </button>`;
+                                <i class="bi bi-pencil-fill"></i>
+                                </button>
+                                <button class="btn-action btn-action-delete" onclick="deleteMachine('${row.MachineCode}')" title="ลบออกจากระบบ">
+                                <i class="bi bi-trash3-fill"></i>
+                                </button>`;
                             }
                         }
                     ],
-                    // "language": getTableLanguage("โครงข่ายและดึงข้อมูลระบบ Zycoda"),
+                    "language": getTableLanguage("ทะเบียนเครื่องจักร"),
                     "drawCallback": function (settings) {
-                        var totalMachines = this.api().data().length;
-                        $('#totalMachinesCount').text(totalMachines);
+                        var api = this.api();
+                        var totalMachines = api.data().length;
+                        var activeMachines = 0;
+
+                        api.data().each(function (rowData) {
+                            if (rowData.IsActive === true || rowData.IsActive === "True" || rowData.IsActive == 1) {
+                                activeMachines++;
+                            }
+                        });
+
+                        $('#totalMachines').text(totalMachines.toLocaleString());
+                        $('#activeMachines').text(activeMachines.toLocaleString());
+                        $('#totalMachinesCount').text(totalMachines); 
                     }
                 });
 
@@ -1163,7 +1180,7 @@
             }
 
             // ========================================================
-            // 🏢 2. ตั้งค่าตารางสังกัดแผนก (Section Table) + คำนวณจำนวนรวม
+            // 🏢 2. ตั้งค่าตารางสังกัดแผนก (Section Table)
             // ========================================================
             if ($('#sectionTable').length) {
                 if ($.fn.DataTable.isDataTable('#sectionTable')) {
@@ -1214,7 +1231,7 @@
                             "render": function(data, type, row) {
                                 var dateStr = row.LastUpdateDate ? new Date(row.LastUpdateDate).toLocaleDateString('th-TH') : '-';
                                 return `<div class="small fw-medium text-muted">${data || 'System'}</div>
-                                        <small class="text-muted" style="font-size:0.7rem;">📅 อัปเดต: ${dateStr}</small>`;
+                                <small class="text-muted" style="font-size:0.7rem;">📅 อัปเดต: ${dateStr}</small>`;
                             }
                         }
                     ],
@@ -1228,7 +1245,7 @@
             }
 
             // ========================================================
-            // 👥 3. ตารางผู้ใช้งานระบบ (User Table) + คำนวณจำนวนรวม
+            // 👥 3. ตารางผู้ใช้งานระบบ (User Table)
             // ========================================================
             if ($('#userTable').length) {
                 if ($.fn.DataTable.isDataTable('#userTable')) {
@@ -1242,6 +1259,12 @@
                         "type": "GET",
                         "dataSrc": "data"
                     },
+                    "autoWidth": false,
+                    "columnDefs": [
+                        { "targets": [0, 1, 2, 3], "className": "align-middle" },
+                        { "targets": [4, 5, 6], "className": "align-middle text-center" },
+                        { "targets": 2, "width": "180px" } // 🎯 Lined up สำหรับล็อกช่อง Email
+                    ],
                     "columns": [
                         {
                             "data": "Username",
@@ -1253,13 +1276,15 @@
                             "data": null,
                             "render": function(data, type, row) {
                                 return `<div class="fw-medium text-secondary">${row.FirstName || ''} ${row.LastName || ''}</div>
-                                        <small class="text-muted d-block" style="font-size:0.75rem;">${row.Position || '-'}</small>`;
+                                <small class="text-muted d-block" style="font-size:0.75rem;">${row.Position || '-'}</small>`;
                             }
                         },
                         {
                             "data": "Email",
                             "render": function(data) {
-                                return data ? `<span class="text-muted small">${data}</span>` : `<span class="text-black-50 small">-</span>`;
+                                return data ? 
+                                    `<div class="text-muted small text-truncate d-block" style="max-width: 180px;" title="${data}">${data}</div>` : 
+                                    `<span class="text-black-50 small">-</span>`;
                             }
                         },
                         {
@@ -1280,19 +1305,28 @@
                             }
                         },
                         {
+                            "data": "Active",
+                            "render": function (data) {
+                                if (data !== undefined && data !== null && (String(data).toLowerCase().trim() === '1' || String(data).toLowerCase().trim() === 'true')) {
+                                    return `<span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 rounded-pill fw-semibold" style="font-size:0.75rem;">Active</span>`;
+                                } else {
+                                    return `<span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-1 rounded-pill fw-semibold" style="font-size:0.75rem;">Inactive</span>`;
+                                }
+                            }
+                        },
+                        {
                             "data": null,
                             "orderable": false,
-                            "className": "text-center",
                             "render": function (data, type, row) {
                                 return `
-                                    <button class="btn btn-sm btn-outline-dark px-2.5 rounded-2 fw-semibold" style="font-size:0.8rem;" onclick="manageUserRole('${row.Username}')">
-                                        <i class="bi bi-shield-shaded me-1"></i> ปรับสิทธิ์
-                                    </button>
+                                <button class="btn btn-sm btn-outline-dark px-2.5 rounded-2 fw-semibold" style="font-size:0.8rem;" onclick="manageUserRole('${row.Username}')">
+                                <i class="bi bi-shield-shaded me-1"></i> ปรับสิทธิ์
+                                </button>
                                 `;
                             }
                         }
                     ],
-                    "language": getTableLanguage("พนักงานในระบบ Zycoda"),
+                    "language": getTableLanguage("พนักงานในระบบ"),
                     "responsive": true,
                     "pageLength": 10,
                     "order": [[0, "asc"]],
@@ -1302,39 +1336,172 @@
                         var activeUsers = 0;
 
                         api.data().each(function (rowData) {
-                            if (rowData.IsActive === true || rowData.IsActive === "True" || rowData.IsActive == 1 || rowData.isActive == 1) {
-                                activeUsers++;
+                            if (rowData.Active !== undefined && rowData.Active !== null) {
+                                var activeStr = String(rowData.Active).toLowerCase().trim();
+                                if (activeStr === '1' || activeStr === 'true') {
+                                    activeUsers++;
+                                }
                             }
                         });
 
                         var inactiveUsers = totalUsers - activeUsers;
-
-                        $('#totalUsersCount').text(totalUsers);
-                        $('#activeUsersCount').text(activeUsers);
-                        $('#inactiveUsersCount').text(inactiveUsers);
+                        $('#totalUsersCount').text(totalUsers.toLocaleString());
+                        $('#activeUsersCount').text(activeUsers.toLocaleString());
+                        $('#inactiveUsersCount').text(inactiveUsers.toLocaleString());
                     }
                 });
             }
 
+            // ========================================================
+            // 🔧 4. ตั้งค่าตารางบันทึกข้อมูลแจ้งซ่อมระบบซิงค์ (Job Order Table)
+            // ========================================================
+            // 🎯 เปลี่ยนแปลงเพื่อรองรับการดึงข้อมูลและดักจับ Ajax Error ให้ปลอดภัย 100%
+            $.fn.dataTable.ext.errMode = 'throw'; 
+
+            if ($('#jobOrderTable').length) {
+                if ($.fn.DataTable.isDataTable('#jobOrderTable')) {
+                    $('#jobOrderTable').DataTable().destroy();
+                }
+
+                var jobTable = $('#jobOrderTable').DataTable({
+                    "processing": true,
+                    "serverSide": false,
+                    "ajax": {
+                        "url": "/api/Sync/table-data", // 👈 ดึงข้อมูลแถวชุดแรกผ่านมาทาง Endpoint ปล่อย Data โดยตรง
+                        "type": "POST",
+                        "dataSrc": "data",
+                        "error": function (xhr) {
+                            console.error("Zycoda API Table Data Error:", xhr.responseText);
+                        }
+                    },
+                    "pageLength": 10,
+                    "ordering": false,
+                    "autoWidth": false,
+                    "columns": [
+                        { "data": "refid", "defaultContent": "-" },
+                        { 
+                            "data": "MN", 
+                            "defaultContent": "-",
+                            "render": function(data) {
+                                return `<code class="text-secondary font-monospace fw-bold">${data || '-'}</code>`;
+                            }
+                        },
+                        {
+                            "data": "detail",
+                            "defaultContent": "-",
+                            "render": function(data, type, row) {
+                                var problem = row.problem ? ` / ${row.problem}` : '';
+                                return `<div class="fw-medium text-dark text-truncate" style="max-width: 260px;" title="${data}">${data || '-'}</div>
+                                        <small class="text-muted d-block text-truncate" style="max-width: 260px;">${problem}</small>`;
+                            }
+                        },
+                        {
+                            "data": "section",
+                            "defaultContent": "-",
+                            "render": function(data) {
+                                return `<span class="badge bg-light text-dark border px-2.5 py-1.5 rounded-2"><i class="bi bi-tag-fill me-1 small"></i> ${data || 'ทั่วไป'}</span>`;
+                            }
+                        },
+                        {
+                            "data": "timecreate",
+                            "defaultContent": "-",
+                            "render": function(data) {
+                                if(!data) return '-';
+                                var date = new Date(data);
+                                return `<div class="small fw-medium">${date.toLocaleDateString('th-TH')}</div>
+                                        <small class="text-muted" style="font-size:0.72rem;">🕒 ${date.toLocaleTimeString('th-TH')} น.</small>`;
+                            }
+                        },
+                        {
+                            "data": "statustext",
+                            "className": "text-center",
+                            "defaultContent": "-",
+                            "render": function(data) {
+                                let badgeColor = "bg-light text-dark";
+                                if (data === "ปิดงาน" || data === "Complete" || data === "เสร็จสิ้น") badgeColor = "bg-success-subtle text-success border border-success-subtle";
+                                else if (data === "กำลังดำเนินงาน" || data === "In Progress" || data === "Pending" || data === "รอซ่อม") badgeColor = "bg-warning-subtle text-warning border border-warning-subtle";
+                                else if (data) badgeColor = "bg-primary-subtle text-primary border border-primary-subtle";
+
+                                return `<span class="badge ${badgeColor} px-2.5 py-1.5 rounded-pill fw-bold">${data || 'รอดำเนินการ'}</span>`;
+                            }
+                        }
+                    ],
+                    "language": getTableLanguage("ประวัติใบแจ้งซ่อมระบบเครือข่าย")
+                });
+            }
+
             $('.dataTables_filter').addClass('text-end mb-3');
+
+            // 5. ฟังก์ชันเรียกสถิติเวลา Auto Sync ด้านบน
+            function checkLastSyncTime() {
+                $.ajax({
+                    url: '/api/Sync/last-time',
+                    type: 'GET',
+                    success: function (response) {
+                        if (response.success) {
+                            $('#lastSyncTime').text(response.lastSync);
+                        } else {
+                            $('#lastSyncTime').text(response.message).removeClass('text-success').addClass('text-muted small');
+                        }
+                    }
+                });
+            }
+            checkLastSyncTime();
+            setInterval(checkLastSyncTime, 30000); // วนรอบตรวจเช็คทุกๆ 30 วินาที
+
+            // 6. ฟังก์ชันสำหรับการผูกเข้ากับปุ่มกดซิงค์ข้อมูลจริง (Sync Global Trigger)
+            window.triggerManualSync = function() {
+                var $btn = $('button[onclick="triggerManualSync()"]');
+                var originalHtml = $btn.html();
+                
+                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>กำลังประมวลผลเกตเวย์...');
+
+                $.ajax({
+                    url: '/api/Sync/trigger-sync',
+                    type: 'POST',
+                    success: function (response) {
+                        if (response.success) {
+                            $('#lastSyncTime').text(response.syncTime).removeClass('text-muted small').addClass('text-success');
+                            
+                            // 🎯 ซิงค์สำเร็จแล้ว สั่งส่งข้อมูลก้อนใหม่พ่นแทนก้อนเก่าลงบนตารางทันทีโดยไม่ต้อง Refresh หน้าจอ
+                            if (typeof jobTable !== 'undefined') {
+                                jobTable.clear().rows.add(response.data).draw();
+                            } else if ($.fn.DataTable.isDataTable('#jobOrderTable')) {
+                                $('#jobOrderTable').DataTable().ajax.reload(null, false);
+                            }
+                            
+                            alert(response.message);
+                        } else {
+                            alert("ล้มเหลว: " + response.message);
+                        }
+                    },
+                    error: function (xhr) {
+                        alert("เกิดข้อผิดพลาดในการเชื่อมต่อระบบ API");
+                        console.error("Sync Core Failure Response:", xhr.responseText);
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false).html(originalHtml);
+                    }
+                });
+            };
+
         });
 
         // ========================================================
         // 📝 ฟังก์ชันเสริมและลอจิก Modals ต่าง ๆ
         // ========================================================
 
-        // 🎯 ฟังก์ชันดัก CSS และ Render Loading ภายในกล่องตารางแต่ละโมดูล (Bootstrap 5 Elements)
         function getTableLanguage(moduleName) {
             return {
                 "processing": `<div class="position-absolute top-50 start-50 translate-middle d-flex flex-column align-items-center justify-content-center w-100 h-100 rounded-3 shadow-sm"
-                                    style="background: rgba(255, 255, 255, 0.88); backdrop-filter: blur(2px); z-index: 1050; min-height: 220px; border: 1px solid rgba(0,0,0,0.05);">
-                                    <div class="spinner-border text-primary mb-3" role="status" style="width: 2rem; height: 2rem; border-width: 0.18em;">
-                                        <span class="visually-hidden">Loading...</span>
-                                    </div>
-                                    <div class="fw-semibold text-secondary small text-center px-3" style="letter-spacing: 0.5px;">
-                                        กำลังประมวลผล${moduleName}...
-                                    </div>
-                               </div>`,
+                style="background: rgba(255, 255, 255, 0.88); backdrop-filter: blur(2px); z-index: 1050; min-height: 220px; border: 1px solid rgba(0,0,0,0.05);">
+                <div class="spinner-border text-primary mb-3" role="status" style="width: 2rem; height: 2rem; border-width: 0.18em;">
+                <span class="visually-hidden">Loading...</span>
+                </div>
+                <div class="fw-semibold text-secondary small text-center px-3" style="letter-spacing: 0.5px;">
+                กำลังประมวลผลข้อมูล${moduleName}...
+                </div>
+                </div>`,
                 "search": "ค้นหาด่วน:",
                 "searchPlaceholder": "🔍 พิมพ์คำเพื่อค้นหาข้อมูล...",
                 "lengthMenu": "แสดง _MENU_ รายการต่อหน้า",
@@ -1346,10 +1513,16 @@
                 "infoEmpty": "ไม่มีข้อมูลสถิติแสดงในระบบ",
                 "zeroRecords": "ไม่พบข้อมูลที่ตรงกับการค้นหาค่ะ",
                 "emptyTable": `<div class="py-5 text-center text-muted">
-                                    <i class="bi bi-folder-x display-6 d-block mb-2 text-secondary"></i>
-                                    <span class="small">ไม่พบข้อมูลทะเบียนเครื่องจักรในระบบเลยค่ะ กรุณากดปุ่มนำเข้าผ่านไฟล์ Excel ด้านบน</span>
-                               </div>`
+                <i class="bi bi-folder-x display-6 d-block mb-2 text-secondary"></i>
+                <span class="small">ไม่พบข้อมูลในระบบส่วนของชุด ${moduleName} เลยค่ะ</span>
+                </div>`
             };
+        }
+
+        function updateLastSyncUI() {
+            var now = new Date();
+            var timeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' น.';
+            $('#lastSyncTime').text(timeStr);
         }
 
         function openAddMachineModal() {
@@ -1429,7 +1602,7 @@
                     confirmButtonColor: '#0f172a'
                 }).then(() => {
                     $('#machineModal').modal('hide');
-                    if($('#machineTable').DataTable()) {
+                    if($.fn.DataTable.isDataTable('#machineTable')) {
                         $('#machineTable').DataTable().ajax.reload(null, false);
                     } else {
                         location.reload();
@@ -1457,30 +1630,12 @@
                         text: 'ระบบถอนการติดตั้งรหัสนี้ออกจากศูนย์สารระบบเรียบร้อยแล้วค่ะ',
                         confirmButtonColor: '#0f172a'
                     }).then(() => {
-                        $('#machineTable').DataTable().ajax.reload(null, false);
+                        if($.fn.DataTable.isDataTable('#machineTable')) {
+                            $('#machineTable').DataTable().ajax.reload(null, false);
+                        }
                     });
                 }
             });
-        }
-
-        function triggerManualSync() {
-            Swal.fire({
-                title: 'ดึงสัญญาณดาต้าเกตเวย์...',
-                html: 'ระบบกำลังดึง Cache และแปลงไฟล์ฐานข้อมูล JSON ล่าสุด',
-                allowOutsideClick: false,
-                didOpen: () => { Swal.showLoading(); }
-            });
-
-            setTimeout(() => {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Sync Global Success',
-                    text: 'ฐานข้อมูลระบบทั้งหมดถูกซิงโครไนซ์สมบูรณ์แล้วค่ะ',
-                    confirmButtonColor: '#0f172a'
-                }).then(() => {
-                    $('#machineTable').DataTable().ajax.reload(null, false);
-                });
-            }, 1800);
         }
     </script>
 }
