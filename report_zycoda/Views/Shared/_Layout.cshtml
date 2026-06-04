@@ -1,5 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor
+@{
+    var userClass = User.FindFirst("Class")?.Value ?? "0";
+}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -143,9 +146,9 @@
         <nav class="navbar navbar-expand-sm navbar-light main-nav fixed-top shadow-sm bg-white py-2">
             <div class="container-fluid px-4">
                 <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Maintenance" asp-action="Index">
-                    <div class="me-3 border-end pe-3">
-                        <span class="zycoda-logo-text" style="font-size: 1.6rem; letter-spacing: 3px;">ZYCODA</span>
-                        <span class="zycoda-badge shadow-sm" style="background: #001f3f; padding: 3px 10px;">REPORT</span>
+                    <div class="me-3 border-end pe-3 d-flex align-items-center gap-1">
+                        <span class="zycoda-logo-text fw-bold text-dark-slate" style="font-size: 1.5rem; letter-spacing: 2px;">ZYCODA</span>
+                        <span class="zycoda-badge shadow-sm rounded-2 text-white fw-semibold" style="background: #001f3f; padding: 2px 8px; font-size: 0.75rem;">REPORT</span>
                     </div>
                 </a>
 
@@ -160,55 +163,80 @@
                         {
                             var allSections = ViewBag.SectionList as List<report_zycoda.Models.SectionApiModels>;
                             var sectionIdFromClaim = User.Claims.FirstOrDefault(c => c.Type == "Section")?.Value;
-                            var userClass = User.Claims.FirstOrDefault(c => c.Type == "UserClass")?.Value;
+
+                            // 🟢 เปลี่ยนจาก "UserClass" เป็น "Class" เพื่อให้สอดรับกับ Claims ที่สร้างตอน Login สำเร็จค่ะ
+                            var userClass = User.Claims.FirstOrDefault(c => c.Type == "Class")?.Value;
 
                             var userSection = allSections?.FirstOrDefault(s =>
                                 string.Equals(s.Sections?.Trim(), sectionIdFromClaim?.Trim(), StringComparison.OrdinalIgnoreCase));
 
-                            string displaySectionName = allSections == null ? "ระบบไม่ได้โหลดรายการหน่วยงาน (" + sectionIdFromClaim + ")" : (userSection == null ? "ไม่พบชื่อหน่วยงานรหัส " + sectionIdFromClaim : userSection.Name);
+                            string displaySectionName = allSections == null
+                                ? "ระบบไม่ได้โหลดรายการหน่วยงาน (" + sectionIdFromClaim + ")"
+                                : (userSection == null ? "ไม่พบชื่อหน่วยงานรหัส " + sectionIdFromClaim : userSection.Name);
 
-                            <div class="notification-wrapper me-3">
-                                <a class="nav-link position-relative p-2" href="#" id="notificationBell">
-                                    <i class="bi bi-bell-fill text-navy fs-5"></i>
-                                    <span id="notif-badge" class="position-absolute badge rounded-pill bg-danger" style="top: 2px; right: -2px; font-size: 0.6rem; padding: 0.3em 0.5em;">
+                            <div class="notification-wrapper me-3.5">
+                                <a class="nav-link position-relative p-2 rounded-circle hover-bg-light" href="#" id="notificationBell" style="transition: all 0.2s;">
+                                    <i class="bi bi-bell-fill text-dark-slate fs-5"></i>
+                                    <span id="notif-badge" class="position-absolute badge rounded-pill bg-danger border border-white" style="top: 4px; right: 2px; font-size: 0.55rem; padding: 0.35em 0.5em;">
                                         NEW
                                     </span>
                                 </a>
                             </div>
 
-                            <div class="dropdown me-2">
-                                <button class="btn d-flex align-items-center bg-light border px-3 py-1.5 rounded-pill shadow-sm dropdown-toggle"
-                                        type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="transition: all 0.2s;">
-                                    <div class="bg-navy-gradient text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 28px; height: 28px;">
-                                        <i class="bi bi-person-fill fs-6"></i>
+                            <div class="dropdown me-1">
+                                <button class="btn d-flex align-items-center bg-white border border-light-subtle px-3 py-1.5 rounded-4 shadow-sm dropdown-toggle hover-translate-y"
+                                        type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+                                        style="transition: all 0.25s ease; border-radius: 14px;">
+                                    <div class="text-start me-1" style="max-width: 160px;">
+                                        <div class="fw-bold text-dark text-truncate" style="font-size: 0.85rem; line-height: 1.2;">
+                                            @User.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value
+                                        </div>
+                                        <div class="text-muted text-truncate" style="font-size: 0.72rem; margin-top: 1px;" title="@displaySectionName">
+                                            <i class="bi bi-geo-alt-fill text-success me-0.5"></i>&nbsp; @displaySectionName
+                                        </div>
                                     </div>
-                                    <span class="fw-bold text-dark me-1" style="font-size: 0.88rem;">
-                                        @User.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value
-                                    </span>
                                 </button>
 
-                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 py-2" aria-labelledby="profileDropdown" style="min-width: 240px; border-radius: 12px;">
-                                    <li class="px-3 py-2 border-bottom mb-1 bg-light text-start">
-                                        <div class="fw-bold text-dark" style="font-size: 0.9rem;">
-                                            @User.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value @User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value
-                                        </div>
-                                        <div class="text-muted text-truncate" style="font-size: 0.75rem;" title="@displaySectionName">
-                                            <i class="bi bi-geo-alt-fill text-primary me-1"></i>@displaySectionName
+                                <ul class="dropdown-menu dropdown-menu-end shadow border border-light-subtle p-2 mt-2"
+                                    aria-labelledby="profileDropdown"
+                                    style="min-width: 260px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.05) !important;">
+
+                                    <li class="px-3 py-2 mb-1 rounded-3" style="background-color: #f8fafc;">
+                                        <div class="text-muted fw-medium mb-0.5" style="font-size: 0.68rem; letter-spacing: 0.5px; text-transform: uppercase;">บัญชีผู้ใช้งาน</div>
+                                        <div class="fw-semibold text-dark text-truncate" style="font-size: 0.82rem;">@User.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value</div>
+                                        <div class="badge mt-1 font-monospace" style="font-size: 0.65rem; background-color: #e2e8f0; color: #475569;">
+                                            Class @(userClass ?? "0")
                                         </div>
                                     </li>
 
-                                    <li class="dropdown-header text-uppercase pb-1" style="font-size: 0.7rem; letter-spacing: 0.5px; color: #94a3b8;">Admin Management</li>
-                                    <li>
-                                        <a asp-controller="Maintenance" asp-action="Machine" class="dropdown-item d-flex align-items-center py-2 text-navy fw-semibold" style="font-size: 0.85rem;">
-                                            <i class="bi bi-gear-fill me-2 text-secondary animation-spin-hover"></i>
-                                            จัดการ
-                                        </a>
-                                    </li>
-                                    <li><hr class="dropdown-divider"></li>
+                                    @{
+                                        // ตรวจสอบความถูกต้องของระดับสิทธิ์ผู้ดูแลระบบสูงสุด (Class 9 ฝ่ายไอที)
+                                        bool hasMechanicAccess = userClass == "9";
+                                    }
+
+                                    @if (hasMechanicAccess)
+                                    {
+                                        <li><hr class="dropdown-divider my-1.5" style="opacity: 0.06;"></li>
+                                        <li class="dropdown-header text-uppercase pt-1 px-3" style="font-size: 0.65rem; letter-spacing: 0.8px; color: #94a3b8; font-weight: 700;">Admin Management</li>
+                                        <li>
+                                            <a asp-controller="Maintenance" asp-action="Machine" class="dropdown-item d-flex align-items-center py-2 px-3 rounded-3 text-secondary fw-medium menu-hover-item" style="font-size: 0.82rem; transition: all 0.15s;">
+                                                <div class="icon-box d-flex align-items-center justify-content-center bg-body-secondary rounded-2 me-2.5" style="width: 26px; height: 26px;">
+                                                    <i class="bi bi-gear-fill text-dark" style="font-size: 0.85rem;"></i>
+                                                </div>
+                                                <span>&nbsp; ตั้งค่าและจัดการเครื่องจักร</span>
+                                            </a>
+                                        </li>
+                                    }
+
+                                    <li><hr class="dropdown-divider my-1.5" style="opacity: 0.06;"></li>
 
                                     <li>
-                                        <button type="button" class="dropdown-item d-flex align-items-center py-2 text-danger fw-bold" onclick="showLogoutAlert()" style="font-size: 0.85rem;">
-                                            <i class="bi bi-box-arrow-right me-2"></i> ออกจากระบบ (Logout)
+                                        <button type="button" class="dropdown-item d-flex align-items-center py-2 px-3 rounded-3 text-danger fw-semibold logout-hover-item"
+                                                onclick="showLogoutAlert()" style="font-size: 0.82rem; transition: all 0.15s;">
+                                            <div class="icon-box d-flex align-items-center justify-content-center bg-danger-subtle rounded-2 me-2.5" style="width: 26px; height: 26px; background-color: #fee2e2;">
+                                                <i class="bi bi-box-arrow-right text-danger" style="font-size: 0.85rem;"></i>
+                                            </div>
+                                            <span>&nbsp; ออกจากระบบ (Logout)</span>
                                         </button>
                                     </li>
                                 </ul>

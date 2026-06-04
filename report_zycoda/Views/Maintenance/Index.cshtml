@@ -13,7 +13,6 @@
     var sectionTo = ViewBag.CurrentSectionTo ?? "";
 
     var reports = Model ?? new List<report_zycoda.Models.MaintenanceApiModels>();
-    // 🟢 แก้จาก "UserClass" เป็น "Class" ให้ตรงกับหลังบ้านน้า
     var userClass = User.FindFirst("Class")?.Value ?? "0";
 
     // 2. จัดการข้อมูลสำหรับ Chart (Top 10 Machines)
@@ -1510,8 +1509,6 @@
                                 // สิทธิ์ช่างระดับปฏิบัติการ/หัวหน้าหน้างาน
                                 bool hasMechanicAccess = userClass == "9" || userClass == "3";
 
-                                // สิทธิ์ผู้ดูแลระบบสูงสุด หรือ หัวหน้าแผนกใหญ่
-                                bool hasAdminAccess = userClass == "9";
                             }
 
                             <button type="button" onclick="PrintReport('JTR')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3 mb-2 rounded border">
@@ -1525,7 +1522,7 @@
                                 <i class="bi bi-chevron-right text-muted"></i>
                             </button>
 
-                            @if (hasAdminAccess)
+                            @if (hasMechanicAccess)
                             {
                                 <button type="button" onclick="PrintReport('PM')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3 mb-2 rounded border">
                                     <div class="print-icon-box bg-soft-warning me-3" style="background-color: #fffbeb; color: #d97706; padding: 10px; border-radius: 8px;">
@@ -1537,10 +1534,6 @@
                                     </div>
                                     <i class="bi bi-chevron-right text-muted"></i>
                                 </button>
-                            }
-
-                            @if (hasMechanicAccess)
-                            {
                                 <button type="button" onclick="PrintReport('JTR_INTERNAL')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3 mb-2 rounded border">
                                     <div class="print-icon-box bg-soft-info me-3" style="background-color: #e0f2fe; color: #0369a1; padding: 10px; border-radius: 8px;">
                                         <i class="bi bi-person-check-fill fs-4"></i>
