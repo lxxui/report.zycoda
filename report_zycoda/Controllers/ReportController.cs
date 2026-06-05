@@ -293,8 +293,6 @@ public class ReportController(ApiService apiService) : Controller
 
         return View("PrintMonthlyReport", summaryData);
 
-        // 6. ส่ง summaryData ไปที่ View (เปลี่ยนจาก kpiRawData เป็น summaryData)
-        return View("PrintMonthlyReport", summaryData);
     }
 
     private DateTime ParseDate(string? dateStr)

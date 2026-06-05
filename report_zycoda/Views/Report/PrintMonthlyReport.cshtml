@@ -1,147 +1,405 @@
-﻿@model List<report_zycoda.Models.ReportSummary>
+﻿@model dynamic
 @{
     Layout = null;
-    ViewBag.Title = "รายงานสรุปดัชนีผลงานรายบุคคล (Individual KPI)";
+    var modelEnumerable = Model as System.Collections.IEnumerable;
+    var isSummary = modelEnumerable?.Cast<object>().FirstOrDefault() is report_zycoda.Models.ReportSummary;
+    var summaryList = isSummary ? (IEnumerable<report_zycoda.Models.ReportSummary>)Model : null;
+
+    var totalAll   = summaryList?.Sum(x => x.OpenedToday + x.CarriedOver) ?? 0;
+    var doneAll    = summaryList?.Sum(x => x.Finished) ?? 0;
+    var backAll    = summaryList?.Sum(x => x.CarriedOver) ?? 0;
+    var openAll    = summaryList?.Sum(x => x.OpenedToday) ?? 0;
+    var overallPct = totalAll > 0 ? (int)Math.Round(doneAll * 100.0 / totalAll) : 0;
+
+    var items = summaryList ?? new List<report_zycoda.Models.ReportSummary>();
 }
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="utf-8" />
-    <title>@ViewBag.Title</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ZYCODA Enterprise KPI Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-            :root {
-                --primary: #0f172a;
-                --accent: #2563eb;
-                --border: #e2e8f0;
-                --text-main: #334155;
-                --bg-light: #f8fafc;
-                --success: #16a34a;
-            }
+        :root {
+            --green-dark:  #064e3b;
+            --green-mid:   #059669;
+            --green-light: #EAF3DE;
+            --green-text:  #27500A;
+            --red-light:   #FCEBEB;
+            --red-text:    #791F1F;
+            --red-mid:     #E24B4A;
+            --blue-light:  #B5D4F4;
+            --amber-mid:   #EF9F27;
+            --border:      rgba(0,0,0,0.10);
+            --bg:          #f8fafc;
+            --text:        #1e293b;
+            --muted:       #64748b;
+        }
 
-            body {
-                font-family: 'Sarabun', sans-serif;
-                font-size: 12px;
-                color: var(--text-main);
-                padding: 30px;
-                background: #fff;
-            }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-            .header {
-                display: flex;
-                justify-content: space-between;
-                border-bottom: 3px solid var(--primary);
-                padding-bottom: 15px;
-                margin-bottom: 25px;
-            }
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 14px;
+        }
 
-                .header h1 {
-                    margin: 0;
-                    color: var(--primary);
-                    font-size: 20px;
-                }
+        .page-wrap { max-width: 1200px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
 
-            .clean-table {
-                width: 100%;
-                border-collapse: collapse;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            }
+        /* Topbar */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 1.125rem;
+            border-bottom: 0.5px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+        .topbar h1 { font-size: 16px; font-weight: 500; color: var(--text); }
+        .topbar p  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+        .live-pill {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 11px; padding: 3px 10px;
+            border-radius: 999px; border: 0.5px solid var(--border);
+            color: var(--muted); background: #fff;
+        }
+        .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green-mid); }
 
-                .clean-table th {
-                    background-color: var(--bg-light);
-                    color: var(--primary);
-                    padding: 12px;
-                    border: 1px solid var(--border);
-                    text-align: center;
-                }
+        /* Metric + Donut row */
+        .grid-top {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1.6fr;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+            align-items: start;
+        }
+        .mcard {
+            background: #fff;
+            border: 0.5px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.125rem;
+        }
+        .mcard-label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 6px; }
+        .mcard-val   { font-size: 26px; font-weight: 500; line-height: 1; }
+        .mcard-sub   { font-size: 11px; color: var(--muted); margin-top: 5px; }
 
-                .clean-table td {
-                    padding: 10px;
-                    border: 1px solid var(--border);
-                    text-align: center;
-                }
+        .donut-card {
+            background: #fff;
+            border: 0.5px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.125rem;
+            display: flex; align-items: center; gap: 16px;
+        }
+        .donut-wrap   { position: relative; width: 72px; height: 72px; flex-shrink: 0; }
+        .donut-center {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+        }
+        .donut-pct { font-size: 15px; font-weight: 500; color: var(--text); }
+        .donut-lbl { font-size: 9px; color: var(--muted); }
+        .donut-legend { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+        .dleg-row { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+        .dleg-sq  { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+        .dleg-val { margin-left: auto; font-weight: 500; color: var(--text); }
 
-            .name-cell {
-                text-align: left !important;
-                font-weight: 700;
-                color: var(--primary);
-                padding-left: 15px !important;
-            }
+        /* Chart panels */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; }
+        .panel {
+            background: #fff;
+            border: 0.5px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.125rem;
+        }
+        .panel-title { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: .875rem; }
 
-            .stat-badge {
-                padding: 4px 8px;
-                border-radius: 4px;
-                font-weight: 600;
-            }
+        /* Table */
+        .section-label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 10px; }
+        .table-panel { background: #fff; border: 0.5px solid var(--border); border-radius: 12px; overflow: hidden; }
 
-            .highlight-done {
-                color: var(--success);
-                background: #f0fdf4;
-            }
+        .kpi-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .kpi-table thead th {
+            font-size: 10px; text-transform: uppercase; letter-spacing: .05em;
+            color: var(--muted); font-weight: 500;
+            padding: 9px 12px; background: var(--bg);
+            border-bottom: 0.5px solid var(--border);
+            text-align: left;
+        }
+        .kpi-table thead th.tc { text-align: center; }
+        .kpi-table tbody tr   { border-bottom: 0.5px solid var(--border); }
+        .kpi-table tbody tr:last-child { border-bottom: none; }
+        .kpi-table tbody tr:hover { background: var(--bg); }
+        .kpi-table tbody td { font-size: 12px; padding: 10px 12px; color: var(--text); vertical-align: middle; }
+        .kpi-table tbody td.tc { text-align: center; }
 
-            .highlight-total {
-                font-weight: 800;
-                color: var(--accent);
-            }
+        .dept-name { font-weight: 500; font-size: 12px; }
+
+        .pill { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 999px; font-size: 10px; font-weight: 500; }
+        .pill-g { background: var(--green-light); color: var(--green-text); }
+        .pill-r { background: var(--red-light);   color: var(--red-text); }
+        .pill-n { background: var(--bg);           color: var(--muted); }
+
+        .bar-row { display: flex; align-items: center; gap: 6px; }
+        .bar-bg  { flex: 1; height: 4px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
+        .bar-fill { height: 100%; border-radius: 999px; }
+        .bar-pct { font-size: 10px; color: var(--muted); min-width: 28px; text-align: right; }
+
+        @@media (max-width: 768px) {
+            .grid-top { grid-template-columns: 1fr 1fr; }
+            .two-col  { grid-template-columns: 1fr; }
+            .donut-card { grid-column: 1 / -1; }
+        }
     </style>
 </head>
 <body>
+<div class="page-wrap">
 
-    <div class="header">
+    <!-- Topbar -->
+    <div class="topbar">
         <div>
-            <h1>@ViewBag.Title</h1>
-            <p>รอบรายงาน: @ViewBag.StartDate ถึง @ViewBag.EndDate | พิมพ์โดย: @ViewBag.ApiUser</p>
+            <h1>ZYCODA Enterprise Dashboard</h1>
+            <p>รายงานสรุปสถานะการดำเนินงานรายแผนก</p>
         </div>
-        <div style="text-align: right;">
-            <div style="font-size: 14px; font-weight: bold; color: var(--accent);">REF: @ViewBag.RefNo</div>
+        <div class="live-pill"><span class="live-dot"></span>Live</div>
+    </div>
+
+    <!-- Metric Cards + Donut -->
+    <div class="grid-top">
+        <div class="mcard">
+            <div class="mcard-label">งานรวมทั้งหมด</div>
+            <div class="mcard-val">@totalAll</div>
+            <div class="mcard-sub">รายการทั้งหมดในระบบ</div>
+        </div>
+        <div class="mcard">
+            <div class="mcard-label">เสร็จสิ้น</div>
+            <div class="mcard-val" style="color:var(--green-text)">@doneAll</div>
+            <div class="mcard-sub">ปิดงานสำเร็จ</div>
+        </div>
+        <div class="mcard">
+            <div class="mcard-label">งานค้าง (Backlog)</div>
+            <div class="mcard-val" style="color:var(--red-text)">@backAll</div>
+            <div class="mcard-sub">ยังไม่ได้ดำเนินการ</div>
+        </div>
+        <div class="donut-card">
+            <div class="donut-wrap">
+                <canvas id="donutChart" width="72" height="72"
+                    role="img" aria-label="Donut chart แสดงสัดส่วนงาน">
+                    เสร็จ @doneAll, ค้าง @backAll, เข้าวันนี้ @openAll
+                </canvas>
+                <div class="donut-center">
+                    <span class="donut-pct">@(overallPct)%</span>
+                    <span class="donut-lbl">เสร็จ</span>
+                </div>
+            </div>
+            <div class="donut-legend">
+                <div class="dleg-row"><span class="dleg-sq" style="background:var(--green-mid)"></span>เสร็จสิ้น<span class="dleg-val">@doneAll</span></div>
+                <div class="dleg-row"><span class="dleg-sq" style="background:var(--red-mid)"></span>งานค้าง<span class="dleg-val">@backAll</span></div>
+                <div class="dleg-row"><span class="dleg-sq" style="background:var(--blue-light)"></span>งานเข้าวันนี้<span class="dleg-val">@openAll</span></div>
+            </div>
         </div>
     </div>
 
-    <table class="clean-table">
-        <thead>
-            <tr>
-                <th class="name-cell">ชื่อพนักงาน / ช่างผู้รับผิดชอบ</th>
-                <th>งานค้าง</th>
-                <th>รับใหม่</th>
-                <th>รออนุมัติ</th>
-                <th>กำลังซ่อม</th>
-                <th>เสร็จสิ้น</th>
-                <th>รออะไหล่</th>
-                <th>รวมสถานะ</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (Model != null && Model.Any())
-            {
-                foreach (var item in Model)
+    <!-- Charts -->
+    <div class="two-col">
+        <div class="panel">
+            <div class="panel-title">อัตราความสำเร็จรายแผนก (%)</div>
+            <div style="position:relative;height:160px">
+                <canvas id="barPct" role="img" aria-label="Bar chart อัตราความสำเร็จรายแผนก"></canvas>
+            </div>
+        </div>
+        <div class="panel">
+            <div class="panel-title">ปริมาณงานรายแผนก</div>
+            <div style="position:relative;height:160px">
+                <canvas id="barVol" role="img" aria-label="Bar chart ปริมาณงานรายแผนก"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="section-label">รายละเอียดรายแผนก</div>
+    <div class="table-panel">
+        <table class="kpi-table">
+            <colgroup>
+                <col style="width:22%">
+                <col style="width:12%">
+                <col style="width:12%">
+                <col style="width:12%">
+                <col style="width:22%">
+                <col style="width:20%">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>แผนก</th>
+                    <th class="tc">งานเข้า (วันนี้)</th>
+                    <th class="tc">งานค้าง</th>
+                    <th class="tc">เสร็จสิ้น</th>
+                    <th>ความคืบหน้า</th>
+                    <th>Trend (5 วัน)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in items)
                 {
-                    int total = item.CarriedOver + item.OpenedToday + item.Repair + item.Finished;
+                    var total   = item.OpenedToday + item.CarriedOver;
+                    var pct     = total > 0 ? (int)Math.Round(item.Finished * 100.0 / total) : 0;
+                    var barColor = pct >= 75 ? "var(--green-mid)" : pct >= 50 ? "var(--amber-mid)" : "var(--red-mid)";
                     <tr>
-                        <td class="name-cell">👤 @item.SectionName</td>
-                        <td>@item.CarriedOver</td>
-                        <td>@item.OpenedToday</td>
-                        <td>@item.NotApproved</td>
-                        <td>@item.Repair</td>
-                        <td class="stat-badge highlight-done">@item.Finished</td>
-                        <td>@item.WaitPart</td>
-                        <td class="highlight-total">@total</td>
+                        <td class="dept-name">@item.SectionName</td>
+                        <td class="tc">@item.OpenedToday</td>
+                        <td class="tc">
+                            @if (item.CarriedOver > 0)
+                            {
+                                <span class="pill pill-r">@item.CarriedOver</span>
+                            }
+                            else
+                            {
+                                <span class="pill pill-n">—</span>
+                            }
+                        </td>
+                        <td class="tc"><span class="pill pill-g">@item.Finished</span></td>
+                        <td>
+                            <div class="bar-row">
+                                <div class="bar-bg">
+                                    <div class="bar-fill" style="width:@(pct)%;background:@barColor"></div>
+                                </div>
+                                <span class="bar-pct">@(pct)%</span>
+                            </div>
+                        </td>
+                        <td>
+                            <canvas class="spark-canvas"
+                                data-finished="@item.Finished"
+                                width="80" height="28"
+                                role="img" aria-label="Trend ของ @item.SectionName">
+                            </canvas>
+                        </td>
                     </tr>
                 }
-            }
-            else
-            {
-                <tr>
-                    <td colspan="8" style="padding: 40px; color: #94a3b8;">ไม่พบข้อมูลการปฏิบัติงานในช่วงเวลาที่เลือก</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-
-    <div style="margin-top: 30px;" class="no-print">
-        <button onclick="window.print()" style="background: var(--primary); color: #fff; border: none; padding: 10px 25px; border-radius: 5px; cursor: pointer; font-weight: 600;">
-            🖨️ พิมพ์รายงานฉบับนี้
-        </button>
+            </tbody>
+        </table>
     </div>
 
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+    /* ── ค่าจาก Razor server ──────────────────────────── */
+    const doneAll = @doneAll;
+    const backAll = @backAll;
+    const openAll = @openAll;
+
+    /* ── ชื่อแผนก + ข้อมูลจาก Razor loop ─────────────── */
+    const depts = [
+        @foreach (var item in items)
+        {
+            var total = item.OpenedToday + item.CarriedOver;
+            var pct   = total > 0 ? (int)Math.Round(item.Finished * 100.0 / total) : 0;
+            @:{ name: "@item.SectionName", pct: @pct, vol: @total, finished: @item.Finished },
+        }
+    ];
+
+    const labels    = depts.map(d => d.name);
+    const pcts      = depts.map(d => d.pct);
+    const vols      = depts.map(d => d.vol);
+    const barColors = pcts.map(p => p >= 75 ? '#059669' : p >= 50 ? '#EF9F27' : '#E24B4A');
+
+    /* ── Donut ────────────────────────────────────────── */
+    new Chart(document.getElementById('donutChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['เสร็จสิ้น', 'งานค้าง', 'งานเข้าวันนี้'],
+            datasets: [{
+                data: [doneAll, backAll, openAll],
+                backgroundColor: ['#059669', '#E24B4A', '#B5D4F4'],
+                borderWidth: 0,
+                hoverOffset: 2
+            }]
+        },
+        options: {
+            responsive: false,
+            cutout: '72%',
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}` } }
+            }
+        }
+    });
+
+    /* ── Bar: อัตราสำเร็จ ─────────────────────────────── */
+    new Chart(document.getElementById('barPct'), {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{
+                label: '% สำเร็จ',
+                data: pcts,
+                backgroundColor: barColors,
+                borderRadius: 3,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y}%` } } },
+            scales: {
+                x: { grid: { display: false }, ticks: { font: { size: 9 }, color: '#888780', maxRotation: 30 } },
+                y: { max: 100, grid: { color: 'rgba(0,0,0,.05)' }, ticks: { font: { size: 9 }, color: '#888780', callback: v => v + '%' } }
+            }
+        }
+    });
+
+    /* ── Bar: ปริมาณงาน ───────────────────────────────── */
+    new Chart(document.getElementById('barVol'), {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{
+                label: 'งานรวม',
+                data: vols,
+                backgroundColor: '#B5D4F4',
+                borderRadius: 3,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y} รายการ` } } },
+            scales: {
+                x: { grid: { display: false }, ticks: { font: { size: 9 }, color: '#888780', maxRotation: 30 } },
+                y: { grid: { color: 'rgba(0,0,0,.05)' }, ticks: { font: { size: 9 }, color: '#888780' } }
+            }
+        }
+    });
+
+    /* ── Sparklines (trend จำลอง 5 วันจาก finished) ───── */
+    document.querySelectorAll('.spark-canvas').forEach(canvas => {
+        const fin = parseInt(canvas.dataset.finished) || 0;
+        const base = Math.max(1, fin - 4);
+        const trend = [base, base + 1, base + 2, Math.max(base + 2, fin - 1), fin];
+        const rising = trend[4] >= trend[0];
+        new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels: [0,1,2,3,4],
+                datasets: [{
+                    data: trend,
+                    borderColor: rising ? '#059669' : '#E24B4A',
+                    borderWidth: 1.5,
+                    pointRadius: 0,
+                    tension: .4,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: false,
+                animation: false,
+                plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                scales: { x: { display: false }, y: { display: false } }
+            }
+        });
+    });
+</script>
 </body>
 </html>
