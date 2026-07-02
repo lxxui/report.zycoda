@@ -1,12 +1,15 @@
 ﻿@using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor
 @model List<report_zycoda.Models.MaintenanceApiModels>
+@removeTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 @{
+    Layout = null;
+
     // 1. ดึงค่า State ต่างๆ (ดึงจาก ViewBag ที่ Controller ส่งมาจะแม่นยำกว่า Query ตรงๆ)
     var view = ViewBag.CurrentView ?? "followup";
     var jobtype = ViewBag.CurrentJobType ?? "";
-    var selectedStatus = ViewBag.SelectedStatus ?? "All";
+    var selectedStatus = ViewBag.SelectedStatus?.ToString() ?? "all";
     var start = ViewBag.CurrentStart ?? "";
     var end = ViewBag.CurrentEnd ?? "";
     var sectionFrom = ViewBag.CurrentSectionFrom ?? "";
@@ -55,7 +58,7 @@
     <!-- 2. FIX: Bootstrap Icons (ใช้ CDN เพื่อแก้ปัญหา 404 ในเครื่อง) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <!-- 3. Custom Styles -->
-    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+    <link rel="stylesheet" href="/css/home.css" />
 
     <!-- 4. JavaScript Core -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
@@ -703,7 +706,9 @@
                     </h2>
                 </div>
             </div>
+
         </div>
+
         <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
             <div class="card-body p-4">
                 <form method="get" class="row g-3 align-items-end" id="filterForm">
@@ -758,12 +763,8 @@
 
                             @if (ViewBag.StatusList != null)
                             {
-                                // ดึงค่า Status จาก URL มาเก็บไว้ก่อนเพื่อใช้เช็ค
-                                var selectedStatus = Context.Request.Query["Status"].ToString();
-
                                 foreach (var stat in (IEnumerable<dynamic>)ViewBag.StatusList)
                                 {
-                                    // เช็คว่า StatusId ตรงกับที่ส่งมาใน URL หรือไม่
                                     bool isSelected = stat.StatusId.ToString() == selectedStatus;
                 
                                     <option value="@stat.StatusId" selected="@(isSelected ? "selected" : null)">
@@ -1422,7 +1423,7 @@
                                                 </div>
                                                 <div>
                                                     <div class="info-label text-success small fw-bold">ผู้อนุมัติ (Approver)</div>
-                                                    <div id="mApproveName" class="fw-bold text-dark">-</div>
+                                                    <div id="mApprove" class="fw-bold text-dark">-</div>
                                                     <div class="text-muted" style="font-size: 0.75rem;">
                                                         <i class="bi bi-clock-history me-1"></i> <span id="mTimeApprove">-</span>
                                                     </div>
@@ -1480,6 +1481,7 @@
                 </div>
             </div>
         </div>
+
         <!-- ตัวเลือกสำหรับรายงานแต่ละประเภท -->
         <div class="modal fade" id="printSelectModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
@@ -1592,6 +1594,7 @@
             <p class="sub-text">ระบบกำลังประมวลผลข้อมูล...</p>
         </div>
     </div>
+    
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 
@@ -1730,7 +1733,7 @@
                 foreach (var item in (List<report_zycoda.Models.SectionApiModels>)ViewBag.SectionList)
                 {
                     <text>
-                        sectionLookup["@item.Sections?.Trim()"] = "@Html.Raw(item.Name?.Replace("\"", "\\\""))";
+                        sectionLookup["@item.Sections?.Trim()"] = @Newtonsoft.Json.JsonConvert.SerializeObject(item.Name ?? "");
                     </text>
                 }
             }
@@ -1914,8 +1917,8 @@
                     $('#mTimeCreate').text(formatDT($el.data('timecreate')));
                     $('#mTimeAccept').text(formatDT($el.data('timeaccept')));
                     $('#mTimeAssign').text(formatDT($el.data('timeassign')));
-                    $('#mApprove').text($el.data('userapprove') || '-');
-                    $('#mTimeApprove').text(formatDT($el.data('timeapprove')));
+                    $('#mApprove').text($el.data('userApprove') || '-');
+                    $('#mTimeApprove').text(formatDT($el.data('timeApprove')));
                     $('#jobDetailModal').modal('show');
                 });
 

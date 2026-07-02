@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using report_zycoda.Models;
+using static System.Collections.Specialized.BitVector32;
 
 namespace report_zycoda.Data
 {
@@ -9,8 +10,9 @@ namespace report_zycoda.Data
 
         public myDbContext(DbContextOptions<myDbContext> options) : base(options) { }
 
-        public DbSet<UserApiModels> Users { get; set; } = null!;
-        public DbSet<SectionApiModels> Sections { get; set; } = null!;
+        //public DbSet<UserApiModels> Users { get; set; } = null!;
+        public DbSet<UserApiModels> User { get; set; } = default!; 
+        public DbSet<SectionApiModels> Section { get; set; } = null!;
         public DbSet<StatusApiModels> Statuses { get; set; } = null!;
 
         // ✅ 1. เอา // ออก เพื่อให้ Controller มองเห็น JobOrders
@@ -34,12 +36,6 @@ namespace report_zycoda.Data
                 entity.Property(e => e.Id).HasColumnType("int").ValueGeneratedOnAdd();
             });
 
-            // ✅ 2. เพิ่มการเชื่อมต่อกับตาราง job_order ในฐานข้อมูล
-            //modelBuilder.Entity<MaintenanceApiModels>(entity =>
-            //{
-            //    entity.ToTable("job_order", "dbo"); // ชื่อตารางใน SQL ของคุณ
-            //    entity.HasKey(e => e.id);           // กำหนด Primary Key
-            //});
         }
     }
 }

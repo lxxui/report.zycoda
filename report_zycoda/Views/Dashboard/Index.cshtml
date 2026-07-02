@@ -1,22 +1,27 @@
-﻿@{
+﻿@using Microsoft.EntityFrameworkCore
+@{
     ViewData["Title"] = "Report Dashboard";
+
+    // 🚩 ทางลัด: ดึง DbContext ผ่าน Request Services โดยตรง (ไม่ต้องใช้ @inject)
+    // เปลี่ยนคำว่า report_zycoda.Data ให้ตรงกับที่เช็คจากข้อที่ 1 นะคะ
+    var _context = Context.RequestServices.GetService(typeof(report_zycoda.Data.myDbContext)) as report_zycoda.Data.myDbContext;
 
     // 🚩 1. ดึงค่าสิทธิ์จาก Claims
     var userClass = User.Claims.FirstOrDefault(c => c.Type == "UserClass")?.Value;
     var userSection = User.Claims.FirstOrDefault(c => c.Type == "Section")?.Value;
 
-    // 🚩 2. รายการ Section หน่วยงานรับแจ้งที่ Fixed ไว้
-    var allowedSections = new List<string>
-    {
-        "310089", "310098", "310099", "317020", "317030", "317040", "317050",
-        "317110", "317120", "317130", "317140", "317150", "317210", "317220",
-        "317230", "317240", "317310", "317320", "317330", "317340", "317350",
-        "317360", "317371", "317372", "317374", "317375", "317380", "317381",
-        "318050", "318060", "318070", "320100", "ITRECEIVE"
-    };
+    bool isFlagReportActive = false;
 
-    // 🚩 3. สร้างเงื่อนไขเช็คสิทธิ์
-    bool isAuthorizedReceiver = userClass == "3" && !string.IsNullOrEmpty(userSection) && allowedSections.Contains(userSection);
+    // ตรวจสอบว่าดึง Context สำเร็จและมีค่า Section
+    if (_context != null && !string.IsNullOrEmpty(userSection))
+    {
+        isFlagReportActive = _context.Section
+            .AsNoTracking()
+            .Any(s => (s.Sections == userSection || s.Id_Zy == userSection)
+                      && s.Flag_Report.Trim().ToUpper() == "Y");
+    }
+
+    bool isAuthorizedReceiver = userClass == "3" && isFlagReportActive;
 }
 
 <div class="container py-5">

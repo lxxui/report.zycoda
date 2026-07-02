@@ -4,6 +4,14 @@ using ExcelDataReader;
 using System.Data;
 using System.Globalization;
 using Microsoft.Data.SqlClient;
+using System.IO;
+using System.Linq;
+using System.Collections.Generic;
+using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 
 namespace report_zycoda.Controllers
 {
@@ -54,7 +62,7 @@ namespace report_zycoda.Controllers
                                           ,[SectionOption]
                                           ,[Class]
                                           ,[Rule]
-                                          ,[Active]
+                                          ,ISNULL([Active], 0) AS [Active] -- 👈 ดักเผื่อค่าในเบสเป็น NULL ให้เป็น 0 ไว้ก่อน
                                           ,[Smallgroup]
                                           ,[Tel]
                                           ,[Work_center]
@@ -65,7 +73,7 @@ namespace report_zycoda.Controllers
                                           ,[Last_modify]
                                           ,[Workpremit_class]
                                           ,[Plantoption]
-                                      FROM [ZycodaApiByPB].[dbo].[User]";
+                                     FROM [ZycodaApiByPB].[dbo].[User]";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
@@ -157,7 +165,7 @@ namespace report_zycoda.Controllers
 
                             // 🎯 SQL Upsert Logic: เพิ่ม SELECT 'UPDATED' และ SELECT 'INSERTED' กลับมาเช็คในโค้ด C#
                             string queryUpsert = @"
-                                IF EXISTS (SELECT 1 FROM [ZycodaApiByPB].[dbo].[User] WHERE [Username] = @Username)
+                                IF EXISTS (SELECT 1 FROM [ZycodaApiByPB].[dbo].[User] WHERE LTRIM(RTRIM([Username])) = LTRIM(RTRIM(@Username)))
                                 BEGIN
                                     UPDATE [ZycodaApiByPB].[dbo].[User]
                                     SET [Plant] = @Plant,
@@ -182,7 +190,7 @@ namespace report_zycoda.Controllers
                                         [Last_modify] = GETDATE(),
                                         [Workpremit_class] = @Workpremit_class,
                                         [Plantoption] = @Plantoption
-                                    WHERE [Username] = @Username;
+                                    WHERE LTRIM(RTRIM([Username])) = LTRIM(RTRIM(@Username));
 
                                     SELECT 'UPDATED';
                                 END
@@ -205,11 +213,20 @@ namespace report_zycoda.Controllers
 
                             foreach (DataRow row in dt.Rows)
                             {
-                                // ฟังก์ชันช่วยดึงค่าจาก Excel แบบ Case-Insensitive
+                                // ฟังก์ชันช่วยดึงค่าจาก Excel แบบ Case-Insensitive และฉลาดขึ้นในการตัด .0 ทิ้ง
                                 Func<string, string> getValue = (colName) => {
                                     var col = dt.Columns.Cast<DataColumn>()
                                         .FirstOrDefault(c => c.ColumnName.Trim().Equals(colName.Trim(), StringComparison.OrdinalIgnoreCase));
-                                    return col != null ? row[col]?.ToString()?.Trim() ?? "" : "";
+                                    if (col == null) return "";
+
+                                    string rawValue = row[col]?.ToString()?.Trim() ?? "";
+
+                                    // 💡 ดักปัญหา: ถ้าเป็นเลขพนักงานแล้ว Excel เติมจุดทศนิยมมา เช่น 723582.0 ให้ตัดออกเหลือแค่ 723582
+                                    if (rawValue.EndsWith(".0") && double.TryParse(rawValue, out _))
+                                    {
+                                        rawValue = rawValue.Substring(0, rawValue.Length - 2);
+                                    }
+                                    return rawValue;
                                 };
 
                                 string username = getValue("username");
@@ -232,9 +249,14 @@ namespace report_zycoda.Controllers
                                     cmd.Parameters.AddWithValue("@Class", getValue("class") != "" ? getValue("class") : DBNull.Value);
                                     cmd.Parameters.AddWithValue("@Rule", getValue("rule") != "" ? getValue("rule") : DBNull.Value);
 
-                                    // จัดการฟิลด์ประเภท Status/Active (แปลงเป็น 1 หรือ 0)
-                                    string activeVal = getValue("active");
-                                    cmd.Parameters.AddWithValue("@Active", activeVal.Equals("true", StringComparison.OrdinalIgnoreCase) || activeVal == "1" ? 1 : 0);
+                                    // 💡 ปรับปรุงตรงนี้ให้ยืดหยุ่นขึ้น: ถ้าใส่ 0 หรือ false หรือว่าง ให้ Active = 0 เสมอตามโครงสร้างเบสฝ้าย
+                                    string activeVal = getValue("active").ToLower();
+                                    int activeInt = 0;
+                                    if (activeVal == "1" || activeVal == "true" || activeVal == "active")
+                                    {
+                                        activeInt = 1;
+                                    }
+                                    cmd.Parameters.AddWithValue("@Active", activeInt);
 
                                     cmd.Parameters.AddWithValue("@Smallgroup", getValue("smallgroup") != "" ? getValue("smallgroup") : DBNull.Value);
                                     cmd.Parameters.AddWithValue("@Tel", getValue("tel") != "" ? getValue("tel") : DBNull.Value);

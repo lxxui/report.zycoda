@@ -35,7 +35,8 @@ namespace report_zycoda.Models
 
         public string? Rule { get; set; }
 
-        public bool Active { get; set; }
+        // ปรับตัวแปร Active ในไฟล์ UserApiModels.cs เป็นแบบนี้ครับ 👇
+        public int? Active { get; set; }
 
         public string? Smallgroup { get; set; }
 

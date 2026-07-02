@@ -3,11 +3,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace report_zycoda.Models
 {
-    [Table("Section")] // <--- ระบุชื่อตารางให้ตรงกับใน SQL Server
+    [Table("Section")]
     public class SectionApiModels
     {
-        [Key] // ระบุว่าเป็น Primary Key
-        public int Id { get; set; }  // 👈 DB generate auto
+        [Key]
+        public int Id { get; set; }
         public string? Id_Zy { get; set; }
         public string? Sections { get; set; }
         public string? Plant { get; set; }
@@ -17,6 +17,9 @@ namespace report_zycoda.Models
 
         public DateTime? LastUpdateDate { get; set; }
         public string? LastUpdateBy { get; set; }
+
+        // 🚩 แก้ไขจุดนี้: เติม ? เข้าไปเพื่อรองรับค่า NULL จากฐานข้อมูลค่ะ
+        public string? Flag_Report { get; set; }
 
     }
 }

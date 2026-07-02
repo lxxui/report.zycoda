@@ -239,7 +239,7 @@ namespace report_zycoda.Controllers
                 TempData["Error"] = $"เกิดปัญหาฟิลด์ขัดข้องระหว่างบันทึกแผนก: {ex.Message}";
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "Maintenance");
         }
     }
 }

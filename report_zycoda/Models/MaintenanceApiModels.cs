@@ -53,7 +53,9 @@ namespace report_zycoda.Models
         [JsonProperty("userfinish")] public string? userfinish { get; set; }
         [JsonProperty("timefinish")] public string? timefinish { get; set; }
         [JsonProperty("uassign")] public List<string>? uassign { get; set; }
+        [JsonProperty("userApprove")] public List<string>? userApprove { get; set; }
         [JsonProperty("timeaccept")] public string? timeaccept { get; set; }
+        [JsonProperty("timeApprove")] public string? timeApprove { get; set; }
         [JsonProperty("workby")] public string? workby { get; set; }
         [JsonProperty("createby")] public string? createby { get; set; }
         [JsonProperty("assign_to")] public string? assign_to { get; set; }

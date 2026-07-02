@@ -9,17 +9,17 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.Data.SqlClient; // 💡 ดึงตัวเชื่อมต่อ SQL เข้ามาใช้งาน
+using Microsoft.Data.SqlClient;
 using System.Data;
+using Microsoft.Extensions.Configuration; // 👈 เพิ่มกลับมาให้แน่ใจว่าใช้ได้
 
 namespace report_zycoda.Controllers
 {
     public class MaintenanceController : Controller
     {
         private readonly ApiService _apiService;
-        private readonly string _connectionString; // 💡 สร้างตัวแปรเก็บสายเชื่อมต่อดีบี
+        private readonly string _connectionString;
 
-        // อัปเดต Constructor ให้รับ IConfiguration เข้ามาด้วยเพื่อดึงค่าจาก appsettings.json
         public MaintenanceController(ApiService apiService, IConfiguration configuration)
         {
             _apiService = apiService;
@@ -27,7 +27,7 @@ namespace report_zycoda.Controllers
         }
 
         // ==================================================
-        // HELPER: ดึงข้อมูลรอบเดียวหมดเลย ไม่แบ่ง Chunk 7 วัน
+        // HELPER: ดึงข้อมูล (ปรับลด Timeout เป็น 30 วินาที ป้องกันหน้าเว็บค้างยาว)
         // ==================================================
         private async Task<List<MaintenanceApiModels>> FetchJobsFromApi(
             string sessionUser,
@@ -67,7 +67,8 @@ namespace report_zycoda.Controllers
             };
 
             using var client = new HttpClient(handler);
-            client.Timeout = TimeSpan.FromMinutes(5);
+            // ⏱️ ปรับลดเหลือ 30 วินาทีพอครับ ถ้าเกินนี้แสดงว่า Server ปลายทางไม่ไหว จะได้รีบฟ้อง Error ไม่ปล่อยให้ผู้ใช้รอจนเบื่อ
+            client.Timeout = TimeSpan.FromSeconds(30);
             client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Add("accept", "application/json");
             client.DefaultRequestHeaders.Add("username", sessionUser);
@@ -90,10 +91,10 @@ namespace report_zycoda.Controllers
                 try
                 {
                     var response = await client.GetAsync(url);
-                    var json = await response.Content.ReadAsStringAsync();
+                    if (!response.IsSuccessStatusCode) continue;
 
-                    if (!response.IsSuccessStatusCode || string.IsNullOrWhiteSpace(json))
-                        continue;
+                    var json = await response.Content.ReadAsStringAsync();
+                    if (string.IsNullOrWhiteSpace(json)) continue;
 
                     var trimmedJson = json.Trim();
 
@@ -121,7 +122,7 @@ namespace report_zycoda.Controllers
         }
 
         // ==================================================
-        // INDEX: หน้าหลัก
+        // INDEX: หน้าหลัก (แก้ไขวิธีแก้ดึง Query String ป้องกัน Deadlock)
         // ==================================================
         public async Task<IActionResult> Index()
         {
@@ -132,15 +133,17 @@ namespace report_zycoda.Controllers
             var sessionPass = User.Claims.FirstOrDefault(c => c.Type == "ApiPassword")?.Value;
             var culture = CultureInfo.InvariantCulture;
 
-            string jobtype = Request.Query.FirstOrDefault(q => q.Key.Equals("jobtype", StringComparison.OrdinalIgnoreCase)).Value.ToString();
-            string start = Request.Query.FirstOrDefault(q => q.Key.Equals("start", StringComparison.OrdinalIgnoreCase)).Value.ToString();
-            string end = Request.Query.FirstOrDefault(q => q.Key.Equals("end", StringComparison.OrdinalIgnoreCase)).Value.ToString();
-            string sectionFrom = Request.Query.FirstOrDefault(q => q.Key.Equals("sectionFrom", StringComparison.OrdinalIgnoreCase)).Value.ToString();
-            string sectionTo = Request.Query.FirstOrDefault(q => q.Key.Equals("sectionTo", StringComparison.OrdinalIgnoreCase)).Value.ToString();
-            string status = Request.Query.FirstOrDefault(q => q.Key.Equals("status", StringComparison.OrdinalIgnoreCase)).Value.ToString();
-            string view = Request.Query.FirstOrDefault(q => q.Key.Equals("view", StringComparison.OrdinalIgnoreCase)).Value.ToString();
+            // ✅ วิธีดึงค่าจาก Query ที่ถูกต้อง ปลอดภัย และไม่ทำให้ Thread ค้าง
+            string jobtype = Request.Query["jobtype"].ToString();
+            string start = Request.Query["start"].ToString();
+            string end = Request.Query["end"].ToString();
+            string sectionFrom = Request.Query["sectionFrom"].ToString();
+            string sectionTo = Request.Query["sectionTo"].ToString();
+            string status = Request.Query["status"].ToString();
+            string view = Request.Query["view"].ToString();
 
             var todayStr = DateTime.Now.ToString("yyyy-MM-dd", culture);
+            // 💡 แนะนำ: หากยังหมุนนาน ลองเปลี่ยนจาก -30 วัน เป็น -7 วันดูก่อนชั่วคราวเพื่อเช็กความเร็วปลายทางครับ
             var defaultStartStr = DateTime.Now.AddDays(-30).ToString("yyyy-MM-dd", culture);
 
             string finalStart = string.IsNullOrWhiteSpace(start) ? defaultStartStr : start.Trim();
@@ -177,6 +180,7 @@ namespace report_zycoda.Controllers
             var culture = CultureInfo.InvariantCulture;
             var todayStr = DateTime.Now.ToString("yyyy-MM-dd", culture);
 
+            // ✅ เปลี่ยนวิธีดึงค่าให้ดึงตรงๆ ผ่าน Indexer
             string jobtype = Request.Query["jobtype"].ToString();
             string start = Request.Query["start"].ToString();
             if (string.IsNullOrEmpty(start)) start = Request.Query["Start"].ToString();
@@ -292,14 +296,13 @@ namespace report_zycoda.Controllers
             .ToList();
         }
 
-        // MACHINE: ดึงข้อมูลจาก SQL Server ไปใส่ ViewBag
+        // ==================================================
+        // MACHINE: ดึงข้อมูลจาก SQL Server
         // ==================================================
         [HttpGet]
         public async Task<IActionResult> Machine()
         {
-
             var machineList = new DataTable();
-
             try
             {
                 using (SqlConnection conn = new SqlConnection(_connectionString))
@@ -321,9 +324,7 @@ namespace report_zycoda.Controllers
                 System.Diagnostics.Debug.WriteLine($"❌ SQL Query Error: {ex.Message}");
             }
 
-            // ✅ ฝากตารางไว้ใน ViewBag แทน เพื่อไม่ให้ตีกับ Model บนหน้าจอเดิมของฝ้าย
             ViewBag.MachineTable = machineList;
-
             return View();
         }
     }
