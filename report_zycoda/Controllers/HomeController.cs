@@ -34,7 +34,7 @@ public class HomeController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Login(string username, string password)
+    public async Task<IActionResult> Login(string username, string password, string userClass)
     {
         // ทำการ Clean ค่าตัดช่องว่างว่างล่วงหน้า ป้องกันปัญหาข้อมูลประเภท char ใน DB 
         string cleanUsername = username?.Trim() ?? "";
@@ -80,7 +80,8 @@ public class HomeController : Controller
                 new Claim(ClaimTypes.Name, user.Username ?? cleanUsername),
                 new Claim("FullName", $"{user.FirstName} {user.LastName}"),
                 new Claim("UserRole", user.Rule ?? "User"),
-                new Claim("UserClass", user.Class?.ToString() ?? "0"),
+                //new Claim("UserClass", user.Class?.ToString() ?? "0"),
+                new Claim("Class", user.Class?.ToString() ?? "0"), // 👈 🛠️ แก้จาก "UserClass" เป็น "Class"
                 new Claim("Section", user.Section ?? ""),
                 new Claim("ApiPassword", cleanPassword)
             };
@@ -116,46 +117,34 @@ public class HomeController : Controller
         return RedirectToAction("Login");
     }
 
-    //[HttpGet]
-    //public async Task<IActionResult> GetFirstName(string username)
-    //{
-    //    try
-    //    {
-    //        var users = await _apiService.GetUsersFromApiAsync();
-    //        var user = users?.FirstOrDefault(u => u.Username?.Trim() == username?.Trim());
-    //        if (user != null) return Json(new { firstName = user.FirstName });
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        _logger.LogError($"🚨 [GetFirstName Error]: {ex.Message}");
-    //    }
-    //    return Json(new { firstName = "" });
-    //}
-
     [HttpGet]
-    public async Task<IActionResult> GetFirstName(string username)
+public async Task<IActionResult> GetFirstName(string username)
+{
+    try
     {
-        try
+        if (string.IsNullOrEmpty(username)) return Json(null);
+
+        string cleanName = username.Trim();
+        
+        // 🛠️ แก้จุดนี้: ดึงค่ามาตรงๆ เป็น Single Object ไม่ต้องใช้ FirstOrDefault แล้วครับ
+        var user = await _apiService.GetUsersFromApiAsync(cleanName);
+
+        if (user != null)
         {
-            if (string.IsNullOrEmpty(username)) return Json(null);
-
-            // แนะนำให้ใช้ Method ที่ส่ง cleanUsername เข้าไปตรงๆ เพื่อระบุตัวบุคคลจากฐานข้อมูล แทนการดึงมาทั้งหมด
-            var user = await _apiService.GetUsersFromApiAsync(username.Trim());
-
-            if (user != null)
+            // พิมพ์ Log ดักดูค่าที่ได้จากฐานข้อมูล/API จริงๆ
+            _logger.LogInformation($"[DEBUG] เจอพนักงาน: {user.FirstName} | ค่า Class ใน Model คือ: {user.Class}");
+            
+            return Json(new
             {
-                // ส่งกลับทั้งชื่อ และ Class เพื่อให้นำไปแสดงผลในหน้า Loading screen
-                return Json(new
-                {
-                    firstName = user.FirstName,
-                    userClass = user.Class
-                });
-            }
+                firstName = user.FirstName,
+                userClass = user.Class?.ToString() ?? "" // ส่งค่าออกไปหน้า Login
+            });
         }
-        catch (Exception ex)
-        {
-            _logger.LogError($"🚨 [GetFirstName Error]: {ex.Message}");
-        }
-        return Json(null);
     }
+    catch (Exception ex)
+    {
+        _logger.LogError($"🚨 [GetFirstName Error]: {ex.Message}");
+    }
+    return Json(null);
+}
 }

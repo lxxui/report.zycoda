@@ -101,7 +101,7 @@ public class ApiService
 
             _logger.LogInformation($"🔍 [ADO-GetUsers] กำลังค้นหาชื่อ: '{cleanUsername}'");
 
-            string query = @"SELECT [Id], [Id_Zy], [FirstName], [LastName], [Username], [Active]
+            string query = @"SELECT [Id], [Id_Zy], [FirstName], [LastName], [Username], [Active] , [Class]
                              FROM [ZycodaApiByPB].[dbo].[User]
                              WHERE [Username] = @Username"; // 👈 ถอดฟังก์ชันครอบออกเพื่อให้ใช้ Index ได้
 
@@ -122,6 +122,7 @@ public class ApiService
                     FirstName = reader["FirstName"]?.ToString(),
                     LastName = reader["LastName"]?.ToString(),
                     Username = reader["Username"]?.ToString(),
+                    Class = reader["Class"]?.ToString(),
                     Active = reader["Active"] == DBNull.Value ? 0 : Convert.ToInt32(reader["Active"])
                 };
             }

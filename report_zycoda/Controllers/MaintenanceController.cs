@@ -30,6 +30,15 @@ namespace report_zycoda.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
+        // 🛠️ ตัวอย่างฟังก์ชันสำหรับดึงรายการหน่วยงานมาผูกกับพารามิเตอร์ของระบบ Layout กลาง
+        private async Task PopulateNavbarDataAsync()
+        {
+            // สมมติว่านี่คือชุดคำสั่งดึง API เดิมของคุณฝ้าย
+            // นำไปเรียกใช้ในทุกๆ Action เช่น Index() และ Machine() ก่อนส่งคืน View
+            List<SectionApiModels> sections = await _apiService.GetSectionsAsync();
+            ViewBag.SectionList = sections;
+        }
+
         // ==================================================
         // HELPER: ดึงข้อมูลขนานกัน
         // ==================================================
@@ -213,6 +222,7 @@ namespace report_zycoda.Controllers
                 ViewBag.EmSectionList = sectionList.Where(x => x.Sections == "EM").ToList();
             }
 
+            await PopulateNavbarDataAsync(); // 👈 ใส่ไว้ตรงนี้เพื่อไม่ให้ข้อมูล Navbar หลุด
             return View(final);
         }
 
@@ -375,6 +385,7 @@ namespace report_zycoda.Controllers
             }
 
             ViewBag.MachineTable = machineList;
+            await PopulateNavbarDataAsync(); // 👈 ใส่ไว้ตรงนี้เพื่อไม่ให้ข้อมูล Navbar หลุด
             return View();
         }
     }

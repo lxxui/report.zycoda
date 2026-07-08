@@ -237,37 +237,39 @@
             }
         }
 
-            .swal2-popup {
-                border: 1px solid rgba(5, 150, 105, 0.3) !important; /* ขอบเขียวจางๆ */
-                box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(5, 150, 105, 0.1) !important;
-            }
+        .swal2-popup {
+            border: 1px solid rgba(5, 150, 105, 0.3) !important;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(5, 150, 105, 0.1) !important;
+        }
 
-            .swal2-title {
-                font-family: 'Inter', 'Kanit', sans-serif !important;
-                /* Custom Style สำหรับ SweetAlert ให้เข้ากับ Zycoda Theme */
-                .zycoda-alert-popup {
-                    border: 1px solid rgba(56, 189, 248, 0.2) !important; /* ขอบฟ้าจางๆ */
-                    border-radius: 24px !important;
-                    backdrop-filter: blur(12px) !important; /* ทำ Glassmorphism */
-                    box-shadow: 0 0 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.1) !important;
-                }
+        .swal2-title {
+            font-family: 'Inter', 'Kanit', sans-serif !important;
+        }
 
-                .zycoda-confirm-btn {
-                    padding: 12px 30px !important;
-                    border-radius: 12px !important;
-                    font-weight: 600 !important;
-                    color: #0f172a !important; /* ตัวหนังสือสีเข้มตัดกับปุ่มสีฟ้า */
-                    transition: all 0.3s ease !important;
-                }
+        /* Custom Style สำหรับ SweetAlert ให้เข้ากับ Zycoda Theme */
+        .zycoda-alert-popup {
+            border: 1px solid rgba(56, 189, 248, 0.2) !important;
+            border-radius: 24px !important;
+            backdrop-filter: blur(12px) !important;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.1) !important;
+        }
 
-                    .zycoda-confirm-btn:hover {
-                        box-shadow: 0 0 15px var(--primary-glow) !important;
-                        transform: translateY(-1px);
-                    }
+        .zycoda-confirm-btn {
+            padding: 12px 30px !important;
+            border-radius: 12px !important;
+            font-weight: 600 !important;
+            color: #0f172a !important;
+            transition: all 0.3s ease !important;
+        }
 
-                .zycoda-title {
-                    padding-top: 10px !important;
-                }
+        .zycoda-confirm-btn:hover {
+            box-shadow: 0 0 15px var(--primary-glow) !important;
+            transform: translateY(-1px);
+        }
+
+        .zycoda-title {
+            padding-top: 10px !important;
+        }
     </style>
 </head>
 <body>
@@ -284,6 +286,7 @@
             </div>
 
             <form method="post" asp-controller="Home" asp-action="Login">
+                <input type="hidden" name="userClass" id="hidden-user-class" value="" />
                 <div class="form-group">
                     <label>Username</label>
                     <div class="input-wrapper">
@@ -310,7 +313,6 @@
         </div>
     </div>
 
-    <!-- Modern Loader Overlay -->
     <div id="git-loader">
         <div class="bouncing-container">
             <i class="bi bi-cpu" style="font-size: 3.5rem;"></i>
@@ -321,7 +323,6 @@
         </div>
     </div>
 
-    <!-- นำเข้า Library ที่จำเป็นให้ครบ -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -329,8 +330,8 @@
     $(document).ready(function () {
         console.log("🚀 System: Zycoda Login Ready!");
 
-        // ใช้ Object สำหรับเก็บสถานะเพื่อให้จัดการง่ายขึ้น
-        const userState = {
+        // 🛠️ กำหนด Global state ไว้ที่ window เพื่อเรียกใช้ง่ายจากทุกจุด
+        window.userState = {
             fullName: "",
             userClass: ""
         };
@@ -362,26 +363,41 @@
         }
 
         // --- 2. AJAX ดึงข้อมูล Profile (Event: Blur) ---
-        $('input[name="username"]').on('blur', function() {
+       $('input[name="username"]').on('blur', function() {
             const username = $(this).val().trim();
-            if(!username) return;
+            if (!username) return;
 
             $.get('@Url.Action("GetFirstName", "Home")', { username: username })
              .done(function(data) {
-                if (data) {
-                    // ดักจับค่าคีย์พิมพ์เล็กพิมพ์ใหญ่ให้ชัวร์ที่สุด
-                    userState.fullName = data.firstName || data.FirstName || "";
-                    userState.userClass = data.userClass !== undefined ? data.userClass : (data.UserClass !== undefined ? data.UserClass : "");
-
-                    console.group("🔑 [Debug] Profile Retrieved");
-                    console.log("Target:", username);
-                    console.log("Name:", userState.fullName);
-                    console.log("Class:", userState.userClass);
-                    console.groupEnd();
+                if (!data) {
+                    console.warn("⚠️ [Debug] Server คืนค่ากลับมาเป็น null หรือไม่มีข้อมูลผู้ใช้งาน");
+                    return;
                 }
+
+                // ดึงค่ารองรับพารามิเตอร์ทุกรูปแบบ
+                const retrievedName = data.firstName || data.FirstName || "";
+                const retrievedClass = (data.userClass !== undefined && data.userClass !== null) ? data.userClass : 
+                                      (data.UserClass !== undefined && data.UserClass !== null) ? data.UserClass : "";
+
+                // บันทึกเข้า Global state
+                window.userState.fullName = retrievedName;
+                window.userState.userClass = retrievedClass.toString();
+
+                // อัปเดตลง Hidden Input ของฟอร์ม
+                const $hiddenInput = $('#hidden-user-class');
+                if ($hiddenInput.length) {
+                    $hiddenInput.val(window.userState.userClass);
+                }
+
+                // 🛠️ แก้ไขจุดแสดงผลล็อกที่ผิดพลาด (ย้ายมาดึงจาก window.userState.userClass)
+                console.group("🔑 [Debug] Profile Retrieved Successfully");
+                console.log("Target Username :", username); //รหัสพนักงาน
+                console.log("Retrieved Name  :", window.userState.fullName); //ชือ
+                console.log("Retrieved Class :", window.userState.userClass);
+                console.groupEnd();
              })
              .fail(function(xhr) {
-                console.error("❌ Network Error: ไม่สามารถเข้าถึง API ข้อมูลพนักงานได้", xhr.status);
+                console.error("❌ Network Error: ไม่สามารถเข้าถึง API ข้อมูลพนักงานได้ | Status:", xhr.status);
              });
         });
 
@@ -395,13 +411,13 @@
 
             $loader.css('display', 'flex');
 
-            // ตัวสำรอง: ถ้าดึงจาก API ไม่ทัน/หรือไม่มีชื่อ ให้เอาคำว่า "คุณ" ออก หรือใช้คำกว้างๆ แทน
-            const displayName = userState.fullName ? `คุณ ${userState.fullName}` : `ผู้ใช้งาน (${$('input[name="username"]').val()})`;
-            const displayClass = userState.userClass !== "" ? `Class ${userState.userClass}` : "กำลังระบุกลุ่มผู้ใช้";
+            // 🛠️ แก้ไขให้มาดึงข้อมูลจาก window.userState เพื่อป้องกัน Scope บั๊ก
+            const displayName = window.userState.fullName ? `คุณ ${window.userState.fullName}` : `ผู้ใช้งาน (${$('input[name="username"]').val()})`;
+            const displayClass = (window.userState.userClass !== undefined && window.userState.userClass !== "") ? `Class ${window.userState.userClass}` : "กำลังระบุกลุ่มผู้ใช้";
 
             const steps = [
                 `สวัสดี${displayName}`,
-                // `กำลังตรวจสอบสิทธิ์: ${displayClass}...`,
+                `กำลังตรวจสอบสิทธิ์: ${displayClass}...`,
                 "เชื่อมต่อ Secure Gateway...",
                 "ยืนยันข้อมูลเรียบร้อย!"
             ];
@@ -430,7 +446,7 @@
         if(!canvas) return;
         const ctx = canvas.getContext('2d');
         let dots = [];
-        const dotCount = 80; // ลดลงเล็กน้อยเพื่อ Performance
+        const dotCount = 80;
 
         function resize() {
             canvas.width = window.innerWidth;
@@ -494,7 +510,7 @@
             let speed = isDel ? 40 : 80;
             if (!isDel && cIdx > current.length) { 
                 isDel = true; 
-                speed = 2500; // ค้างข้อความไว้ครู่หนึ่ง
+                speed = 2500; 
             } else if (isDel && cIdx < 0) { 
                 isDel = false; 
                 pIdx = (pIdx + 1) % phrases.length; 
@@ -504,8 +520,7 @@
         }
         loop();
     }
-</script>    
-
+</script> 
 
 </body>
 </html>
