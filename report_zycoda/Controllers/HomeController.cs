@@ -116,19 +116,46 @@ public class HomeController : Controller
         return RedirectToAction("Login");
     }
 
+    //[HttpGet]
+    //public async Task<IActionResult> GetFirstName(string username)
+    //{
+    //    try
+    //    {
+    //        var users = await _apiService.GetUsersFromApiAsync();
+    //        var user = users?.FirstOrDefault(u => u.Username?.Trim() == username?.Trim());
+    //        if (user != null) return Json(new { firstName = user.FirstName });
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        _logger.LogError($"🚨 [GetFirstName Error]: {ex.Message}");
+    //    }
+    //    return Json(new { firstName = "" });
+    //}
+
     [HttpGet]
     public async Task<IActionResult> GetFirstName(string username)
     {
         try
         {
-            var users = await _apiService.GetUsersFromApiAsync();
-            var user = users?.FirstOrDefault(u => u.Username?.Trim() == username?.Trim());
-            if (user != null) return Json(new { firstName = user.FirstName });
+            if (string.IsNullOrEmpty(username)) return Json(null);
+
+            // แนะนำให้ใช้ Method ที่ส่ง cleanUsername เข้าไปตรงๆ เพื่อระบุตัวบุคคลจากฐานข้อมูล แทนการดึงมาทั้งหมด
+            var user = await _apiService.GetUsersFromApiAsync(username.Trim());
+
+            if (user != null)
+            {
+                // ส่งกลับทั้งชื่อ และ Class เพื่อให้นำไปแสดงผลในหน้า Loading screen
+                return Json(new
+                {
+                    firstName = user.FirstName,
+                    userClass = user.Class
+                });
+            }
         }
         catch (Exception ex)
         {
             _logger.LogError($"🚨 [GetFirstName Error]: {ex.Message}");
         }
-        return Json(new { firstName = "" });
+        return Json(null);
     }
 }

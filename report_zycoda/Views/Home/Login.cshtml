@@ -369,19 +369,14 @@
             $.get('@Url.Action("GetFirstName", "Home")', { username: username })
              .done(function(data) {
                 if (data) {
-                    // ปรับแก้ Case Sensitivity (C# มักใช้ PascalCase, JS มักใช้ camelCase)
-                    userState.fullName = data.firstName || data.FirstName || "User";
-                    userState.userClass = (data.userClass !== undefined && data.userClass !== null) 
-                                          ? data.userClass : (data.UserClass || "Standard");
+                    // ดักจับค่าคีย์พิมพ์เล็กพิมพ์ใหญ่ให้ชัวร์ที่สุด
+                    userState.fullName = data.firstName || data.FirstName || "";
+                    userState.userClass = data.userClass !== undefined ? data.userClass : (data.UserClass !== undefined ? data.UserClass : "");
 
                     console.group("🔑 [Debug] Profile Retrieved");
-                    console.log("%cTarget:", "font-weight: bold", username);
-                    console.log("%cClass:", "color: #38bdf8; font-weight: bold;", userState.userClass);
-                    console.log("Data Payload:", data);
-                    
-                    if(String(userState.userClass) === "9") {
-                        console.log("%cStatus: 👑 Administrator Access Verified", "color: #10b981; font-weight: bold;");
-                    }
+                    console.log("Target:", username);
+                    console.log("Name:", userState.fullName);
+                    console.log("Class:", userState.userClass);
                     console.groupEnd();
                 }
              })
@@ -400,34 +395,29 @@
 
             $loader.css('display', 'flex');
 
-            // ใช้ค่าจาก userState ที่ดึงมาได้
-            const displayName = userState.fullName || "User";
-            const displayClass = userState.userClass || "Guest";
+            // ตัวสำรอง: ถ้าดึงจาก API ไม่ทัน/หรือไม่มีชื่อ ให้เอาคำว่า "คุณ" ออก หรือใช้คำกว้างๆ แทน
+            const displayName = userState.fullName ? `คุณ ${userState.fullName}` : `ผู้ใช้งาน (${$('input[name="username"]').val()})`;
+            const displayClass = userState.userClass !== "" ? `Class ${userState.userClass}` : "กำลังระบุกลุ่มผู้ใช้";
 
             const steps = [
-                `สวัสดีคุณ ${displayName}`,
-                `กำลังตรวจสอบสิทธิ์: Class ${displayClass}...`,
+                `สวัสดี${displayName}`,
+                // `กำลังตรวจสอบสิทธิ์: ${displayClass}...`,
                 "เชื่อมต่อ Secure Gateway...",
                 "ยืนยันข้อมูลเรียบร้อย!"
             ];
 
             let progress = 0;
             const interval = setInterval(() => {
-                // สุ่มการเพิ่ม progress ให้ดูเหมือนมีการประมวลผลจริง
                 progress += Math.floor(Math.random() * 15) + 5;
                 if (progress > 100) progress = 100;
 
                 $progressBar.css('width', progress + "%");
-                
-                // คำนวณ Index ของข้อความตามความคืบหน้า
+        
                 let stepIdx = Math.min(Math.floor((progress / 100) * steps.length), steps.length - 1);
                 $statusText.text(steps[stepIdx]);
 
                 if (progress >= 100) {
                     clearInterval(interval);
-                    console.log("%c--- Finalizing Session ---", "color: #f472b6; font-weight: bold;");
-                    
-                    // หน่วงเวลาเล็กน้อยเพื่อให้ User เห็นความสำเร็จก่อนเปลี่ยนหน้า
                     setTimeout(() => { form.submit(); }, 600);
                 }
             }, 120);

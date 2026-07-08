@@ -2,11 +2,10 @@
 @inject IHttpContextAccessor HttpContextAccessor
 @model List<report_zycoda.Models.MaintenanceApiModels>
 @removeTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-
 @{
-    Layout = null;
+    Layout = "_Layout";
 
-    // 1. ดึงค่า State ต่างๆ (ดึงจาก ViewBag ที่ Controller ส่งมาจะแม่นยำกว่า Query ตรงๆ)
+    // 1. ดึงค่า State ต่างๆ (แยกบรรทัดคอมเมนต์ให้เคลียร์ ป้องกันโค้ดหาย)
     var view = ViewBag.CurrentView ?? "followup";
     var jobtype = ViewBag.CurrentJobType ?? "";
     var selectedStatus = ViewBag.SelectedStatus?.ToString() ?? "all";
@@ -15,8 +14,9 @@
     var sectionFrom = ViewBag.CurrentSectionFrom ?? "";
     var sectionTo = ViewBag.CurrentSectionTo ?? "";
 
+    // 🚀 ปรับคีย์ตรงนี้ให้ตรงกับระบบ Claims Principal ใน Controller ("UserClass")
+    var userClass = User.FindFirst("UserClass")?.Value ?? "0";
     var reports = Model ?? new List<report_zycoda.Models.MaintenanceApiModels>();
-    var userClass = User.FindFirst("Class")?.Value ?? "0";
 
     // 2. จัดการข้อมูลสำหรับ Chart (Top 10 Machines)
     var machineGroups = reports
@@ -345,199 +345,65 @@
         transform: translateY(-5px);
         }
 
+        /* ========================================
+        LOADER (Bouncing Icon + Progress Bar)
+        ======================================== */
         #loader-wrapper {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw; /* เต็มความกว้างหน้าจอ */
-        height: 100vh; /* เต็มความสูงหน้าจอ */
-        background: rgba(15, 23, 42, 0.8); /* สีน้ำเงินเข้มโปร่งแสง */
-        backdrop-filter: blur(12px); /* เอฟเฟกต์กระจกฝ้า */
-        -webkit-backdrop-filter: blur(12px);
-        z-index: 10000;
-        /* หัวใจหลักของการจัดกึ่งกลาง */
         display: none;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        color: white;
-        font-family: 'Sarabun', sans-serif;
-        }
-
-        .loader-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        }
-
-        /* เอฟเฟกต์เรืองแสงรอบไอคอน */
-        .icon-wrapper {
-        position: relative;
-        font-size: 4.5rem;
-        color: #22d3ee;
-        margin-bottom: 1.5rem;
-        filter: drop-shadow(0 0 15px rgba(34, 211, 238, 0.4));
-        }
-
-        /* เส้นสแกนที่ดูทันสมัยขึ้น */
-        .scanner-line {
-        position: absolute;
-        top: 0;
-        left: -10%;
-        width: 120%;
-        height: 3px;
-        background: linear-gradient(90deg, transparent, #fff, transparent);
-        box-shadow: 0 0 10px #fff;
-        animation: scan-vertical 2s ease-in-out infinite;
-        }
-
-        @@keyframes scan-vertical {
-            0% {
-                top: 0%;
-                opacity: 0;
-            }
-
-            50% {
-                opacity: 1;
-            }
-
-        100% {
-        top: 100%;
-        opacity: 0;
-        }
-        }
-
-        .loading-text {
-        font-size: 1.1rem;
-        font-weight: 600;
-        letter-spacing: 0.2rem;
-        text-transform: uppercase;
-        margin-bottom: 0.5rem;
-        }
-
-        .loading-text span {
-        display: inline-block;
-        animation: wave 1.5s infinite ease-in-out;
-        }
-
-        /* หน่วงเวลาแต่ละตัวอักษรให้เป็นคลื่น */
-        .loading-text span:nth-child(1) {
-        animation-delay: 0.1s;
-        }
-
-        .loading-text span:nth-child(2) {
-        animation-delay: 0.2s;
-        }
-
-        .loading-text span:nth-child(3) {
-        animation-delay: 0.3s;
-        }
-
-        .loading-text span:nth-child(4) {
-        animation-delay: 0.4s;
-        }
-
-        .loading-text span:nth-child(5) {
-        animation-delay: 0.5s;
-        }
-
-        .loading-text span:nth-child(6) {
-        animation-delay: 0.6s;
-        }
-
-        .loading-text span:nth-child(7) {
-        animation-delay: 0.7s;
-        }
-
-        .loading-text span:nth-child(8) {
-        animation-delay: 0.8s;
-        }
-
-        .loading-text span:nth-child(9) {
-        animation-delay: 0.9s;
-        }
-
-        .loading-text span:nth-child(10) {
-        animation-delay: 1.0s;
-        }
-
-        #loader-wrapper {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
-        height: 100vh;
-        background-color: rgba(255, 255, 255, 0.9); /* พื้นหลังขาวจางๆ ให้เห็นข้างหลังนิดหน่อย */
-        display: flex;
-        justify-content: center; /* จัดกลางแนวนอน */
-        align-items: center; /* จัดกลางแนวตั้ง */
-        z-index: 9999; /* ให้อยู่ชั้นบนสุดของทุกอย่าง */
+        height: 100%;
+        background: rgba(0, 31, 63, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        z-index: 9999;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #f8fafc;
         }
 
-        .loader-content {
-        text-align: center; /* จัดตัวอักษรข้างในให้ตรงกลาง */
-        }
-
-        /* ตกแต่ง Icon เพิ่มเติมเพื่อให้ดู Modern */
-        .icon-wrapper {
+        .bouncing-container {
         position: relative;
-        font-size: 4rem;
-        color: #001f3f; /* สี Navy ของฝ้าย */
-        margin-bottom: 20px;
+        animation: bounce 0.8s cubic-bezier(0.28, 0.84, 0.42, 1) infinite alternate;
+        color: #38bdf8;
         }
 
-        /* ตัวอย่างการทำ Animation ให้ตัวอักษรค่อยๆ เด้ง */
-        .loading-text span {
-        display: inline-block;
-        font-weight: 800;
-        letter-spacing: 5px;
-        color: #001f3f;
-        animation: pulse 1.5s infinite;
-        }
-
-        @@keyframes pulse {
-        0%, 100% {
-        opacity: 0.3;
-        transform: scale(1);
-        }
-
-        50% {
-        opacity: 1;
-        transform: scale(1.1);
-        }
-        }
-
-        /* หน่วงเวลาให้ตัวอักษรแต่ละตัวเต้นไม่พร้อมกัน */
-        .loading-text span:nth-child(1) {
-        animation-delay: 0.1s;
-        }
-
-        .loading-text span:nth-child(2) {
-        animation-delay: 0.2s;
-        }
-
-        .loading-text span:nth-child(3) {
-        animation-delay: 0.3s;
-        }
-
-        @@keyframes wave {
-        0%, 100% {
+        @@keyframes bounce {
+        0% {
         transform: translateY(0);
-        opacity: 0.3;
         }
 
-        50% {
-        transform: translateY(-5px);
-        opacity: 1;
-        color: #06B6D4;
+        100% {
+        transform: translateY(-25px);
         }
         }
 
-        .sub-text {
-        color: rgba(255,255,255,0.6);
-        font-size: 0.9rem;
-        margin-top: 10px;
+        #loader-wrapper .loading-text {
+        margin-top: 20px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        font-size: 1rem;
+        text-align: center;
+        }
+
+        .progress-container {
+        width: 280px;
+        height: 6px;
+        background: rgba(255,255,255,0.15);
+        border-radius: 10px;
+        margin-top: 25px;
+        overflow: hidden;
+        }
+
+        #loader-progress {
+        height: 100%;
+        background: #38bdf8;
+        width: 0%;
+        transition: width 0.4s ease;
+        box-shadow: 0 0 15px #38bdf8;
         }
 
         /* ปรับแต่ง Radio Button ให้ดูโมเดิร์นขึ้น */
@@ -593,14 +459,13 @@
         }
     </style>
 
-
 </head>
 <body>
     <div class="container-fluid py-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h4 class="fw-bold text-navy mb-0">รายงานภาพรวมงานแจ้งซ่อม (Overall Dashboard)</h4>
-                <p class="text-muted small mb-0">สรุปข้อมูลการซ่อมบำรุงและสถานะเครื่องจักรทั้งหมดในระบบ</p>
+                <p class="text-muted small mb-0">สรุปข้อมูลการซ่อมบำรุงและสถานะเครื่องจักรทั้งหมดในระบบ </p>
             </div>
             <div class="text-end d-flex gap-2 align-items-center">
                 <div class="badge p-2 shadow-sm" style="border-radius: 8px; background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9;">
@@ -766,7 +631,7 @@
                                 foreach (var stat in (IEnumerable<dynamic>)ViewBag.StatusList)
                                 {
                                     bool isSelected = stat.StatusId.ToString() == selectedStatus;
-                
+
                                     <option value="@stat.StatusId" selected="@(isSelected ? "selected" : null)">
                                         @stat.StatusName
                                     </option>
@@ -1425,7 +1290,8 @@
                                                     <div class="info-label text-success small fw-bold">ผู้อนุมัติ (Approver)</div>
                                                     <div id="mApprove" class="fw-bold text-dark">-</div>
                                                     <div class="text-muted" style="font-size: 0.75rem;">
-                                                        <i class="bi bi-clock-history me-1"></i> <span id="mTimeApprove">-</span>
+                                                        <i class="bi bi-calendar3 me-1"></i> <span id="mDateApprove">-</span>
+                                                        <i class="bi bi-clock-history ms-2 me-1"></i> <span id="mTimeApprove">-</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1578,479 +1444,450 @@
                 </div>
             </div>
         </div>
-
-
-    
+    </div>
 
     <div id="loader-wrapper">
-        <div class="loader-content">
-            <div class="icon-wrapper">
-                <i class="bi bi-cpu-fill"></i>
-                <div class="scanner-line"></div>
-            </div>
-            <div class="loading-text">
-                <span>G</span><span>E</span><span>N</span><span>E</span><span>R</span><span>A</span><span>T</span><span>I</span><span>N</span><span>G</span>
-            </div>
-            <p class="sub-text">ระบบกำลังประมวลผลข้อมูล...</p>
+        <div class="bouncing-container">
+            <i class="bi bi-cpu" style="font-size: 3.5rem;"></i>
+        </div>
+        <div class="loading-text" id="loader-status-text">กำลังเตรียมข้อมูล...</div>
+        <div class="progress-container">
+            <div id="loader-progress"></div>
         </div>
     </div>
+
     
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 
     @section Scripts {
         <script>
-            $(document).ready(function () {
-
-                // ==================================================
-                // ส่วนที่ 1: เตรียมข้อมูลและชุดสี (Centralized Config)
-                // ==================================================
-                const sectionCounts = {};
-                const machineCounts = {};
-
-                const zycodaPalette = [
-                    'rgba(0, 31, 63, 0.85)',
-                    'rgba(56, 189, 248, 0.85)',
-                    'rgba(16, 185, 129, 0.85)',
-                    'rgba(139, 92, 246, 0.85)',
-                    'rgba(244, 114, 182, 0.85)',
-                    'rgba(245, 158, 11, 0.85)',
-                    'rgba(71, 85, 105, 0.85)'
-                ];
-
-                $('.job-row').each(function () {
-                    const sectionId = $(this).data('sectioncreate') || 'ไม่ระบุ';
-                    const sectionName = (typeof getSectionName === "function") ? getSectionName(sectionId) : sectionId;
-                    sectionCounts[sectionName] = (sectionCounts[sectionName] || 0) + 1;
-
-                    const machineName = $(this).data('machine');
-                    if (machineName && machineName !== '-' && machineName !== 'null') {
-                        machineCounts[machineName] = (machineCounts[machineName] || 0) + 1;
-                    }
-                });
-
-                // ==================================================
-                // ส่วนที่ 2: Doughnut Chart (Section Analysis)
-                // ==================================================
-                const sectionLabels = Object.keys(sectionCounts);
-                const sectionData = Object.values(sectionCounts);
-                const sectionColors = sectionLabels.map((_, i) => zycodaPalette[i % zycodaPalette.length]);
-
-                const pieCtx = document.getElementById('maintenancePieChart').getContext('2d');
-                new Chart(pieCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: sectionLabels,
-                        datasets: [{
-                            data: sectionData,
-                            backgroundColor: sectionColors,
-                            hoverOffset: 15,
-                            borderWidth: 2,
-                            borderColor: '#ffffff'
-                        }]
-                    },
-                    options: {
-                        maintainAspectRatio: false,
-                        cutout: '72%',
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: { usePointStyle: true, padding: 15, font: { family: 'Segoe UI', size: 12 } }
-                            },
-                            tooltip: {
-                                backgroundColor: '#0f172a',
-                                callbacks: { label: (ctx) => ` ${ctx.label}: ${ctx.raw} งาน` }
-                            }
-                        }
-                    }
-                });
-
-                // ==================================================
-                // ส่วนที่ 3: Bar Chart (Top 10 Machines)
-                // ==================================================
-                const sortedMachines = Object.entries(machineCounts)
-                    .sort((a, b) => b[1] - a[1])
-                    .slice(0, 10);
-
-                const barLabels = sortedMachines.map(item => item[0]);
-                const barValues = sortedMachines.map(item => item[1]);
-                const barBgColors = barValues.map((_, i) => zycodaPalette[i % zycodaPalette.length]);
-                const barBorderColors = barBgColors.map(c => c.replace('0.85', '1'));
-
-                const barCtx = document.getElementById('maintenanceBarChart').getContext('2d');
-                new Chart(barCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: barLabels,
-                        datasets: [{
-                            label: 'จำนวนครั้งที่ซ่อม',
-                            data: barValues,
-                            backgroundColor: barBgColors,
-                            borderColor: barBorderColors,
-                            borderWidth: 1.5,
-                            borderRadius: 6,
-                            barThickness: 22,
-                            hoverBackgroundColor: '#001f3f'
-                        }]
-                    },
-                    options: {
-                        indexAxis: 'y',
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { backgroundColor: '#0f172a' }
-                        },
-                        scales: {
-                            x: {
-                                beginAtZero: true,
-                                grid: { color: 'rgba(148, 163, 184, 0.1)', drawBorder: false },
-                                ticks: { stepSize: 1, color: '#94a3b8' }
-                            },
-                            y: {
-                                grid: { display: false },
-                                ticks: { color: '#475569', font: { family: 'Segoe UI', weight: '600', size: 12 } }
-                            }
-                        },
-                        animation: {
-                            duration: 1200,
-                            easing: 'easeOutQuart'
-                        }
-                    }
-                });
-            });
-        </script>
-
-        <script>
             // ==================================================
-            // 1. GLOBAL VARIABLES
+            // GLOBAL VARIABLES & LOOKUPS
             // ==================================================
             let lastKnownJob = null;
             let lastJobId = 0;
+            let fpStart = null;
+            let fpEnd = null;
             const sectionLookup = {};
 
             @if (ViewBag.SectionList != null)
             {
                 foreach (var item in (List<report_zycoda.Models.SectionApiModels>)ViewBag.SectionList)
                 {
-                    <text>
-                        sectionLookup["@item.Sections?.Trim()"] = @Newtonsoft.Json.JsonConvert.SerializeObject(item.Name ?? "");
-                    </text>
+                    if (item != null && !string.IsNullOrEmpty(item.Sections))
+                    {
+                        <text>
+                            sectionLookup["@item.Sections.Trim()"] = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(item.Name ?? ""));
+                        </text>
+                    }
                 }
             }
 
+            // ตัวแปรสำหรับเก็บ Instance ของ Chart ป้องกันการสร้างซ้ำจนเกิด Error Canvas ค้าง
+            let pieChartInstance = null;
+            let barChartInstance = null;
+
             // ==================================================
-            // 2. HELPERS
+            // HELPERS FUNCTIONS
             // ==================================================
             function getSectionName(code) {
-                if (!code || code === '-') return '-';
-                return sectionLookup[String(code).trim()] || code;
+            if (!code || code === '-') return '-';
+            return sectionLookup[String(code).trim()] || code;
             }
 
             function formatDT(dateStr) {
-                if (!dateStr || dateStr === '-' || dateStr === '0001-01-01T00:00:00') return '-';
-                try {
-                    const d = new Date(dateStr);
-                    if (isNaN(d.getTime())) return dateStr;
-                    return new Intl.DateTimeFormat('en-GB', {
-                        day: '2-digit', month: '2-digit', year: 'numeric',
-                        hour: '2-digit', minute: '2-digit', hour12: false
-                    }).format(d).replace(/\//g, '-');
-                } catch {
-                    return dateStr;
-                }
+            if (!dateStr || dateStr === '-' || dateStr === '0001-01-01T00:00:00') return '-';
+            try {
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return dateStr;
+            return new Intl.DateTimeFormat('en-GB', {
+            day: '2-digit', month: '2-digit', year: 'numeric',
+            hour: '2-digit', minute: '2-digit', hour12: false
+            }).format(d).replace(/\//g, '-');
+            } catch {
+            return dateStr;
+            }
             }
 
             function updateClock() {
-                const el = document.getElementById('realtime-clock');
-                if (!el) return;
-                el.innerText = new Date().toLocaleString('th-TH', {
-                    day: '2-digit', month: '2-digit', year: '2-digit',
-                    hour: '2-digit', minute: '2-digit', second: '2-digit',
-                    hour12: false
-                });
+            const el = document.getElementById('realtime-clock');
+            if (!el) return;
+            el.innerText = new Date().toLocaleString('th-TH', {
+            day: '2-digit', month: '2-digit', year: '2-digit',
+            hour: '2-digit', minute: '2-digit', second: '2-digit',
+            hour12: false
+            });
             }
 
-            // ==================================================
-            // 3. STATE
-            // ==================================================
             function updateLastJobId() {
-                $('.job-row').each(function () {
-                    const id = parseInt($(this).data('id'));
-                    if (id > lastJobId) lastJobId = id;
-                });
+            $('.job-row').each(function () {
+            const id = parseInt($(this).attr('data-id') || $(this).data('id'));
+            if (id && id > lastJobId) lastJobId = id;
+            });
             }
 
             // ==================================================
-            // 4. FLATPICKR CONFIG
+            // DYNAMIC COUNTERS & CHARTS PROCESSING
+            // ==================================================
+            function processDataAndRenderComponents() {
+            let totalJobs = 0, pending = 0, accept = 0, assign = 0, success = 0, reject = 0;
+            const sectionCounts = {};
+            const machineCounts = {};
+            const zycodaPalette = ['rgba(0, 31, 63, 0.85)', 'rgba(56, 189, 248, 0.85)', 'rgba(16, 185, 129, 0.85)', 'rgba(139, 92, 246, 0.85)', 'rgba(244, 114, 182, 0.85)', 'rgba(245, 158, 11, 0.85)', 'rgba(71, 85, 105, 0.85)'];
+
+            // 1. วนลูปนับข้อมูลจริงจากคลาส .job-row ที่โผล่อยู่บนตารางขณะนั้น
+            $('.job-row').each(function () {
+            totalJobs++;
+            const status = ($(this).attr('data-status') || $(this).data('status') || '').toUpperCase().trim();
+
+            if (status === 'PENDING' || status === 'CREATE') pending++;
+            else if (status === 'ACCEPT') accept++;
+            else if (status === 'ASSIGN') assign++;
+            else if (status === 'SUCCESS') success++;
+            else if (status === 'REJECT' || status === 'DENY') reject++;
+
+            const sectionId = $(this).attr('data-sectioncreate') || $(this).data('sectioncreate') || 'ไม่ระบุ';
+            const sectionName = getSectionName(sectionId);
+            sectionCounts[sectionName] = (sectionCounts[sectionName] || 0) + 1;
+
+            const machineName = $(this).attr('data-machine') || $(this).data('machine');
+            if (machineName && machineName !== '-' && machineName !== 'null') {
+            machineCounts[machineName] = (machineCounts[machineName] || 0) + 1;
+            }
+            });
+
+            // 2. หยอดตัวเลขลงบนการ์ดด้านบนแบบป้องกันการค้าง 0 ทิพย์ (ใส่ไอดีดักไว้ให้ดึงง่ายขึ้นด้วย)
+            $('#count-all-jobs, .card:contains("ALL JOBS") h3, .card:contains("ALL JOBS") .display-4').text(totalJobs);
+            $('#count-pending, .card:contains("PENDING") h3, .card:contains("PENDING") .display-4').text(pending);
+            $('#count-accept, .card:contains("ACCEPT") h3, .card:contains("ACCEPT") .display-4').text(accept);
+            $('#count-assign, .card:contains("ASSIGN") h3, .card:contains("ASSIGN") .display-4').text(assign);
+            $('#count-success, .card:contains("SUCCESS") h3, .card:contains("SUCCESS") .display-4').text(success);
+            $('#count-reject, .card:contains("REJECT") h3, .card:contains("REJECT") .display-4').text(reject);
+
+            // 3. Render Doughnut Chart (สัดส่วนสถานะงานซ่อม)
+            try {
+            const sectionLabels = Object.keys(sectionCounts);
+            const sectionData = Object.values(sectionCounts);
+            const chartEl = document.getElementById('maintenancePieChart');
+
+            if (pieChartInstance) pieChartInstance.destroy(); // ล้าง Instance เก่าทิ้งก่อน
+
+            if (sectionLabels.length > 0 && chartEl && typeof Chart !== 'undefined') {
+            pieChartInstance = new Chart(chartEl.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+            labels: sectionLabels,
+            datasets: [{ data: sectionData, backgroundColor: sectionLabels.map((_, i) => zycodaPalette[i % zycodaPalette.length]), hoverOffset: 15, borderWidth: 2, borderColor: '#ffffff' }]
+            },
+            options: { maintainAspectRatio: false, cutout: '72%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 15 } } } }
+            });
+            }
+            } catch (e) { console.error("Pie Chart Error:", e); }
+
+            // 4. Render Bar Chart (Top 10 เครื่องจักร)
+            try {
+            const sortedMachines = Object.entries(machineCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+            const chartEl = document.getElementById('maintenanceBarChart');
+
+            if (barChartInstance) barChartInstance.destroy(); // ล้าง Instance เก่าทิ้งก่อน
+
+            if (sortedMachines.length > 0 && chartEl && typeof Chart !== 'undefined') {
+            barChartInstance = new Chart(chartEl.getContext('2d'), {
+            type: 'bar',
+            data: {
+            labels: sortedMachines.map(item => item[0]),
+            datasets: [{ label: 'จำนวนครั้งที่ซ่อม', data: sortedMachines.map(item => item[1]), backgroundColor: sortedMachines.map((_, i) => zycodaPalette[i % zycodaPalette.length]), borderWidth: 1.5, borderRadius: 6, barThickness: 22 }]
+            },
+            options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+            });
+            }
+            } catch (e) { console.error("Bar Chart Error:", e); }
+            }
+
+            // ==================================================
+            // FLATPICKR CONFIG
             // ==================================================
             const commonConfig = {
-                dateFormat: "Y-m-d",
-                altInput: true,
-                altFormat: "d/m/Y",
-                locale: "en",
-                allowInput: true,
-                disableMobile: true,
-                onReady: function (_, __, instance) {
-                    const defaultVal = instance.element.dataset.default;
-                    if (defaultVal) instance.setDate(flatpickr.parseDate(defaultVal, "Y-m-d"), false);
-                },
-                onChange: function (_, dateStr, instance) {
-                    instance.element.dataset.default = dateStr;
-                }
+            dateFormat: "Y-m-d",
+            altInput: true,
+            altFormat: "d/m/Y",
+            locale: "en",
+            allowInput: true,
+            disableMobile: true,
+            onReady: function (_, __, instance) {
+            const defaultVal = instance.element.dataset.default;
+            if (defaultVal) instance.setDate(flatpickr.parseDate(defaultVal, "Y-m-d"), false);
+            },
+            onChange: function (_, dateStr, instance) {
+            instance.element.dataset.default = dateStr;
+            }
             };
 
-            let fpStart = null;
-            let fpEnd = null;
-
             function initDatePickers() {
-                if (fpStart) fpStart.destroy();
-                if (fpEnd) fpEnd.destroy();
+            if (fpStart) fpStart.destroy();
+            if (fpEnd) fpEnd.destroy();
 
-                fpStart = flatpickr("#startDatePicker", commonConfig);
-                fpEnd = flatpickr("#endDatePicker", commonConfig);
+            fpStart = flatpickr("#startDatePicker", commonConfig);
+            fpEnd = flatpickr("#endDatePicker", commonConfig);
 
-                const startVal = document.getElementById("startDatePicker").dataset.default;
-                const endVal = document.getElementById("endDatePicker").dataset.default;
-                if (startVal) fpStart.setDate(startVal, true, "Y-m-d");
-                if (endVal) fpEnd.setDate(endVal, true, "Y-m-d");
+            const startVal = document.getElementById("startDatePicker")?.dataset.default;
+            const endVal = document.getElementById("endDatePicker")?.dataset.default;
+            if (startVal) fpStart.setDate(startVal, true, "Y-m-d");
+            if (endVal) fpEnd.setDate(endVal, true, "Y-m-d");
             }
 
             // ==================================================
-            // 5. DASHBOARD REFRESH
+            // BACKEND INTEGRATION (REFRESH & UPDATE)
             // ==================================================
             function refreshDashboard() {
-                $.get(window.location.href, function (data) {
-                    const newHtml = $(data);
-                    $('.row.g-3.mb-4.text-center').html(newHtml.find('.row.g-3.mb-4.text-center').html());
-                    $('#maintenanceTable tbody').html(newHtml.find('#maintenanceTable tbody').html());
-                    updateLastJobId();
-                    console.log("Dashboard refreshed");
-                });
+            $.get(window.location.href, function (data) {
+            const newHtml = $(data);
+
+            if ($.fn.DataTable.isDataTable('#maintenanceTable')) {
+            $('#maintenanceTable').DataTable().destroy();
             }
 
-            // ==================================================
-            // 6. CHECK UPDATE
-            // ==================================================
+            // แทนที่เนื้อหาตารางจากหน้าฝั่งเซิร์ฟเวอร์
+            $('#maintenanceTable tbody').html(newHtml.find('#maintenanceTable tbody').html());
+
+            // โหลด DataTable กลับคืนมาใช้งานใหม่
+            $('#maintenanceTable').DataTable({
+            pageLength: 10,
+            lengthMenu: [[10, 15, 25, 50, 100], [10, 15, 25, 50, 100]],
+            language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/th.json" },
+            order: [[0, "desc"]],
+            dom: '<"d-flex justify-content-between align-items-center px-3 pt-2 mb-2"l f>rt<"d-flex justify-content-between align-items-center px-3 pb-3 mt-2"i p>'
+            });
+
+            updateLastJobId();
+            processDataAndRenderComponents(); // ทำการคำนวณกราฟและการ์ดใหม่จากตารางล่าสุดทันที
+
+            const syncTextEl = document.getElementById('sync-time-text');
+            if (syncTextEl) syncTextEl.innerText = "อัปเดตสำเร็จ";
+
+            $('#loader-wrapper').fadeOut(200);
+            }).fail(function() {
+            $('#loader-wrapper').fadeOut(200);
+            });
+            }
             function checkUpdates() {
-                $.get('/Maintenance/GetStatusUpdate', function (data) {
-                    if (!data || data.length === 0) return;
-                    const newest = data[0];
-                    if (lastKnownJob === null) {
-                        lastKnownJob = newest.jobNo;
-                        return;
-                    }
-                    if (newest.jobNo !== lastKnownJob) {
-                        Swal.fire({
-                            title: 'มีใบงานใหม่! 🆕',
-                            text: `ใบงานเลขที่: ${newest.jobNo} (${newest.status})`,
-                            icon: 'info',
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 5000
-                        });
-                        lastKnownJob = newest.jobNo;
-                        refreshDashboard();
-                    }
-                });
+            $.get('/Maintenance/GetStatusUpdate', function (data) {
+            if (!data || data.length === 0) return;
+            const newest = data[0];
+            if (lastKnownJob === null) {
+            lastKnownJob = newest.jobNo;
+            return;
+            }
+            if (newest.jobNo !== lastKnownJob) {
+            Swal.fire({
+            title: 'มีใบงานใหม่! 🆕',
+            text: `ใบงานเลขที่: ${newest.jobNo} (${newest.status})`,
+            icon: 'info',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 5000
+            });
+            lastKnownJob = newest.jobNo;
+            }
+            });
             }
 
-            // ==================================================
-            // 7. PRINT REPORT
-            // ==================================================
-           function PrintReport(reportType) {
-                 // 💡 ดึงฟิลเตอร์และค่าทุกอย่างที่อยู่บน URL ณ ปัจจุบันของหน้าเว็บออกมาใช้งานโดยอัตโนมัติ
-                 const currentParams = new URLSearchParams(window.location.search);
-
-                 // สร้างก้อน Parameter ใหม่ที่จะยิงไปที่หน้าพิมพ์รายงาน
-                 const params = new URLSearchParams({
-                     // ถ้าใน URL มีค่าให้ใช้ค่าจาก URL ถ้าไม่มีให้วิ่งไปหา Element ID หรือใช้ค่าว่าง
-                     start: currentParams.get("start") || (fpStart?.selectedDates?.length ? fpStart.formatDate(fpStart.selectedDates[0], "Y-m-d") : ""),
-                     end: currentParams.get("end") || (fpEnd?.selectedDates?.length ? fpEnd.formatDate(fpEnd.selectedDates[0], "Y-m-d") : ""),
-                     status: currentParams.get("Status") || currentParams.get("status") || document.getElementById("filterStatus")?.value || "",
-                     sectionFrom: currentParams.get("sectionFrom") || document.getElementById("sectionFrom")?.value || "",
-                     sectionTo: currentParams.get("sectionTo") || document.getElementById("sectionTo")?.value || "",
-                     jobtype: currentParams.get("jobtype") || document.getElementById("jobtype")?.value || "EM,CM",
-                     view: currentParams.get("view") || document.querySelector('input[name="view"]:checked')?.value || "followup",
-                     rptType: reportType // ใส่ประเภทรายงานตามที่กดเลือกใน Modal
-                 });
-
-                 console.log("👉 Final Print Params Sent:", params.toString());
-
-                 // สั่งเปิดแท็บใหม่ยิงเข้า Controller 
-                 window.open(`/Report/PrintReport?${params.toString()}`, '_blank');
-                 $('#printSelectModal').modal('hide');
-             }
-
-            // ==================================================
-            // 8. INIT
-            // ==================================================
-            $(document).ready(function () {
-                initDatePickers();
-
-                if (!$.fn.DataTable.isDataTable('#maintenanceTable')) {
-                    $('#maintenanceTable').DataTable({
-                        pageLength: 10,
-                        lengthMenu: [[10, 15, 25, 50, 100], [10, 15, 25, 50, 100]],
-                        language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/th.json" },
-                        order: [[0, "desc"]],
-                        dom: '<"d-flex justify-content-between align-items-center px-3 pt-2 mb-2"l f>rt<"d-flex justify-content-between align-items-center px-3 pb-3 mt-2"i p>'
-                    });
-                }
-
-                $(document).on('click', '.job-row', function () {
-                    const $el = $(this);
-                    $('#mId').text($el.data('id'));
-                    $('#mMachine').text($el.data('machine') || '-');
-                    $('#mType').text($el.data('type') || '-');
-                    $('#mUser').text($el.data('user') || '-');
-                    $('#mDetail').text($el.data('detail') || '-');
-                    $('#mStatus')
-                        .text($el.data('status'))
-                        .removeClass()
-                        .addClass('badge rounded-pill ' + ($el.data('css') || 'bg-secondary'));
-                    $('#mSectionCreateName').text(getSectionName($el.data('sectioncreate')));
-                    $('#mSection').text(getSectionName($el.data('section')));
-                    $('#mAssign').text($el.data('uassign') || 'ยังไม่มอบหมาย');
-                    $('#mAccept').text($el.data('useraccept') || 'ยังไม่มีผู้รับงาน');
-                    $('#mFinish').text($el.data('userfinish') || '-');
-                    $('#mTimeCreate').text(formatDT($el.data('timecreate')));
-                    $('#mTimeAccept').text(formatDT($el.data('timeaccept')));
-                    $('#mTimeAssign').text(formatDT($el.data('timeassign')));
-                    $('#mApprove').text($el.data('userApprove') || '-');
-                    $('#mTimeApprove').text(formatDT($el.data('timeApprove')));
-                    $('#jobDetailModal').modal('show');
-                });
-
-                $('form').on('submit', function () {
-                    $('#loader-wrapper').fadeIn(200);
-                    $('button[type="submit"]').prop('disabled', true);
-                });
-
-                setInterval(updateClock, 1000);
-                setInterval(checkUpdates, 30000);
-                setInterval(refreshDashboard, 60000);
-
-                updateClock();
-                updateLastJobId();
+            function PrintReport(reportType) {
+            const currentParams = new URLSearchParams(window.location.search);
+            const params = new URLSearchParams({
+            start: currentParams.get("start") || (fpStart?.selectedDates?.length ? fpStart.formatDate(fpStart.selectedDates[0], "Y-m-d") : ""),
+            end: currentParams.get("end") || (fpEnd?.selectedDates?.length ? fpEnd.formatDate(fpEnd.selectedDates[0], "Y-m-d") : ""),
+            status: currentParams.get("Status") || currentParams.get("status") || document.getElementById("filterStatus")?.value || "",
+            sectionFrom: currentParams.get("sectionFrom") || document.getElementById("sectionFrom")?.value || "",
+            sectionTo: currentParams.get("sectionTo") || document.getElementById("sectionTo")?.value || "",
+            jobtype: currentParams.get("jobtype") || document.getElementById("jobtype")?.value || "EM,CM",
+            view: currentParams.get("view") || document.querySelector('input[name="view"]:checked')?.value || "followup",
+            rptType: reportType
             });
-        </script>
+            window.open(`/Report/PrintReport?${params.toString()}`, '_blank');
+            $('#printSelectModal').modal('hide');
+            }
+            window.PrintReport = PrintReport;
 
-        <script>
-            $(window).on('load', function () {
-                $('#loader-wrapper').fadeOut(500, function () {
-                    $(this).css('display', 'none');
-                });
-            });
-
-            setTimeout(function () {
-                if ($('#loader-wrapper').is(':visible')) {
-                    $('#loader-wrapper').fadeOut(300);
-                }
-            }, 5000);
-
-            function shareToLine(item) {
-                // 1. ดึงข้อมูลพื้นฐานจาก item
-                const jobId = item.id;
-                const location = item.fl;
-                const flDetail = item.fldetail;
-                const detail = item.detail;
-                const jobType = item.jobtype;
-                const priority = item.priority;
-                const assignTo = item.uassign ? item.uassign.join(', ') : '-';
-                const status = item.status;
-                const creator = item.usercreate ? item.usercreate : '-';
-
-                // 🏬 ดึงรหัสแผนกออกมาก่อน
-                const rawSectionCode = item.sectioncreate;
-                let sectionName = rawSectionCode ? rawSectionCode : '-';
-
-                // 🕵️‍♂️ [จุดแกะรอย] ปริ้นท์เช็คในหน้า Developer Tools ของ Browser (กด F12 เปิดดูได้เลยครับ)
-                console.log("รหัสแผนกของบิลนี้:", rawSectionCode);
-                console.log("ตัวแปรแผนกทั้งหมดหน้าบ้าน:", typeof sectionApiModel !== 'undefined' ? sectionApiModel : 'หาตัวแปรนี้ไม่เจอ');
-
-                // 2. ค้นหาชื่อหน่วยงานเต็มๆ (ดักฟิลด์ไว้ให้ทุกแบบ ทั้งตัวเล็ก ตัวใหญ่)
-                if (rawSectionCode && typeof sectionApiModel !== 'undefined' && Array.isArray(sectionApiModel)) {
-
-                const foundSection = sectionApiModel.find(s => {
-                // เช็ครหัสแผนก: ดักเผื่อ s.id, s.Id, s.sectionCode, s.sectionid
-                const sId = s.id || s.Id || s.sectionId || s.sectionid || s.code || s.Code;
-                return sId == rawSectionCode;
-                });
-
-                if (foundSection) {
-                // เช็คชื่อแผนก: ดักเผื่อ s.name, s.Name, s.sectionName, s.sectionname
-                sectionName = foundSection.name || foundSection.Name || foundSection.sectionName || foundSection.sectionname || foundSection.text || foundSection.Text;
-                }
-                }
-
-                // 3. จัดรูปแบบข้อความใหม่
-                const message =
-                `🛠 *ใบแจ้งซ่อมใหม่ (Job #${jobId})*
-                ----------------------------
-                👤 *คนแจ้งงาน:* ${creator}
-                🏬 *หน่วยงานที่แจ้ง:* ${sectionName}
-                📌 *สถานที่:* ${location}
-                📦 *อุปกรณ์:* ${flDetail}
-                📝 *อาการ:* ${detail}
-                ----------------------------
-                🔧 *ประเภทงาน:* ${jobType}
-                ⚠️ *ความสำคัญ:* ${priority}
-                👤 *ช่างผู้รับผิดชอบ:* ${assignTo}
-                🚩 *status:* ${status}
-
-                🔗 *ดูรายละเอียด/กดรับงาน:* ${window.location.origin}/Maintenance/Details/${jobId}`;
-
-                // 4. ส่งข้อมูลเข้า LINE
-                const lineUrl = "https://line.me/R/msg/text/?" + encodeURIComponent(message);
-                window.open(lineUrl, '_blank');
-                }
-
-        </script>
-
-   
-
-        <script>
-        function checkLastSyncTime() {
+            function checkLastSyncTime() {
             const syncText = document.getElementById('sync-time-text');
             const syncIcon = document.getElementById('sync-icon');
-        
-            // หมุนไอคอนนิดหน่อยตอนกำลังดึงข้อมูลให้ดูมีมิติ
-            if(syncIcon) syncIcon.classList.add('spin-animation');
+            if (syncIcon) syncIcon.classList.add('spin-animation');
 
-            // ยิงไปถาม API Controller ที่เราสร้างไว้หลังบ้าน
             fetch('/api/sync/last-time')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        syncText.innerText = data.lastSync;
-                    } else {
-                        syncText.innerText = data.message;
-                    }
-                })
-                .catch(err => {
-                    syncText.innerText = "ดึงข้อมูลล้มเหลว";
-                    console.error("Error fetching sync time:", err);
-                })
-                .finally(() => {
-                    // หยุดหมุนไอคอนเมื่อทำงานเสร็จ
-                    setTimeout(() => {
-                        if(syncIcon) syncIcon.classList.remove('spin-animation');
-                    }, 1000);
-                });
-        }
+            .then(response => response.json())
+            .then(data => {
+            if (data.success && syncText) syncText.innerText = data.lastSync;
+            })
+            .catch(err => console.error("Error fetching sync time:", err))
+            .finally(() => {
+            setTimeout(() => { if (syncIcon) syncIcon.classList.remove('spin-animation'); }, 1000);
+            });
+            }
 
-        // ทำงานอัตโนมัติเมื่อเว็บโหลดเสร็จ
-        document.addEventListener("DOMContentLoaded", function() {
-            // 1. ดึงข้อมูลเวลาซิงค์ทันที 1 รอบ
+            function shareToLine(item) {
+            const jobId = item.id;
+            const location = item.fl;
+            const flDetail = item.fldetail;
+            const detail = item.detail;
+            const jobType = item.jobtype;
+            const priority = item.priority;
+            const assignTo = item.uassign ? item.uassign.join(', ') : '-';
+            const status = item.status;
+            const creator = item.usercreate ? item.usercreate : '-';
+            const rawSectionCode = item.sectioncreate;
+            let sectionName = getSectionName(rawSectionCode);
+
+            const message = `🛠 *ใบแจ้งซ่อมใหม่ (Job #${jobId})*\n----------------------------\n👤 *คนแจ้งงาน:* ${creator}\n🏬 *หน่วยงานที่แจ้ง:* ${sectionName}\n📌 *สถานที่:* ${location}\n📦 *อุปกรณ์:* ${flDetail}\n📝 *อาการ:* ${detail}\n----------------------------\n🔧 *ประเภทงาน:* ${jobType}\n⚠️ *ความสำคัญ:* ${priority}\n👤 *ช่างผู้รับผิดชอบ:* ${assignTo}\n🚩 *status:* ${status}\n\n🔗 *ดูรายละเอียด/กดรับงาน:* ${window.location.origin}/Maintenance/Details/${jobId}`;
+            window.open("https://line.me/R/msg/text/?" + encodeURIComponent(message), '_blank');
+            }
+
+            // ==================================================
+            // MAIN INITIALIZATION (เมื่อ DOM Ready)
+            // ==================================================
+            $(document).ready(function () {
+            initDatePickers();
             checkLastSyncTime();
-        
-            // 2. ตั้งเวลาดึงซ้ำทุกๆ 5 นาทีอัตโนมัติ (5 นาที * 60 วินาที * 1000 มิลลิวินาที)
-            setInterval(checkLastSyncTime, 5 * 60 * 1000); 
-        });
-    </script>
+
+            if (!$.fn.DataTable.isDataTable('#maintenanceTable')) {
+            $('#maintenanceTable').DataTable({
+            pageLength: 10,
+            lengthMenu: [[10, 15, 25, 50, 100], [10, 15, 25, 50, 100]],
+            language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/th.json" },
+            order: [[0, "desc"]],
+            dom: '<"d-flex justify-content-between align-items-center px-3 pt-2 mb-2"l f>rt<"d-flex justify-content-between align-items-center px-3 pb-3 mt-2"i p>'
+            });
+            }
+
+            // คำนวณยอดและวาดกราฟทันทีจากการเรนเดอร์ครั้งแรกฝั่ง Server-side (ป้องกันหน้าเปล่าเลข 0)
+            processDataAndRenderComponents();
+
+            // Click Row Event
+            $(document).on('click', '.job-row', function () {
+            const $el = $(this);
+            const getId = $el.attr('data-id') || $el.data('id');
+
+            // ข้อมูลทั่วไป
+            $('#mId').text(getId);
+            $('#mMachine').text($el.attr('data-machine') || $el.data('machine') || '-');
+            $('#mType').text($el.attr('data-type') || $el.data('type') || '-');
+            $('#mUser').text($el.attr('data-user') || $el.data('user') || '-');
+            $('#mDetail').text($el.attr('data-detail') || $el.data('detail') || '-');
+
+            // สถานะและสไตล์ CSS Badge
+            $('#mStatus').text($el.attr('data-status') || $el.data('status'))
+            .removeClass()
+            .addClass('badge rounded-pill ' + ($el.attr('data-css') || $el.data('css') || 'bg-secondary'));
+
+            // แผนก/ฝ่าย
+            $('#mSectionCreateName').text(getSectionName($el.attr('data-sectioncreate') || $el.data('sectioncreate')));
+            $('#mSection').text(getSectionName($el.attr('data-section') || $el.data('section')));
+
+            // รายชื่อผู้รับผิดชอบช่วงต่างๆ
+            $('#mAssign').text($el.attr('data-uassign') || $el.data('uassign') || 'ยังไม่มอบหมาย');
+            $('#mAccept').text($el.attr('data-useraccept') || $el.data('useraccept') || 'ยังไม่มีผู้รับงาน');
+            $('#mFinish').text($el.attr('data-userfinish') || $el.data('userfinish') || '-');
+
+            // เวลาของฝั่งปฏิบัติงาน
+            $('#mTimeCreate').text(formatDT($el.attr('data-timecreate') || $el.data('timecreate')));
+            $('#mTimeAccept').text(formatDT($el.attr('data-timeaccept') || $el.data('timeaccept')));
+            $('#mTimeAssign').text(formatDT($el.attr('data-timeassign') || $el.data('timeassign')));
+
+            // ==================================================
+            // 🚀 ส่วนที่อัปเดต: แยกร่างกลุ่มข้อมูล ApproveCreate (Array Object)
+            // ==================================================
+            const approveData = $el.data('ApproveCreate');
+
+            if (approveData && approveData.length > 0) {
+            // มีข้อมูลในรูปแบบ Array (ดึง Object ตัวแรกมาใช้)
+            const approver = approveData[0];
+
+            $('#mApprove').text(approver.name || '-');
+
+            if (approver.datetime) {
+            const parts = approver.datetime.split('T');
+            const rawDate = parts[0];
+            const rawTime = parts[1] ? parts[1].substring(0, 5) : ''; // ตัดเหลือแค่ HH:mm
+
+            $('#mDateApprove').text(rawDate || '-');
+            $('#mTimeApprove').text(rawTime || '-');
+            } else {
+            $('#mDateApprove').text('-');
+            $('#mTimeApprove').text('-');
+            }
+            } else {
+            // 🔄 รองรับกรณีย้อนกลับไปใช้ Attribute เดี่ยวแบบเดิม (Fallback)
+            $('#mApprove').text($el.attr('data-userApprove') || '-');
+
+            const oldTime = $el.attr('data-timeApprove') || $el.data('timeApprove');
+            if (oldTime) {
+            // ถ้าระบบเดิมส่งเป็น datetime ก้อนเดียวมา ให้ตัดแยกด้วย T เช่นกัน
+            const parts = oldTime.split('T');
+            $('#mDateApprove').text(parts[0] || '-');
+            $('#mTimeApprove').text(parts[1] ? parts[1].substring(0, 5) : '-');
+            } else {
+            $('#mDateApprove').text('-');
+            $('#mTimeApprove').text('-');
+            }
+            }
+
+            // เปิด Modal โชว์ข้อมูล
+            $('#jobDetailModal').modal('show');
+            });
+
+            // เปิดหน้า Loader พร้อม Progress Animation เมื่อมีการกด Filter ข้อมูล
+            document.getElementById('filterForm').addEventListener('submit', function () {
+            const $loader = document.getElementById('loader-wrapper');
+            const $progressBar = document.getElementById('loader-progress');
+            const $statusText = document.getElementById('loader-status-text');
+
+            $loader.style.display = 'flex';
+
+            const steps = [
+            "กำลังตรวจสอบเงื่อนไขการค้นหา...",
+            "กำลังดึงข้อมูลจากระบบ...",
+            "กำลังประมวลผลกราฟและตาราง...",
+            "เกือบเสร็จแล้ว..."
+            ];
+
+            let progress = 0;
+            const interval = setInterval(() => {
+            progress += Math.floor(Math.random() * 15) + 5;
+            if (progress > 95) progress = 95; // เก็บไว้ 95% รอหน้าเปลี่ยนจริง
+            $progressBar.style.width = progress + "%";
+
+            const stepIdx = Math.min(Math.floor((progress / 100) * steps.length), steps.length - 1);
+            $statusText.textContent = steps[stepIdx];
+
+            if (progress >= 95) clearInterval(interval);
+            }, 150);
+            });
+
+            // ปิดม่านโหลดหลังจากที่ Component ทุกอย่างถูกคำนวณและวาดเสร็จสิ้นเรียบร้อยแล้ว
+            $('#loader-wrapper').fadeOut(200);
+
+            setInterval(updateClock, 1000);
+            setInterval(checkUpdates, 30000);
+            setInterval(refreshDashboard, 60000); // วน Refresh ตารางใหม่ปลอดภัยขึ้น
+            setInterval(checkLastSyncTime, 5 * 60 * 1000);
+
+            updateClock();
+            updateLastJobId();
+            });
+
+            $(window).on('load', function () {
+            $('#loader-wrapper').fadeOut(300);
+            });
+
+            // กันเคส back/forward cache (bfcache) ที่ทำให้ loader ค้างโชว์ตอนกดย้อนกลับ
+            window.addEventListener('pageshow', function (event) {
+            if (event.persisted) {
+            document.getElementById('loader-wrapper').style.display = 'none';
+            }
+            });
 
 
+        </script>
     }
 
 

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 using report_zycoda.Models;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -11,7 +12,8 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using System.Data;
-using Microsoft.Extensions.Configuration; // 👈 เพิ่มกลับมาให้แน่ใจว่าใช้ได้
+using Microsoft.Extensions.Configuration;
+using System.IO;
 
 namespace report_zycoda.Controllers
 {
@@ -19,25 +21,29 @@ namespace report_zycoda.Controllers
     {
         private readonly ApiService _apiService;
         private readonly string _connectionString;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public MaintenanceController(ApiService apiService, IConfiguration configuration)
+        public MaintenanceController(ApiService apiService, IConfiguration configuration, IHttpClientFactory httpClientFactory)
         {
             _apiService = apiService;
             _connectionString = configuration.GetConnectionString("DefaultConnection") ?? "";
+            _httpClientFactory = httpClientFactory;
         }
 
         // ==================================================
-        // HELPER: ดึงข้อมูล (ปรับลด Timeout เป็น 30 วินาที ป้องกันหน้าเว็บค้างยาว)
+        // HELPER: ดึงข้อมูลขนานกัน
         // ==================================================
+
         private async Task<List<MaintenanceApiModels>> FetchJobsFromApi(
             string sessionUser,
             string sessionPass,
             string jobtype,
             string start,
             string end,
+            string sessionClass,
+            string sessionSection,
             string view = "followup")
         {
-            var combined = new List<MaintenanceApiModels>();
             var culture = CultureInfo.InvariantCulture;
 
             if (!DateTime.TryParseExact(start, "yyyy-MM-dd", culture, DateTimeStyles.None, out var globalStart))
@@ -61,20 +67,10 @@ namespace report_zycoda.Controllers
 
             var viewsToCall = (view == "all") ? new List<string> { "followup", "myjob" } : new List<string> { view };
 
-            var handler = new HttpClientHandler
-            {
-                AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate
-            };
+            var uniqueJobs = new ConcurrentDictionary<string, MaintenanceApiModels>();
+            var client = _httpClientFactory.CreateClient("ZycodaApiClient");
 
-            using var client = new HttpClient(handler);
-            // ⏱️ ปรับลดเหลือ 30 วินาทีพอครับ ถ้าเกินนี้แสดงว่า Server ปลายทางไม่ไหว จะได้รีบฟ้อง Error ไม่ปล่อยให้ผู้ใช้รอจนเบื่อ
-            client.Timeout = TimeSpan.FromSeconds(30);
-            client.DefaultRequestHeaders.Clear();
-            client.DefaultRequestHeaders.Add("accept", "application/json");
-            client.DefaultRequestHeaders.Add("username", sessionUser);
-            client.DefaultRequestHeaders.Add("password", sessionPass);
-
-            foreach (var v in viewsToCall)
+            var tasks = viewsToCall.Select(async v =>
             {
                 var queryParams = new Dictionary<string, string?>
                 {
@@ -85,44 +81,86 @@ namespace report_zycoda.Controllers
                     ["view"] = v
                 };
 
-                var url = QueryHelpers.AddQueryString("https://farmhouse.zycoda.com/apimpros/get_job_order", queryParams);
-                System.Diagnostics.Debug.WriteLine($"[SINGLE API CALL] 📨 Range: {finalStartStr} to {finalEndStr} | View: {v} | URL: {url}");
+                var url = QueryHelpers.AddQueryString("apimpros/get_job_order", queryParams);
+
+                // 🛰️ LOG จุดที่ 1: ดู URL ที่ระบบฝั่งเรากำลังจะยิงออกไปจริงๆ
+                Console.WriteLine($"\n🚀 [API REQUEST] BaseUrl: {client.BaseAddress}{url}");
+                Console.WriteLine($"🔑 [API AUTH] User: {sessionUser} | Pass Length: {sessionPass?.Length ?? 0}");
+
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Add("username", sessionUser);
+                request.Headers.Add("password", sessionPass);
 
                 try
                 {
-                    var response = await client.GetAsync(url);
-                    if (!response.IsSuccessStatusCode) continue;
+                    using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
-                    var json = await response.Content.ReadAsStringAsync();
-                    if (string.IsNullOrWhiteSpace(json)) continue;
+                    // 🛰️ LOG จุดที่ 2: เช็กว่าเซิร์ฟเวอร์ปลายทางตอบกลับมาด้วยสถานะอะไร
+                    Console.WriteLine($"📥 [API RESPONSE] View: {v} -> Status: {response.StatusCode} ({(int)response.StatusCode})");
 
-                    var trimmedJson = json.Trim();
-
-                    if (trimmedJson.StartsWith("["))
+                    if (response.IsSuccessStatusCode)
                     {
-                        var data = JsonConvert.DeserializeObject<List<MaintenanceApiModels>>(trimmedJson);
-                        if (data != null) combined.AddRange(data);
-                    }
-                    else if (trimmedJson.StartsWith("{"))
-                    {
-                        var singleData = JsonConvert.DeserializeObject<MaintenanceApiModels>(trimmedJson);
-                        if (singleData != null) combined.Add(singleData);
+                        var jsonString = await response.Content.ReadAsStringAsync();
+
+                        Console.WriteLine($"📦 [API DATA RAW] Length: {jsonString.Length} chars");
+                        if (jsonString.Length > 0)
+                        {
+                            var preview = jsonString.Length > 500 ? jsonString.Substring(0, 500) + "..." : jsonString;
+                            Console.WriteLine($"🔍 [API DATA PREVIEW]: {preview}");
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(jsonString))
+                        {
+                            try
+                            {
+                                // 🎯 ปรับใหม่: ลองถอดรหัสออกมาเป็นแบบ List (Array) ดูก่อนเป็นอันดับแรก
+                                var data = JsonConvert.DeserializeObject<List<MaintenanceApiModels>>(jsonString);
+                                if (data != null)
+                                {
+                                    foreach (var item in data)
+                                    {
+                                        var idKey = item.id?.ToString();
+                                        if (!string.IsNullOrEmpty(idKey)) uniqueJobs.TryAdd(idKey, item);
+                                    }
+                                }
+                            }
+                            catch (JsonSerializationException)
+                            {
+                                // 🎯 ถ้าถอดแบบ List ไม่สำเร็จ (เพราะเป็น Object เดี่ยว คีย์ `{}`) ให้สลับมาแกะแบบชิ้นเดียวทันที
+                                try
+                                {
+                                    var singleData = JsonConvert.DeserializeObject<MaintenanceApiModels>(jsonString);
+                                    if (singleData != null && !string.IsNullOrEmpty(singleData.id?.ToString()))
+                                    {
+                                        uniqueJobs.TryAdd(singleData.id.ToString(), singleData);
+                                    }
+                                }
+                                catch (Exception innerEx)
+                                {
+                                    Console.WriteLine($"❌ [JSON PARSE ERROR]: แกะโครงสร้างไม่ได้ -> {innerEx.Message}");
+                                }
+                            }
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"   ❌ API ERROR [{v}]: {ex.Message}");
+                    Console.WriteLine($"❌ [API CRASHED] View: {v} -> Exception: {ex.Message}");
+                    Console.WriteLine($"📌 [API CRASHED STACK]: {ex.StackTrace}");
                 }
-            }
+            });
 
-            combined = combined.GroupBy(x => x.id).Select(g => g.First()).ToList();
-            System.Diagnostics.Debug.WriteLine($"[FETCH COMPLETE] 📊 ยอดรวมข้อมูลดิบทั้งหมดที่ดึงได้: {combined.Count} รายการ");
+            await Task.WhenAll(tasks);
 
-            return combined;
+            // 🛰️ LOG จุดที่ 4: สรุปยอดรวมใบงานสุดท้ายที่กรองและแปลงลง Model สำเร็จก่อนโยนไปหน้า UI
+            Console.WriteLine($"📊 [API SUMMARY] Total unique jobs mapped successfully: {uniqueJobs.Count} rows.\n");
+
+            return uniqueJobs.Values.ToList();
         }
 
+
         // ==================================================
-        // INDEX: หน้าหลัก (แก้ไขวิธีแก้ดึง Query String ป้องกัน Deadlock)
+        // INDEX: หน้าหลัก
         // ==================================================
         public async Task<IActionResult> Index()
         {
@@ -131,9 +169,13 @@ namespace report_zycoda.Controllers
 
             var sessionUser = User.Identity.Name;
             var sessionPass = User.Claims.FirstOrDefault(c => c.Type == "ApiPassword")?.Value;
+
+            // 🚀 ดึงค่า Class และ Section ที่เราดักไว้ออกมาจาก Claims Principal เพื่อนำไปส่งต่อ
+            var sessionClass = User.Claims.FirstOrDefault(c => c.Type == "UserClass")?.Value ?? "0";
+            var sessionSection = User.Claims.FirstOrDefault(c => c.Type == "Section")?.Value ?? "";
+
             var culture = CultureInfo.InvariantCulture;
 
-            // ✅ วิธีดึงค่าจาก Query ที่ถูกต้อง ปลอดภัย และไม่ทำให้ Thread ค้าง
             string jobtype = Request.Query["jobtype"].ToString();
             string start = Request.Query["start"].ToString();
             string end = Request.Query["end"].ToString();
@@ -143,8 +185,7 @@ namespace report_zycoda.Controllers
             string view = Request.Query["view"].ToString();
 
             var todayStr = DateTime.Now.ToString("yyyy-MM-dd", culture);
-            // 💡 แนะนำ: หากยังหมุนนาน ลองเปลี่ยนจาก -30 วัน เป็น -7 วันดูก่อนชั่วคราวเพื่อเช็กความเร็วปลายทางครับ
-            var defaultStartStr = DateTime.Now.AddDays(-30).ToString("yyyy-MM-dd", culture);
+            var defaultStartStr = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd", culture);
 
             string finalStart = string.IsNullOrWhiteSpace(start) ? defaultStartStr : start.Trim();
             string finalEnd = string.IsNullOrWhiteSpace(end) ? todayStr : end.Trim();
@@ -157,12 +198,20 @@ namespace report_zycoda.Controllers
             ViewBag.CurrentSectionFrom = sectionFrom?.Trim();
             ViewBag.CurrentSectionTo = sectionTo?.Trim();
 
-            await LoadMasterDataAsync();
+            var masterDataTask = LoadMasterDataAsync();
 
-            var combined = await FetchJobsFromApi(sessionUser, sessionPass, ViewBag.CurrentJobType, finalStart, finalEnd, ViewBag.CurrentView);
+            // 🚀 ส่งต่อ sessionClass และ sessionSection เข้าไปทำงานขนานในท่อ API
+            var apiJobsTask = FetchJobsFromApi(sessionUser, sessionPass, ViewBag.CurrentJobType, finalStart, finalEnd, sessionClass, sessionSection, ViewBag.CurrentView);
+
+            await Task.WhenAll(masterDataTask, apiJobsTask);
+
+            var combined = apiJobsTask.Result;
             var final = FilterAndOrderJobs(combined, ViewBag.SelectedStatus, ViewBag.CurrentSectionFrom, ViewBag.CurrentSectionTo);
 
-            ViewBag.RawData = JsonConvert.SerializeObject(final);
+            if (ViewBag.SectionList is List<report_zycoda.Models.SectionApiModels> sectionList)
+            {
+                ViewBag.EmSectionList = sectionList.Where(x => x.Sections == "EM").ToList();
+            }
 
             return View(final);
         }
@@ -177,10 +226,14 @@ namespace report_zycoda.Controllers
 
             var sessionUser = User.Identity.Name;
             var sessionPass = User.Claims.FirstOrDefault(c => c.Type == "ApiPassword")?.Value;
+
+            // 🚀 ดึงค่า Class และ Section ออกมาจาก Claims Principal ในหน้านี้ด้วยเช่นกัน
+            var sessionClass = User.Claims.FirstOrDefault(c => c.Type == "UserClass")?.Value ?? "0";
+            var sessionSection = User.Claims.FirstOrDefault(c => c.Type == "Section")?.Value ?? "";
+
             var culture = CultureInfo.InvariantCulture;
             var todayStr = DateTime.Now.ToString("yyyy-MM-dd", culture);
 
-            // ✅ เปลี่ยนวิธีดึงค่าให้ดึงตรงๆ ผ่าน Indexer
             string jobtype = Request.Query["jobtype"].ToString();
             string start = Request.Query["start"].ToString();
             if (string.IsNullOrEmpty(start)) start = Request.Query["Start"].ToString();
@@ -203,11 +256,14 @@ namespace report_zycoda.Controllers
             ViewBag.CurrentSectionFrom = sectionFrom;
             ViewBag.CurrentSectionTo = sectionTo;
 
-            await LoadMasterDataAsync();
+            var masterDataTask = LoadMasterDataAsync();
 
-            var combined = await FetchJobsFromApi(sessionUser, sessionPass, ViewBag.CurrentJobType, finalStart, finalEnd, ViewBag.CurrentView);
-            var final = FilterAndOrderJobs(combined, status, sectionFrom, sectionTo);
+            // 🚀 ส่งต่อข้อมูลสิทธิ์เข้าไปดึงจาก API
+            var apiJobsTask = FetchJobsFromApi(sessionUser, sessionPass, ViewBag.CurrentJobType, finalStart, finalEnd, sessionClass, sessionSection, ViewBag.CurrentView);
 
+            await Task.WhenAll(masterDataTask, apiJobsTask);
+
+            var final = FilterAndOrderJobs(apiJobsTask.Result, status, sectionFrom, sectionTo);
             return View(final);
         }
 
@@ -216,12 +272,15 @@ namespace report_zycoda.Controllers
             if (User.Identity == null || !User.Identity.IsAuthenticated) return Unauthorized();
             var sessionUser = User.Identity.Name;
             var sessionPass = User.Claims.FirstOrDefault(c => c.Type == "ApiPassword")?.Value;
+            var sessionClass = User.Claims.FirstOrDefault(c => c.Type == "UserClass")?.Value ?? "0";
+            var sessionSection = User.Claims.FirstOrDefault(c => c.Type == "Section")?.Value ?? "";
             var culture = CultureInfo.InvariantCulture;
 
             var todayStr = DateTime.Now.ToString("yyyy-MM-dd", culture);
             var startStr = DateTime.Now.AddDays(-2).ToString("yyyy-MM-dd", culture);
 
-            var combined = await FetchJobsFromApi(sessionUser, sessionPass, "EM,CM", startStr, todayStr, "followup");
+            // 🚀 ส่งค่า Class และ Section เข้าฟังก์ชันดึงของ Real-time Update
+            var combined = await FetchJobsFromApi(sessionUser, sessionPass, "EM,CM", startStr, todayStr, sessionClass, sessionSection, "followup");
             var result = combined.OrderByDescending(x => x.id).Take(1).Select(x => new { jobNo = x.id, status = x.status }).ToList();
             return Json(result);
         }
@@ -231,8 +290,9 @@ namespace report_zycoda.Controllers
             try
             {
                 var sections = await _apiService.GetSectionsFromApiAsync();
-                ViewBag.SectionList = sections?.OrderBy(x => x.Sections).ToList() ?? new List<SectionApiModels>();
                 var statuses = await _apiService.GetStatusesFromApiAsync();
+
+                ViewBag.SectionList = sections?.OrderBy(x => x.Sections).ToList() ?? new List<SectionApiModels>();
                 ViewBag.StatusList = statuses?.OrderBy(x => x.StatusId).ToList() ?? new List<StatusApiModels>();
             }
             catch
@@ -244,60 +304,50 @@ namespace report_zycoda.Controllers
 
         private List<MaintenanceApiModels> FilterAndOrderJobs(List<MaintenanceApiModels> combined, string status, string sectionFrom, string sectionTo)
         {
+            if (combined == null) return new List<MaintenanceApiModels>();
+
             string searchStatus = (status ?? "").Trim().ToLower();
             string searchSecFrom = (sectionFrom ?? "").Trim().ToLower();
             string searchSecTo = (sectionTo ?? "").Trim().ToLower();
 
-            return combined.Where(x => {
-                bool statusMatch = true;
-                if (!string.IsNullOrEmpty(searchStatus) &&
-                    !searchStatus.Equals("all") &&
-                    !searchStatus.Equals("ทั้งหมด") &&
-                    !searchStatus.Equals("เลือกสถานะ"))
-                {
-                    string currentStatus = (x.status ?? "").Trim().ToLower();
-                    string currentStatusText = (x.statustext ?? "").Trim().ToLower();
+            var query = combined.AsEnumerable();
 
-                    statusMatch = currentStatus.Contains(searchStatus) ||
-                                  currentStatusText.Contains(searchStatus) ||
-                                  searchStatus.Contains(currentStatus);
-                }
+            if (!string.IsNullOrEmpty(searchStatus) &&
+                !searchStatus.Equals("all") &&
+                !searchStatus.Equals("ทั้งหมด") &&
+                !searchStatus.Equals("เลือกสถานะ") &&
+                !searchStatus.Equals("เลือกข้อมูล") &&
+                !searchStatus.Equals(""))
+            {
+                query = query.Where(x =>
+                    (x.status ?? "").ToLower().Contains(searchStatus) ||
+                    (x.statustext ?? "").ToLower().Contains(searchStatus)
+                );
+            }
 
-                bool sectionMatch = true;
-                if (!string.IsNullOrWhiteSpace(searchSecFrom) || !string.IsNullOrWhiteSpace(searchSecTo))
-                {
+            if (!string.IsNullOrWhiteSpace(searchSecFrom) || !string.IsNullOrWhiteSpace(searchSecTo))
+            {
+                query = query.Where(x => {
                     var sec = (x.sectioncreate ?? x.section ?? "").Trim().ToLower();
+                    if (string.IsNullOrEmpty(sec)) return false;
 
-                    if (string.IsNullOrEmpty(sec))
+                    if (!string.IsNullOrWhiteSpace(searchSecFrom) && searchSecFrom.Equals(searchSecTo))
                     {
-                        sectionMatch = false;
+                        return sec.Contains(searchSecFrom);
                     }
-                    else
-                    {
-                        bool matchFrom = true;
-                        if (!string.IsNullOrWhiteSpace(searchSecFrom))
-                        {
-                            matchFrom = sec.Contains(searchSecFrom) || string.Compare(sec, searchSecFrom, StringComparison.OrdinalIgnoreCase) >= 0;
-                        }
 
-                        bool matchTo = true;
-                        if (!string.IsNullOrWhiteSpace(searchSecTo))
-                        {
-                            matchTo = sec.Contains(searchSecTo) || string.Compare(sec, searchSecTo, StringComparison.OrdinalIgnoreCase) <= 0;
-                        }
+                    bool matchFrom = string.IsNullOrWhiteSpace(searchSecFrom) || string.Compare(sec, searchSecFrom, StringComparison.Ordinal) >= 0;
+                    bool matchTo = string.IsNullOrWhiteSpace(searchSecTo) || string.Compare(sec, searchSecTo, StringComparison.Ordinal) <= 0;
 
-                        sectionMatch = matchFrom && matchTo;
-                    }
-                }
+                    return matchFrom && matchTo;
+                });
+            }
 
-                return statusMatch && sectionMatch;
-            })
-            .OrderByDescending(x => x.id)
-            .ToList();
+            return query.OrderByDescending(x => x.id).ToList();
         }
 
         // ==================================================
-        // MACHINE: ดึงข้อมูลจาก SQL Server
+        // MACHINE
         // ==================================================
         [HttpGet]
         public async Task<IActionResult> Machine()
