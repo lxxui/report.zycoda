@@ -33,8 +33,6 @@ namespace report_zycoda.Controllers
         // 🛠️ ตัวอย่างฟังก์ชันสำหรับดึงรายการหน่วยงานมาผูกกับพารามิเตอร์ของระบบ Layout กลาง
         private async Task PopulateNavbarDataAsync()
         {
-            // สมมติว่านี่คือชุดคำสั่งดึง API เดิมของคุณฝ้าย
-            // นำไปเรียกใช้ในทุกๆ Action เช่น Index() และ Machine() ก่อนส่งคืน View
             List<SectionApiModels> sections = await _apiService.GetSectionsAsync();
             ViewBag.SectionList = sections;
         }
@@ -167,120 +165,6 @@ namespace report_zycoda.Controllers
             return uniqueJobs.Values.ToList();
         }
 
-        // === ดึงข้อมูลมาใส่ SSMS 
-        private async Task SyncJobsToLocalDatabase(List<MaintenanceApiModels> apiJobs)
-        {
-            if (apiJobs == null || !apiJobs.Any()) return;
-
-            try
-            {
-                using (SqlConnection conn = new SqlConnection(_connectionString))
-                {
-                    await conn.OpenAsync();
-
-                    // ใช้ชื่อตาราง [ZycodaApiByPB].[dbo].[Job_order] ของคุณฝ้ายได้โดยตรง
-                    string mergeSql = @"
-                MERGE INTO [ZycodaApiByPB].[dbo].[Job_order] AS Target
-                USING (SELECT @id AS id) AS Source
-                ON (Target.[id] = Source.[id])
-                WHEN MATCHED THEN
-                    UPDATE SET 
-                        Target.[refid] = @refid, Target.[reforder] = @reforder, Target.[MN] = @MN, Target.[MO] = @MO,
-                        Target.[detail] = @detail, Target.[safety] = @safety, Target.[code] = @code, Target.[fl] = @fl,
-                        Target.[downtime] = @downtime, Target.[difftime] = @difftime, Target.[timerepair] = @timerepair, Target.[timerepair_ot] = @timerepair_ot,
-                        Target.[tag_abnormal] = @tag_abnormal, Target.[tag] = @tag, Target.[tags] = @tags, Target.[jobtype] = @jobtype,
-                        Target.[section] = @section, Target.[productionstop] = @productionstop, Target.[planner] = @planner, Target.[statustext] = @statustext,
-                        Target.[statussection] = @statussection, Target.[opt_5s] = @opt_5s, Target.[opt_5s_comment] = @opt_5s_comment, Target.[opt_protect] = @opt_protect,
-                        Target.[opt_protect_comment] = @opt_protect_comment, Target.[rates] = @rates, Target.[timecreate] = @timecreate, Target.[timeassign] = @timeassign,
-                        Target.[timestart] = @timestart, Target.[timeend] = @timeend, Target.[timefinish] = @timefinish, Target.[timeaccept] = @timeaccept,
-                        Target.[timestartrepair] = @timestartrepair, Target.[timeendrepair] = @timeendrepair, Target.[timeclose] = @timeclose, Target.[timerunning] = @timerunning,
-                        Target.[timeday] = @timeday, Target.[fldetail] = @fldetail, Target.[flrank] = @flrank, Target.[flpngrp] = @flpngrp,
-                        Target.[priority] = @priority, Target.[status] = @status, Target.[usercreate] = @usercreate, Target.[sectioncreate] = @sectioncreate,
-                        Target.[useraccept] = @useraccept, Target.[userfinish] = @userfinish, Target.[comment] = @comment, Target.[solution] = @solution,
-                        Target.[problem] = @problem, Target.[causes] = @causes, Target.[preventive] = @preventive, Target.[ordertype] = @ordertype,
-                        Target.[submiss] = @submiss, Target.[bdfac] = @bdfac, Target.[id_db] = @id_db
-                WHEN NOT MATCHED THEN
-                    INSERT ([id],[refid],[reforder],[MN],[MO],[detail],[safety],[code],[fl],[downtime],[difftime],[timerepair],[timerepair_ot],[tag_abnormal],[tag],[tags],[jobtype],[section],[productionstop],[planner],[statustext],[statussection],[opt_5s],[opt_5s_comment],[opt_protect],[opt_protect_comment],[rates],[timecreate],[timeassign],[timestart],[timeend],[timefinish],[timeaccept],[timestartrepair],[timeendrepair],[timeclose],[timerunning],[timeday],[fldetail],[flrank],[flpngrp],[priority],[status],[usercreate],[sectioncreate],[useraccept],[userfinish],[comment],[solution],[problem],[causes],[preventive],[ordertype],[submiss],[bdfac],[id_db])
-                    VALUES (@id,@refid,@reforder,@MN,@MO,@detail,@safety,@code,@fl,@downtime,@difftime,@timerepair,@timerepair_ot,@tag_abnormal,@tag,@tags,@jobtype,@section,@productionstop,@planner,@statustext,@statussection,@opt_5s,@opt_5s_comment,@opt_protect,@opt_protect_comment,@rates,@timecreate,@timeassign,@timestart,@timeend,@timefinish,@timeaccept,@timestartrepair,@timeendrepair,@timeclose,@timerunning,@timeday,@fldetail,@flrank,@flpngrp,@priority,@status,@usercreate,@sectioncreate,@useraccept,@userfinish,@comment,@solution,@problem,@causes,@preventive,@ordertype,@submiss,@bdfac,@id_db);";
-
-                    foreach (var job in apiJobs)
-                    {
-                        if (string.IsNullOrEmpty(job.id?.ToString())) continue;
-
-                        using (SqlCommand cmd = new SqlCommand(mergeSql, conn))
-                        {
-                            cmd.Parameters.AddWithValue("@id", job.id.ToString());
-                            cmd.Parameters.AddWithValue("@refid", job.refid ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@reforder", job.reforder ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@MN", job.machineno ?? job.MN ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@MO", job.MO ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@detail", job.detail ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@safety", job.safety ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@code", job.code ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@fl", job.fl ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@downtime", job.downtime ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@difftime", job.difftime ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@timerepair", job.timerepair ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@timerepair_ot", job.timerepair_ot ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@tag_abnormal", job.tag_abnormal ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@tag", job.tag ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@tags", job.tags ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@jobtype", job.jobtype ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@section", job.section ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@productionstop", job.productionstop ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@planner", job.planner ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@statustext", job.statustext ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@statussection", job.statussection ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@opt_5s", job.opt_5s ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@opt_5s_comment", job.opt_5s_comment ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@opt_protect", job.opt_protect ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@opt_protect_comment", job.opt_protect_comment ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@rates", job.rates ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@timerunning", job.timerunning ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@timeday", job.timeday ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@fldetail", job.fldetail ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@flrank", job.flrank ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@flpngrp", job.flpngrp ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@priority", job.priority ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@status", job.status ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@usercreate", job.usercreate ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@sectioncreate", job.sectioncreate ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@useraccept", job.useraccept ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@userfinish", job.userfinish ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@comment", job.comment ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@solution", job.solution ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@problem", job.problem ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@causes", job.causes ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@preventive", job.preventive ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@ordertype", job.ordertype ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@submiss", job.submiss ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@bdfac", job.bdfac ?? (object)DBNull.Value);
-                            cmd.Parameters.AddWithValue("@id_db", job.id_db ?? (object)DBNull.Value);
-
-                            // ใช้ Helper จัดการเรื่องแปลงฟอร์แมตวันเวลา
-                            cmd.Parameters.AddWithValue("@timecreate", ParseDateHelper(job.timecreate));
-                            cmd.Parameters.AddWithValue("@timeassign", ParseDateHelper(job.timeassign));
-                            cmd.Parameters.AddWithValue("@timestart", ParseDateHelper(job.timestart));
-                            cmd.Parameters.AddWithValue("@timeend", ParseDateHelper(job.timeend));
-                            cmd.Parameters.AddWithValue("@timefinish", ParseDateHelper(job.timefinish));
-                            cmd.Parameters.AddWithValue("@timeaccept", ParseDateHelper(job.timeaccept));
-                            cmd.Parameters.AddWithValue("@timestartrepair", ParseDateHelper(job.timestartrepair));
-                            cmd.Parameters.AddWithValue("@timeendrepair", ParseDateHelper(job.timeendrepair));
-                            cmd.Parameters.AddWithValue("@timeclose", ParseDateHelper(job.timeclose));
-
-                            await cmd.ExecuteNonQueryAsync();
-                        }
-                    }
-                }
-                Console.WriteLine($"🔄 [Sync Database Success] อัปเดตข้อมูลเข้าตารางเรียบร้อย จำนวน {apiJobs.Count} รายการ");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"❌ [Merge Error]: {ex.Message}");
-            }
-        }
-
-
         // ==================================================
         // INDEX: หน้าหลัก
         // ==================================================
@@ -327,16 +211,8 @@ namespace report_zycoda.Controllers
 
             await Task.WhenAll(masterDataTask, apiJobsTask);
 
-            // 🎯 3. จุดเรียกใช้งาน: พอเราดึงของจาก API ได้ปุ๊บ สั่งซิงค์ลงตารางตัวเองทันทีตรงนี้ครับ
-            var freshApiJobs = await FetchJobsFromApi(sessionUser, sessionPass, ViewBag.CurrentJobType, finalStart, finalEnd, ViewBag.CurrentView);
-
-            // เรียกฟังก์ชันที่เราเพิ่งแปะด้านบนมาทำงาน
-            await SyncJobsToLocalDatabase(freshApiJobs);
-
-            // 4. หลังจากซิงค์เสร็จ ค่อยไป Query จากตารางของตัวเองออกมาโชว์หน้าเว็บ
-            var combined = await FetchJobsFromLocalDb(finalStart, finalEnd, ViewBag.CurrentJobType);
-
-            //var combined = apiJobsTask.Result;
+            //  สลับกลับมาดึงข้อมูลตรงๆ จาก API Task ที่รันเสร็จแล้วตรงนี้ครับ
+            var combined = apiJobsTask.Result;
 
             var final = FilterAndOrderJobs(combined, ViewBag.SelectedStatus, ViewBag.CurrentSectionFrom, ViewBag.CurrentSectionTo);
 
