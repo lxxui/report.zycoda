@@ -41,14 +41,7 @@ namespace report_zycoda.Controllers
         // HELPER: ดึงข้อมูลขนานกัน
         // ==================================================
 
-        private async Task<List<MaintenanceApiModels>> FetchJobsFromApi(
-            string sessionUser,
-            string sessionPass,
-            string jobtype,
-            string start,
-            string end,
-            string sessionClass,
-            string sessionSection,
+        private async Task<List<MaintenanceApiModels>> FetchJobsFromApi(string sessionUser,string sessionPass,string jobtype,string start,string end,string sessionClass,string sessionSection,
             string view = "followup")
         {
             var culture = CultureInfo.InvariantCulture;

@@ -32,14 +32,12 @@
     background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     }
 
-    /* Luxury Dashboard Header */
     .glass-header {
     background: #ffffff;
     border-radius: 16px;
     border: 1px solid rgba(226, 232, 240, 0.8);
     }
 
-    /* Premium Nav Pills & Tabs */
     .custom-nav-pills {
     background: #f1f5f9;
     padding: 6px;
@@ -66,7 +64,6 @@
     background: rgba(255,255,255,0.5);
     }
 
-    /* Elegant Cards */
     .premium-card {
     background: #ffffff;
     border: 1px solid #e2e8f0;
@@ -74,7 +71,6 @@
     box-shadow: 0 10px 30px rgba(15, 23, 42, 0.015);
     }
 
-    /* Sleek Modern Tables */
     .modern-table {
     border-collapse: separate;
     border-spacing: 0 8px !important;
@@ -119,7 +115,6 @@
     border-bottom-right-radius: 12px !important;
     }
 
-    /* Minimalist Glow Buttons */
     .btn-action {
     width: 36px;
     height: 36px;
@@ -167,7 +162,6 @@
     color: #ffffff;
     }
 
-    /* Advanced DataTables UI Overrides */
     .dataTables_wrapper .dataTables_filter input {
     border: 1px solid #e2e8f0 !important;
     padding: 8px 16px !important;
@@ -195,15 +189,14 @@
     background: #f1f5f9;
     }
 
-    /* ฉากหลังแบบเต็มจอ โทน Dark Mode ดุดัน */
     #loader-wrapper {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #0b0f19; /* สีน้ำเงินเข้มเกือบดำ สไตล์ Enterprise Dark */
-    z-index: 99999; /* อยู่เหนือทุก Element ในหน้าเว็บ */
+    background-color: #0b0f19;
+    z-index: 99999;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -213,21 +206,18 @@
     text-align: center;
     }
 
-    /* สไตล์ไอคอนและการตั้งค่าสำหรับเส้นสแกน */
     .icon-wrapper {
     position: relative;
     display: inline-block;
-    font-size: 4.5rem; /* ขนาดไอคอน CPU */
+    font-size: 4.5rem;
     line-height: 1;
     }
 
-    /* สีเขียวเข้มพรีเมียม (Emerald/Dark Green ที่ดูซอฟต์และแพง) */
     .text-emerald {
     color: #10b981;
     filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.4));
     }
 
-    /* 🟢 เส้นเลเซอร์สีเขียวที่ใช้วิ่งสแกนขึ้น-ลง */
     .scanner-line {
     position: absolute;
     top: 0;
@@ -251,14 +241,13 @@
     }
     }
 
-    /* 🎯 สไตล์ตัวอักษร GENERATING แอนิเมชันแบบสุ่มกะพริบเรียงตัว */
     .loading-text {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     font-weight: 800;
     font-size: 1.25rem;
     letter-spacing: 6px;
     color: #f8fafc;
-    padding-left: 6px; /* ชดเชย space ตัวสุดท้ายให้อยู่กึ่งกลางพอดี */
+    padding-left: 6px;
     }
 
     .loading-text span {
@@ -266,46 +255,16 @@
     animation: textGlow 1.4s infinite both;
     }
 
-    /* ใส่ Delay ให้ตัวอักษรแต่ละตัว เพื่อให้มันค่อยๆ เด้งตามลำดับ */
-    .loading-text span:nth-child(1) {
-    animation-delay: 0s;
-    }
-
-    .loading-text span:nth-child(2) {
-    animation-delay: 0.1s;
-    }
-
-    .loading-text span:nth-child(3) {
-    animation-delay: 0.2s;
-    }
-
-    .loading-text span:nth-child(4) {
-    animation-delay: 0.3s;
-    }
-
-    .loading-text span:nth-child(5) {
-    animation-delay: 0.4s;
-    }
-
-    .loading-text span:nth-child(6) {
-    animation-delay: 0.5s;
-    }
-
-    .loading-text span:nth-child(7) {
-    animation-delay: 0.6s;
-    }
-
-    .loading-text span:nth-child(8) {
-    animation-delay: 0.7s;
-    }
-
-    .loading-text span:nth-child(9) {
-    animation-delay: 0.8s;
-    }
-
-    .loading-text span:nth-child(10) {
-    animation-delay: 0.9s;
-    }
+    .loading-text span:nth-child(1) { animation-delay: 0s; }
+    .loading-text span:nth-child(2) { animation-delay: 0.1s; }
+    .loading-text span:nth-child(3) { animation-delay: 0.2s; }
+    .loading-text span:nth-child(4) { animation-delay: 0.3s; }
+    .loading-text span:nth-child(5) { animation-delay: 0.4s; }
+    .loading-text span:nth-child(6) { animation-delay: 0.5s; }
+    .loading-text span:nth-child(7) { animation-delay: 0.6s; }
+    .loading-text span:nth-child(8) { animation-delay: 0.7s; }
+    .loading-text span:nth-child(9) { animation-delay: 0.8s; }
+    .loading-text span:nth-child(10) { animation-delay: 0.9s; }
 
     @@keyframes textGlow {
     0%, 100% {
@@ -326,18 +285,9 @@
     letter-spacing: 2px;
     }
 
-    /* CSS ตกแต่งสไตล์ Enterprise คลีนๆ */
-    .text-slate-800 {
-    color: #1e293b;
-    }
-
-    .text-slate-700 {
-    color: #334155;
-    }
-
-    .rounded-4 {
-    border-radius: 1rem !important;
-    }
+    .text-slate-800 { color: #1e293b; }
+    .text-slate-700 { color: #334155; }
+    .rounded-4 { border-radius: 1rem !important; }
 
     .modern-table tbody tr:hover {
     background-color: #f8fafc;
@@ -349,23 +299,8 @@
     box-shadow: none;
     }
 
-    .text-slate-800 {
-    color: #1e293b;
-    }
+    .bg-light-subtle { background-color: #f8fafc !important; }
 
-    .text-slate-700 {
-    color: #334155;
-    }
-
-    .rounded-4 {
-    border-radius: 1rem !important;
-    }
-
-    .bg-light-subtle {
-    background-color: #f8fafc !important;
-    }
-
-    /* สไตล์สำหรับตารางโมเดิร์นคอร์เซิร์ฟเวอร์ */
     .modern-table thead th {
     font-weight: 600;
     font-size: 0.75rem;
@@ -384,7 +319,6 @@
     background-color: #f8fafc !important;
     }
 
-    /* ปุ่ม Action ประจำแถวสำหรับการลบและแก้ไขข้อมูล */
     .btn-action {
     width: 32px;
     height: 32px;
@@ -408,9 +342,7 @@
     color: #dc2626;
     }
 
-    .tracking-wider {
-    letter-spacing: 0.05em;
-    }
+    .tracking-wider { letter-spacing: 0.05em; }
 
     .border-dashed {
     border-style: dashed !important;
@@ -498,7 +430,6 @@
                 </div>
             }
 
-            @* 🟢 แกะก้อนข้อมูลตารางจาก ViewBag มาเตรียมใช้งานใน Dashboard และตาราง *@
             @{
                 var machineTableData = ViewBag.MachineTable as System.Data.DataTable;
                 int totalMachines = machineTableData != null ? machineTableData.Rows.Count : 0;
@@ -612,11 +543,9 @@
 
         <div class="tab-pane fade" id="section-pane" role="tabpanel">
 
-            @* 🟢 แกะข้อมูลและคำนวณสถิติของแผนก (สมมติว่าส่งผ่านมาทาง ViewBag.SectionTable หรือดึงจาก Data) *@
             @{
                 var sectionTableData = ViewBag.SectionTable as System.Data.DataTable;
                 int totalSections = sectionTableData != null ? sectionTableData.Rows.Count : 0;
-                // แผนกส่วนใหญ่จะ Active เสมอ หรือถ้ามี Flag สามารถปรับเงื่อนไขตรงนี้ได้ครับฝ้าย
                 int activeSections = totalSections;
             }
 
@@ -835,7 +764,6 @@
         </div>
 
         <style>
-            /* ตกแต่งตารางให้มีระยะห่างที่พอดีและตัดเส้นขอบที่รกตาออก */
             .table-custom {
             border-collapse: separate;
             border-spacing: 0 4px;
@@ -858,7 +786,6 @@
             padding-bottom: 14px !important;
             }
 
-            /* เอฟเฟกต์ปุ่ม Sync */
             .btn-sync-hover:hover {
             transform: translateY(-1px);
             box-shadow: 0 6px 15px rgba(25, 135, 84, 0.25) !important;
@@ -884,7 +811,6 @@
             <div class="modal-body p-4 bg-white" style="max-height: 75vh; overflow-y: auto;">
                 <form id="machineForm">
 
-                    <!-- SECTION 1: IDENTITY & DETAILS -->
                     <h6 class="fw-bold text-navy mb-3 pb-2 border-bottom d-flex align-items-center">
                         <i class="bi bi-info-square-fill me-2 text-primary"></i> ข้อมูลหลักระบุตัวตน (Identity & Details)
                     </h6>
@@ -899,7 +825,6 @@
                         </div>
                     </div>
 
-                    <!-- SECTION 2: HIERARCHY STRUCTURE -->
                     <h6 class="fw-bold text-navy mb-3 pb-2 border-bottom d-flex align-items-center">
                         <i class="bi bi-diagram-3-fill me-2 text-secondary"></i> ระดับชั้นและผังโครงสร้าง (Hierarchy Layout)
                     </h6>
@@ -925,7 +850,6 @@
                         </div>
                     </div>
 
-                    <!-- SECTION 3: LINE DEPT & GROUPS -->
                     <h6 class="fw-bold text-navy mb-3 pb-2 border-bottom d-flex align-items-center">
                         <i class="bi bi-geo-alt-fill me-2 text-danger"></i> พิกัดโรงงานและกลุ่มงานสังกัด (Location & Mapping)
                     </h6>
@@ -960,7 +884,6 @@
                         </div>
                     </div>
 
-                    <!-- SECTION 4: HARDWARE TAGS & STATUS -->
                     <h6 class="fw-bold text-navy mb-3 pb-2 border-bottom d-flex align-items-center">
                         <i class="bi bi-tags-fill me-2 text-warning"></i> แท็กอ้างอิงและเครือข่ายระบบ (Hardware Logs)
                     </h6>
@@ -985,7 +908,6 @@
                         </div>
                     </div>
 
-                    <!-- SECTION 5: METRIC KPI TARGETS -->
                     <h6 class="fw-bold text-navy mb-3 pb-2 border-bottom d-flex align-items-center">
                         <i class="bi bi-speedometer2 me-2 text-success"></i> ค่าขีดจำกัดและเป้าหมายประสิทธิภาพ (KPI Targets)
                     </h6>
@@ -1301,7 +1223,7 @@
                     "columnDefs": [
                         { "targets": [0, 1, 2, 3], "className": "align-middle" },
                         { "targets": [4, 5, 6], "className": "align-middle text-center" },
-                        { "targets": 2, "width": "180px" } // 🎯 Lined up สำหรับล็อกช่อง Email
+                        { "targets": 2, "width": "180px" }
                     ],
                     "columns": [
                         {
@@ -1393,7 +1315,6 @@
             // ========================================================
             // 🔧 4. ตั้งค่าตารางบันทึกข้อมูลแจ้งซ่อมระบบซิงค์ (Job Order Table)
             // ========================================================
-            // 🎯 เปลี่ยนแปลงเพื่อรองรับการดึงข้อมูลและดักจับ Ajax Error ให้ปลอดภัย 100%
             $.fn.dataTable.ext.errMode = 'throw'; 
 
             if ($('#jobOrderTable').length) {
@@ -1405,7 +1326,7 @@
                     "processing": true,
                     "serverSide": false,
                     "ajax": {
-                        "url": "/api/Sync/table-data", // 👈 ดึงข้อมูลแถวชุดแรกผ่านมาทาง Endpoint ปล่อย Data โดยตรง
+                        "url": "/api/Sync/table-data",
                         "type": "POST",
                         "dataSrc": "data",
                         "error": function (xhr) {
@@ -1427,10 +1348,10 @@
                         {
                             "data": "detail",
                             "defaultContent": "-",
-                            "render": function(data, type, row) {
-                                var problem = row.problem ? ` / ${row.problem}` : '';
-                                return `<div class="fw-medium text-dark text-truncate" style="max-width: 260px;" title="${data}">${data || '-'}</div>
-                                        <small class="text-muted d-block text-truncate" style="max-width: 260px;">${problem}</small>`;
+                            "render": function(data) {
+                                // 🔧 หมายเหตุ: MaintenanceApiModels ไม่มีฟิลด์ "problem" ในโมเดลจริง
+                                // เลยตัดการอ้างถึง row.problem ออก เพราะจะว่างเปล่าเสมอ ไม่ได้ทำให้พังแต่ไม่มีประโยชน์
+                                return `<div class="fw-medium text-dark text-truncate" style="max-width: 260px;" title="${data}">${data || '-'}</div>`;
                             }
                         },
                         {
@@ -1443,9 +1364,23 @@
                         {
                             "data": "timecreate",
                             "defaultContent": "-",
-                            "render": function(data) {
-                                if(!data) return '-';
-                                var date = new Date(data);
+                            "render": function (data) {
+                                // 🔧 FIX: backend (/api/Sync/table-data) ส่งวันที่มาเป็น string ฟอร์แมต "dd/MM/yyyy HH:mm"
+                                // new Date(data) ตรงๆ parse ฟอร์แมตนี้ไม่ชัวร์ในบางเบราว์เซอร์ -> parse เองด้วยมือ
+                                if (!data) return '-';
+
+                                var date;
+                                if (typeof data === 'string' && data.indexOf('/') !== -1) {
+                                    var parts = data.split(' ');
+                                    var dateParts = parts[0].split('/');
+                                    var timeParts = (parts[1] || "00:00").split(':');
+                                    date = new Date(dateParts[2], dateParts[1] - 1, dateParts[0], timeParts[0], timeParts[1]);
+                                } else {
+                                    date = new Date(data);
+                                }
+
+                                if (isNaN(date.getTime())) return '-';
+
                                 return `<div class="small fw-medium">${date.toLocaleDateString('th-TH')}</div>
                                         <small class="text-muted" style="font-size:0.72rem;">🕒 ${date.toLocaleTimeString('th-TH')} น.</small>`;
                             }
@@ -1485,13 +1420,13 @@
                 });
             }
             checkLastSyncTime();
-            setInterval(checkLastSyncTime, 30000); // วนรอบตรวจเช็คทุกๆ 30 วินาที
+            setInterval(checkLastSyncTime, 30000);
 
             // 6. ฟังก์ชันสำหรับการผูกเข้ากับปุ่มกดซิงค์ข้อมูลจริง (Sync Global Trigger)
-            window.triggerManualSync = function() {
+            window.triggerManualSync = function () {
                 var $btn = $('button[onclick="triggerManualSync()"]');
                 var originalHtml = $btn.html();
-                
+
                 $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>กำลังประมวลผลเกตเวย์...');
 
                 $.ajax({
@@ -1500,14 +1435,14 @@
                     success: function (response) {
                         if (response.success) {
                             $('#lastSyncTime').text(response.syncTime).removeClass('text-muted small').addClass('text-success');
-                            
-                            // 🎯 ซิงค์สำเร็จแล้ว สั่งส่งข้อมูลก้อนใหม่พ่นแทนก้อนเก่าลงบนตารางทันทีโดยไม่ต้อง Refresh หน้าจอ
-                            if (typeof jobTable !== 'undefined') {
-                                jobTable.clear().rows.add(response.data).draw();
-                            } else if ($.fn.DataTable.isDataTable('#jobOrderTable')) {
+
+                            // 🔧 FIX: เดิมยัด response.data (object ดิบจาก Zycoda API เช่น refId, Mn, Mo)
+                            // เข้าตารางตรงๆ ซึ่ง field name ไม่ตรงกับ column ที่ตารางตั้งไว้ (refid, MN, MO)
+                            // เปลี่ยนไปใช้ ajax.reload() แทนเสมอ เพื่อดึงจาก /table-data ใหม่ field name ตรงกัน 100%
+                            if ($.fn.DataTable.isDataTable('#jobOrderTable')) {
                                 $('#jobOrderTable').DataTable().ajax.reload(null, false);
                             }
-                            
+
                             alert(response.message);
                         } else {
                             alert("ล้มเหลว: " + response.message);
