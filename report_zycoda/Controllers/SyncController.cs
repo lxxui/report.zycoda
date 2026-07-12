@@ -126,10 +126,6 @@ namespace report_zycoda.Controllers
                 List<MaintenanceApiModels> syncedJobs = await FetchJobsFromApiInternal(sessionUser, sessionPass, "EM,CM", start, end, "all");
 
                 // 🔧 กรองงานที่สถานะ Confirm (ปิดงานสมบูรณ์แล้ว) ออกก่อน ไม่ต้อง sync ซ้ำ
-                syncedJobs = syncedJobs
-                    .Where(x => !string.Equals((x.statustext ?? "").Trim(), "Confirm", StringComparison.OrdinalIgnoreCase))
-                    .ToList();
-
                 if (syncedJobs == null || syncedJobs.Count == 0)
                 {
                     return Ok(new { success = true, message = "ไม่พบชุดข้อมูลใหม่บนเกตเวย์ API สัญญาณปกติค่ะ", data = new List<MaintenanceApiModels>() });
