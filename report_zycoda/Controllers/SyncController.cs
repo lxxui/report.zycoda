@@ -64,10 +64,10 @@ namespace report_zycoda.Controllers
                     await conn.OpenAsync();
 
                     // 🔧 ปรับฟิลด์คีย์หลักให้ดึงมาจาก [Id] และ [id_db] ให้ครบถ้วนตามที่เราตั้งลำดับใน DB ล่าสุด
-                    string query = @"SELECT TOP 1000 [Id], [refid], [reforder], [MN], [MO], [detail], 
-                                                     [section], [statustext], [timecreate], [timeclose], [status], [id_db]
-                                     FROM [dbo].[Job_order]
-                                     ORDER BY [timecreate] DESC";
+                    string query = @"SELECT TOP 1000 [Id], [refid], [reforder], [MN], [MO], [fl], [detail], 
+                                 [section], [statustext], [timecreate], [timeclose], [status], [id_db]
+                 FROM [dbo].[Job_order]
+                 ORDER BY [timecreate] DESC";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
@@ -202,9 +202,13 @@ namespace report_zycoda.Controllers
                                 upsertCmd.Parameters.Add("@code", SqlDbType.NVarChar, 50);
                                 upsertCmd.Parameters.Add("@fl", SqlDbType.NVarChar, 100);
                                 upsertCmd.Parameters.Add("@downtime", SqlDbType.NVarChar, 50);
-                                upsertCmd.Parameters.Add("@difftime", SqlDbType.NVarChar, 50);
-                                upsertCmd.Parameters.Add("@timerepair", SqlDbType.NVarChar, 50);
-                                upsertCmd.Parameters.Add("@timerepair_ot", SqlDbType.NVarChar, 50);
+                                
+                                upsertCmd.Parameters.Add("@difftime", SqlDbType.Int);
+                                upsertCmd.Parameters.Add("@timerepair", SqlDbType.Int);
+                                upsertCmd.Parameters.Add("@timerepair_ot", SqlDbType.Int);
+                                upsertCmd.Parameters.Add("@timerunning", SqlDbType.Int);
+                                upsertCmd.Parameters.Add("@comment", SqlDbType.Int); 
+
                                 upsertCmd.Parameters.Add("@tag_abnormal", SqlDbType.NVarChar, 50);
                                 upsertCmd.Parameters.Add("@tag", SqlDbType.NVarChar, 50);
                                 upsertCmd.Parameters.Add("@tags", SqlDbType.NVarChar, 100);
@@ -231,7 +235,6 @@ namespace report_zycoda.Controllers
                                 upsertCmd.Parameters.Add("@timeendrepair", SqlDbType.DateTime);
                                 upsertCmd.Parameters.Add("@timeclose", SqlDbType.DateTime);
 
-                                upsertCmd.Parameters.Add("@timerunning", SqlDbType.NVarChar, 50);
                                 upsertCmd.Parameters.Add("@timeday", SqlDbType.NVarChar, 50);
                                 upsertCmd.Parameters.Add("@fldetail", SqlDbType.NVarChar, -1);
                                 upsertCmd.Parameters.Add("@flrank", SqlDbType.NVarChar, 50);
@@ -242,7 +245,6 @@ namespace report_zycoda.Controllers
                                 upsertCmd.Parameters.Add("@sectioncreate", SqlDbType.NVarChar, 100);
                                 upsertCmd.Parameters.Add("@useraccept", SqlDbType.NVarChar, 100);
                                 upsertCmd.Parameters.Add("@userfinish", SqlDbType.NVarChar, 100);
-                                upsertCmd.Parameters.Add("@comment", SqlDbType.NVarChar, -1);
                                 upsertCmd.Parameters.Add("@solution", SqlDbType.NVarChar, -1);
                                 upsertCmd.Parameters.Add("@problem", SqlDbType.NVarChar, -1);
                                 upsertCmd.Parameters.Add("@causes", SqlDbType.NVarChar, -1);
@@ -268,9 +270,9 @@ namespace report_zycoda.Controllers
                                     upsertCmd.Parameters["@code"].Value = (object?)job.code ?? DBNull.Value;
                                     upsertCmd.Parameters["@fl"].Value = (object?)job.fl ?? DBNull.Value;
                                     upsertCmd.Parameters["@downtime"].Value = (object?)job.downtime ?? DBNull.Value;
-                                    upsertCmd.Parameters["@difftime"].Value = (object?)job.difftime ?? DBNull.Value;
-                                    upsertCmd.Parameters["@timerepair"].Value = (object?)job.timerepair ?? DBNull.Value;
-                                    upsertCmd.Parameters["@timerepair_ot"].Value = (object?)job.timerepair_ot ?? DBNull.Value;
+                                    upsertCmd.Parameters["@difftime"].Value = ParseToIntOrDBNull(job.difftime);
+                                    upsertCmd.Parameters["@timerepair"].Value = ParseToIntOrDBNull(job.timerepair);
+                                    upsertCmd.Parameters["@timerepair_ot"].Value = ParseToIntOrDBNull(job.timerepair_ot);
                                     upsertCmd.Parameters["@tag_abnormal"].Value = (object?)job.tag_abnormal ?? DBNull.Value;
                                     upsertCmd.Parameters["@tag"].Value = (object?)job.tag ?? DBNull.Value;
                                     upsertCmd.Parameters["@tags"].Value = (object?)job.tags ?? DBNull.Value;
@@ -297,7 +299,7 @@ namespace report_zycoda.Controllers
                                     upsertCmd.Parameters["@timeendrepair"].Value = (object?)ParseApiDate(job.timeendrepair) ?? DBNull.Value;
                                     upsertCmd.Parameters["@timeclose"].Value = (object?)ParseApiDate(job.timeclose) ?? DBNull.Value;
 
-                                    upsertCmd.Parameters["@timerunning"].Value = (object?)job.timerunning ?? DBNull.Value;
+                                    upsertCmd.Parameters["@timerunning"].Value = ParseToIntOrDBNull(job.timerunning); 
                                     upsertCmd.Parameters["@timeday"].Value = (object?)job.timeday ?? DBNull.Value;
                                     upsertCmd.Parameters["@fldetail"].Value = (object?)job.fldetail ?? DBNull.Value;
                                     upsertCmd.Parameters["@flrank"].Value = (object?)job.flrank ?? DBNull.Value;
@@ -308,7 +310,7 @@ namespace report_zycoda.Controllers
                                     upsertCmd.Parameters["@sectioncreate"].Value = (object?)job.sectioncreate ?? DBNull.Value;
                                     upsertCmd.Parameters["@useraccept"].Value = (object?)job.useraccept ?? DBNull.Value;
                                     upsertCmd.Parameters["@userfinish"].Value = (object?)job.userfinish ?? DBNull.Value;
-                                    upsertCmd.Parameters["@comment"].Value = (object?)job.comment ?? DBNull.Value;
+                                    upsertCmd.Parameters["@comment"].Value = ParseToIntOrDBNull(job.comment);
                                     upsertCmd.Parameters["@solution"].Value = (object?)job.solution ?? DBNull.Value;
                                     upsertCmd.Parameters["@problem"].Value = (object?)job.problem ?? DBNull.Value;
                                     upsertCmd.Parameters["@causes"].Value = (object?)job.causes ?? DBNull.Value;
@@ -407,6 +409,14 @@ namespace report_zycoda.Controllers
                 return dt2;
 
             return null;
+        }
+
+        private static object ParseToIntOrDBNull(string? raw)
+        {
+            if (string.IsNullOrWhiteSpace(raw)) return DBNull.Value;
+            if (double.TryParse(raw, NumberStyles.Any, CultureInfo.InvariantCulture, out var d))
+                return (int)d;
+            return DBNull.Value;
         }
 
         private async Task<List<MaintenanceApiModels>> FetchJobsFromApiInternal(

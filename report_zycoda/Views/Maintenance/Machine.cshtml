@@ -1337,9 +1337,15 @@
                     "ordering": false,
                     "autoWidth": false,
                     "columns": [
-                        { "data": "refid", "defaultContent": "-" },
+                             {
+                                "data": "Id",
+                                "defaultContent": "-",
+                                "render": function(data) {
+                                    return `<span class="fw-bold text-navy font-monospace">${data || '-'}</span>`;
+                                }
+                            },
                         { 
-                            "data": "MN", 
+                            "data": "fl", 
                             "defaultContent": "-",
                             "render": function(data) {
                                 return `<code class="text-secondary font-monospace fw-bold">${data || '-'}</code>`;
