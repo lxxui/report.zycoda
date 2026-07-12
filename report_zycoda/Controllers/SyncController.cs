@@ -120,10 +120,15 @@ namespace report_zycoda.Controllers
                     return Unauthorized(new { success = false, message = "ไม่พบข้อมูลสิทธิ์เข้าใช้งาน API กรุณาเข้าสู่ระบบใหม่อีกครั้ง" });
                 }
 
-                string start = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+                string start = "2025-01-01";
                 string end = DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 
                 List<MaintenanceApiModels> syncedJobs = await FetchJobsFromApiInternal(sessionUser, sessionPass, "EM,CM", start, end, "all");
+
+                // 🔧 กรองงานที่สถานะ Confirm (ปิดงานสมบูรณ์แล้ว) ออกก่อน ไม่ต้อง sync ซ้ำ
+                syncedJobs = syncedJobs
+                    .Where(x => !string.Equals((x.statustext ?? "").Trim(), "Confirm", StringComparison.OrdinalIgnoreCase))
+                    .ToList();
 
                 if (syncedJobs == null || syncedJobs.Count == 0)
                 {
