@@ -15,7 +15,9 @@
     var sectionTo = ViewBag.CurrentSectionTo ?? "";
 
     // 🚀 ปรับคีย์ตรงนี้ให้ตรงกับระบบ Claims Principal ใน Controller ("UserClass")
-    var userClass = User.FindFirst("UserClass")?.Value ?? "0";
+    // var userClass = User.FindFirst("UserClass")?.Value ?? "0";
+    var userClass = (User.FindFirst("Class")?.Value ?? "0").Trim();
+
     var reports = Model ?? new List<report_zycoda.Models.MaintenanceApiModels>();
 
     // 2. จัดการข้อมูลสำหรับ Chart (Top 10 Machines)
@@ -1361,6 +1363,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
 
+
                     <div class="modal-body p-4">
                         <div class="list-group list-group-flush border-0">
 
@@ -1370,9 +1373,9 @@
                                 // var userClass = User.FindFirst("UserClass")?.Value ?? ""; เปลี่ยนจาก adminClass เป็น userClass ให้แมตช์ด้านล่าง
 
                                 // เช็คว่าเป็นกลุ่มทีมช่าง/วิศวกร (รหัสแผนกขึ้นต้นด้วย 310, 317, 320)
-                                bool isMaintenanceGroup = userSection.StartsWith("310") ||
-                                                           userSection.StartsWith("317") ||
-                                                           userSection.StartsWith("320");
+                                // bool isMaintenanceGroup = userSection.StartsWith("310") ||
+                                //                            userSection.StartsWith("317") ||
+                                //                            userSection.StartsWith("320");
 
                                 // สิทธิ์ช่างระดับปฏิบัติการ/หัวหน้าหน้างาน
                                 bool hasMechanicAccess = userClass == "9" || userClass == "3";

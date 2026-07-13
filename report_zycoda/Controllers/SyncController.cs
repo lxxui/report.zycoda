@@ -273,6 +273,7 @@ namespace report_zycoda.Controllers
                                     upsertCmd.Parameters["@downtime"].Value = (object?)job.downtime ?? DBNull.Value;
                                     upsertCmd.Parameters["@difftime"].Value = ParseToIntOrDBNull(job.difftime);
                                     upsertCmd.Parameters["@timerepair"].Value = ParseToIntOrDBNull(job.timerepair);
+                                    upsertCmd.Parameters["@timerepair"].Value = ParseToIntOrDBNull(job.timerepair);
                                     upsertCmd.Parameters["@timerepair_ot"].Value = ParseToIntOrDBNull(job.timerepair_ot);
                                     upsertCmd.Parameters["@tag_abnormal"].Value = (object?)job.tag_abnormal ?? DBNull.Value;
                                     upsertCmd.Parameters["@tag"].Value = (object?)job.tag ?? DBNull.Value;
