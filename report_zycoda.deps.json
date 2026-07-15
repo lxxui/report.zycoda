@@ -9,6 +9,8 @@
       "report_zycoda/1.0.0": {
         "dependencies": {
           "Dapper": "2.1.79",
+          "ExcelDataReader": "3.8.0",
+          "ExcelDataReader.DataSet": "3.8.0",
           "Microsoft.Data.SqlClient": "7.0.1",
           "Microsoft.EntityFrameworkCore.SqlServer": "8.0.26",
           "Microsoft.EntityFrameworkCore.Sqlite": "8.0.25",
@@ -23,6 +25,25 @@
           "lib/net8.0/Dapper.dll": {
             "assemblyVersion": "2.0.0.0",
             "fileVersion": "2.1.79.29349"
+          }
+        }
+      },
+      "ExcelDataReader/3.8.0": {
+        "runtime": {
+          "lib/net8.0/ExcelDataReader.dll": {
+            "assemblyVersion": "3.8.0.0",
+            "fileVersion": "3.8.0.0"
+          }
+        }
+      },
+      "ExcelDataReader.DataSet/3.8.0": {
+        "dependencies": {
+          "ExcelDataReader": "3.8.0"
+        },
+        "runtime": {
+          "lib/net8.0/ExcelDataReader.DataSet.dll": {
+            "assemblyVersion": "3.8.0.0",
+            "fileVersion": "3.8.0.0"
           }
         }
       },
@@ -590,6 +611,20 @@
       "sha512": "sha512-8YijbzgTfmqmQOnVNorYM6K++pxqnW3nJ4aC1sRHzxUA2CcuoJ9gsTem3kgBnPRMc38zZHl4Esb6hAezXIEEuw==",
       "path": "dapper/2.1.79",
       "hashPath": "dapper.2.1.79.nupkg.sha512"
+    },
+    "ExcelDataReader/3.8.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-kbUsldc5Fn9IKgzL2nr4VvN/mKqPqn8zGXUZpA7uL6svCA4psF+qMK519EhMvderpU4pAJoqk9DWpiSIkiZtXA==",
+      "path": "exceldatareader/3.8.0",
+      "hashPath": "exceldatareader.3.8.0.nupkg.sha512"
+    },
+    "ExcelDataReader.DataSet/3.8.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-+eQg5oinHir7ayE/rF4dedvy8J6FBDG8RDyKFQsS/VZG9ygrnNgW6U8JSlrfGfe3DxYgbVoVwYV9Hbk63JQJFQ==",
+      "path": "exceldatareader.dataset/3.8.0",
+      "hashPath": "exceldatareader.dataset.3.8.0.nupkg.sha512"
     },
     "Microsoft.Bcl.Cryptography/8.0.0": {
       "type": "package",
