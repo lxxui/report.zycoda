@@ -48,10 +48,23 @@ public class ReportController(ApiService apiService) : Controller
             .ToDictionary(s => s.Sections.Trim(), s => s.Name ?? s.Sections) ?? new Dictionary<string, string>();
 
         // 4. เรียก API Main Endpoint
+        // 🚀 แก้ไข: แยกเส้นทางเรียก API ตามประเภทรายงานอย่างเด็ดขาด
+        //    - ถ้าเป็นรายงาน PM (rptType == "PM") ให้ยิงไปที่ get_PM_order เท่านั้น
+        //    - ถ้าเป็นรายงานอื่นๆ ให้ยิงไปที่ get_job_order ตามปกติ
+        //    (เดิมโค้ดยิงทั้ง 2 เส้นเสมอ แล้วให้ผลลัพธ์ตัวหลังทับตัวแรก ทำให้ PM ไม่เคยเข้าเส้นทางจริงของตัวเอง
+        //     และมี Bug อ่าน response ผิดตัวด้วย)
+        bool isPmReport = string.Equals(rptType, "PM", StringComparison.OrdinalIgnoreCase);
+
         var queryParams = new Dictionary<string, string?> {
             { "plant", "FARMHOUSE" }, { "jobtype", jType }, { "start", sDate }, { "end", eDate }, { "view", vMode }
         };
+
+        // 🔧 แก้ URL ที่พังจากอักขระ "  '" หลุดเข้ามาก่อน https:// (ทำให้ยิง PM ไม่เคยสำเร็จมาก่อน)
         var apiUrl = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString("https://farmhouse.zycoda.com/apimpros/get_job_order", queryParams);
+        var apiUrlPM = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString("https://farmhouse.zycoda.com/apimpros/get_PM_order", queryParams);
+
+        // เลือกยิงแค่เส้นทางที่ตรงกับประเภทรายงานที่ร้องขอ (ไม่ยิงทั้งคู่แล้วทับกันแบบเดิม)
+        var targetUrl = isPmReport ? apiUrlPM : apiUrl;
 
         List<MaintenanceApiModels> rawData = new();
         using (HttpClient client = new HttpClient())
@@ -60,7 +73,7 @@ public class ReportController(ApiService apiService) : Controller
             client.DefaultRequestHeaders.Add("username", sessionUser);
             client.DefaultRequestHeaders.Add("password", sessionPass);
 
-            var response = await client.GetAsync(apiUrl);
+            var response = await client.GetAsync(targetUrl);
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync();
@@ -180,7 +193,11 @@ public class ReportController(ApiService apiService) : Controller
                 break;
         }
 
-        if (normalizedRptType == "JTR" || normalizedRptType == "JTR_INTERNAL" || normalizedRptType == "DEFAULT")
+        // 🚀 แก้ไข: PM ใช้ View "PrintPMReport" ซึ่งออกแบบมาแสดงข้อมูลระดับ Job
+        // (timecreate, detail, timestart, timeendrepair, timedelay ฯลฯ) เหมือน JTR
+        // ไม่ใช่ข้อมูลสรุปยอดแบบ ReportSummary ที่มีแค่ SectionName/CarriedOver/Finished
+        // จึงต้องส่ง sortedRawData (List<MaintenanceApiModels>) ให้ PM เหมือนกับ JTR
+        if (normalizedRptType == "JTR" || normalizedRptType == "JTR_INTERNAL" || normalizedRptType == "DEFAULT" || normalizedRptType == "PM")
         {
             var sortedRawData = rawData.OrderByDescending(x => x.id).ToList();
             return View(viewName, sortedRawData);

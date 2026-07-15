@@ -108,6 +108,15 @@ namespace report_zycoda.Models
         [JsonProperty("Approval")] public List<object>? Approval { get; set; }
         [JsonProperty("ApproveCreate")] public List<ApproveCreateDetail>? ApproveCreate { get; set; }
 
+        // PM
+        [JsonProperty("timeplanstart")] public string? timeplanstart { get; set; }
+        [JsonProperty("eq")] public string? eq { get; set; }
+        [JsonProperty("condition")] public string? condition { get; set; }
+        [JsonProperty("plan_man")] public string? plan_man { get; set; }
+        [JsonProperty("hasitemlist")] public string? hasitemlist { get; set; }
+        [JsonProperty("timeplanend")] public string? timeplanend { get; set; }
+
+
         // --- Logic Helper Properties ---
         public string StatusCssClass
         {

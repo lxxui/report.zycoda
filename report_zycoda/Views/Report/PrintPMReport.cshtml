@@ -3,7 +3,7 @@
 @{
     Layout = null;
 
-    // Helper สำหรับจัดการวันที่ (Support ทั้ง String และ DateTime)
+    // Helper สำหรับจัดการวันที่และเวลา
     string FormatDT(object dateInput, string format = "dd/MM/yy HH:mm")
     {
         if (dateInput == null) return "-";
@@ -11,109 +11,467 @@
         if (string.IsNullOrEmpty(val)) return "-";
         return DateTime.TryParse(val, out DateTime dt) ? dt.ToString(format) : val;
     }
+
+    // Helper คำนวณระยะเวลาแผนงานอัตโนมัติ
+    string GetDuration(object start, object end)
+    {
+        if (start == null || end == null) return "-";
+        if (DateTime.TryParse(start.ToString(), out DateTime s) && DateTime.TryParse(end.ToString(), out DateTime e))
+        {
+            var diff = e - s;
+            if (diff.TotalMinutes <= 0) return "-";
+            return $"{(int)diff.TotalHours} ชม. {diff.Minutes} น.";
+        }
+        return "-";
+    }
+
+    // Helper สำหรับกำหนดสีตามสถานะ
+    (string bg, string fg) GetStatusColor(string statusText)
+    {
+        var s = (statusText ?? "").Trim().ToLower();
+        return s switch
+        {
+            "create" or "pending" => ("#fef2f2", "#ef4444"),
+            "accept" => ("#fff7ed", "#f97316"),
+            "assign" or "assigned" or "repair" => ("#eff6ff", "#3b82f6"),
+            "finish" or "confirm" => ("#f0fdf4", "#22c55e"),
+            "reject" or "deny" => ("#f9fafb", "#6b7280"),
+            _ => ("#f9fafb", "#4b5563")
+        };
+    }
+
+    var data = Model ?? new List<report_zycoda.Models.MaintenanceApiModels>();
+    int totalCount = data.Count;
+    int finishCount = data.Count(x => { var s = (x.status ?? "").Trim().ToLower(); return s == "finish" || s == "confirm"; });
+    int pendingCount = data.Count(x => { var s = (x.status ?? "").Trim().ToLower(); return s == "create" || s == "pending"; });
+    int assignCount = data.Count(x => { var s = (x.status ?? "").Trim().ToLower(); return s == "assign" || s == "assigned" || s == "repair" || s == "accept"; });
+    int delayCount = data.Count(x => x.timefinish == null && DateTime.TryParse(x.timeplanend?.ToString(), out DateTime pEnd) && pEnd < DateTime.Now);
+
+    // คำนวণ % ความสำเร็จภาพรวม
+    int completionRate = totalCount > 0 ? (finishCount * 100) / totalCount : 0;
 }
 
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
     <meta charset="utf-8" />
-    <title>Report - JCS</title>
+    <title>รายงานแผนการบำรุงรักษาเชิงป้องกัน (PM)</title>
     <style>
-        @@page { size: A4 landscape; margin: 1cm; }
-        body { font-family: 'TH Sarabun New', Tahoma, sans-serif; font-size: 14px; margin: 0; }
-        .title { font-size: 18px; font-weight: bold; text-align: center; }
-        .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
-        .data-table th, .data-table td { border: 1px solid #000; padding: 4px; word-wrap: break-word; vertical-align: top; }
-        .data-table th { background-color: #f2f2f2; text-align: center; font-weight: bold; }
-        .text-center { text-align: center; }
-        .text-right { text-align: right; }
-        .small-text { font-size: 12px; line-height: 1.1; }
-        thead { display: table-header-group; }
-        tr { page-break-inside: avoid; }
-        @@media print { .no-print { display: none; } }
+            @@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap');
+
+            @@page {
+                size: A4 landscape;
+                margin: 0.8cm;
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: 'Prompt', sans-serif;
+                font-size: 12.5px;
+                color: #374151;
+                background: #f8fafc;
+                margin: 0;
+                padding: 24px;
+            }
+
+            /* Modern Dashboard Header */
+            .header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 24px;
+                border-bottom: 2px solid #e2e8f0;
+                padding-bottom: 16px;
+            }
+
+            .brand h1 {
+                margin: 0;
+                font-size: 24px;
+                font-weight: 600;
+                color: #0f172a;
+                letter-spacing: -0.5px;
+            }
+
+                .brand h1 span {
+                    font-weight: 300;
+                    color: #64748b;
+                    font-size: 18px;
+                }
+
+            .brand p {
+                margin: 4px 0 0 0;
+                color: #64748b;
+                font-size: 13px;
+            }
+
+            .report-info {
+                text-align: right;
+                font-size: 12px;
+                color: #475569;
+                line-height: 1.6;
+            }
+
+            /* Stats Blocks */
+            .stat-grid {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 16px;
+                margin-bottom: 24px;
+            }
+
+            .stat-card {
+                background: white;
+                padding: 16px;
+                border-radius: 14px;
+                border: 1px solid #e2e8f0;
+                box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.01);
+                position: relative;
+                overflow: hidden;
+            }
+
+                .stat-card::before {
+                    content: '';
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    bottom: 0;
+                    width: 4px;
+                    background: #cbd5e1;
+                }
+
+                .stat-card.finish::before {
+                    background: #22c55e;
+                }
+
+                .stat-card.assign::before {
+                    background: #3b82f6;
+                }
+
+                .stat-card.pending::before {
+                    background: #f97316;
+                }
+
+                .stat-card.delay::before {
+                    background: #ef4444;
+                }
+
+            .stat-label {
+                font-size: 11px;
+                font-weight: 500;
+                color: #64748b;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .stat-val {
+                font-size: 26px;
+                font-weight: 600;
+                color: #0f172a;
+                margin-top: 4px;
+            }
+
+            /* Progress Bar ส่วนหัว */
+            .progress-container {
+                background: white;
+                padding: 12px 16px;
+                border-radius: 10px;
+                border: 1px solid #e2e8f0;
+                margin-bottom: 20px;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+
+            .progress-label {
+                font-weight: 500;
+                color: #334155;
+                min-width: 140px;
+                font-size: 12px;
+            }
+
+            .progress-bar-bg {
+                background: #e2e8f0;
+                border-radius: 20px;
+                flex-grow: 1;
+                height: 10px;
+                overflow: hidden;
+            }
+
+            .progress-bar-fill {
+                background: linear-gradient(90deg, #3b82f6, #22c55e);
+                height: 100%;
+                transition: width 0.5s ease;
+            }
+
+            /* Table Design */
+            .table-container {
+                background: white;
+                border-radius: 14px;
+                border: 1px solid #e2e8f0;
+                overflow: hidden;
+                box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                table-layout: fixed;
+            }
+
+            th {
+                background: #f8fafc;
+                color: #475569;
+                font-weight: 600;
+                padding: 14px 12px;
+                text-align: center;
+                border-bottom: 2px solid #e2e8f0;
+                font-size: 12px;
+            }
+
+            td {
+                padding: 12px;
+                border-bottom: 1px solid #f1f5f9;
+                text-align: center;
+                font-size: 12px;
+                word-wrap: break-word;
+                vertical-align: top;
+                color: #334155;
+            }
+
+            tr:last-child td {
+                border-bottom: none;
+            }
+
+            tr:hover td {
+                background-color: #f8fafc;
+            }
+
+            /* Badges & Pills */
+            .status-badge {
+                padding: 5px 12px;
+                border-radius: 30px;
+                font-weight: 600;
+                font-size: 11px;
+                display: inline-block;
+                letter-spacing: 0.3px;
+            }
+
+            .job-code {
+                font-family: monospace;
+                font-weight: 600;
+                color: #0f172a;
+                background: #e2e8f0;
+                padding: 3px 8px;
+                border-radius: 6px;
+                display: inline-block;
+                margin-bottom: 4px;
+                font-size: 11.5px;
+            }
+
+            .ref-tag {
+                background: #f3e8ff;
+                color: #7e22ce;
+                font-size: 10.5px;
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-weight: 500;
+                display: inline-block;
+                margin-top: 4px;
+            }
+
+            .resource-badge {
+                background: #f1f5f9;
+                color: #475569;
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-size: 11px;
+                display: inline-block;
+                font-weight: 500;
+            }
+
+            .meta-text {
+                font-size: 11px;
+                color: #64748b;
+                line-height: 1.5;
+                margin-top: 2px;
+            }
+
+            .text-left {
+                text-align: left;
+            }
+
+            .btn-print {
+                background: #0f172a;
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 10px;
+                cursor: pointer;
+                position: fixed;
+                bottom: 24px;
+                right: 24px;
+                font-family: 'Prompt', sans-serif;
+                font-weight: 500;
+                box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+                transition: transform 0.2s;
+            }
+
+                .btn-print:hover {
+                    transform: scale(1.03);
+                }
+
+            @@media print {
+                .no-print {
+                    display: none;
+                }
+
+                body {
+                    background: white;
+                    padding: 0;
+                }
+
+                .table-container {
+                    border: 1px solid #cbd5e1;
+                    box-shadow: none;
+                }
+
+                .stat-card {
+                    border: 1px solid #cbd5e1;
+                    box-shadow: none;
+                }
+            }
     </style>
 </head>
 <body>
 
     <!-- Header -->
-    <table style="width:100%;">
-        <tr>
-            <td style="width:25%;">RPT_PROGRESS_JOB<br />@DateTime.Now.ToString("yyyyMMdd")</td>
-            <td style="width:50%;" class="text-center">
-                <div class="title">รายงานติดตามความคืบหน้า Job</div>
-                <div>สำหรับหน่วยงาน: @(ViewBag.SectionTo ?? "150000 ตรวจสอบ")</div>
-            </td>
-            <td style="width:25%;" class="text-right">
-                วันที่พิมพ์: @DateTime.Now.ToString("dd/MM/yyyy")<br />
-                เวลา: @DateTime.Now.ToString("HH:mm:ss")
-            </td>
-        </tr>
-    </table>
+    <div class="header">
+        <div class="brand">
+            <h1>ZYCODA <span>| Maintenance Smart Report</span></h1>
+            <p>แผนการบำรุงรักษาเชิงป้องกันประจำวัน (PM) · พื้นที่รับผิดชอบ: @(ViewBag.SectionTo ?? "ตรวจสอบ")</p>
+        </div>
+        <div class="report-info">
+            <strong>วันที่พิมพ์เอกสาร:</strong> @DateTime.Now.ToString("dd/MM/yyyy HH:mm")<br />
+            <span>ความก้าวหน้าแผนงานภาพรวม: <strong>@completionRate%</strong></span>
+        </div>
+    </div>
+
+    <!-- Stats Matrix -->
+    <div class="stat-grid">
+        <div class="stat-card"><div class="stat-label">งานทั้งหมด</div><div class="stat-val">@totalCount</div></div>
+        <div class="stat-card finish"><div class="stat-label" style="color:#22c55e">เสร็จสิ้น (Finish)</div><div class="stat-val">@finishCount</div></div>
+        <div class="stat-card assign"><div class="stat-label" style="color:#3b82f6">รับงานแล้ว (Accept/Assign)</div><div class="stat-val">@assignCount</div></div>
+        <div class="stat-card pending"><div class="stat-label" style="color:#f97316">รอดำเนินการ (Pending)</div><div class="stat-val">@pendingCount</div></div>
+        <div class="stat-card delay"><div class="stat-label" style="color:#ef4444">เกินกำหนดแผน (Delay)</div><div class="stat-val">@delayCount</div></div>
+    </div>
+
+    <!-- อัปเดตเพิ่มแถบ Progress Bar เชิงสถิติแบบหน้าเว็บ Dashboard -->
+    <div class="progress-container">
+        <div class="progress-label">อัตราความสำเร็จแผนงาน (PM):</div>
+        <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width: @(completionRate)%"></div>
+        </div>
+        <div style="font-weight: 600; color: #1e293b; font-size: 13px;">@completionRate%</div>
+    </div>
 
     <!-- Data Table -->
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th style="width:65px;">วันที่แจ้ง</th>
-                <th style="width:90px;">Service No.</th>
-                <th style="width:80px;">ประเภทงาน</th>
-                <th>ปัญหา/รายละเอียด</th>
-                <th style="width:100px;">ผู้แจ้ง/หน่วยงาน</th>
-                <th style="width:70px;">สถานะ</th>
-                <th style="width:100px;">แผน (รับ/เสร็จ)</th>
-                <th style="width:100px;">ทำจริง (เริ่ม/เสร็จ)</th>
-                <th style="width:50px;">Delay</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (Model != null && Model.Any())
-            {
-                foreach (var item in Model)
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:75px;">วันที่แผน</th>
+                    <th style="width:130px;">Service ID / เครื่องจักร</th>
+                    <th>หัวข้อการตรวจเช็คและรายละเอียดงาน</th>
+                    <th style="width:180px;">ตำแหน่งติดตั้ง (FL)</th>
+                    <th style="width:120px;">การเตรียมพร้อม (Resources)</th>
+                    <th style="width:90px;">สถานะ</th>
+                    <th style="width:105px;">กรอบเวลาตามแผน</th>
+                    <th style="width:95px;">ประเมินเวลา</th>
+                    <th style="width:105px;">เวลาปฏิบัติจริง</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (data.Any())
+                {
+                    foreach (var item in data)
+                    {
+                        var (bg, fg) = GetStatusColor(item.status);
+                        <tr>
+                            <!-- วันที่แผน -->
+                            <td style="font-weight:500; color:#0f172a;">
+                                @FormatDT(item.timeplanstart, "dd/MM/yy")
+                            </td>
+
+                            <!-- ID/เครื่องจักร -->
+                            <td>
+                                <span class="job-code">@(item.id ?? "-")</span>
+                                <div style="font-weight:600; font-size:12px; color:#1e293b;">@(item.eq ?? "-")</div>
+                                <div class="meta-text" style="font-weight: 500;">@(item.fldetail ?? "-")</div>
+                            </td>
+
+                            <!-- รายละเอียดงาน -->
+                            <td class="text-left">
+                                <div style="line-height:1.6; font-weight: 400; color: #334155;">@(item.detail ?? "-")</div>
+                                @if (!string.IsNullOrEmpty(item.comment))
+                                {
+                                    <div><span class="ref-tag">🔗 @item.comment</span></div>
+                                }
+                            </td>
+
+                            <!-- คอลัมน์ FL -->
+                            <td class="text-left">
+                                <div style="font-weight:500; color:#2563eb; font-size:11.5px;">@(item.condition ?? "-")</div>
+                                <div class="meta-text" style="font-size:10px; word-break:break-all; background: #f8fafc; padding: 4px; border-radius: 4px;">@(item.fl ?? "-")</div>
+                            </td>
+
+                            <!-- [NEW!] คอลัมน์ข้อมูล Resource & Tools -->
+                            <td>
+                                <div class="resource-badge">👥 ช่างที่วางแผน: @(item.plan_man ?? "-") นาย</div>
+                                <div class="meta-text">
+                                    📋 ใบเบิกอะไหล่:
+                                    @(item.hasitemlist == "True" ? "⚠️ มีรายการเบิก" : "❌ ไม่มี")
+                                </div>
+                            </td>
+
+                            <!-- สถานะ -->
+                            <td>
+                                <span class="status-badge" style="background:@bg; color:@fg">@(item.status ?? "Pending")</span>
+                            </td>
+
+                            <!-- กรอบเวลาแผน -->
+                            <td>
+                                <div class="meta-text"><span style="color:#3b82f6; font-weight:500;">เริ่ม:</span> @FormatDT(item.timeplanstart, "HH:mm")</div>
+                                <div class="meta-text"><span style="color:#64748b; font-weight:500;">ถึง:</span> @FormatDT(item.timeplanend, "HH:mm")</div>
+                            </td>
+
+                            <!-- [NEW!] คอลัมน์คำนวณระยะเวลาใช้งานจริง -->
+                            <td style="font-weight: 500; color: #475569;">
+                                @GetDuration(item.timeplanstart, item.timeplanend)
+                            </td>
+
+                            <!-- เวลาเข้าทำจริง -->
+                            <td>
+                                <div class="meta-text"><span style="color:#22c55e; font-weight:500;">เข้า:</span> @FormatDT(item.timestart, "HH:mm")</div>
+                                <div class="meta-text"><span style="color:#ef4444; font-weight:500;">ออก:</span> @FormatDT(item.timefinish, "HH:mm")</div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
                 {
                     <tr>
-                        <td class="text-center">@FormatDT(item.timecreate, "dd/MM/yy")</td>
-                        <td class="text-center" style="font-weight:bold;">@(item.id ?? item.id_h ?? "-")</td>
-                        <td class="text-center">@item.jobtype</td>
-                        <td class="small-text">@(item.detail ?? item.detail_h)</td>
-                        <td class="text-center small-text">
-                            @* ใช้ UserDisplayName จาก Model ที่คุณเขียนไว้ *@
-                            @item.UserDisplayName <br />
-                            <span style="color:#666;">(@(item.sectioncreate ?? item.section))</span>
-                        </td>
-                        <td class="text-center">
-                             @* ใช้ statustext หรือ status ตามลำดับ *@
-                             @(item.statustext ?? item.status)
-                        </td>
-                        <td class="text-center small-text">
-                            <span style="color:blue;">P: @FormatDT(item.timestart)</span><br/>
-                            <span style="color:navy;">F: @FormatDT(item.timeend)</span>
-                        </td>
-                        <td class="text-center small-text">
-                            <span style="color:green;">S: @FormatDT(item.timestartrepair)</span><br/>
-                            <span style="color:red;">E: @FormatDT(item.timeendrepair)</span>
-                        </td>
-                        <td class="text-center">
-                            @if (!string.IsNullOrEmpty(item.timedelay) && item.timedelay != "0")
-                            {
-                                <span style="color:red; font-weight:bold;">@item.timedelay</span>
-                            }
-                            else { <span>-</span> }
-                        </td>
+                        <td colspan="9" style="padding: 48px; color: #94a3b8; font-size: 14px;">-- ไม่พบข้อมูลแผนงานบำรุงรักษาเชิงป้องกัน (PM) ในระบบ --</td>
                     </tr>
                 }
-            }
-            else
-            {
-                <tr><td colspan="9" class="text-center" style="padding:20px;">-- ไม่พบข้อมูล --</td></tr>
-            }
-        </tbody>
-    </table>
-
-    <div class="no-print" style="position:fixed; bottom:20px; right:20px;">
-        <button onclick="window.print()" style="padding:10px 20px; background:#007bff; color:white; border:none; cursor:pointer; border-radius:4px;">
-            Print Report
-        </button>
+            </tbody>
+        </table>
     </div>
+
+    <!-- Floating Print Action Button -->
+    <button class="btn-print no-print" onclick="window.print()">🖨️ พิมพ์เอกสารรายงาน</button>
 
 </body>
 </html>
