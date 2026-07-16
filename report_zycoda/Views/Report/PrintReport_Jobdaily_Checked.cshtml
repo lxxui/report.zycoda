@@ -1,6 +1,7 @@
 ﻿@model IEnumerable<dynamic>
 @{
     Layout = null;
+    var sectionDict = ViewBag.SectionDict as Dictionary<string, string> ?? new Dictionary<string, string>();
 }
 <!DOCTYPE html>
 <html lang="th">
@@ -170,8 +171,81 @@
                 border: 1px solid #fef3c7;
             }
 
+            /* สีตามสถานะเฉพาะ สำหรับกล่องคำอธิบายสถานะ */
+            .status-pending {
+                background-color: #e9e9ea;
+                color: #5b5b60;
+                border: 1px solid #dcdcdf;
+            }
+
+            .status-create {
+                background-color: #fbdfe4;
+                color: #b3273f;
+                border: 1px solid #f6c9d1;
+            }
+
+            .status-accept {
+                background-color: #fce9b8;
+                color: #92600a;
+                border: 1px solid #fbe08a;
+            }
+
+            .status-assigned {
+                background-color: #fce9b8;
+                color: #92600a;
+                border: 1px solid #fbe08a;
+            }
+
+            .status-finish {
+                background-color: #f4f4f5;
+                color: #1e7b34;
+                border: 1px solid #e4e4e7;
+            }
+
+            .status-confirm {
+                background-color: #d3f2de;
+                color: #1e7b34;
+                border: 1px solid #b9e8c9;
+            }
+
+            .status-reject {
+                background-color: var(--danger-light);
+                color: var(--danger);
+                border: 1px solid var(--danger-border);
+            }
+
             .align-center {
                 text-align: center !important;
+            }
+
+            .status-legend {
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                background-color: var(--bg-light);
+                padding: 10px 14px;
+                margin-top: 4px;
+                margin-bottom: 20px;
+            }
+
+            .status-legend-title {
+                font-weight: 700;
+                color: var(--text-dark);
+                font-size: 11px;
+                margin-bottom: 8px;
+            }
+
+            .status-legend-items {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px 22px;
+            }
+
+            .status-legend-item {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 10.5px;
+                color: var(--text-main);
             }
 
             @@media print {
@@ -191,6 +265,11 @@
 
                 .row-em {
                     background-color: #fff5f5 !important;
+                    -webkit-print-color-adjust: exact;
+                }
+
+                .status-legend {
+                    background-color: var(--bg-light) !important;
                     -webkit-print-color-adjust: exact;
                 }
             }
@@ -233,9 +312,36 @@
                 {
                     bool isEM = item.jobtype == "EM";
                     string statusStr = item.status ?? "";
-                    bool isDone = statusStr.Contains("Finish") || statusStr.Contains("Confirm");
+                    string statusKey = statusStr.Trim().ToLower();
 
-                    // ส่วนดักจับ Error ชื่อช่างซ่อมบำรุงตามที่ฝ้ายวางโครงไว้
+                    // 👇 map สถานะจริง -> คลาสสี และไอคอน ให้ตรงกับกล่องคำอธิบายสถานะท้ายรายงาน
+                    string statusClass = statusKey switch
+                    {
+                        "pending" => "status-pending",
+                        "create" => "status-create",
+                        "accept" => "status-accept",
+                        "assign" or "repair" => "status-assigned",
+                        "finish" => "status-finish",
+                        "confirm" => "status-confirm",
+                        "reject" or "deny" => "status-reject",
+                        _ => "status-process"
+                    };
+
+                    string statusIcon = statusKey switch
+                    {
+                        "pending" => "⏳ ",
+                        "create" => "🆕 ",
+                        "accept" => "👍 ",
+                        "assign" or "repair" => "🔧 ",
+                        "finish" => "📦 ",
+                        "confirm" => "✅ ",
+                        "reject" or "deny" => "❌ ",
+                        _ => "⏳ "
+                    };
+
+                    string sectionCode = (item.sectioncreate ?? "").ToString().Trim();
+                    string sectionName = sectionDict.TryGetValue(sectionCode, out var sName) ? sName : sectionCode;
+
                     string repairUser = "";
                     try { repairUser = item.user_repair ?? ""; } catch { repairUser = ""; }
                     if (string.IsNullOrEmpty(repairUser))
@@ -262,7 +368,7 @@
                         <td style="font-weight: 500; color: var(--text-dark); word-break: break-word;">@item.detail</td>
 
                         <td>
-                            <div style="font-weight: bold; color: var(--text-dark);">@item.sectioncreate</div>
+                            <div style="font-weight: bold; color: var(--text-dark);">@sectionName</div>
                             <div style="font-size: 10px; color: #64748b; margin-top: 1px;">โดย: @item.usercreate</div>
                         </td>
 
@@ -280,8 +386,8 @@
                         </td>
 
                         <td class="align-center">
-                            <span class="status-pill @(isDone ? "status-done" : "status-process")">
-                                @(isDone ? "✅ " + statusStr : "⏳ " + statusStr)
+                            <span class="status-pill @statusClass">
+                                @(statusIcon + statusStr)
                             </span>
                         </td>
                     </tr>
@@ -297,6 +403,18 @@
             }
         </tbody>
     </table>
+
+    <div class="status-legend">
+        <div class="status-legend-title">🔎 คำอธิบายสถานะงาน</div>
+        <div class="status-legend-items">
+            <div class="status-legend-item"><span class="status-pill status-pending">Pending</span><span>รออนุมัติ</span></div>
+            <div class="status-legend-item"><span class="status-pill status-create">Create</span><span>อนุมัติแล้ว รอรับงาน</span></div>
+            <div class="status-legend-item"><span class="status-pill status-accept">Accept</span><span>รับงานแล้ว</span></div>
+            <div class="status-legend-item"><span class="status-pill status-assigned">Assigned</span><span>มอบหมายงาน</span></div>
+            <div class="status-legend-item"><span class="status-pill status-finish">Finish</span><span>ส่งมอบงาน</span></div>
+            <div class="status-legend-item"><span class="status-pill status-confirm">Confirmed</span><span>ปิดงาน</span></div>
+        </div>
+    </div>
 
     <div class="no-print" style="position: fixed; bottom: 25px; right: 25px;">
         <button onclick="window.print()" style="background: var(--text-dark); color: white; border: none; padding: 10px 24px; border-radius: 20px; cursor: pointer; font-family: 'Sarabun'; font-weight: bold; font-size: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">

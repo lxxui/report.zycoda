@@ -1116,7 +1116,7 @@
                                 <th style="width: 26%;">รายละเอียด</th>
                                 <th class="text-center" style="width: 12%;">สถานะ</th>
                                 <th style="width: 10%;">ผู้แจ้ง</th>
-                                <th class="pe-4 text-center" style="width: 8%;">จัดการ</th>
+                                @* <th class="pe-4 text-center" style="width: 8%;">จัดการ</th> *@
                             </tr>
                         </thead>
                         <tbody>
@@ -1168,7 +1168,7 @@
                                         <span class="badge rounded-pill @item.StatusCssClass px-3 py-2 small d-inline-block text-truncate" style="max-width: 100%;">@item.status</span>
                                     </td>
                                     <td class="small text-truncate" title="@item.usercreate">@item.usercreate</td>
-                                    <td class="text-center pe-4">
+                                    @* <td class="text-center pe-4">
                                         @{
                                             var assignees = item.uassign != null && item.uassign.Any()
                                                             ? string.Join(", ", item.uassign)
@@ -1208,7 +1208,7 @@
                                            style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center;">
                                             <i class="fab fa-line"></i>
                                         </a>
-                                    </td>
+                                    </td> *@
                                 </tr>
                             }
                         </tbody>
