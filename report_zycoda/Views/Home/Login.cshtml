@@ -287,11 +287,20 @@
 
             <form method="post" asp-controller="Home" asp-action="Login">
                 <input type="hidden" name="userClass" id="hidden-user-class" value="" />
+
                 <div class="form-group">
                     <label>Username</label>
                     <div class="input-wrapper">
                         <i class="bi bi-person"></i>
-                        <input type="text" name="username" placeholder="รหัสพนักงาน" required autocomplete="off" />
+                        <input type="text"
+                               name="username"
+                               placeholder="รหัสพนักงาน"
+                               required
+                               autocomplete="off"
+                               maxlength="6"
+                               pattern="\d{6}"
+                               inputmode="numeric"
+                               oninput="this.value = this.value.replace(/\D/g, '')" />
                     </div>
                 </div>
 
@@ -391,13 +400,13 @@
 
                 // 🛠️ แก้ไขจุดแสดงผลล็อกที่ผิดพลาด (ย้ายมาดึงจาก window.userState.userClass)
                 console.group("🔑 [Debug] Profile Retrieved Successfully");
-                console.log("Target Username :", username); //รหัสพนักงาน
-                console.log("Retrieved Name  :", window.userState.fullName); //ชือ
-                console.log("Retrieved Class :", window.userState.userClass);
+                // console.log("Target Username :", username); รหัสพนักงาน
+                // console.log("Retrieved Name  :", window.userState.fullName); ชือ
+                // console.log("Retrieved Class :", window.userState.userClass);
                 console.groupEnd();
              })
              .fail(function(xhr) {
-                console.error("❌ Network Error: ไม่สามารถเข้าถึง API ข้อมูลพนักงานได้ | Status:", xhr.status);
+                // console.error("❌ Network Error: ไม่สามารถเข้าถึง API ข้อมูลพนักงานได้ | Status:", xhr.status);
              });
         });
 
@@ -417,7 +426,7 @@
 
             const steps = [
                 `สวัสดี${displayName}`,
-                `กำลังตรวจสอบสิทธิ์: ${displayClass}...`,
+                // `กำลังตรวจสอบสิทธิ์: ${displayClass}...`,
                 "เชื่อมต่อ Secure Gateway...",
                 "ยืนยันข้อมูลเรียบร้อย!"
             ];

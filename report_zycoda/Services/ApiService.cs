@@ -11,6 +11,21 @@ using System.Net.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Data.SqlClient;
 
+public enum LoginStatus
+{
+    Success,
+    InvalidCredentials,
+    AccountLocked
+}
+
+public class LoginResult
+{
+    public LoginStatus Status { get; set; }
+    public UserApiModels? User { get; set; }
+    public int RemainingAttempts { get; set; }
+    public DateTime? LockedAt { get; set; }
+}
+
 public class ApiService
 {
     private readonly IConfiguration _config;
@@ -19,6 +34,9 @@ public class ApiService
     private readonly string _externalApiUrl;
     private readonly ILogger<ApiService> _logger;
     private readonly string _connectionString;
+
+    // ✅ จำนวนครั้งที่ใส่รหัสผิดได้สูงสุดก่อนบัญชีถูกล็อค
+    private const int MaxFailedAttempts = 3;
 
     public ApiService(IConfiguration config, HttpClient httpClient, myDbContext context, ILogger<ApiService> logger)
     {
@@ -30,64 +48,178 @@ public class ApiService
         _connectionString = _config.GetConnectionString("DefaultConnection") ?? "";
     }
 
-    // ✅ 1. Login: ปรับปรุง SQL ปลดล็อก Index และป้องกัน DBNull
-    public async Task<UserApiModels?> LoginAsync(string username, string password)
+    // ✅ 1. Login: เช็ค/นับรหัสผิด + ล็อคบัญชีเมื่อผิดครบ 3 ครั้ง
+    // ใช้คอลัมน์ FailedLoginCount / IsLocked / LockedAt ที่มีอยู่แล้วในตาราง
+    // การปลดล็อค: ต้องให้แอดมิน/ไอทีกดปลดล็อคเองเท่านั้น (ไม่มีปลดอัตโนมัติตามเวลา)
+    public async Task<LoginResult> LoginAsync(string username, string password)
     {
+        var result = new LoginResult { Status = LoginStatus.InvalidCredentials };
+
         try
         {
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password)) return null;
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+                return result;
 
             string cleanUsername = username.Trim();
             string cleanPassword = password.Trim();
 
             _logger.LogInformation($"🔍 [ADO-Login] กำลังค้นหาข้อมูลล็อกอินสำหรับ: '{cleanUsername}'");
 
-            // ถอด LTRIM/RTRIM ออกจากคอลัมน์ฝั่ง SQL เพื่อให้ทำงานเร็วสายฟ้าแลบ (ผ่าน Index)
-            string query = @"SELECT [Id], [Id_Zy], [Plant], [FirstName], [LastName], [Email], 
-                                    [Username], [Password], [Position], [Section], [Class], [Rule], [Active]
-                             FROM [ZycodaApiByPB].[dbo].[User]
-                             WHERE [Username] = @Username 
-                               AND [Password] = @Password";
-
             using var conn = new SqlConnection(_connectionString);
             await conn.OpenAsync();
 
-            using var cmd = new SqlCommand(query, conn);
-            cmd.Parameters.AddWithValue("@Username", cleanUsername);
-            cmd.Parameters.AddWithValue("@Password", cleanPassword);
+            // ✅ Step 1: ดึงข้อมูลผู้ใช้ด้วย Username อย่างเดียวก่อน (ยังไม่เช็ครหัสผ่าน)
+            string checkQuery = @"SELECT [Id], [Id_Zy], [Plant], [FirstName], [LastName], [Email],
+                                         [Username], [Password], [Position], [Section], [Class], [Rule], [Active],
+                                         [FailedLoginCount], [IsLocked], [LockedAt]
+                                   FROM [ZycodaApiByPB].[dbo].[User]
+                                   WHERE [Username] = @Username";
 
-            using var reader = await cmd.ExecuteReaderAsync();
-            if (await reader.ReadAsync())
+            UserApiModels? candidate = null;
+            int failedCount = 0;
+            bool isLocked = false;
+            DateTime? lockedAt = null;
+            string? storedPassword = null;
+
+            using (var cmd = new SqlCommand(checkQuery, conn))
             {
-                var user = new UserApiModels
+                cmd.Parameters.AddWithValue("@Username", cleanUsername);
+                using var reader = await cmd.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
                 {
-                    // ป้องกันโปรแกรมพังหากเกิดค่า Null ในฐานข้อมูล
-                    Id = reader["Id"] == DBNull.Value ? 0 : Convert.ToInt32(reader["Id"]),
-                    Id_Zy = reader["Id_Zy"]?.ToString(),
-                    Plant = reader["Plant"]?.ToString(),
-                    FirstName = reader["FirstName"]?.ToString(),
-                    LastName = reader["LastName"]?.ToString(),
-                    Email = reader["Email"]?.ToString(),
-                    Username = reader["Username"]?.ToString(),
-                    Password = reader["Password"]?.ToString(),
-                    Position = reader["Position"]?.ToString(),
-                    Section = reader["Section"]?.ToString(),
-                    Class = reader["Class"]?.ToString(),
-                    Rule = reader["Rule"]?.ToString(),
-                    Active = reader["Active"] == DBNull.Value ? 0 : Convert.ToInt32(reader["Active"])
-                };
-
-                _logger.LogInformation($"✅ [ADO-Login] สำเร็จ! ยินดีต้อนรับคุณ {user.FirstName}");
-                return user;
+                    candidate = new UserApiModels
+                    {
+                        Id = reader["Id"] == DBNull.Value ? 0 : Convert.ToInt32(reader["Id"]),
+                        Id_Zy = reader["Id_Zy"]?.ToString(),
+                        Plant = reader["Plant"]?.ToString(),
+                        FirstName = reader["FirstName"]?.ToString(),
+                        LastName = reader["LastName"]?.ToString(),
+                        Email = reader["Email"]?.ToString(),
+                        Username = reader["Username"]?.ToString(),
+                        Password = reader["Password"]?.ToString(),
+                        Position = reader["Position"]?.ToString(),
+                        Section = reader["Section"]?.ToString(),
+                        Class = reader["Class"]?.ToString(),
+                        Rule = reader["Rule"]?.ToString(),
+                        Active = reader["Active"] == DBNull.Value ? 0 : Convert.ToInt32(reader["Active"])
+                    };
+                    storedPassword = candidate.Password;
+                    failedCount = reader["FailedLoginCount"] == DBNull.Value ? 0 : Convert.ToInt32(reader["FailedLoginCount"]);
+                    isLocked = reader["IsLocked"] != DBNull.Value && Convert.ToInt32(reader["IsLocked"]) == 1;
+                    lockedAt = reader["LockedAt"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["LockedAt"]);
+                }
             }
 
-            _logger.LogWarning($"❌ [ADO-Login] ไม่พบคู่ Username/Password นี้ในระบบ: '{cleanUsername}'");
-            return null;
+            // ไม่พบ username เลย -> ตอบแบบ generic (กัน user enumeration)
+            if (candidate == null)
+            {
+                _logger.LogWarning($"❌ [ADO-Login] ไม่พบ Username นี้ในระบบ: '{cleanUsername}'");
+                result.Status = LoginStatus.InvalidCredentials;
+                return result;
+            }
+
+            // ✅ Step 2: เช็คว่าบัญชีนี้ถูกล็อคอยู่หรือไม่ (ต้องรอแอดมินปลดล็อคเท่านั้น)
+            if (isLocked)
+            {
+                _logger.LogWarning($"🔒 [ADO-Login] บัญชี '{cleanUsername}' ถูกล็อคอยู่ (ล็อคเมื่อ {lockedAt})");
+                result.Status = LoginStatus.AccountLocked;
+                result.LockedAt = lockedAt;
+                return result;
+            }
+
+            // ✅ Step 3: ตรวจรหัสผ่าน
+            if (storedPassword == cleanPassword)
+            {
+                // ล็อกอินสำเร็จ -> รีเซ็ตตัวนับกลับเป็น 0
+                using var resetCmd = new SqlCommand(@"UPDATE [ZycodaApiByPB].[dbo].[User]
+                                                        SET [FailedLoginCount] = 0
+                                                        WHERE [Username] = @Username", conn);
+                resetCmd.Parameters.AddWithValue("@Username", cleanUsername);
+                await resetCmd.ExecuteNonQueryAsync();
+
+                _logger.LogInformation($"✅ [ADO-Login] สำเร็จ! ยินดีต้อนรับคุณ {candidate.FirstName}");
+                result.Status = LoginStatus.Success;
+                result.User = candidate;
+                return result;
+            }
+            else
+            {
+                // รหัสผิด -> เพิ่มตัวนับ
+                failedCount++;
+
+                if (failedCount >= MaxFailedAttempts)
+                {
+                    using var lockCmd = new SqlCommand(@"UPDATE [ZycodaApiByPB].[dbo].[User]
+                                                          SET [FailedLoginCount] = @Count, [IsLocked] = 1, [LockedAt] = GETDATE()
+                                                          WHERE [Username] = @Username", conn);
+                    lockCmd.Parameters.AddWithValue("@Count", failedCount);
+                    lockCmd.Parameters.AddWithValue("@Username", cleanUsername);
+                    await lockCmd.ExecuteNonQueryAsync();
+
+                    _logger.LogWarning($"🔒 [ADO-Login] '{cleanUsername}' ใส่รหัสผิดครบ {failedCount} ครั้ง -> บัญชีถูกล็อค (รอไอทีปลดล็อค)");
+
+                    result.Status = LoginStatus.AccountLocked;
+                    result.LockedAt = DateTime.Now;
+                    return result;
+                }
+                else
+                {
+                    using var incCmd = new SqlCommand(@"UPDATE [ZycodaApiByPB].[dbo].[User]
+                                                          SET [FailedLoginCount] = @Count
+                                                          WHERE [Username] = @Username", conn);
+                    incCmd.Parameters.AddWithValue("@Count", failedCount);
+                    incCmd.Parameters.AddWithValue("@Username", cleanUsername);
+                    await incCmd.ExecuteNonQueryAsync();
+
+                    _logger.LogWarning($"❌ [ADO-Login] '{cleanUsername}' รหัสผิด (ครั้งที่ {failedCount}/{MaxFailedAttempts})");
+
+                    result.Status = LoginStatus.InvalidCredentials;
+                    result.RemainingAttempts = MaxFailedAttempts - failedCount;
+                    return result;
+                }
+            }
         }
         catch (Exception ex)
         {
             _logger.LogError($"💥 [ADO-Login Exception] ระบบมีข้อผิดพลาด: {ex.Message}");
-            return null;
+            result.Status = LoginStatus.InvalidCredentials;
+            return result;
+        }
+    }
+
+    // ✅ 1.1 ปลดล็อคบัญชีผู้ใช้ (สำหรับปุ่มในหน้า User Management ให้ไอทีกด)
+    public async Task<bool> UnlockUserAsync(string username)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(username)) return false;
+            string cleanUsername = username.Trim();
+
+            using var conn = new SqlConnection(_connectionString);
+            await conn.OpenAsync();
+
+            string query = @"UPDATE [ZycodaApiByPB].[dbo].[User]
+                              SET [IsLocked] = 0, [FailedLoginCount] = 0, [LockedAt] = NULL
+                              WHERE [Username] = @Username";
+
+            using var cmd = new SqlCommand(query, conn);
+            cmd.Parameters.AddWithValue("@Username", cleanUsername);
+
+            int rowsAffected = await cmd.ExecuteNonQueryAsync();
+
+            if (rowsAffected > 0)
+            {
+                _logger.LogInformation($"🔓 [ADO-Unlock] ปลดล็อคบัญชี '{cleanUsername}' สำเร็จ");
+                return true;
+            }
+
+            _logger.LogWarning($"⚠️ [ADO-Unlock] ไม่พบ Username '{cleanUsername}' ให้ปลดล็อค");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"💥 [ADO-Unlock Exception] ปลดล็อคไม่สำเร็จ: {ex.Message}");
+            return false;
         }
     }
 
@@ -103,7 +235,7 @@ public class ApiService
 
             string query = @"SELECT [Id], [Id_Zy], [FirstName], [LastName], [Username], [Active] , [Class]
                              FROM [ZycodaApiByPB].[dbo].[User]
-                             WHERE [Username] = @Username"; // 👈 ถอดฟังก์ชันครอบออกเพื่อให้ใช้ Index ได้
+                             WHERE [Username] = @Username";
 
             using var conn = new SqlConnection(_connectionString);
             await conn.OpenAsync();
@@ -173,10 +305,9 @@ public class ApiService
     {
         try
         {
-            // แนะนำ: หากข้อมูลเยอะมาก ให้เปลี่ยนเป็น .Take(100).ToListAsync() เพื่อทดสอบว่าหายค้างไหม
             return await _context.User
                 .AsNoTracking()
-                .Take(500) // 👈 ป้องกันข้อมูลล้นทะลักเบราว์เซอร์จนหมุนค้าง
+                .Take(500)
                 .ToListAsync();
         }
         catch (Exception ex)
@@ -186,7 +317,6 @@ public class ApiService
         }
     }
 
-    // แก้ไขโครงสร้างส่งกลับเพื่อให้สอดคล้องกับชื่อด้านบน
     internal async Task<List<SectionApiModels>> GetSectionsAsync()
     {
         return await GetSectionsFromApiAsync();

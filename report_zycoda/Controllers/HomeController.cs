@@ -55,16 +55,32 @@ public class HomeController : Controller
             }
             _logger.LogInformation($"🔍 [Login Step 1] พบ Username: '{cleanUsername}' ในระบบเกตเวย์แล้ว");
 
-            // 2. ตรวจสอบรหัสผ่านผ่าน ApiService
+            // 2. ตรวจสอบรหัสผ่านผ่าน ApiService (✅ ตอนนี้คืนค่าเป็น LoginResult แทน UserApiModels)
             _logger.LogInformation($"🚀 [Login Step 2] กำลังส่งตรวจสอบรหัสผ่านไปยัง ApiService...");
-            var user = await _apiService.LoginAsync(cleanUsername, cleanPassword);
+            var loginResult = await _apiService.LoginAsync(cleanUsername, cleanPassword);
 
-            if (user == null)
+            // ❌ กรณีบัญชีถูกล็อค (ใส่รหัสผิดครบ 3 ครั้ง) -> ต้องรอไอทีปลดล็อคเท่านั้น
+            if (loginResult.Status == LoginStatus.AccountLocked)
             {
-                _logger.LogError($"❌ [Login Step 2] ApiService คืนค่ากลับมาเป็น null (รหัสผ่านผิด หรือโครงสร้าง JSON หลังบ้านไม่ตรงกับโมเดล)");
-                TempData["ErrorMessage"] = "รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง";
+                _logger.LogWarning($"🔒 [Login Step 2] บัญชี '{cleanUsername}' ถูกล็อค (ล็อคเมื่อ: {loginResult.LockedAt})");
+                TempData["ErrorMessage"] = "บัญชีของคุณถูกล็อคเนื่องจากใส่รหัสผ่านผิดเกิน 3 ครั้ง กรุณาติดต่อฝ่ายไอทีเพื่อปลดล็อคบัญชี";
                 return View();
             }
+
+            // ❌ กรณีรหัสผ่านผิด (ยังไม่ถึงจำนวนครั้งที่ล็อค)
+            if (loginResult.Status == LoginStatus.InvalidCredentials || loginResult.User == null)
+            {
+                _logger.LogError($"❌ [Login Step 2] รหัสผ่านไม่ถูกต้องสำหรับ '{cleanUsername}' (เหลือโอกาสอีก {loginResult.RemainingAttempts} ครั้ง)");
+
+                TempData["ErrorMessage"] = loginResult.RemainingAttempts > 0
+                    ? $"รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง (เหลือโอกาสอีก {loginResult.RemainingAttempts} ครั้งก่อนบัญชีถูกล็อค)"
+                    : "รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง";
+
+                return View();
+            }
+
+            // ✅ Login สำเร็จ -> ดึง user object จาก loginResult.User
+            var user = loginResult.User;
 
             _logger.LogInformation($"✅ [Login Step 2] ตรวจสอบรหัสผ่านผ่านสำเร็จ! ยินดีต้อนรับคุณ: {user.FirstName} {user.LastName} (Class: {user.Class}, Active: {user.Active})");
 
@@ -118,33 +134,31 @@ public class HomeController : Controller
     }
 
     [HttpGet]
-public async Task<IActionResult> GetFirstName(string username)
-{
-    try
+    public async Task<IActionResult> GetFirstName(string username)
     {
-        if (string.IsNullOrEmpty(username)) return Json(null);
-
-        string cleanName = username.Trim();
-        
-        // 🛠️ แก้จุดนี้: ดึงค่ามาตรงๆ เป็น Single Object ไม่ต้องใช้ FirstOrDefault แล้วครับ
-        var user = await _apiService.GetUsersFromApiAsync(cleanName);
-
-        if (user != null)
+        try
         {
-            // พิมพ์ Log ดักดูค่าที่ได้จากฐานข้อมูล/API จริงๆ
-            _logger.LogInformation($"[DEBUG] เจอพนักงาน: {user.FirstName} | ค่า Class ใน Model คือ: {user.Class}");
-            
-            return Json(new
+            if (string.IsNullOrEmpty(username)) return Json(null);
+
+            string cleanName = username.Trim();
+
+            var user = await _apiService.GetUsersFromApiAsync(cleanName);
+
+            if (user != null)
             {
-                firstName = user.FirstName,
-                userClass = user.Class?.ToString() ?? "" // ส่งค่าออกไปหน้า Login
-            });
+                _logger.LogInformation($"[DEBUG] เจอพนักงาน: {user.FirstName} | ค่า Class ใน Model คือ: {user.Class}");
+
+                return Json(new
+                {
+                    firstName = user.FirstName,
+                    userClass = user.Class?.ToString() ?? ""
+                });
+            }
         }
+        catch (Exception ex)
+        {
+            _logger.LogError($"🚨 [GetFirstName Error]: {ex.Message}");
+        }
+        return Json(null);
     }
-    catch (Exception ex)
-    {
-        _logger.LogError($"🚨 [GetFirstName Error]: {ex.Message}");
-    }
-    return Json(null);
-}
 }

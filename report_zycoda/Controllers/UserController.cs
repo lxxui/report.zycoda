@@ -20,11 +20,13 @@ namespace report_zycoda.Controllers
     {
         private readonly ILogger<UserController> _logger;
         private readonly string _connectionString;
+        private readonly ApiService _apiService; // ✅ เพิ่มเข้ามาสำหรับใช้ UnlockUserAsync
 
-        public UserController(ILogger<UserController> logger, IConfiguration configuration)
+        public UserController(ILogger<UserController> logger, IConfiguration configuration, ApiService apiService)
         {
             _logger = logger;
             _connectionString = configuration.GetConnectionString("DefaultConnection") ?? "";
+            _apiService = apiService;
         }
 
         [HttpGet]
@@ -73,6 +75,9 @@ namespace report_zycoda.Controllers
                                           ,[Last_modify]
                                           ,[Workpremit_class]
                                           ,[Plantoption]
+                                          ,ISNULL([FailedLoginCount], 0) AS [FailedLoginCount] -- ✅ เพิ่มเข้ามาสำหรับแสดงสถานะล็อค
+                                          ,ISNULL([IsLocked], 0) AS [IsLocked]                 -- ✅
+                                          ,[LockedAt]                                          -- ✅
                                      FROM [ZycodaApiByPB].[dbo].[User]";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
@@ -118,7 +123,7 @@ namespace report_zycoda.Controllers
         {
             if (excelFile == null || excelFile.Length == 0)
             {
-                TempData["Error"] = "กรุณาเลือกไฟล์ Excel (.xlsx หรือ .xls) ก่อนค่ะฝ้าย";
+                TempData["Error"] = "กรุณาเลือกไฟล์ Excel (.xlsx หรือ .xls) ก่อนค่ะ";
                 return RedirectToAction("Index", "Maintenance");
             }
 
@@ -153,7 +158,7 @@ namespace report_zycoda.Controllers
 
                         if (dt == null || dt.Rows.Count == 0)
                         {
-                            TempData["Error"] = "ไม่พบข้อมูลเรคคอร์ดในไฟล์ Excel เลยค่ะฝ้าย";
+                            TempData["Error"] = "ไม่พบข้อมูลเรคคอร์ดในไฟล์ Excel เลยค่ะ";
                             return RedirectToAction("Index", "Maintenance");
                         }
 
@@ -249,7 +254,7 @@ namespace report_zycoda.Controllers
                                     cmd.Parameters.AddWithValue("@Class", getValue("class") != "" ? getValue("class") : DBNull.Value);
                                     cmd.Parameters.AddWithValue("@Rule", getValue("rule") != "" ? getValue("rule") : DBNull.Value);
 
-                                    // 💡 ปรับปรุงตรงนี้ให้ยืดหยุ่นขึ้น: ถ้าใส่ 0 หรือ false หรือว่าง ให้ Active = 0 เสมอตามโครงสร้างเบสฝ้าย
+                                    // 💡 ปรับปรุงตรงนี้ให้ยืดหยุ่นขึ้น: ถ้าใส่ 0 หรือ false หรือว่าง ให้ Active = 0 เสมอตามโครงสร้างเบส
                                     string activeVal = getValue("active").ToLower();
                                     int activeInt = 0;
                                     if (activeVal == "1" || activeVal == "true" || activeVal == "active")
@@ -293,7 +298,7 @@ namespace report_zycoda.Controllers
                 }
 
                 // 🌟 แจ้งผลลัพธ์แยกกลุ่มให้เห็นชัดเจนบนหน้า Dashboard หลัก
-                TempData["Success"] = $"ซิงค์ข้อมูลผู้ใช้งานสำเร็จเรียบร้อยค่ะฝ้าย! (เพิ่มข้อมูลใหม่ {insertCount} รายการ | อัปเดตข้อมูลเดิม {updateCount} รายการ จากทั้งหมด {totalRows} แถว)";
+                TempData["Success"] = $"ซิงค์ข้อมูลผู้ใช้งานสำเร็จเรียบร้อย! (เพิ่มข้อมูลใหม่ {insertCount} รายการ | อัปเดตข้อมูลเดิม {updateCount} รายการ จากทั้งหมด {totalRows} แถว)";
             }
             catch (Exception ex)
             {
@@ -302,6 +307,37 @@ namespace report_zycoda.Controllers
             }
 
             return RedirectToAction("Index", "Maintenance");
+        }
+
+        /// <summary>
+        /// 🟢 3. ปลดล็อคบัญชีผู้ใช้ที่ถูกล็อคจากการใส่รหัสผ่านผิดครบ 3 ครั้ง (เรียกผ่าน AJAX จากปุ่ม "ปลดล็อค" ในตาราง)
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UnlockUser(string username)
+        {
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                return Json(new { success = false, message = "ไม่พบ Username ที่ต้องการปลดล็อค" });
+            }
+
+            try
+            {
+                bool success = await _apiService.UnlockUserAsync(username.Trim());
+
+                if (success)
+                {
+                    _logger.LogInformation($"🔓 [UnlockUser] ปลดล็อคบัญชี '{username}' สำเร็จ โดย {User?.Identity?.Name}");
+                    return Json(new { success = true, message = $"ปลดล็อคบัญชี '{username}' สำเร็จแล้วค่ะ" });
+                }
+
+                return Json(new { success = false, message = $"ไม่พบ Username '{username}' หรือปลดล็อคไม่สำเร็จ" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"💥 [UnlockUser Exception] {ex.Message}");
+                return Json(new { success = false, message = "เกิดข้อผิดพลาดระหว่างปลดล็อคบัญชี" });
+            }
         }
     }
 }
