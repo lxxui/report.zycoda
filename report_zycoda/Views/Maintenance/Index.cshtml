@@ -1104,7 +1104,7 @@
                 </div>
             </div>
 
-            <div class="card border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+            <div style="border-radius: 15px;">
                 <div class="table-responsive">
                     <table id="maintenanceTable" class="table table-hover align-middle mb-0" style="table-layout: fixed; width: 100%;">
                         <thead class="bg-light">
@@ -1659,12 +1659,35 @@
             if (fpStart) fpStart.destroy();
             if (fpEnd) fpEnd.destroy();
 
-            fpStart = flatpickr("#startDatePicker", commonConfig);
-            fpEnd = flatpickr("#endDatePicker", commonConfig);
+            // 1. คำนวณวันย้อนหลัง 1 ปีนับจากวันนี้
+            const oneYearAgo = new Date();
+            oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
-            const startVal = document.getElementById("startDatePicker")?.dataset.default;
-            const endVal = document.getElementById("endDatePicker")?.dataset.default;
-            if (startVal) fpStart.setDate(startVal, true, "Y-m-d");
+            const restrictedConfig = {
+                ...commonConfig,
+                minDate: oneYearAgo
+            };
+
+            fpStart = flatpickr("#startDatePicker", restrictedConfig);
+            fpEnd = flatpickr("#endDatePicker", restrictedConfig);
+
+            const startInput = document.getElementById("startDatePicker");
+            const endInput = document.getElementById("endDatePicker");
+
+            const startVal = startInput?.dataset.default;
+            const endVal = endInput?.dataset.default;
+
+            // 2. ตรวจสอบช่อง Start Date: ถ้าค่า default เก่าเกิน 1 ปี ให้ดันมาใช้วันที่ย้อนหลัง 1 ปีแทน
+            if (startVal) {
+                const parsedStart = new Date(startVal);
+                if (parsedStart < oneYearAgo) {
+                    fpStart.setDate(oneYearAgo, true, "Y-m-d");
+                } else {
+                    fpStart.setDate(startVal, true, "Y-m-d");
+                }
+            }
+
+            // 3. ตั้งค่าช่อง End Date
             if (endVal) fpEnd.setDate(endVal, true, "Y-m-d");
         }
 
