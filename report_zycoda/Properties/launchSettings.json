@@ -7,7 +7,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "http://*:5222" // 👈 แก้จาก localhost:5222 เป็น *:5222
+      "applicationUrl": "http://*:5222"
     },
     "https": {
       "commandName": "Project",
@@ -16,7 +16,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "https://*:7001" // 👈 แก้จาก localhost:7001 เป็น *:7001
+      "applicationUrl": "https://*:7001"
     },
     "IIS Express": {
       "commandName": "IISExpress",

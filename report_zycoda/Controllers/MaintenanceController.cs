@@ -41,7 +41,7 @@ namespace report_zycoda.Controllers
         // HELPER: ดึงข้อมูลขนานกัน
         // ==================================================
 
-        private async Task<List<MaintenanceApiModels>> FetchJobsFromApi(string sessionUser, string sessionPass, string jobtype, string start, string end, string sessionClass, string sessionSection,
+        private async Task<List<MaintenanceApiModels>> FetchJobsFromApi(string sessionUser,string sessionPass,string jobtype,string start,string end,string sessionClass,string sessionSection,
             string view = "followup")
         {
             var culture = CultureInfo.InvariantCulture;
@@ -163,15 +163,6 @@ namespace report_zycoda.Controllers
         // ==================================================
         public async Task<IActionResult> Index()
         {
-
-            List<string> sectionFromList = Request.Query["sectionFrom"]
-        .Where(s => !string.IsNullOrEmpty(s))
-        .ToList();
-
-            List<string> sectionToList = Request.Query["sectionTo"]
-                .Where(s => !string.IsNullOrEmpty(s))
-                .ToList();
-
             if (User.Identity == null || !User.Identity.IsAuthenticated)
                 return RedirectToAction("Login", "Home");
 
@@ -216,7 +207,7 @@ namespace report_zycoda.Controllers
             //  สลับกลับมาดึงข้อมูลตรงๆ จาก API Task ที่รันเสร็จแล้วตรงนี้ครับ
             var combined = apiJobsTask.Result;
 
-            var final = FilterAndOrderJobs(combined, ViewBag.SelectedStatus, sectionFromList, sectionToList);
+            var final = FilterAndOrderJobs(combined, ViewBag.SelectedStatus, ViewBag.CurrentSectionFrom, ViewBag.CurrentSectionTo);
 
             if (ViewBag.SectionList is List<report_zycoda.Models.SectionApiModels> sectionList)
             {
@@ -237,6 +228,7 @@ namespace report_zycoda.Controllers
             var sessionUser = User.Identity.Name;
             var sessionPass = User.Claims.FirstOrDefault(c => c.Type == "ApiPassword")?.Value;
 
+            // 🚀 ดึงค่า Class และ Section ออกมาจาก Claims Principal ในหน้านี้ด้วยเช่นกัน
             var sessionClass = User.Claims.FirstOrDefault(c => c.Type == "UserClass")?.Value ?? "0";
             var sessionSection = User.Claims.FirstOrDefault(c => c.Type == "Section")?.Value ?? "";
 
@@ -248,11 +240,8 @@ namespace report_zycoda.Controllers
             if (string.IsNullOrEmpty(start)) start = Request.Query["Start"].ToString();
             string end = Request.Query["end"].ToString();
             if (string.IsNullOrEmpty(end)) end = Request.Query["End"].ToString();
-
-            // 🔽 เปลี่ยนตรงนี้: อ่านเป็น List<string> แทน string เดี่ยว
-            List<string> sectionFrom = Request.Query["sectionFrom"].Where(s => !string.IsNullOrEmpty(s)).ToList();
-            List<string> sectionTo = Request.Query["sectionTo"].Where(s => !string.IsNullOrEmpty(s)).ToList();
-
+            string sectionFrom = Request.Query["sectionFrom"].ToString();
+            string sectionTo = Request.Query["sectionTo"].ToString();
             string status = Request.Query["status"].ToString();
             if (string.IsNullOrEmpty(status)) status = Request.Query["Status"].ToString();
             string view = Request.Query["view"].ToString();
@@ -265,13 +254,12 @@ namespace report_zycoda.Controllers
             ViewBag.SelectedStatus = status;
             ViewBag.CurrentJobType = string.IsNullOrEmpty(jobtype) ? "EM,CM" : jobtype;
             ViewBag.CurrentView = string.IsNullOrEmpty(view) ? "all" : view;
-
-            // 🔽 View ฝั่ง cshtml รอ string คั่น comma อยู่ (currentFromRaw.Split(',')) เลย join กลับก่อนส่ง
-            ViewBag.CurrentSectionFrom = string.Join(",", sectionFrom);
-            ViewBag.CurrentSectionTo = string.Join(",", sectionTo);
+            ViewBag.CurrentSectionFrom = sectionFrom;
+            ViewBag.CurrentSectionTo = sectionTo;
 
             var masterDataTask = LoadMasterDataAsync();
 
+            // 🚀 ส่งต่อข้อมูลสิทธิ์เข้าไปดึงจาก API
             var apiJobsTask = FetchJobsFromApi(sessionUser, sessionPass, ViewBag.CurrentJobType, finalStart, finalEnd, sessionClass, sessionSection, ViewBag.CurrentView);
 
             await Task.WhenAll(masterDataTask, apiJobsTask);
@@ -315,66 +303,13 @@ namespace report_zycoda.Controllers
             }
         }
 
-        //private List<MaintenanceApiModels> FilterAndOrderJobs(List<MaintenanceApiModels> combined, string status, string sectionFrom, string sectionTo)
-        //{
-        //    if (combined == null) return new List<MaintenanceApiModels>();
-
-        //    string searchStatus = (status ?? "").Trim().ToLower();
-        //    string searchSecFrom = (sectionFrom ?? "").Trim().ToLower();
-        //    string searchSecTo = (sectionTo ?? "").Trim().ToLower();
-
-        //    var query = combined.AsEnumerable();
-
-        //    if (!string.IsNullOrEmpty(searchStatus) &&
-        //        !searchStatus.Equals("all") &&
-        //        !searchStatus.Equals("ทั้งหมด") &&
-        //        !searchStatus.Equals("เลือกสถานะ") &&
-        //        !searchStatus.Equals("เลือกข้อมูล") &&
-        //        !searchStatus.Equals(""))
-        //    {
-        //        query = query.Where(x =>
-        //            (x.status ?? "").ToLower().Contains(searchStatus) ||
-        //            (x.statustext ?? "").ToLower().Contains(searchStatus)
-        //        );
-        //    }
-
-        //    if (!string.IsNullOrWhiteSpace(searchSecFrom) || !string.IsNullOrWhiteSpace(searchSecTo))
-        //    {
-        //        query = query.Where(x => {
-        //            var sec = (x.sectioncreate ?? x.section ?? "").Trim().ToLower();
-        //            if (string.IsNullOrEmpty(sec)) return false;
-
-        //            if (!string.IsNullOrWhiteSpace(searchSecFrom) && searchSecFrom.Equals(searchSecTo))
-        //            {
-        //                return sec.Contains(searchSecFrom);
-        //            }
-
-        //            bool matchFrom = string.IsNullOrWhiteSpace(searchSecFrom) || string.Compare(sec, searchSecFrom, StringComparison.Ordinal) >= 0;
-        //            bool matchTo = string.IsNullOrWhiteSpace(searchSecTo) || string.Compare(sec, searchSecTo, StringComparison.Ordinal) <= 0;
-
-        //            return matchFrom && matchTo;
-        //        });
-        //    }
-
-        //    return query.OrderByDescending(x => x.id).ToList();
-        //}
-
-        private List<MaintenanceApiModels> FilterAndOrderJobs(
-            List<MaintenanceApiModels> combined, string status, List<string> sectionFrom, List<string> sectionTo)
+        private List<MaintenanceApiModels> FilterAndOrderJobs(List<MaintenanceApiModels> combined, string status, string sectionFrom, string sectionTo)
         {
             if (combined == null) return new List<MaintenanceApiModels>();
 
             string searchStatus = (status ?? "").Trim().ToLower();
-
-            var secFromSet = (sectionFrom ?? new List<string>())
-                .Where(s => !string.IsNullOrWhiteSpace(s))
-                .Select(s => s.Trim().ToLower())
-                .ToHashSet();
-
-            var secToSet = (sectionTo ?? new List<string>())
-                .Where(s => !string.IsNullOrWhiteSpace(s))
-                .Select(s => s.Trim().ToLower())
-                .ToHashSet();
+            string searchSecFrom = (sectionFrom ?? "").Trim().ToLower();
+            string searchSecTo = (sectionTo ?? "").Trim().ToLower();
 
             var query = combined.AsEnumerable();
 
@@ -391,18 +326,19 @@ namespace report_zycoda.Controllers
                 );
             }
 
-            if (secFromSet.Count > 0 || secToSet.Count > 0)
+            if (!string.IsNullOrWhiteSpace(searchSecFrom) || !string.IsNullOrWhiteSpace(searchSecTo))
             {
-                query = query.Where(x =>
-                {
+                query = query.Where(x => {
                     var sec = (x.sectioncreate ?? x.section ?? "").Trim().ToLower();
                     if (string.IsNullOrEmpty(sec)) return false;
 
-                    bool matchFrom = secFromSet.Count == 0 || secFromSet.Contains(sec);
-                    bool matchTo = secToSet.Count == 0 || secToSet.Contains(sec);
+                    if (!string.IsNullOrWhiteSpace(searchSecFrom) && searchSecFrom.Equals(searchSecTo))
+                    {
+                        return sec.Contains(searchSecFrom);
+                    }
 
-                    if (secFromSet.Count > 0 && secToSet.Count > 0)
-                        return matchFrom || matchTo;
+                    bool matchFrom = string.IsNullOrWhiteSpace(searchSecFrom) || string.Compare(sec, searchSecFrom, StringComparison.Ordinal) >= 0;
+                    bool matchTo = string.IsNullOrWhiteSpace(searchSecTo) || string.Compare(sec, searchSecTo, StringComparison.Ordinal) <= 0;
 
                     return matchFrom && matchTo;
                 });
@@ -411,6 +347,9 @@ namespace report_zycoda.Controllers
             return query.OrderByDescending(x => x.id).ToList();
         }
 
+        // ==================================================
+        // MACHINE
+        // ==================================================
         [HttpGet]
         public async Task<IActionResult> Machine()
         {
