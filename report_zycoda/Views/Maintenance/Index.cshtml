@@ -606,19 +606,14 @@
                     <div class="col-md-2">
                         <label class="form-label small fw-bold text-navy">ช่วงวันที่แจ้ง</label>
                         <div class="input-group">
-
-                            <input type="text"
-                                   id="startDatePicker"
-                                   name="start"
-                                   class="form-control"
+                            <input type="text" id="startDatePicker" name="start" class="form-control"
+                                   min="2024-01-01" max="2026-12-31"
+                                   min="2024-01-01" max="2026-12-31"
                                    data-default="@ViewBag.CurrentStart" />
 
-                            <input type="text"
-                                   id="endDatePicker"
-                                   name="end"
-                                   class="form-control"
+                            <input type="text" id="endDatePicker" name="end" class="form-control"
+                                   min="2024-01-01" max="2026-12-31"
                                    data-default="@ViewBag.CurrentEnd" />
-
                         </div>
                     </div>
 
@@ -758,13 +753,13 @@
                             @if (allSections != null)
                             {
                                 <!-- 1. ฝั่งบางชัน -->
-                                <optgroup label="🏭 ฝั่งบางชัน - ฝ่ายผลิต (321000-321110)">
+                                <optgroup label="🏭 ฝั่งบางชัน - ฝ่ายผลิต">
                                     @foreach (var sec in allSections.Where(IsPdBangchan))
                                     {
                                         <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="📊 ฝั่งบางชัน - ส่วนวางแผนและควบคุม (322000-322030)">
+                                <optgroup label="📊 ฝั่งบางชัน - ส่วนวางแผนและควบคุม">
                                     @foreach (var sec in allSections.Where(IsPlanBangchan))
                                     {
                                         <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
@@ -772,13 +767,13 @@
                                 </optgroup>
 
                                 <!-- 2. ฝั่งลาดกระบัง -->
-                                <optgroup label="📦 ฝั่งลาดกระบัง - แผนกคลังวัตถุดิบ (310012-310014)">
+                                <optgroup label="📦 ฝั่งลาดกระบัง - แผนกคลังวัตถุดิบ">
                                     @foreach (var sec in allSections.Where(IsWhLadkrabang))
                                     {
                                         <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="🏭 ฝั่งลาดกระบัง - แผนกผลิต (311010-314090)">
+                                <optgroup label="🏭 ฝั่งลาดกระบัง - แผนกผลิต">
                                     @foreach (var sec in allSections.Where(IsPdLadkrabang))
                                     {
                                         <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
@@ -798,19 +793,19 @@
                                         <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="🛠️ เทคนิคบริการ ลาดกระบัง (310099)">
+                                <optgroup label="🛠️ เทคนิคบริการ ลาดกระบัง">
                                     @foreach (var sec in allSections.Where(IsTechServLadkrabang))
                                     {
                                         <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="🛠️ เทคนิคการผลิต ฝ่ายวิศวกรรม ลาดกระบัง (317110-317150)">
+                                <optgroup label="🛠️ เทคนิคการผลิต ฝ่ายวิศวกรรม ลาดกระบัง">
                                     @foreach (var sec in allSections.Where(IsTechProdLadkrabang))
                                     {
                                         <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="🛠️ ซ่อมบำรุง ฝ่ายวิศวกรรม ลาดกระบัง (317210-317240)">
+                                <optgroup label="🛠️ ซ่อมบำรุง ฝ่ายวิศวกรรม ลาดกระบัง">
                                     @foreach (var sec in allSections.Where(IsMaintLadkrabang))
                                     {
                                         <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
@@ -818,67 +813,67 @@
                                 </optgroup>
 
                                 <!-- 4. กลุ่มย่อยอื่นๆ -->
-                                <optgroup label="🏢 ฝ่ายบำรุงรักษาอาคาร (310089)">
+                                <optgroup label="🏢 ฝ่ายบำรุงรักษาอาคาร">
                                     @foreach (var sec in allSections.Where(IsBuildingMaint))
                                     {
                                         <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="🛡️ ความปลอดภัยบางชัน (310098)">
+                                <optgroup label="🛡️ ความปลอดภัยบางชัน">
                                     @foreach (var sec in allSections.Where(IsSafetyBangchan))
                                     {
                                         <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="🛡️ ความปลอดภัยลาดกระบัง (310100)">
+                                <optgroup label="🛡️ ความปลอดภัยลาดกระบัง">
                                     @foreach (var sec in allSections.Where(IsSafetyLadkrabang))
                                     {
                                         <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="💻 สารสนเทศ (140200-140700)">
+                                <optgroup label="💻 สารสนเทศ">
                                     @foreach (var sec in allSections.Where(IsIT))
                                     {
                                         <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="🏢 แผนกกลาง ส่วนกลางโรงงาน (310015-310016)">
+                                <optgroup label="🏢 แผนกกลาง ส่วนกลางโรงงาน">
                                     @foreach (var sec in allSections.Where(IsCentralFactory))
                                     {
                                         <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="📄 ธุรการ ลาดกระบัง (310140, 310150)">
+                                <optgroup label="📄 ธุรการ ลาดกระบัง">
                                     @foreach (var sec in allSections.Where(IsAdminLadkrabang))
                                     {
                                         <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="📄 ธุรการบางชัน (310160)">
+                                <optgroup label="📄 ธุรการบางชัน">
                                     @foreach (var sec in allSections.Where(IsAdminBangchan))
                                     {
                                         <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="🚚 ขนส่ง (310210-310260)">
+                                <optgroup label="🚚 ขนส่ง">
                                     @foreach (var sec in allSections.Where(IsTransport))
                                     {
                                         <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="🧪 ฝ่ายวิจัยพัฒนา (318010-318040)">
+                                <optgroup label="🧪 ฝ่ายวิจัยพัฒนา">
                                     @foreach (var sec in allSections.Where(IsRD))
                                     {
                                         <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="💧 บำบัดน้ำเสียบางชัน (318050, 318070)">
+                                <optgroup label="💧 บำบัดน้ำเสียบางชัน">
                                     @foreach (var sec in allSections.Where(IsWwBangchan))
                                     {
                                         <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="💧 บำบัดน้ำเสียลาดกระบัง (318060)">
+                                <optgroup label="💧 บำบัดน้ำเสียลาดกระบัง">
                                     @foreach (var sec in allSections.Where(IsWwLadkrabang))
                                     {
                                         <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
@@ -904,13 +899,13 @@
                             @if (allSections != null)
                             {
                                 <!-- 1. ฝั่งบางชัน -->
-                                <optgroup label="🏭 ฝั่งบางชัน - ฝ่ายผลิต (321000-321110)">
+                                <optgroup label="🏭 ฝั่งบางชัน - ฝ่ายผลิต">
                                     @foreach (var sec in allSections.Where(IsPdBangchan))
                                     {
                                         <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="📊 ฝั่งบางชัน - ส่วนวางแผนและควบคุม (322000-322030)">
+                                <optgroup label="📊 ฝั่งบางชัน - ส่วนวางแผนและควบคุม">
                                     @foreach (var sec in allSections.Where(IsPlanBangchan))
                                     {
                                         <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
@@ -918,13 +913,13 @@
                                 </optgroup>
 
                                 <!-- 2. ฝั่งลาดกระบัง -->
-                                <optgroup label="📦 ฝั่งลาดกระบัง - แผนกคลังวัตถุดิบ (310012-310014)">
+                                <optgroup label="📦 ฝั่งลาดกระบัง - แผนกคลังวัตถุดิบ">
                                     @foreach (var sec in allSections.Where(IsWhLadkrabang))
                                     {
                                         <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="🏭 ฝั่งลาดกระบัง - แผนกผลิต (311010-314090)">
+                                <optgroup label="🏭 ฝั่งลาดกระบัง - แผนกผลิต">
                                     @foreach (var sec in allSections.Where(IsPdLadkrabang))
                                     {
                                         <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
@@ -944,19 +939,19 @@
                                         <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="🛠️ เทคนิคบริการ ลาดกระบัง (310099)">
+                                <optgroup label="🛠️ เทคนิคบริการ ลาดกระบัง">
                                     @foreach (var sec in allSections.Where(IsTechServLadkrabang))
                                     {
                                         <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="🛠️ เทคนิคการผลิต ฝ่ายวิศวกรรม ลาดกระบัง (317110-317150)">
+                                <optgroup label="🛠️ เทคนิคการผลิต ฝ่ายวิศวกรรม ลาดกระบัง">
                                     @foreach (var sec in allSections.Where(IsTechProdLadkrabang))
                                     {
                                         <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="🛠️ ซ่อมบำรุง ฝ่ายวิศวกรรม ลาดกระบัง (317210-317240)">
+                                <optgroup label="🛠️ ซ่อมบำรุง ฝ่ายวิศวกรรม ลาดกระบัง">
                                     @foreach (var sec in allSections.Where(IsMaintLadkrabang))
                                     {
                                         <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
@@ -964,67 +959,67 @@
                                 </optgroup>
 
                                 <!-- 4. กลุ่มย่อยอื่นๆ -->
-                                <optgroup label="🏢 ฝ่ายบำรุงรักษาอาคาร (310089)">
+                                <optgroup label="🏢 ฝ่ายบำรุงรักษาอาคาร">
                                     @foreach (var sec in allSections.Where(IsBuildingMaint))
                                     {
                                         <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="🛡️ ความปลอดภัยบางชัน (310098)">
+                                <optgroup label="🛡️ ความปลอดภัยบางชัน">
                                     @foreach (var sec in allSections.Where(IsSafetyBangchan))
                                     {
                                         <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="🛡️ ความปลอดภัยลาดกระบัง (310100)">
+                                <optgroup label="🛡️ ความปลอดภัยลาดกระบัง">
                                     @foreach (var sec in allSections.Where(IsSafetyLadkrabang))
                                     {
                                         <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="💻 สารสนเทศ (140200-140700)">
+                                <optgroup label="💻 สารสนเทศ">
                                     @foreach (var sec in allSections.Where(IsIT))
                                     {
                                         <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="🏢 แผนกกลาง ส่วนกลางโรงงาน (310015-310016)">
+                                <optgroup label="🏢 แผนกกลาง ส่วนกลางโรงงาน">
                                     @foreach (var sec in allSections.Where(IsCentralFactory))
                                     {
                                         <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="📄 ธุรการ ลาดกระบัง (310140, 310150)">
+                                <optgroup label="📄 ธุรการ ลาดกระบัง">
                                     @foreach (var sec in allSections.Where(IsAdminLadkrabang))
                                     {
                                         <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="📄 ธุรการบางชัน (310160)">
+                                <optgroup label="📄 ธุรการบางชัน">
                                     @foreach (var sec in allSections.Where(IsAdminBangchan))
                                     {
                                         <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="🚚 ขนส่ง (310210-310260)">
+                                <optgroup label="🚚 ขนส่ง">
                                     @foreach (var sec in allSections.Where(IsTransport))
                                     {
                                         <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="🧪 ฝ่ายวิจัยพัฒนา (318010-318040)">
+                                <optgroup label="🧪 ฝ่ายวิจัยพัฒนา">
                                     @foreach (var sec in allSections.Where(IsRD))
                                     {
                                         <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="💧 บำบัดน้ำเสียบางชัน (318050, 318070)">
+                                <optgroup label="💧 บำบัดน้ำเสียบางชัน">
                                     @foreach (var sec in allSections.Where(IsWwBangchan))
                                     {
                                         <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
                                     }
                                 </optgroup>
-                                <optgroup label="💧 บำบัดน้ำเสียลาดกระบัง (318060)">
+                                <optgroup label="💧 บำบัดน้ำเสียลาดกระบัง">
                                     @foreach (var sec in allSections.Where(IsWwLadkrabang))
                                     {
                                         <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
@@ -1462,108 +1457,108 @@
     </div>
 
 
-    @section Scripts {
-        <script>
-            // ==================================================
-            // GLOBAL VARIABLES & LOOKUPS
-            // ==================================================
-            let lastKnownJob = null;
-            let lastJobId = 0;
-            let fpStart = null;
-            let fpEnd = null;
-            const sectionLookup = {};
+@section Scripts {
+    <script>
+        // ==================================================
+        // 1. GLOBAL VARIABLES & LOOKUPS
+        // ==================================================
+        let lastKnownJob = null;
+        let lastJobId = 0;
+        let fpStart = null;
+        let fpEnd = null;
+        const sectionLookup = {};
 
-            @if (ViewBag.SectionList != null)
+        @if (ViewBag.SectionList != null)
+        {
+            foreach (var item in (List<report_zycoda.Models.SectionApiModels>)ViewBag.SectionList)
             {
-                foreach (var item in (List<report_zycoda.Models.SectionApiModels>)ViewBag.SectionList)
+                if (item != null && !string.IsNullOrEmpty(item.Sections))
                 {
-                    if (item != null && !string.IsNullOrEmpty(item.Sections))
-                    {
-                        <text>
-                            sectionLookup["@item.Sections.Trim()"] = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(item.Name ?? ""));
-                        </text>
-                    }
+                    <text>
+                        sectionLookup["@item.Sections.Trim()"] = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(item.Name ?? ""));
+                    </text>
                 }
             }
+        }
 
-            // ตัวแปรสำหรับเก็บ Instance ของ Chart ป้องกันการสร้างซ้ำจนเกิด Error Canvas ค้าง
-            let pieChartInstance = null;
-            let barChartInstance = null;
+        // Instance สำหรับ Chart ป้องกัน Error Canvas ค้าง
+        let pieChartInstance = null;
+        let barChartInstance = null;
 
-            // ==================================================
-            // HELPERS FUNCTIONS
-            // ==================================================
-            function getSectionName(code) {
+        // ==================================================
+        // 2. HELPER FUNCTIONS
+        // ==================================================
+        function getSectionName(code) {
             if (!code || code === '-') return '-';
             return sectionLookup[String(code).trim()] || code;
-            }
+        }
 
-            function formatDT(dateStr) {
+        function formatDT(dateStr) {
             if (!dateStr || dateStr === '-' || dateStr === '0001-01-01T00:00:00') return '-';
             try {
-            const d = new Date(dateStr);
-            if (isNaN(d.getTime())) return dateStr;
-            return new Intl.DateTimeFormat('en-GB', {
-            day: '2-digit', month: '2-digit', year: 'numeric',
-            hour: '2-digit', minute: '2-digit', hour12: false
-            }).format(d).replace(/\//g, '-');
+                const d = new Date(dateStr);
+                if (isNaN(d.getTime())) return dateStr;
+                return new Intl.DateTimeFormat('en-GB', {
+                    day: '2-digit', month: '2-digit', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit', hour12: false
+                }).format(d).replace(/\//g, '-');
             } catch {
-            return dateStr;
+                return dateStr;
             }
-            }
+        }
 
-            function updateClock() {
+        function updateClock() {
             const el = document.getElementById('realtime-clock');
             if (!el) return;
             el.innerText = new Date().toLocaleString('th-TH', {
-            day: '2-digit', month: '2-digit', year: '2-digit',
-            hour: '2-digit', minute: '2-digit', second: '2-digit',
-            hour12: false
+                day: '2-digit', month: '2-digit', year: '2-digit',
+                hour: '2-digit', minute: '2-digit', second: '2-digit',
+                hour12: false
             });
-            }
+        }
 
-            function updateLastJobId() {
+        function updateLastJobId() {
             $('.job-row').each(function () {
-            const id = parseInt($(this).attr('data-id') || $(this).data('id'));
-            if (id && id > lastJobId) lastJobId = id;
+                const id = parseInt($(this).attr('data-id') || $(this).data('id'));
+                if (id && id > lastJobId) lastJobId = id;
             });
-            }
+        }
 
-            // ==================================================
-            // DYNAMIC COUNTERS & CHARTS PROCESSING
-            // ==================================================
-            function processDataAndRenderComponents() {
+        // ==================================================
+        // 3. DYNAMIC COUNTERS & CHARTS PROCESSING
+        // ==================================================
+        function processDataAndRenderComponents() {
             let totalJobs = 0, pending = 0, accept = 0, assign = 0, success = 0, reject = 0;
             const sectionCounts = {};
             const machineCounts = {};
             const zycodaPalette = [
-            'rgba(0, 31, 63, 0.85)', 'rgba(56, 189, 248, 0.85)', 'rgba(16, 185, 129, 0.85)',
-            'rgba(139, 92, 246, 0.85)', 'rgba(244, 114, 182, 0.85)', 'rgba(245, 158, 11, 0.85)',
-            'rgba(71, 85, 105, 0.85)'
+                'rgba(0, 31, 63, 0.85)', 'rgba(56, 189, 248, 0.85)', 'rgba(16, 185, 129, 0.85)',
+                'rgba(139, 92, 246, 0.85)', 'rgba(244, 114, 182, 0.85)', 'rgba(245, 158, 11, 0.85)',
+                'rgba(71, 85, 105, 0.85)'
             ];
 
-            // 1. วนลูปนับข้อมูลจริงจากคลาส .job-row ที่โผล่อยู่บนตารางขณะนั้น
+            // 3.1 วนลูปนับข้อมูลจริงจากตาราง (.job-row)
             $('.job-row').each(function () {
-            totalJobs++;
-            const status = ($(this).attr('data-status') || $(this).data('status') || '').toUpperCase().trim();
+                totalJobs++;
+                const status = ($(this).attr('data-status') || $(this).data('status') || '').toUpperCase().trim();
 
-            if (status === 'PENDING' || status === 'CREATE') pending++;
-            else if (status === 'ACCEPT') accept++;
-            else if (status === 'ASSIGN') assign++;
-            else if (status === 'SUCCESS') success++;
-            else if (status === 'REJECT' || status === 'DENY') reject++;
+                if (status === 'PENDING' || status === 'CREATE') pending++;
+                else if (status === 'ACCEPT') accept++;
+                else if (status === 'ASSIGN') assign++;
+                else if (status === 'SUCCESS') success++;
+                else if (status === 'REJECT' || status === 'DENY') reject++;
 
-            const sectionId = $(this).attr('data-sectioncreate') || $(this).data('sectioncreate') || 'ไม่ระบุ';
-            const sectionName = getSectionName(sectionId);
-            sectionCounts[sectionName] = (sectionCounts[sectionName] || 0) + 1;
+                const sectionId = $(this).attr('data-sectioncreate') || $(this).data('sectioncreate') || 'ไม่ระบุ';
+                const sectionName = getSectionName(sectionId);
+                sectionCounts[sectionName] = (sectionCounts[sectionName] || 0) + 1;
 
-            const machineName = $(this).attr('data-machine') || $(this).data('machine');
-            if (machineName && machineName !== '-' && machineName !== 'null') {
-            machineCounts[machineName] = (machineCounts[machineName] || 0) + 1;
-            }
+                const machineName = $(this).attr('data-machine') || $(this).data('machine');
+                if (machineName && machineName !== '-' && machineName !== 'null') {
+                    machineCounts[machineName] = (machineCounts[machineName] || 0) + 1;
+                }
             });
 
-            // 2. หยอดตัวเลขลงบนการ์ดด้านบนแบบป้องกันการค้าง 0 ทิพย์ (ใส่ไอดีดักไว้ให้ดึงง่ายขึ้นด้วย)
+            // 3.2 อัปเดตตัวเลขลงบน Cards
             $('#count-all-jobs, .card:contains("ALL JOBS") h3, .card:contains("ALL JOBS") .display-4').text(totalJobs);
             $('#count-pending, .card:contains("PENDING") h3, .card:contains("PENDING") .display-4').text(pending);
             $('#count-accept, .card:contains("ACCEPT") h3, .card:contains("ACCEPT") .display-4').text(accept);
@@ -1571,219 +1566,214 @@
             $('#count-success, .card:contains("SUCCESS") h3, .card:contains("SUCCESS") .display-4').text(success);
             $('#count-reject, .card:contains("REJECT") h3, .card:contains("REJECT") .display-4').text(reject);
 
-            // 3. Render Doughnut Chart (สัดส่วนสถานะงานซ่อม)
+            // 3.3 Render Doughnut Chart (สัดส่วนงานซ่อมตามแผนก)
             try {
-            const sectionLabels = Object.keys(sectionCounts);
-            const sectionData = Object.values(sectionCounts);
-            const chartEl = document.getElementById('maintenancePieChart');
+                const sectionLabels = Object.keys(sectionCounts);
+                const sectionData = Object.values(sectionCounts);
+                const chartEl = document.getElementById('maintenancePieChart');
 
-            if (pieChartInstance) pieChartInstance.destroy(); // ล้าง Instance เก่าทิ้งก่อน
+                if (pieChartInstance) pieChartInstance.destroy();
 
-            if (sectionLabels.length > 0 && chartEl && typeof Chart !== 'undefined') {
-            pieChartInstance = new Chart(chartEl.getContext('2d'), {
-            type: 'doughnut',
-            data: {
-            labels: sectionLabels,
-            datasets: [{
-            data: sectionData,
-            backgroundColor: sectionLabels.map((_, i) => zycodaPalette[i % zycodaPalette.length]),
-            hoverOffset: 15,
-            borderWidth: 2,
-            borderColor: '#ffffff'
-            }]
-            },
-            options: {
-            maintainAspectRatio: false,
-            cutout: '72%',
-            plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 15 } } }
-            }
-            });
-            }
+                if (sectionLabels.length > 0 && chartEl && typeof Chart !== 'undefined') {
+                    pieChartInstance = new Chart(chartEl.getContext('2d'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: sectionLabels,
+                            datasets: [{
+                                data: sectionData,
+                                backgroundColor: sectionLabels.map((_, i) => zycodaPalette[i % zycodaPalette.length]),
+                                hoverOffset: 15,
+                                borderWidth: 2,
+                                borderColor: '#ffffff'
+                            }]
+                        },
+                        options: {
+                            maintainAspectRatio: false,
+                            cutout: '72%',
+                            plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 15 } } }
+                        }
+                    });
+                }
             } catch (e) {
-            console.error("Pie Chart Error:", e);
+                console.error("Pie Chart Error:", e);
             }
 
-            // 4. Render Bar Chart (Top 10 เครื่องจักร)
+            // 3.4 Render Bar Chart (Top 10 เครื่องจักรที่แจ้งซ่อม)
             try {
-            const sortedMachines = Object.entries(machineCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
-            const chartEl = document.getElementById('maintenanceBarChart');
+                const sortedMachines = Object.entries(machineCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+                const chartEl = document.getElementById('maintenanceBarChart');
 
-            if (barChartInstance) barChartInstance.destroy(); // ล้าง Instance เก่าทิ้งก่อน
+                if (barChartInstance) barChartInstance.destroy();
 
-            if (sortedMachines.length > 0 && chartEl && typeof Chart !== 'undefined') {
-            barChartInstance = new Chart(chartEl.getContext('2d'), {
-            type: 'bar',
-            data: {
-            labels: sortedMachines.map(item => item[0]),
-            datasets: [{
-            label: 'จำนวนครั้งที่ซ่อม',
-            data: sortedMachines.map(item => item[1]),
-            backgroundColor: sortedMachines.map((_, i) => zycodaPalette[i % zycodaPalette.length]),
-            borderWidth: 1.5,
-            borderRadius: 6,
-            barThickness: 22
-            }]
-            },
-            options: {
-            indexAxis: 'y',
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }
-            }
-            });
-            }
+                if (sortedMachines.length > 0 && chartEl && typeof Chart !== 'undefined') {
+                    barChartInstance = new Chart(chartEl.getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: sortedMachines.map(item => item[0]),
+                            datasets: [{
+                                label: 'จำนวนครั้งที่ซ่อม',
+                                data: sortedMachines.map(item => item[1]),
+                                backgroundColor: sortedMachines.map((_, i) => zycodaPalette[i % zycodaPalette.length]),
+                                borderWidth: 1.5,
+                                borderRadius: 6,
+                                barThickness: 22
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                        }
+                    });
+                }
             } catch (e) {
-            console.error("Bar Chart Error:", e);
+                console.error("Bar Chart Error:", e);
             }
-            }
+        }
 
-            // ==================================================
-            // FLATPICKR CONFIG
-            // ==================================================
-            const commonConfig = {
-            dateFormat: "Y-m-d",
+        // ==================================================
+        // 4. FLATPICKR DATEPICKER INIT (ย้อนหลังสูงสุด 2 ปี)
+                // ==================================================
+               // 1. ตั้งค่า Common Config สำหรับ Flatpickr
+        const commonConfig = {
+            dateFormat: "Y-m-d",      // ฟอร์แมตส่งค่าเข้า Backend
             altInput: true,
-            altFormat: "d/m/Y",
-            locale: "en",
+            altFormat: "d/m/Y",       // ฟอร์แมตแสดงผลในช่อง
             allowInput: true,
             disableMobile: true,
-            onReady: function (_, __, instance) {
-            const defaultVal = instance.element.dataset.default;
-            if (defaultVal) instance.setDate(flatpickr.parseDate(defaultVal, "Y-m-d"), false);
-            },
-            onChange: function (_, dateStr, instance) {
-            instance.element.dataset.default = dateStr;
+            // บังคับให้ Flatpickr Parse วันที่เป็น ค.ศ. (Gregorian) เสมอ ป้องกันการสับสนกับ พ.ศ.
+            parseDate: (datestr, format) => {
+                return flatpickr.parseDate(datestr, format);
             }
-            };
+        };
 
-            function initDatePickers() {
+        function initDatePickers() {
             if (fpStart) fpStart.destroy();
             if (fpEnd) fpEnd.destroy();
 
-            // 1. คำนวณวันย้อนหลัง 1 ปีนับจากวันนี้
-            const oneYearAgo = new Date();
-            oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+            // คำนวณ minDate ย้อนหลัง 2 ปีจากวันนี้แบบ dynamic (ไม่ hardcode)
+            const today = new Date();
+            const minDateObj = new Date(today.getFullYear() - 2, today.getMonth(), today.getDate());
+            console.log('DEBUG minDateObj:', minDateObj); // เพิ่มบรรทัดนี้ชั่วคราว
 
-            const restrictedConfig = {
-            ...commonConfig,
-            minDate: oneYearAgo
+            // แปลงเป็น string รูปแบบ Y-m-d โดยไม่พึ่ง toISOString (กัน timezone เพี้ยน)
+            const pad = (n) => String(n).padStart(2, '0');
+            const minDateStr = `${minDateObj.getFullYear()}-${pad(minDateObj.getMonth() + 1)}-${pad(minDateObj.getDate())}`;
+
+            const customConfig = {
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "d/m/Y",
+                allowInput: true,
+                disableMobile: true,
+                minDate: minDateStr,   // ย้อนหลัง 2 ปีจากวันนี้เสมอ
+                maxDate: "today"       // ให้ flatpickr ใช้วันปัจจุบันเป็นขอบเขตบน ไม่ต้องแก้มือทุกปี
             };
 
-            fpStart = flatpickr("#startDatePicker", restrictedConfig);
-            fpEnd = flatpickr("#endDatePicker", restrictedConfig);
+            fpStart = flatpickr("#startDatePicker", customConfig);
+            fpEnd = flatpickr("#endDatePicker", customConfig);
 
             const startInput = document.getElementById("startDatePicker");
             const endInput = document.getElementById("endDatePicker");
 
-            const startVal = startInput?.dataset.default;
-            const endVal = endInput?.dataset.default;
-
-            // 2. ตรวจสอบช่อง Start Date: ถ้าค่า default เก่าเกิน 1 ปี ให้ดันมาใช้วันที่ย้อนหลัง 1 ปีแทน
-            if (startVal) {
-            const parsedStart = new Date(startVal);
-            if (parsedStart < oneYearAgo) {
-            fpStart.setDate(oneYearAgo, true, "Y-m-d");
-            } else {
-            fpStart.setDate(startVal, true, "Y-m-d");
+            if (startInput && startInput.dataset.default) {
+                fpStart.setDate(startInput.dataset.default, false, "Y-m-d");
             }
+            if (endInput && endInput.dataset.default) {
+                fpEnd.setDate(endInput.dataset.default, false, "Y-m-d");
             }
-
-            // 3. ตั้งค่าช่อง End Date
-            if (endVal) fpEnd.setDate(endVal, true, "Y-m-d");
-            }
-
-            // ==================================================
-            // BACKEND INTEGRATION (REFRESH & UPDATE)
-            // ==================================================
-            function refreshDashboard() {
+        }
+        // ==================================================
+        // 5. BACKEND INTEGRATION & EXTERNAL ACTIONS
+        // ==================================================
+        function refreshDashboard() {
             $.get(window.location.href, function (data) {
-            const newHtml = $(data);
+                const newHtml = $(data);
 
-            if ($.fn.DataTable.isDataTable('#maintenanceTable')) {
-            $('#maintenanceTable').DataTable().destroy();
-            }
+                if ($.fn.DataTable.isDataTable('#maintenanceTable')) {
+                    $('#maintenanceTable').DataTable().destroy();
+                }
 
-            // แทนที่เนื้อหาตารางจากหน้าฝั่งเซิร์ฟเวอร์
-            $('#maintenanceTable tbody').html(newHtml.find('#maintenanceTable tbody').html());
+                $('#maintenanceTable tbody').html(newHtml.find('#maintenanceTable tbody').html());
 
-            // โหลด DataTable กลับคืนมาใช้งานใหม่
-            $('#maintenanceTable').DataTable({
-            pageLength: 10,
-            lengthMenu: [[10, 15, 25, 50, 100], [10, 15, 25, 50, 100]],
-            language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/th.json" },
-            order: [[0, "desc"]],
-            dom: '<"d-flex justify-content-between align-items-center px-3 pt-2 mb-2"l f>rt<"d-flex justify-content-between align-items-center px-3 pb-3 mt-2"i p>'
-            });
+                $('#maintenanceTable').DataTable({
+                    pageLength: 10,
+                    lengthMenu: [[10, 15, 25, 50, 100], [10, 15, 25, 50, 100]],
+                    language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/th.json" },
+                    order: [[0, "desc"]],
+                    dom: '<"d-flex justify-content-between align-items-center px-3 pt-2 mb-2"l f>rt<"d-flex justify-content-between align-items-center px-3 pb-3 mt-2"i p>'
+                });
 
-            updateLastJobId();
-            processDataAndRenderComponents(); // ทำการคำนวณกราฟและการ์ดใหม่จากตารางล่าสุดทันที
+                updateLastJobId();
+                processDataAndRenderComponents();
 
-            const syncTextEl = document.getElementById('sync-time-text');
-            if (syncTextEl) syncTextEl.innerText = "อัปเดตสำเร็จ";
+                const syncTextEl = document.getElementById('sync-time-text');
+                if (syncTextEl) syncTextEl.innerText = "อัปเดตสำเร็จ";
 
-            $('#loader-wrapper').fadeOut(200);
+                $('#loader-wrapper').fadeOut(200);
             }).fail(function () {
-            $('#loader-wrapper').fadeOut(200);
+                $('#loader-wrapper').fadeOut(200);
             });
-            }
+        }
 
-            function checkUpdates() {
+        function checkUpdates() {
             $.get('/Maintenance/GetStatusUpdate', function (data) {
-            if (!data || data.length === 0) return;
-            const newest = data[0];
-            if (lastKnownJob === null) {
-            lastKnownJob = newest.jobNo;
-            return;
-            }
-            if (newest.jobNo !== lastKnownJob) {
-            Swal.fire({
-            title: 'มีใบงานใหม่! 🆕',
-            text: `ใบงานเลขที่: ${newest.jobNo} (${newest.status})`,
-            icon: 'info',
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 5000
+                if (!data || data.length === 0) return;
+                const newest = data[0];
+                if (lastKnownJob === null) {
+                    lastKnownJob = newest.jobNo;
+                    return;
+                }
+                if (newest.jobNo !== lastKnownJob) {
+                    Swal.fire({
+                        title: 'มีใบงานใหม่! 🆕',
+                        text: `ใบงานเลขที่: ${newest.jobNo} (${newest.status})`,
+                        icon: 'info',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 5000
+                    });
+                    lastKnownJob = newest.jobNo;
+                }
             });
-            lastKnownJob = newest.jobNo;
-            }
-            });
-            }
+        }
 
-            function PrintReport(reportType) {
+        function PrintReport(reportType) {
             const currentParams = new URLSearchParams(window.location.search);
             const params = new URLSearchParams({
-            start: currentParams.get("start") || (fpStart?.selectedDates?.length ? fpStart.formatDate(fpStart.selectedDates[0], "Y-m-d") : ""),
-            end: currentParams.get("end") || (fpEnd?.selectedDates?.length ? fpEnd.formatDate(fpEnd.selectedDates[0], "Y-m-d") : ""),
-            status: currentParams.get("Status") || currentParams.get("status") || document.getElementById("filterStatus")?.value || "",
-            sectionFrom: currentParams.get("sectionFrom") || document.getElementById("sectionFrom")?.value || "",
-            sectionTo: currentParams.get("sectionTo") || document.getElementById("sectionTo")?.value || "",
-            jobtype: currentParams.get("jobtype") || document.getElementById("jobtype")?.value || "EM,CM",
-            view: currentParams.get("view") || document.querySelector('input[name="view"]:checked')?.value || "followup",
-            rptType: reportType
+                start: currentParams.get("start") || (fpStart?.selectedDates?.length ? fpStart.formatDate(fpStart.selectedDates[0], "Y-m-d") : ""),
+                end: currentParams.get("end") || (fpEnd?.selectedDates?.length ? fpEnd.formatDate(fpEnd.selectedDates[0], "Y-m-d") : ""),
+                status: currentParams.get("Status") || currentParams.get("status") || document.getElementById("filterStatus")?.value || "",
+                sectionFrom: currentParams.get("sectionFrom") || document.getElementById("sectionFrom")?.value || "",
+                sectionTo: currentParams.get("sectionTo") || document.getElementById("sectionTo")?.value || "",
+                jobtype: currentParams.get("jobtype") || document.getElementById("jobtype")?.value || "EM,CM",
+                view: currentParams.get("view") || document.querySelector('input[name="view"]:checked')?.value || "followup",
+                rptType: reportType
             });
             window.open(`/Report/PrintReport?${params.toString()}`, '_blank');
             $('#printSelectModal').modal('hide');
-            }
-            window.PrintReport = PrintReport;
+        }
+        window.PrintReport = PrintReport;
 
-            function checkLastSyncTime() {
+        function checkLastSyncTime() {
             const syncText = document.getElementById('sync-time-text');
             const syncIcon = document.getElementById('sync-icon');
             if (syncIcon) syncIcon.classList.add('spin-animation');
 
             fetch('/api/sync/last-time')
-            .then(response => response.json())
-            .then(data => {
-            if (data.success && syncText) syncText.innerText = data.lastSync;
-            })
-            .catch(err => console.error("Error fetching sync time:", err))
-            .finally(() => {
-            setTimeout(() => { if (syncIcon) syncIcon.classList.remove('spin-animation'); }, 1000);
-            });
-            }
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && syncText) syncText.innerText = data.lastSync;
+                })
+                .catch(err => console.error("Error fetching sync time:", err))
+                .finally(() => {
+                    setTimeout(() => { if (syncIcon) syncIcon.classList.remove('spin-animation'); }, 1000);
+                });
+        }
 
-            function shareToLine(item) {
+        function shareToLine(item) {
             const jobId = item.id;
             const location = item.fl;
             const flDetail = item.fldetail;
@@ -1798,152 +1788,139 @@
 
             const message = `🛠 *ใบแจ้งซ่อมใหม่ (Job #${jobId})*\n----------------------------\n👤 *คนแจ้งงาน:* ${creator}\n🏬 *หน่วยงานที่แจ้ง:* ${sectionName}\n📌 *สถานที่:* ${location}\n📦 *อุปกรณ์:* ${flDetail}\n📝 *อาการ:* ${detail}\n----------------------------\n🔧 *ประเภทงาน:* ${jobType}\n⚠️ *ความสำคัญ:* ${priority}\n👤 *ช่างผู้รับผิดชอบ:* ${assignTo}\n🚩 *status:* ${status}\n\n🔗 *ดูรายละเอียด/กดรับงาน:* ${window.location.origin}/Maintenance/Details/${jobId}`;
             window.open("https://line.me/R/msg/text/?" + encodeURIComponent(message), '_blank');
-            }
+        }
 
-            // ==================================================
-            // MAIN INITIALIZATION (เมื่อ DOM Ready)
-            // ==================================================
-            $(document).ready(function () {
+        // ==================================================
+        // 6. MAIN INITIALIZATION (DOM READY)
+        // ==================================================
+        $(document).ready(function () {
             initDatePickers();
             checkLastSyncTime();
 
             if (!$.fn.DataTable.isDataTable('#maintenanceTable')) {
-            $('#maintenanceTable').DataTable({
-            pageLength: 10,
-            lengthMenu: [[10, 15, 25, 50, 100], [10, 15, 25, 50, 100]],
-            language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/th.json" },
-            order: [[0, "desc"]],
-            dom: '<"d-flex justify-content-between align-items-center px-3 pt-2 mb-2"l f>rt<"d-flex justify-content-between align-items-center px-3 pb-3 mt-2"i p>'
-            });
+                $('#maintenanceTable').DataTable({
+                    pageLength: 10,
+                    lengthMenu: [[10, 15, 25, 50, 100], [10, 15, 25, 50, 100]],
+                    language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/th.json" },
+                    order: [[0, "desc"]],
+                    dom: '<"d-flex justify-content-between align-items-center px-3 pt-2 mb-2"l f>rt<"d-flex justify-content-between align-items-center px-3 pb-3 mt-2"i p>'
+                });
             }
 
-            // คำนวณยอดและวาดกราฟทันทีจากการเรนเดอร์ครั้งแรกฝั่ง Server-side (ป้องกันหน้าเปล่าเลข 0)
+            // คำนวณยอดและวาดกราฟรอบแรก
             processDataAndRenderComponents();
 
-            // Click Row Event
+            // Event Click แถวตารางเปิด Modal
             $(document).on('click', '.job-row', function () {
-            const $el = $(this);
-            const getId = $el.attr('data-id') || $el.data('id');
+                const $el = $(this);
+                const getId = $el.attr('data-id') || $el.data('id');
 
-            // ข้อมูลทั่วไป
-            $('#mId').text(getId);
-            $('#mMachine').text($el.attr('data-machine') || $el.data('machine') || '-');
-            $('#mType').text($el.attr('data-type') || $el.data('type') || '-');
-            $('#mUser').text($el.attr('data-user') || $el.data('user') || '-');
-            $('#mDetail').text($el.attr('data-detail') || $el.data('detail') || '-');
+                $('#mId').text(getId);
+                $('#mMachine').text($el.attr('data-machine') || $el.data('machine') || '-');
+                $('#mType').text($el.attr('data-type') || $el.data('type') || '-');
+                $('#mUser').text($el.attr('data-user') || $el.data('user') || '-');
+                $('#mDetail').text($el.attr('data-detail') || $el.data('detail') || '-');
 
-            // สถานะและสไตล์ CSS Badge
-            $('#mStatus').text($el.attr('data-status') || $el.data('status'))
-            .removeClass()
-            .addClass('badge rounded-pill ' + ($el.attr('data-css') || $el.data('css') || 'bg-secondary'));
+                $('#mStatus').text($el.attr('data-status') || $el.data('status'))
+                    .removeClass()
+                    .addClass('badge rounded-pill ' + ($el.attr('data-css') || $el.data('css') || 'bg-secondary'));
 
-            // แผนก/ฝ่าย
-            $('#mSectionCreateName').text(getSectionName($el.attr('data-sectioncreate') || $el.data('sectioncreate')));
-            $('#mSection').text(getSectionName($el.attr('data-section') || $el.data('section')));
+                $('#mSectionCreateName').text(getSectionName($el.attr('data-sectioncreate') || $el.data('sectioncreate')));
+                $('#mSection').text(getSectionName($el.attr('data-section') || $el.data('section')));
 
-            // รายชื่อผู้รับผิดชอบช่วงต่างๆ
-            $('#mAssign').text($el.attr('data-uassign') || $el.data('uassign') || 'ยังไม่มอบหมาย');
-            $('#mAccept').text($el.attr('data-useraccept') || $el.data('useraccept') || 'ยังไม่มีผู้รับงาน');
-            $('#mFinish').text($el.attr('data-userfinish') || $el.data('userfinish') || '-');
+                $('#mAssign').text($el.attr('data-uassign') || $el.data('uassign') || 'ยังไม่มอบหมาย');
+                $('#mAccept').text($el.attr('data-useraccept') || $el.data('useraccept') || 'ยังไม่มีผู้รับงาน');
+                $('#mFinish').text($el.attr('data-userfinish') || $el.data('userfinish') || '-');
 
-            // เวลาของฝั่งปฏิบัติงาน
-            $('#mTimeCreate').text(formatDT($el.attr('data-timecreate') || $el.data('timecreate')));
-            $('#mTimeAccept').text(formatDT($el.attr('data-timeaccept') || $el.data('timeaccept')));
-            $('#mTimeAssign').text(formatDT($el.attr('data-timeassign') || $el.data('timeassign')));
+                $('#mTimeCreate').text(formatDT($el.attr('data-timecreate') || $el.data('timecreate')));
+                $('#mTimeAccept').text(formatDT($el.attr('data-timeaccept') || $el.data('timeaccept')));
+                $('#mTimeAssign').text(formatDT($el.attr('data-timeassign') || $el.data('timeassign')));
 
-            // ==================================================
-            // 🚀 ส่วนที่อัปเดต: แยกร่างกลุ่มข้อมูล ApproveCreate (Array Object)
-            // ==================================================
-            const approveData = $el.data('approvecreate');
+                // ข้อมูล ApproveCreate
+                const approveData = $el.data('approvecreate');
 
-            if (approveData && approveData.length > 0) {
-            // มีข้อมูลในรูปแบบ Array (ดึง Object ตัวแรกมาใช้)
-            const approver = approveData[0];
+                if (approveData && approveData.length > 0) {
+                    const approver = approveData[0];
+                    $('#mApprove').text(approver.name || '-');
 
-            $('#mApprove').text(approver.name || '-');
+                    if (approver.datetime) {
+                        const parts = approver.datetime.split('T');
+                        $('#mDateApprove').text(parts[0] || '-');
+                        $('#mDateApprove').text(parts[0] || '-');
+                        $('#mTimeApprove').text(parts[1] ? parts[1].substring(0, 5) : '-');
+                    } else {
+                        $('#mDateApprove').text('-');
+                        $('#mTimeApprove').text('-');
+                    }
+                } else {
+                    $('#mApprove').text($el.attr('data-userapprove') || $el.data('userapprove') || '-');
 
-            if (approver.datetime) {
-            const parts = approver.datetime.split('T');
-            const rawDate = parts[0];
-            const rawTime = parts[1] ? parts[1].substring(0, 5) : ''; // ตัดเหลือแค่ HH:mm
+                    const oldTime = $el.attr('data-timeapprove') || $el.data('timeapprove');
+                    if (oldTime) {
+                        const parts = oldTime.split('T');
+                        $('#mDateApprove').text(parts[0] || '-');
+                        $('#mTimeApprove').text(parts[1] ? parts[1].substring(0, 5) : '-');
+                    } else {
+                        $('#mDateApprove').text('-');
+                        $('#mTimeApprove').text('-');
+                    }
+                }
 
-            $('#mDateApprove').text(rawDate || '-');
-            $('#mTimeApprove').text(rawTime || '-');
-            } else {
-            $('#mDateApprove').text('-');
-            $('#mTimeApprove').text('-');
-            }
-            } else {
-            // 🔄 รองรับกรณีย้อนกลับไปใช้ Attribute เดี่ยวแบบเดิม (Fallback)
-            $('#mApprove').text($el.attr('data-userapprove') || $el.data('userapprove') || '-');
-
-            const oldTime = $el.attr('data-timeapprove') || $el.data('timeapprove');
-            if (oldTime) {
-            // ถ้าระบบเดิมส่งเป็น datetime ก้อนเดียวมา ให้ตัดแยกด้วย T เช่นกัน
-            const parts = oldTime.split('T');
-            $('#mDateApprove').text(parts[0] || '-');
-            $('#mTimeApprove').text(parts[1] ? parts[1].substring(0, 5) : '-');
-            } else {
-            $('#mDateApprove').text('-');
-            $('#mTimeApprove').text('-');
-            }
-            }
-
-            // เปิด Modal โชว์ข้อมูล
-            $('#jobDetailModal').modal('show');
+                $('#jobDetailModal').modal('show');
             });
 
-            // เปิดหน้า Loader พร้อม Progress Animation เมื่อมีการกด Filter ข้อมูล
-            document.getElementById('filterForm').addEventListener('submit', function () {
-            const $loader = document.getElementById('loader-wrapper');
-            const $progressBar = document.getElementById('loader-progress');
-            const $statusText = document.getElementById('loader-status-text');
+            // Filter Loader Progress
+            document.getElementById('filterForm')?.addEventListener('submit', function () {
+                const $loader = document.getElementById('loader-wrapper');
+                const $progressBar = document.getElementById('loader-progress');
+                const $statusText = document.getElementById('loader-status-text');
 
-            $loader.style.display = 'flex';
+                if ($loader) $loader.style.display = 'flex';
 
-            const steps = [
-            "กำลังตรวจสอบเงื่อนไขการค้นหา...",
-            "กำลังดึงข้อมูลจากระบบ...",
-            "กำลังประมวลผลกราฟและตาราง...",
-            "เกือบเสร็จแล้ว..."
-            ];
+                const steps = [
+                    "กำลังตรวจสอบเงื่อนไขการค้นหา...",
+                    "กำลังดึงข้อมูลจากระบบ...",
+                    "กำลังประมวลผลกราฟและตาราง...",
+                    "เกือบเสร็จแล้ว..."
+                ];
 
-            let progress = 0;
-            const interval = setInterval(() => {
-            progress += Math.floor(Math.random() * 15) + 5;
-            if (progress > 95) progress = 95; // เก็บไว้ 95% รอหน้าเปลี่ยนจริง
-            $progressBar.style.width = progress + "%";
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += Math.floor(Math.random() * 15) + 5;
+                    if (progress > 95) progress = 95;
+                    if ($progressBar) $progressBar.style.width = progress + "%";
 
-            const stepIdx = Math.min(Math.floor((progress / 100) * steps.length), steps.length - 1);
-            $statusText.textContent = steps[stepIdx];
+                    const stepIdx = Math.min(Math.floor((progress / 100) * steps.length), steps.length - 1);
+                    if ($statusText) $statusText.textContent = steps[stepIdx];
 
-            if (progress >= 95) clearInterval(interval);
-            }, 150);
+                    if (progress >= 95) clearInterval(interval);
+                }, 150);
             });
 
-            // ปิดม่านโหลดหลังจากที่ Component ทุกอย่างถูกคำนวณและวาดเสร็จสิ้นเรียบร้อยแล้ว
             $('#loader-wrapper').fadeOut(200);
 
+            // Intervals
             setInterval(updateClock, 1000);
             setInterval(checkUpdates, 30000);
-            setInterval(refreshDashboard, 60000); // วน Refresh ตารางใหม่ปลอดภัยขึ้น
+            setInterval(refreshDashboard, 60000);
             setInterval(checkLastSyncTime, 5 * 60 * 1000);
 
             updateClock();
             updateLastJobId();
-            });
+        });
 
-            $(window).on('load', function () {
+        $(window).on('load', function () {
             $('#loader-wrapper').fadeOut(300);
-            });
+        });
 
-            // กันเคส back/forward cache (bfcache) ที่ทำให้ loader ค้างโชว์ตอนกดย้อนกลับ
-            window.addEventListener('pageshow', function (event) {
+        // กัน BFCache
+        window.addEventListener('pageshow', function (event) {
             if (event.persisted) {
-            document.getElementById('loader-wrapper').style.display = 'none';
+                const loader = document.getElementById('loader-wrapper');
+                if (loader) loader.style.display = 'none';
             }
-            });
-        </script>
-    }
+        });
+    </script>
+}
 </body>
 </html>

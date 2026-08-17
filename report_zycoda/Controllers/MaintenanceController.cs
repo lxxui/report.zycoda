@@ -41,8 +41,7 @@ namespace report_zycoda.Controllers
         // HELPER: ดึงข้อมูลขนานกัน
         // ==================================================
 
-        private async Task<List<MaintenanceApiModels>> FetchJobsFromApi(string sessionUser,string sessionPass,string jobtype,string start,string end,string sessionClass,string sessionSection,
-            string view = "followup")
+        private async Task<List<MaintenanceApiModels>> FetchJobsFromApi(string sessionUser,string sessionPass,string jobtype,string start,string end,string sessionClass,string sessionSection,string view = "followup")
         {
             var culture = CultureInfo.InvariantCulture;
 
@@ -50,9 +49,11 @@ namespace report_zycoda.Controllers
             {
                 if (!DateTime.TryParse(start, culture, DateTimeStyles.None, out globalStart))
                 {
-                    globalStart = new DateTime(2026, 01, 01);
+                    // 🎯 เปลี่ยนจาก New DateTime(2026, 01, 01) เป็นย้อนหลัง 2 ปีนับจากปัจจุบัน
+                    globalStart = DateTime.Now.AddYears(-2);
                 }
             }
+
             if (!DateTime.TryParseExact(end, "yyyy-MM-dd", culture, DateTimeStyles.None, out var globalEnd))
             {
                 if (!DateTime.TryParse(end, culture, DateTimeStyles.None, out globalEnd))
@@ -184,7 +185,8 @@ namespace report_zycoda.Controllers
             string view = Request.Query["view"].ToString();
 
             var todayStr = DateTime.Now.ToString("yyyy-MM-dd", culture);
-            var defaultStartStr = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd", culture);
+            // เปลี่ยนจาก .AddDays(-7) เป็น .AddYears(-2)
+            var defaultStartStr = DateTime.Now.AddYears(-2).ToString("yyyy-MM-dd", culture);
 
             string finalStart = string.IsNullOrWhiteSpace(start) ? defaultStartStr : start.Trim();
             string finalEnd = string.IsNullOrWhiteSpace(end) ? todayStr : end.Trim();
