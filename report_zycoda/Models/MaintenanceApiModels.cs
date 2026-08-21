@@ -115,6 +115,7 @@ namespace report_zycoda.Models
         [JsonProperty("plan_man")] public string? plan_man { get; set; }
         [JsonProperty("hasitemlist")] public string? hasitemlist { get; set; }
         [JsonProperty("timeplanend")] public string? timeplanend { get; set; }
+        [JsonProperty("effect")] public string? effect { get; set; }
 
 
         // --- Logic Helper Properties ---

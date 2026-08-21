@@ -648,100 +648,256 @@
                             return int.TryParse(secCode, out int result) ? result : 0;
                         }
 
-                        // --- 1. ฝั่งบางชัน ---
-                        bool IsPdBangchan(SectionApiModels sec)
+                        // --- 1. ฝ่ายบัญชี ---
+                        bool IsAccounting(SectionApiModels sec)
                         {
                             int code = GetSecInt(sec.Sections);
-                            return (code >= 321000 && code <= 321110);
+                            return (code >= 110000 && code <= 110007);
                         }
 
-                        bool IsPlanBangchan(SectionApiModels sec)
-                        {
-                            int code = GetSecInt(sec.Sections);
-                            return (code >= 322000 && code <= 322030);
-                        }
-
-                        // --- 2. ฝั่งลาดกระบัง ---
-                        bool IsWhLadkrabang(SectionApiModels sec)
-                        {
-                            int code = GetSecInt(sec.Sections);
-                            return (code >= 310012 && code <= 310014);
-                        }
-
-                        bool IsPdLadkrabang(SectionApiModels sec)
-                        {
-                            int code = GetSecInt(sec.Sections);
-                            return (code >= 311010 && code <= 311090) ||
-                                   (code >= 312010 && code <= 312090) ||
-                                   (code >= 313010 && code <= 313090) ||
-                                   (code >= 314010 && code <= 314090);
-                        }
-
-                        // --- 3. วิศวกรรม / เทคนิคฝั่งลาดกระบัง (อัปเดตเพิ่มเติม) ---
-                        bool IsEngBangchan(SectionApiModels sec)
-                        {
-                            int code = GetSecInt(sec.Sections);
-                            return code == 320100 || code == 317310 || code == 317381 || (code >= 317320 && code <= 317374);
-                        }
-
-                        bool IsEngLadkrabang(SectionApiModels sec)
-                        {
-                            int code = GetSecInt(sec.Sections);
-                            return code == 317375 || code == 317380 || code == 317390 || (code >= 317020 && code <= 317050);
-                        }
-
-                        bool IsTechServLadkrabang(SectionApiModels sec) => sec.Sections == "310099";
-
-                        bool IsTechProdLadkrabang(SectionApiModels sec)
-                        {
-                            int code = GetSecInt(sec.Sections);
-                            return (code >= 317110 && code <= 317150);
-                        }
-
-                        bool IsMaintLadkrabang(SectionApiModels sec)
-                        {
-                            int code = GetSecInt(sec.Sections);
-                            return (code >= 317210 && code <= 317240);
-                        }
-
-                        // --- 4. กลุ่มย่อยอื่นๆ ---
-                        bool IsBuildingMaint(SectionApiModels sec) => sec.Sections == "310089";
-                        bool IsSafetyBangchan(SectionApiModels sec) => sec.Sections == "310098";
-                        bool IsSafetyLadkrabang(SectionApiModels sec) => sec.Sections == "310100";
-
+                        // --- 2. ฝ่ายสารสนเทศ ---
                         bool IsIT(SectionApiModels sec)
                         {
                             int code = GetSecInt(sec.Sections);
-                            return (code >= 140200 && code <= 140700);
+                            return (code >= 140200 && code <= 140900);
                         }
 
-                        bool IsCentralFactory(SectionApiModels sec) => sec.Sections == "310015" || sec.Sections == "310016";
-                        bool IsAdminLadkrabang(SectionApiModels sec) => sec.Sections == "310140" || sec.Sections == "310150";
-                        bool IsAdminBangchan(SectionApiModels sec) => sec.Sections == "310160";
-
-                        bool IsTransport(SectionApiModels sec)
+                        // --- 3. ฝ่ายขาย ---
+                        bool IsSales(SectionApiModels sec)
                         {
                             int code = GetSecInt(sec.Sections);
-                            return (code >= 310210 && code <= 310260);
+                            return (code >= 210000 && code <= 210001);
                         }
 
+                        // --- 4. สาขา DC ---
+                        bool IsBranchDC(SectionApiModels sec)
+                        {
+                            int code = GetSecInt(sec.Sections);
+                            return (code >= 211010 && code <= 219999);
+                        }
+
+                        // --- 5. สินค้าคืน ---
+                        bool IsReturns(SectionApiModels sec) => sec.Sections == "310010";
+
+                        // --- 6. คลังวัตถุดิบ / วางแผนควบคุม / stock / ส่วนกลาง / ล้างถาด ลาดกระบัง ---
+                        bool IsWhLadkrabang(SectionApiModels sec)
+                        {
+                            int code = GetSecInt(sec.Sections);
+                            return (code >= 310012 && code <= 310016);
+                        }
+
+                        // --- 7. เทคนิคบริการ บำรุงรักษาอาคาร ---
+                        bool IsTechServMaint(SectionApiModels sec) => sec.Sections == "310089" || sec.Sections == "310099";
+
+                        // --- 8. ความปลอดภัย ---
+                        bool IsSafety(SectionApiModels sec) => sec.Sections == "310098" || sec.Sections == "310100";
+
+                        // --- 9. ธุรการ สวัสดิการ พัฒนาทรัพยากรบุคคล ---
+                        bool IsAdminHR(SectionApiModels sec)
+                        {
+                            var codes = new[] { "310130", "310140", "310150", "310160", "310170", "310180", "310190" };
+                            return codes.Contains(sec.Sections);
+                        }
+
+                        // --- 10. จัดส่ง ยานยนต์ logistics ---
+                        bool IsTransport(SectionApiModels sec)
+                        {
+                            var codes = new[] { "310210", "310230", "310260" };
+                            return codes.Contains(sec.Sections);
+                        }
+
+                        // --- 11. ฝ่ายผลิตลาดกระบัง (ไม่รวม QC) ---
+                        bool IsPdLadkrabang(SectionApiModels sec)
+                        {
+                            int code = GetSecInt(sec.Sections);
+                            bool isQc = code == 311090 || code == 312090 || code == 313090 || code == 314090;
+                            bool inRange = (code >= 311010 && code <= 311020) ||
+                                           (code >= 312010 && code <= 312030) ||
+                                           (code >= 313010 && code <= 313040) ||
+                                           (code >= 314010 && code <= 314042);
+                            return inRange && !isQc;
+                        }
+
+                        // --- 12. ฝ่ายผลิต ควบคุมคุณภาพ (QC) ---
+                        bool IsQcLadkrabang(SectionApiModels sec)
+                        {
+                            int code = GetSecInt(sec.Sections);
+                            return code == 311090 || code == 312090 || code == 313090 || code == 314090;
+                        }
+
+                        // --- 13. วิศวกรรม ลาดกระบัง ---
+                        bool IsEngLadkrabang(SectionApiModels sec)
+                        {
+                            int code = GetSecInt(sec.Sections);
+                            return (code >= 317020 && code <= 317050) ||
+                                   (code >= 317110 && code <= 317150) ||
+                                   (code >= 317210 && code <= 317220) ||
+                                   (code >= 317230 && code <= 317240) ;
+                        }
+
+                        // --- 14. วิศวกรรม บางชัน ---
+                        bool IsEngBangchan(SectionApiModels sec)
+                        {
+                            int code = GetSecInt(sec.Sections);
+                            return (code >= 317310 && code <= 317390) ||
+                                   code == 318050 || code == 318060 || code == 318070;
+                        }
+
+                        // --- 15. ฝ่ายวิจัย และพัฒนา ---
                         bool IsRD(SectionApiModels sec)
                         {
                             int code = GetSecInt(sec.Sections);
-                            return (code >= 318010 && code <= 318040);
+                            return (code >= 318100 && code <= 318124) ||
+                            (code >= 318010 && code <= 318040) ;
                         }
 
-                        bool IsWwBangchan(SectionApiModels sec) => sec.Sections == "318050" || sec.Sections == "318070";
-                        bool IsWwLadkrabang(SectionApiModels sec) => sec.Sections == "318060";
+                        // --- 16. บำรุงรักษาอาคาร (ส่วนกลาง) ---
+                        bool IsBuildingMaint(SectionApiModels sec) => sec.Sections == "320100";
+
+                        // --- 17. ฝ่ายผลิต บางชัน ---
+                        bool IsPdBangchan(SectionApiModels sec)
+                        {
+                            int code = GetSecInt(sec.Sections);
+                            return (code >= 321000 && code <= 321110) || code == 322000;
+                        }
+
+                        // --- 18. คลังวัตถุดิบ ประกันคุณภาพ บางชัน ---
+                        bool IsWhQaBangchan(SectionApiModels sec)
+                        {
+                            int code = GetSecInt(sec.Sections);
+                            return (code >= 322010 && code <= 322030);
+                        }
 
                         // ฟังก์ชันเช็คว่าข้อมูลนี้เข้ากลุ่มใดกลุ่มหนึ่งข้างบนหรือไม่ (ถ้าไม่เข้าเลยจะกลายเป็น "อื่นๆ")
                         bool IsMatchedAny(SectionApiModels sec)
                         {
-                            return IsPdBangchan(sec) || IsPlanBangchan(sec) || IsWhLadkrabang(sec) || IsPdLadkrabang(sec) ||
-                                   IsEngBangchan(sec) || IsEngLadkrabang(sec) || IsTechServLadkrabang(sec) || IsTechProdLadkrabang(sec) ||
-                                   IsMaintLadkrabang(sec) || IsBuildingMaint(sec) || IsSafetyBangchan(sec) || IsSafetyLadkrabang(sec) ||
-                                   IsIT(sec) || IsCentralFactory(sec) || IsAdminLadkrabang(sec) || IsAdminBangchan(sec) ||
-                                   IsTransport(sec) || IsRD(sec) || IsWwBangchan(sec) || IsWwLadkrabang(sec);
+                            return IsAccounting(sec) || IsIT(sec) || IsSales(sec) || IsBranchDC(sec) || IsReturns(sec) ||
+                                   IsWhLadkrabang(sec) || IsTechServMaint(sec) || IsSafety(sec) ||
+                                   IsAdminHR(sec) || IsTransport(sec) || IsPdLadkrabang(sec) || IsQcLadkrabang(sec) ||
+                                   IsEngLadkrabang(sec) || IsEngBangchan(sec) || IsRD(sec) || IsBuildingMaint(sec) ||
+                                   IsPdBangchan(sec) || IsWhQaBangchan(sec);
+                        }
+                    }
+
+                    @{
+                        // Render the full set of optgroups once per <select>, reused for both "From" and "To"
+                        void RenderOptions(string selectedValue)
+                        {
+                            <optgroup label="💰 ฝ่ายบัญชี">
+                                @foreach (var sec in allSections.Where(IsAccounting))
+                                {
+                                    <option value="@sec.Sections" selected="@(selectedValue == sec.Sections)">@sec.Sections - @sec.Name</option>
+                                }
+                            </optgroup>
+                            <optgroup label="💻 ฝ่ายสารสนเทศ">
+                                @foreach (var sec in allSections.Where(IsIT))
+                                {
+                                    <option value="@sec.Sections" selected="@(selectedValue == sec.Sections)">@sec.Sections - @sec.Name</option>
+                                }
+                            </optgroup>
+                            <optgroup label="🛒 ฝ่ายขาย">
+                                @foreach (var sec in allSections.Where(IsSales))
+                                {
+                                    <option value="@sec.Sections" selected="@(selectedValue == sec.Sections)">@sec.Sections - @sec.Name</option>
+                                }
+                            </optgroup>
+                            <optgroup label="🏬 สาขา DC">
+                                @foreach (var sec in allSections.Where(IsBranchDC))
+                                {
+                                    <option value="@sec.Sections" selected="@(selectedValue == sec.Sections)">@sec.Sections - @sec.Name</option>
+                                }
+                            </optgroup>
+                            <optgroup label="↩️ สินค้าคืน">
+                                @foreach (var sec in allSections.Where(IsReturns))
+                                {
+                                    <option value="@sec.Sections" selected="@(selectedValue == sec.Sections)">@sec.Sections - @sec.Name</option>
+                                }
+                            </optgroup>
+                            <optgroup label="📦 คลังวัตถุดิบ/วางแผนควบคุม/Stock ลาดกระบัง">
+                                @foreach (var sec in allSections.Where(IsWhLadkrabang))
+                                {
+                                    <option value="@sec.Sections" selected="@(selectedValue == sec.Sections)">@sec.Sections - @sec.Name</option>
+                                }
+                            </optgroup>
+                            <optgroup label="🛠️ เทคนิคบริการ บำรุงรักษาอาคาร">
+                                @foreach (var sec in allSections.Where(IsTechServMaint))
+                                {
+                                    <option value="@sec.Sections" selected="@(selectedValue == sec.Sections)">@sec.Sections - @sec.Name</option>
+                                }
+                            </optgroup>
+                            <optgroup label="🛡️ ความปลอดภัย">
+                                @foreach (var sec in allSections.Where(IsSafety))
+                                {
+                                    <option value="@sec.Sections" selected="@(selectedValue == sec.Sections)">@sec.Sections - @sec.Name</option>
+                                }
+                            </optgroup>
+                        
+                            <optgroup label="📄 ธุรการ สวัสดิการ พัฒนาทรัพยากรบุคคล">
+                                @foreach (var sec in allSections.Where(IsAdminHR))
+                                {
+                                    <option value="@sec.Sections" selected="@(selectedValue == sec.Sections)">@sec.Sections - @sec.Name</option>
+                                }
+                            </optgroup>
+                            <optgroup label="🚚 จัดส่ง ยานยนต์ Logistics">
+                                @foreach (var sec in allSections.Where(IsTransport))
+                                {
+                                    <option value="@sec.Sections" selected="@(selectedValue == sec.Sections)">@sec.Sections - @sec.Name</option>
+                                }
+                            </optgroup>
+                            <optgroup label="🏭 ฝ่ายผลิตลาดกระบัง">
+                                @foreach (var sec in allSections.Where(IsPdLadkrabang))
+                                {
+                                    <option value="@sec.Sections" selected="@(selectedValue == sec.Sections)">@sec.Sections - @sec.Name</option>
+                                }
+                            </optgroup>
+                            <optgroup label="🔬 ฝ่ายผลิต ควบคุมคุณภาพ (QC)">
+                                @foreach (var sec in allSections.Where(IsQcLadkrabang))
+                                {
+                                    <option value="@sec.Sections" selected="@(selectedValue == sec.Sections)">@sec.Sections - @sec.Name</option>
+                                }
+                            </optgroup>
+                            <optgroup label="🛠️ วิศวกรรมลาดกระบัง">
+                                @foreach (var sec in allSections.Where(IsEngLadkrabang))
+                                {
+                                    <option value="@sec.Sections" selected="@(selectedValue == sec.Sections)">@sec.Sections - @sec.Name</option>
+                                }
+                            </optgroup>
+                            <optgroup label="🛠️ วิศวกรรมบางชัน">
+                                @foreach (var sec in allSections.Where(IsEngBangchan))
+                                {
+                                    <option value="@sec.Sections" selected="@(selectedValue == sec.Sections)">@sec.Sections - @sec.Name</option>
+                                }
+                            </optgroup>
+                            <optgroup label="🧪 ฝ่ายวิจัยและพัฒนา">
+                                @foreach (var sec in allSections.Where(IsRD))
+                                {
+                                    <option value="@sec.Sections" selected="@(selectedValue == sec.Sections)">@sec.Sections - @sec.Name</option>
+                                }
+                            </optgroup>
+                            <optgroup label="🏢 บำรุงรักษาอาคาร">
+                                @foreach (var sec in allSections.Where(IsBuildingMaint))
+                                {
+                                    <option value="@sec.Sections" selected="@(selectedValue == sec.Sections)">@sec.Sections - @sec.Name</option>
+                                }
+                            </optgroup>
+                            <optgroup label="🏭 ฝ่ายผลิตบางชัน">
+                                @foreach (var sec in allSections.Where(IsPdBangchan))
+                                {
+                                    <option value="@sec.Sections" selected="@(selectedValue == sec.Sections)">@sec.Sections - @sec.Name</option>
+                                }
+                            </optgroup>
+                            <optgroup label="📦 คลังวัตถุดิบ ประกันคุณภาพ บางชัน">
+                                @foreach (var sec in allSections.Where(IsWhQaBangchan))
+                                {
+                                    <option value="@sec.Sections" selected="@(selectedValue == sec.Sections)">@sec.Sections - @sec.Name</option>
+                                }
+                            </optgroup>
+                            <optgroup label="🏢 อื่นๆ">
+                                @foreach (var sec in allSections.Where(x => !IsMatchedAny(x)))
+                                {
+                                    <option value="@sec.Sections" selected="@(selectedValue == sec.Sections)">@sec.Sections - @sec.Name</option>
+                                }
+                            </optgroup>
                         }
                     }
 
@@ -752,141 +908,7 @@
                             <option value="" selected="@(string.IsNullOrEmpty(currentFrom))">- ทั้งหมด -</option>
                             @if (allSections != null)
                             {
-                                <!-- 1. ฝั่งบางชัน -->
-                                <optgroup label="🏭 ฝั่งบางชัน - ฝ่ายผลิต">
-                                    @foreach (var sec in allSections.Where(IsPdBangchan))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="📊 ฝั่งบางชัน - ส่วนวางแผนและควบคุม">
-                                    @foreach (var sec in allSections.Where(IsPlanBangchan))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-
-                                <!-- 2. ฝั่งลาดกระบัง -->
-                                <optgroup label="📦 ฝั่งลาดกระบัง - แผนกคลังวัตถุดิบ">
-                                    @foreach (var sec in allSections.Where(IsWhLadkrabang))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="🏭 ฝั่งลาดกระบัง - แผนกผลิต">
-                                    @foreach (var sec in allSections.Where(IsPdLadkrabang))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-
-                                <!-- 3. วิศวกรรม / เทคนิค -->
-                                <optgroup label="🛠️ วิศวกรรมบางชัน">
-                                    @foreach (var sec in allSections.Where(IsEngBangchan))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="🛠️ วิศวกรรมลาดกระบัง">
-                                    @foreach (var sec in allSections.Where(IsEngLadkrabang))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="🛠️ เทคนิคบริการ ลาดกระบัง">
-                                    @foreach (var sec in allSections.Where(IsTechServLadkrabang))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="🛠️ เทคนิคการผลิต ฝ่ายวิศวกรรม ลาดกระบัง">
-                                    @foreach (var sec in allSections.Where(IsTechProdLadkrabang))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="🛠️ ซ่อมบำรุง ฝ่ายวิศวกรรม ลาดกระบัง">
-                                    @foreach (var sec in allSections.Where(IsMaintLadkrabang))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-
-                                <!-- 4. กลุ่มย่อยอื่นๆ -->
-                                <optgroup label="🏢 ฝ่ายบำรุงรักษาอาคาร">
-                                    @foreach (var sec in allSections.Where(IsBuildingMaint))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="🛡️ ความปลอดภัยบางชัน">
-                                    @foreach (var sec in allSections.Where(IsSafetyBangchan))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="🛡️ ความปลอดภัยลาดกระบัง">
-                                    @foreach (var sec in allSections.Where(IsSafetyLadkrabang))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="💻 สารสนเทศ">
-                                    @foreach (var sec in allSections.Where(IsIT))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="🏢 แผนกกลาง ส่วนกลางโรงงาน">
-                                    @foreach (var sec in allSections.Where(IsCentralFactory))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="📄 ธุรการ ลาดกระบัง">
-                                    @foreach (var sec in allSections.Where(IsAdminLadkrabang))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="📄 ธุรการบางชัน">
-                                    @foreach (var sec in allSections.Where(IsAdminBangchan))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="🚚 ขนส่ง">
-                                    @foreach (var sec in allSections.Where(IsTransport))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="🧪 ฝ่ายวิจัยพัฒนา">
-                                    @foreach (var sec in allSections.Where(IsRD))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="💧 บำบัดน้ำเสียบางชัน">
-                                    @foreach (var sec in allSections.Where(IsWwBangchan))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="💧 บำบัดน้ำเสียลาดกระบัง">
-                                    @foreach (var sec in allSections.Where(IsWwLadkrabang))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-
-                                <!-- 5. ส่วนอื่นๆ ที่เหลือ (Fallback) -->
-                                <optgroup label="🏢 อื่นๆ">
-                                    @foreach (var sec in allSections.Where(x => !IsMatchedAny(x)))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentFrom == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
+                                RenderOptions(currentFrom);
                             }
                         </select>
                     </div>
@@ -898,144 +920,11 @@
                             <option value="" selected="@(string.IsNullOrEmpty(currentTo))">- ทั้งหมด -</option>
                             @if (allSections != null)
                             {
-                                <!-- 1. ฝั่งบางชัน -->
-                                <optgroup label="🏭 ฝั่งบางชัน - ฝ่ายผลิต">
-                                    @foreach (var sec in allSections.Where(IsPdBangchan))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="📊 ฝั่งบางชัน - ส่วนวางแผนและควบคุม">
-                                    @foreach (var sec in allSections.Where(IsPlanBangchan))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-
-                                <!-- 2. ฝั่งลาดกระบัง -->
-                                <optgroup label="📦 ฝั่งลาดกระบัง - แผนกคลังวัตถุดิบ">
-                                    @foreach (var sec in allSections.Where(IsWhLadkrabang))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="🏭 ฝั่งลาดกระบัง - แผนกผลิต">
-                                    @foreach (var sec in allSections.Where(IsPdLadkrabang))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-
-                                <!-- 3. วิศวกรรม / เทคนิค -->
-                                <optgroup label="🛠️ วิศวกรรมบางชัน">
-                                    @foreach (var sec in allSections.Where(IsEngBangchan))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="🛠️ วิศวกรรมลาดกระบัง">
-                                    @foreach (var sec in allSections.Where(IsEngLadkrabang))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="🛠️ เทคนิคบริการ ลาดกระบัง">
-                                    @foreach (var sec in allSections.Where(IsTechServLadkrabang))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="🛠️ เทคนิคการผลิต ฝ่ายวิศวกรรม ลาดกระบัง">
-                                    @foreach (var sec in allSections.Where(IsTechProdLadkrabang))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="🛠️ ซ่อมบำรุง ฝ่ายวิศวกรรม ลาดกระบัง">
-                                    @foreach (var sec in allSections.Where(IsMaintLadkrabang))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-
-                                <!-- 4. กลุ่มย่อยอื่นๆ -->
-                                <optgroup label="🏢 ฝ่ายบำรุงรักษาอาคาร">
-                                    @foreach (var sec in allSections.Where(IsBuildingMaint))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="🛡️ ความปลอดภัยบางชัน">
-                                    @foreach (var sec in allSections.Where(IsSafetyBangchan))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="🛡️ ความปลอดภัยลาดกระบัง">
-                                    @foreach (var sec in allSections.Where(IsSafetyLadkrabang))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="💻 สารสนเทศ">
-                                    @foreach (var sec in allSections.Where(IsIT))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="🏢 แผนกกลาง ส่วนกลางโรงงาน">
-                                    @foreach (var sec in allSections.Where(IsCentralFactory))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="📄 ธุรการ ลาดกระบัง">
-                                    @foreach (var sec in allSections.Where(IsAdminLadkrabang))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="📄 ธุรการบางชัน">
-                                    @foreach (var sec in allSections.Where(IsAdminBangchan))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="🚚 ขนส่ง">
-                                    @foreach (var sec in allSections.Where(IsTransport))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="🧪 ฝ่ายวิจัยพัฒนา">
-                                    @foreach (var sec in allSections.Where(IsRD))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="💧 บำบัดน้ำเสียบางชัน">
-                                    @foreach (var sec in allSections.Where(IsWwBangchan))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-                                <optgroup label="💧 บำบัดน้ำเสียลาดกระบัง">
-                                    @foreach (var sec in allSections.Where(IsWwLadkrabang))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
-
-                                <!-- 5. ส่วนอื่นๆ ที่เหลือ (Fallback) -->
-                                <optgroup label="🏢 อื่นๆ">
-                                    @foreach (var sec in allSections.Where(x => !IsMatchedAny(x)))
-                                    {
-                                        <option value="@sec.Sections" selected="@(currentTo == sec.Sections)">@sec.Sections - @sec.Name</option>
-                                    }
-                                </optgroup>
+                                RenderOptions(currentTo);
                             }
                         </select>
                     </div>
+
 
                     <!-- VIEW -->
                     <div class="col-md-2">
@@ -1134,6 +1023,7 @@
                                     data-timecreate="@item.timecreate"
                                     data-timeaccept="@item.timeaccept"
                                     data-timeassign="@item.timeassign"
+                                    data-effect="@item.effect"
                                     data-approvecreate='@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(item.ApproveCreate ?? new List<report_zycoda.Models.ApproveCreateDetail>()))'>
 
                                     <td class="ps-4 fw-bold text-navy">#@item.id</td>
@@ -1215,82 +1105,114 @@
 
         <div class="modal fade" id="jobDetailModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content modal-content-modern">
-                    <div class="modal-header modal-header-modern align-items-center">
+                <div class="modal-content modal-content-modern border-0 shadow-lg">
+
+                    <!-- Header -->
+                    <div class="modal-header modal-header-modern align-items-center bg-white border-bottom py-3 px-4">
                         <div class="d-flex align-items-center">
                             <div class="me-3 border-end pe-3">
-                                <span class="zycoda-logo-text">ZYCODA</span>
-                                <span class="zycoda-badge">REPORT</span>
+                                <span class="zycoda-logo-text fw-black text-primary">ZYCODA</span>
+                                <span class="zycoda-badge badge bg-primary-subtle text-primary ms-1">REPORT</span>
                             </div>
                             <div>
-                                <div class="text-muted small fw-bold">SERVICE TICKET</div>
+                                <div class="text-muted extra-small text-uppercase fw-bold tracking-wider" style="font-size: 0.7rem; letter-spacing: 0.5px;">SERVICE TICKET</div>
                                 <h5 class="fw-bold text-navy mb-0">#<span id="mId"></span></h5>
                             </div>
                         </div>
 
                         <div class="ms-auto d-flex align-items-center gap-3">
-                            <span id="mStatus" class="status-indicator badge shadow-none"></span>
+                            <span id="mStatus" class="status-indicator badge rounded-pill px-3 py-2 shadow-none"></span>
                             <button type="button" class="btn-close btn-close-modern" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                     </div>
 
+                    <!-- Body -->
                     <div class="modal-body p-4 bg-light bg-opacity-50">
-                        <div class="info-card mb-4 shadow-sm">
+
+                        <!-- Machine Info Card -->
+                        <div class="info-card mb-4 p-3 bg-white rounded-3 shadow-sm border">
                             <div class="row align-items-center">
                                 <div class="col-md-7">
-                                    <h3 id="mMachine" class="fw-bold text-navy mb-2">...</h3>
-                                    <div class="d-flex align-items-center text-muted">
-                                        <i class="bi bi-geo-alt-fill text-danger me-2"></i>
+                                    <h4 id="mMachine" class="fw-bold text-navy mb-1">...</h4>
+                                    <div class="d-flex align-items-center text-muted small">
+                                        <i class="bi bi-geo-alt-fill text-danger me-1"></i>
                                         <span>จากหน่วยงาน: </span>
                                         <span id="mSectionCreateName" class="fw-bold text-dark ms-1"></span>
                                     </div>
                                 </div>
-                                <div class="col-md-5 mt-3 mt-md-0">
-                                    <div class="timeline-mini">
-                                        <div class="timeline-dot"></div>
-                                        <div class="small text-muted">เวลาแจ้งงาน</div>
-                                        <div id="mTimeCreate" class="fw-bold text-navy">...</div>
+                                <div class="col-md-5 mt-3 mt-md-0 border-start-md ps-md-4">
+                                    <div class="timeline-mini d-flex align-items-center">
+                                        <div class="bg-primary-subtle p-2 rounded-circle me-2 d-flex align-items-center justify-content-center" style="width:36px; height:36px;">
+                                            <i class="bi bi-clock-history text-primary fs-6"></i>
+                                        </div>
+                                        <div>
+                                            <div class="small text-muted" style="font-size: 0.75rem;">เวลาแจ้งงาน</div>
+                                            <div id="mTimeCreate" class="fw-bold text-navy small">...</div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="row g-4">
+                            <!-- Left Column: Description & Details -->
                             <div class="col-md-7">
-                                <div class="detail-section-label">
-                                    <i class="bi bi-chat-left-dots-fill"></i> Description & Detail
+                                <div class="detail-section-label fw-bold text-navy mb-2 small text-uppercase" style="letter-spacing: 0.5px;">
+                                    <i class="bi bi-chat-left-dots-fill text-primary me-1"></i> Description & Detail
                                 </div>
-                                <div class="info-card h-100">
-                                    <div class="info-label mb-2">ประเภทงาน: <span id="mType" class="badge bg-navy-soft text-navy ms-2">-</span></div>
+                                <div class="info-card p-3 bg-white rounded-3 shadow-sm border h-100 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <!-- Work Type & Effect Bar -->
+                                        <!-- Work Type & Effect Section -->
+                                        <div class="row g-2 pb-3 mb-3 border-bottom">
+                                            <div class="col-12 d-flex align-items-center">
+                                                <span class="text-muted me-2 small flex-shrink-0">ประเภทงาน:</span>
+                                                <span id="mType" class="badge bg-navy-soft text-navy border px-2 py-1">-</span>
+                                            </div>
 
-                                    <div id="mDetail" class="text-dark py-2 mb-3" style="font-size: 1.05rem; line-height: 1.6; white-space: pre-wrap; min-height: 80px;">-</div>
-
-                                    <hr class="opacity-10">
-
-                                    <div class="row g-3">
-                                        <div class="col-6">
-                                            <div class="d-flex align-items-center">
-                                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                                                    <i class="bi bi-person-fill text-secondary"></i>
-                                                </div>
-                                                <div>
-                                                    <div class="info-label text-muted small">ผู้แจ้งงาน</div>
-                                                    <div id="mUser" class="fw-bold text-dark">-</div>
-                                                </div>
+                                            <!-- แก้ไขส่วนผลกระทบตรงนี้ -->
+                                            <div class="col-12 mt-2">
+                                                <div class="text-muted small mb-1">ผลกระทบ:</div>
+                                                <span id="mEffect" class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 text-wrap text-break text-start w-100 lh-base fw-normal">
+                                                    -
+                                                </span>
                                             </div>
                                         </div>
 
-                                        <div class="col-6 border-start">
-                                            <div class="d-flex align-items-center ps-3">
-                                                <div class="bg-success-subtle rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                                                    <i class="bi bi-shield-check text-success"></i>
+                                        <!-- Detail Text -->
+                                        <div class="mb-3">
+                                            <div class="text-muted extra-small mb-1" style="font-size: 0.75rem;">รายละเอียดปัญหา</div>
+                                            <div id="mDetail" class="text-dark bg-light p-3 rounded-2" style="font-size: 0.95rem; line-height: 1.6; white-space: pre-wrap; min-height: 90px; border: 1px dashed #dee2e6;">-</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Requester & Approver Section -->
+                                    <div class="pt-2 border-top">
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2 flex-shrink-0" style="width: 36px; height: 36px;">
+                                                        <i class="bi bi-person-fill text-secondary"></i>
+                                                    </div>
+                                                    <div class="overflow-hidden">
+                                                        <div class="text-muted small" style="font-size: 0.75rem;">ผู้แจ้งงาน</div>
+                                                        <div id="mUser" class="fw-bold text-dark text-truncate small">-</div>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <div class="info-label text-success small fw-bold">ผู้อนุมัติ (Approver)</div>
-                                                    <div id="mApprove" class="fw-bold text-dark">-</div>
-                                                    <div class="text-muted" style="font-size: 0.75rem;">
-                                                        <i class="bi bi-calendar3 me-1"></i> <span id="mDateApprove">-</span>
-                                                        <i class="bi bi-clock-history ms-2 me-1"></i> <span id="mTimeApprove">-</span>
+                                            </div>
+
+                                            <div class="col-6 border-start ps-3">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="bg-success-subtle rounded-circle d-flex align-items-center justify-content-center me-2 flex-shrink-0" style="width: 36px; height: 36px;">
+                                                        <i class="bi bi-shield-check text-success"></i>
+                                                    </div>
+                                                    <div class="overflow-hidden">
+                                                        <div class="text-success fw-bold small" style="font-size: 0.75rem;">ผู้อนุมัติ (Approver)</div>
+                                                        <div id="mApprove" class="fw-bold text-dark text-truncate small">-</div>
+                                                        <div class="text-muted d-flex align-items-center gap-1" style="font-size: 0.7rem;">
+                                                            <i class="bi bi-calendar3"></i><span id="mDateApprove">-</span>
+                                                            <i class="bi bi-clock ms-1"></i><span id="mTimeApprove">-</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1299,54 +1221,61 @@
                                 </div>
                             </div>
 
-                            <!-- ส่วน Assignment & Action (col-md-5) -->
+                            <!-- Right Column: Assignment & Action -->
                             <div class="col-md-5">
-                                <div class="detail-section-label">
-                                    <i class="bi bi-person-gear"></i> Assignment & Action
+                                <div class="detail-section-label fw-bold text-navy mb-2 small text-uppercase" style="letter-spacing: 0.5px;">
+                                    <i class="bi bi-person-gear text-primary me-1"></i> Assignment & Action
                                 </div>
-                                <div class="info-card h-100 bg-white">
-                                    <div class="mb-3">
-                                        <div class="info-label"><i class="bi bi-building me-1"></i> หน่วยงานรับผิดชอบ</div>
-                                        <div id="mSection" class="fw-bold text-primary fs-5">-</div>
+                                <div class="info-card p-3 bg-white rounded-3 shadow-sm border h-100 d-flex flex-column gap-3">
+
+                                    <!-- Assigned Section -->
+                                    <div>
+                                        <div class="text-muted small" style="font-size: 0.75rem;"><i class="bi bi-building me-1"></i> หน่วยงานรับผิดชอบ</div>
+                                        <div id="mSection" class="fw-bold text-primary fs-6 mt-1">-</div>
                                     </div>
-                                    <!-- ส่วนของ ผู้รับงาน / วิศวกรผู้ดูแล -->
-                                    <div class="p-3 rounded-3" style="background: #f8fafc; border: 1px solid #edf2f7;">
-                                        <div class="mb-3">
-                                            <div class="info-label text-success"><i class="bi bi-person-check-fill me-1"></i> ผู้รับงาน (Accept)</div>
-                                            <div id="mAccept" class="fw-bold fs-6 text-dark mt-1">-</div>
-                                        </div>
-                                        <div>
-                                            <div class="info-label text-muted" style="font-size: 0.85rem;"><i class="bi bi-clock-history me-1"></i> รับงานเมื่อ</div>
-                                            <div id="mTimeAccept" class="fw-bold text-navy" style="font-size: 0.9rem;">-</div>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <div class="info-label"><i class="bi bi-shield-check me-1"></i> ผู้มอบหมาย (Assignor)</div>
-                                        <div id="mAssign" class="fw-bold">-</div>
-                                        <div class="text-muted mt-1" style="font-size: 0.8rem;">
+
+                                    <hr class="my-0 opacity-10">
+
+                                    <!-- Assignor Info -->
+                                    <div>
+                                        <div class="text-muted small" style="font-size: 0.75rem;"><i class="bi bi-person-up me-1"></i> ผู้มอบหมาย (Assignor)</div>
+                                        <div id="mAssign" class="fw-bold text-dark small mt-1">-</div>
+                                        <div class="text-muted" style="font-size: 0.7rem;">
                                             <i class="bi bi-calendar-check me-1"></i> มอบหมายเมื่อ: <span id="mTimeAssign">-</span>
                                         </div>
                                     </div>
 
-                                   
+                                    <!-- Acceptor Card -->
+                                    <div class="p-3 rounded-3 mt-auto" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                                        <div class="mb-2">
+                                            <div class="text-success fw-bold small" style="font-size: 0.8rem;"><i class="bi bi-person-check-fill me-1"></i> ผู้รับงาน (Acceptor)</div>
+                                            <div id="mAccept" class="fw-bold fs-6 text-dark mt-1">-</div>
+                                        </div>
+                                        <div class="border-top pt-2 mt-2">
+                                            <div class="text-muted" style="font-size: 0.75rem;"><i class="bi bi-clock-history me-1"></i> รับงานเมื่อ</div>
+                                            <div id="mTimeAccept" class="fw-bold text-navy small">-</div>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Footer Alert -->
                         <div class="mt-4">
-                            <div class="alert alert-warning border-0 shadow-sm d-flex align-items-start mb-0" style="border-radius: 12px;">
-                                <i class="bi bi-exclamation-triangle-fill fs-5 me-3 mt-1 text-warning"></i>
+                            <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center mb-0 py-2 px-3" style="border-radius: 10px;">
+                                <i class="bi bi-exclamation-triangle-fill fs-5 me-3 text-warning"></i>
                                 <div>
                                     <div class="fw-bold text-dark small">Zycoda Report</div>
-                                    <div class="text-muted" style="font-size: 0.8rem;">หากต้องการปรับเปลี่ยน กรุณาจัดการผ่านระบบหลัก</div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">หากต้องการปรับเปลี่ยนข้อมูล กรุณาดำเนินการผ่านระบบหลัก</div>
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
         </div>
-
         <!-- ตัวเลือกสำหรับรายงานแต่ละประเภท -->
         <div class="modal fade" id="printSelectModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
@@ -1835,6 +1764,7 @@
                 $('#mTimeCreate').text(formatDT($el.attr('data-timecreate') || $el.data('timecreate')));
                 $('#mTimeAccept').text(formatDT($el.attr('data-timeaccept') || $el.data('timeaccept')));
                 $('#mTimeAssign').text(formatDT($el.attr('data-timeassign') || $el.data('timeassign')));
+                $('#mEffect').text($el.attr('data-effect') || $el.data('effect') || '-');
 
                 // ข้อมูล ApproveCreate
                 const approveData = $el.data('approvecreate');
