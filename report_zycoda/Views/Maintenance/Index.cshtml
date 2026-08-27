@@ -748,7 +748,7 @@
                         {
                             int code = GetSecInt(sec.Sections);
                             return (code >= 318100 && code <= 318124) ||
-                            (code >= 318010 && code <= 318040) ;
+                            (code >= 318010 && code <= 318090) ;
                         }
 
                         // --- 16. บำรุงรักษาอาคาร (ส่วนกลาง) ---
@@ -1103,8 +1103,270 @@
             </div>
         </div>
 
+        <!-- Custom CSS Style (สามารถนำไปใส่ในไฟล์ .css หรือแท็ก <style> ได้) -->
+        <style>
+            .modal-content-saas {
+            border-radius: 16px;
+            overflow: hidden;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            }
+
+            .modal-header-saas {
+            background: #ffffff;
+            border-bottom: 1px solid #f1f5f9;
+            padding: 1.25rem 1.5rem;
+            }
+
+            .ticket-id-badge {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 4px 10px;
+            }
+
+            .hero-info-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            }
+
+            .detail-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            }
+
+            .detail-card-header {
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 0.75rem;
+            }
+
+            .info-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            }
+
+            .problem-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            min-height: 100px;
+            }
+
+            .status-pill {
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 50rem;
+            }
+
+            .avatar-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            }
+        </style>
+
+        <!-- Modal Component -->
         <div class="modal fade" id="jobDetailModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content modal-content-saas border-0 shadow-lg">
+
+                    <!-- Header -->
+                    <div class="modal-header modal-header-saas align-items-center">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="d-flex align-items-center me-2">
+                                <span class="fw-black text-primary fs-5 tracking-tight me-2" style="letter-spacing: -0.5px;">ZYCODA</span>
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-2 px-2 py-1" style="font-size: 0.65rem;">REPORT</span>
+                            </div>
+                            <div class="ticket-id-badge d-flex align-items-center gap-2">
+                                <span class="info-label mb-0">TICKET</span>
+                                <span class="fw-bold text-dark fs-6">#<span id="mId"></span></span>
+                            </div>
+                        </div>
+
+                        <div class="ms-auto d-flex align-items-center gap-3">
+                            <span id="mStatus" class="status-pill badge shadow-none"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="modal-body p-4 bg-light bg-opacity-40">
+
+                        <!-- Machine & Time Banner -->
+                        <div class="hero-info-card p-3 p-md-4 mb-4">
+                            <div class="row align-items-center g-3">
+                                <div class="col-md-7">
+                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                        <span class="badge bg-white text-secondary border shadow-sm rounded-2 extra-small px-2 py-1">
+                                            <i class="bi bi-cpu text-primary me-1"></i>อุปกรณ์ / เครื่องจักร
+                                        </span>
+                                    </div>
+                                    <h4 id="mMachine" class="fw-bold text-dark mb-2">...</h4>
+                                    <div class="d-flex align-items-center text-muted small">
+                                        <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                                        <span>จากหน่วยงาน:</span>
+                                        <span id="mSectionCreateName" class="fw-bold text-dark ms-1"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-5 border-start-md ps-md-4">
+                                    <div class="d-flex align-items-center bg-white p-2.5 rounded-3 border shadow-sm">
+                                        <div class="avatar-icon bg-primary-subtle text-primary me-3">
+                                            <i class="bi bi-clock-history"></i>
+                                        </div>
+                                        <div>
+                                            <div class="info-label">เวลาแจ้งงาน</div>
+                                            <div id="mTimeCreate" class="fw-bold text-dark small">...</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-4">
+                            <!-- Left Column: Problem Details -->
+                            <div class="col-md-6 d-flex flex-column">
+                                <div class="detail-card p-3 p-md-4 flex-grow-1 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <div class="detail-card-header d-flex align-items-center gap-2 mb-3">
+                                            <i class="bi bi-card-text text-primary fs-5"></i>
+                                            <span class="info-label text-dark mb-0 fs-6">รายละเอียดการแจ้งซ่อม</span>
+                                        </div>
+
+                                        <!-- Metadata Chips -->
+                                        <div class="row g-2 mb-3">
+                                            <div class="col-12">
+                                                <div class="p-2.5 bg-light rounded-3 border d-flex align-items-center justify-content-between">
+                                                    <span class="text-muted small"><i class="bi bi-tag me-1"></i>ประเภทงาน</span>
+                                                    <span id="mType" class="badge bg-white text-dark border shadow-sm px-2.5 py-1.5 fw-semibold">-</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="p-2.5 bg-danger-subtle bg-opacity-30 rounded-3 border border-danger-subtle">
+                                                    <div class="text-danger small fw-semibold mb-1"><i class="bi bi-exclamation-octagon me-1"></i>ผลกระทบ</div>
+                                                    <div id="mEffect" class="text-danger small text-break lh-base fw-normal">-</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Detail Content -->
+                                        <div class="mb-3">
+                                            <div class="info-label mb-2">รายละเอียดปัญหา</div>
+                                            <div id="mDetail" class="problem-box p-3 text-dark white-space-pre-wrap">-</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Requester & Approver Footer -->
+                                    <div class="pt-3 border-top mt-auto">
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-icon bg-light text-secondary me-2">
+                                                        <i class="bi bi-person"></i>
+                                                    </div>
+                                                    <div class="overflow-hidden">
+                                                        <div class="info-label" style="font-size:0.65rem;">ผู้แจ้งงาน</div>
+                                                        <div id="mUser" class="fw-bold text-dark text-truncate small">-</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 border-start ps-3">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-icon bg-success-subtle text-success me-2">
+                                                        <i class="bi bi-shield-check"></i>
+                                                    </div>
+                                                    <div class="overflow-hidden">
+                                                        <div class="info-label text-success" style="font-size:0.65rem;">ผู้อนุมัติ</div>
+                                                        <div id="mApprove" class="fw-bold text-dark text-truncate small">-</div>
+                                                        <div class="text-muted d-flex align-items-center gap-1 extra-small" style="font-size:0.65rem;">
+                                                            <span id="mDateApprove">-</span>
+                                                            <span id="mTimeApprove">-</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <!-- Right Column: Assignment & Action -->
+                            <div class="col-md-6 d-flex flex-column">
+                                <div class="detail-card p-3 p-md-4 flex-grow-1 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <div class="detail-card-header d-flex align-items-center gap-2 mb-3">
+                                            <i class="bi bi-person-gear text-primary fs-5"></i>
+                                            <span class="info-label text-dark mb-0 fs-6">การมอบหมาย & ผู้รับผิดชอบ</span>
+                                        </div>
+
+                                        <!-- Responsible Department -->
+                                        <div class="p-3 rounded-3 bg-primary-subtle bg-opacity-20 border border-primary-subtle mb-3">
+                                            <div class="info-label text-primary mb-1"><i class="bi bi-building me-1"></i>หน่วยงานรับผิดชอบ</div>
+                                            <div id="mSection" class="fw-bold text-primary fs-6">-</div>
+                                        </div>
+
+                                        <!-- Assignor -->
+                                        <div class="p-3 bg-light rounded-3 border mb-3">
+                                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                                <span class="info-label"><i class="bi bi-person-up me-1"></i>ผู้มอบหมาย</span>
+                                            </div>
+                                            <div id="mAssign" class="fw-bold text-dark small">-</div>
+                                            <div class="text-muted extra-small mt-1" style="font-size:0.7rem;">
+                                                มอบหมายเมื่อ: <span id="mTimeAssign" class="fw-medium text-dark">-</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Acceptor Box (Featured) -->
+                                    <div class="p-3 rounded-3 border bg-white shadow-sm mt-auto" style="border-left: 4px solid #10b981 !important;">
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <div class="avatar-icon bg-success text-white" style="width:28px; height:28px; font-size:0.85rem;">
+                                                <i class="bi bi-check-lg"></i>
+                                            </div>
+                                            <span class="info-label text-success mb-0">ผู้รับงาน (Acceptor)</span>
+                                        </div>
+                                        <div id="mAccept" class="fw-bold text-dark fs-6 ps-1 mb-2">-</div>
+                                        <div class="pt-2 border-top d-flex justify-content-between align-items-center ps-1">
+                                            <span class="text-muted extra-small" style="font-size:0.75rem;">รับงานเมื่อ</span>
+                                            <span id="mTimeAccept" class="fw-bold text-dark small">-</span>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer Alert -->
+                        <div class="mt-4">
+                            <div class="alert bg-white border shadow-sm d-flex align-items-center mb-0 p-3 rounded-3">
+                                <div class="avatar-icon bg-warning-subtle text-warning me-3">
+                                    <i class="bi bi-info-circle-fill"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark small">ระบบ Zycoda Report (Read-Only)</div>
+                                    <div class="text-muted extra-small">หากต้องการแก้ไขข้อมูลหรืออัปเดตสถานะ กรุณาดำเนินการผ่านระบบจัดการหลัก</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>            
+        
+        <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content modal-content-modern border-0 shadow-lg">
 
                     <!-- Header -->
