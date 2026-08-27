@@ -732,7 +732,7 @@
                             return (code >= 317020 && code <= 317050) ||
                                    (code >= 317110 && code <= 317150) ||
                                    (code >= 317210 && code <= 317220) ||
-                                   (code >= 317230 && code <= 317240) ;
+                                   (code >= 317230 && code <= 317240);
                         }
 
                         // --- 14. วิศวกรรม บางชัน ---
@@ -748,7 +748,7 @@
                         {
                             int code = GetSecInt(sec.Sections);
                             return (code >= 318100 && code <= 318124) ||
-                            (code >= 318010 && code <= 318090) ;
+                            (code >= 318010 && code <= 318090);
                         }
 
                         // --- 16. บำรุงรักษาอาคาร (ส่วนกลาง) ---
@@ -831,7 +831,7 @@
                                     <option value="@sec.Sections" selected="@(selectedValue == sec.Sections)">@sec.Sections - @sec.Name</option>
                                 }
                             </optgroup>
-                        
+
                             <optgroup label="📄 ธุรการ สวัสดิการ พัฒนาทรัพยากรบุคคล">
                                 @foreach (var sec in allSections.Where(IsAdminHR))
                                 {
@@ -1103,270 +1103,8 @@
             </div>
         </div>
 
-        <!-- Custom CSS Style (สามารถนำไปใส่ในไฟล์ .css หรือแท็ก <style> ได้) -->
-        <style>
-            .modal-content-saas {
-            border-radius: 16px;
-            overflow: hidden;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            }
-
-            .modal-header-saas {
-            background: #ffffff;
-            border-bottom: 1px solid #f1f5f9;
-            padding: 1.25rem 1.5rem;
-            }
-
-            .ticket-id-badge {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 4px 10px;
-            }
-
-            .hero-info-card {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            }
-
-            .detail-card {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            transition: all 0.2s ease;
-            }
-
-            .detail-card-header {
-            border-bottom: 1px solid #f1f5f9;
-            padding-bottom: 0.75rem;
-            }
-
-            .info-label {
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #64748b;
-            }
-
-            .problem-box {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            line-height: 1.6;
-            min-height: 100px;
-            }
-
-            .status-pill {
-            font-size: 0.8rem;
-            font-weight: 600;
-            padding: 6px 14px;
-            border-radius: 50rem;
-            }
-
-            .avatar-icon {
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            flex-shrink: 0;
-            }
-        </style>
-
-        <!-- Modal Component -->
         <div class="modal fade" id="jobDetailModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content modal-content-saas border-0 shadow-lg">
-
-                    <!-- Header -->
-                    <div class="modal-header modal-header-saas align-items-center">
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="d-flex align-items-center me-2">
-                                <span class="fw-black text-primary fs-5 tracking-tight me-2" style="letter-spacing: -0.5px;">ZYCODA</span>
-                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-2 px-2 py-1" style="font-size: 0.65rem;">REPORT</span>
-                            </div>
-                            <div class="ticket-id-badge d-flex align-items-center gap-2">
-                                <span class="info-label mb-0">TICKET</span>
-                                <span class="fw-bold text-dark fs-6">#<span id="mId"></span></span>
-                            </div>
-                        </div>
-
-                        <div class="ms-auto d-flex align-items-center gap-3">
-                            <span id="mStatus" class="status-pill badge shadow-none"></span>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                    </div>
-
-                    <!-- Body -->
-                    <div class="modal-body p-4 bg-light bg-opacity-40">
-
-                        <!-- Machine & Time Banner -->
-                        <div class="hero-info-card p-3 p-md-4 mb-4">
-                            <div class="row align-items-center g-3">
-                                <div class="col-md-7">
-                                    <div class="d-flex align-items-center gap-2 mb-1">
-                                        <span class="badge bg-white text-secondary border shadow-sm rounded-2 extra-small px-2 py-1">
-                                            <i class="bi bi-cpu text-primary me-1"></i>อุปกรณ์ / เครื่องจักร
-                                        </span>
-                                    </div>
-                                    <h4 id="mMachine" class="fw-bold text-dark mb-2">...</h4>
-                                    <div class="d-flex align-items-center text-muted small">
-                                        <i class="bi bi-geo-alt-fill text-danger me-1"></i>
-                                        <span>จากหน่วยงาน:</span>
-                                        <span id="mSectionCreateName" class="fw-bold text-dark ms-1"></span>
-                                    </div>
-                                </div>
-                                <div class="col-md-5 border-start-md ps-md-4">
-                                    <div class="d-flex align-items-center bg-white p-2.5 rounded-3 border shadow-sm">
-                                        <div class="avatar-icon bg-primary-subtle text-primary me-3">
-                                            <i class="bi bi-clock-history"></i>
-                                        </div>
-                                        <div>
-                                            <div class="info-label">เวลาแจ้งงาน</div>
-                                            <div id="mTimeCreate" class="fw-bold text-dark small">...</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row g-4">
-                            <!-- Left Column: Problem Details -->
-                            <div class="col-md-6 d-flex flex-column">
-                                <div class="detail-card p-3 p-md-4 flex-grow-1 d-flex flex-column justify-content-between">
-                                    <div>
-                                        <div class="detail-card-header d-flex align-items-center gap-2 mb-3">
-                                            <i class="bi bi-card-text text-primary fs-5"></i>
-                                            <span class="info-label text-dark mb-0 fs-6">รายละเอียดการแจ้งซ่อม</span>
-                                        </div>
-
-                                        <!-- Metadata Chips -->
-                                        <div class="row g-2 mb-3">
-                                            <div class="col-12">
-                                                <div class="p-2.5 bg-light rounded-3 border d-flex align-items-center justify-content-between">
-                                                    <span class="text-muted small"><i class="bi bi-tag me-1"></i>ประเภทงาน</span>
-                                                    <span id="mType" class="badge bg-white text-dark border shadow-sm px-2.5 py-1.5 fw-semibold">-</span>
-                                                </div>
-                                            </div>
-                                            <div class="col-12">
-                                                <div class="p-2.5 bg-danger-subtle bg-opacity-30 rounded-3 border border-danger-subtle">
-                                                    <div class="text-danger small fw-semibold mb-1"><i class="bi bi-exclamation-octagon me-1"></i>ผลกระทบ</div>
-                                                    <div id="mEffect" class="text-danger small text-break lh-base fw-normal">-</div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Detail Content -->
-                                        <div class="mb-3">
-                                            <div class="info-label mb-2">รายละเอียดปัญหา</div>
-                                            <div id="mDetail" class="problem-box p-3 text-dark white-space-pre-wrap">-</div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Requester & Approver Footer -->
-                                    <div class="pt-3 border-top mt-auto">
-                                        <div class="row g-2">
-                                            <div class="col-6">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="avatar-icon bg-light text-secondary me-2">
-                                                        <i class="bi bi-person"></i>
-                                                    </div>
-                                                    <div class="overflow-hidden">
-                                                        <div class="info-label" style="font-size:0.65rem;">ผู้แจ้งงาน</div>
-                                                        <div id="mUser" class="fw-bold text-dark text-truncate small">-</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-6 border-start ps-3">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="avatar-icon bg-success-subtle text-success me-2">
-                                                        <i class="bi bi-shield-check"></i>
-                                                    </div>
-                                                    <div class="overflow-hidden">
-                                                        <div class="info-label text-success" style="font-size:0.65rem;">ผู้อนุมัติ</div>
-                                                        <div id="mApprove" class="fw-bold text-dark text-truncate small">-</div>
-                                                        <div class="text-muted d-flex align-items-center gap-1 extra-small" style="font-size:0.65rem;">
-                                                            <span id="mDateApprove">-</span>
-                                                            <span id="mTimeApprove">-</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            <!-- Right Column: Assignment & Action -->
-                            <div class="col-md-6 d-flex flex-column">
-                                <div class="detail-card p-3 p-md-4 flex-grow-1 d-flex flex-column justify-content-between">
-                                    <div>
-                                        <div class="detail-card-header d-flex align-items-center gap-2 mb-3">
-                                            <i class="bi bi-person-gear text-primary fs-5"></i>
-                                            <span class="info-label text-dark mb-0 fs-6">การมอบหมาย & ผู้รับผิดชอบ</span>
-                                        </div>
-
-                                        <!-- Responsible Department -->
-                                        <div class="p-3 rounded-3 bg-primary-subtle bg-opacity-20 border border-primary-subtle mb-3">
-                                            <div class="info-label text-primary mb-1"><i class="bi bi-building me-1"></i>หน่วยงานรับผิดชอบ</div>
-                                            <div id="mSection" class="fw-bold text-primary fs-6">-</div>
-                                        </div>
-
-                                        <!-- Assignor -->
-                                        <div class="p-3 bg-light rounded-3 border mb-3">
-                                            <div class="d-flex align-items-center justify-content-between mb-1">
-                                                <span class="info-label"><i class="bi bi-person-up me-1"></i>ผู้มอบหมาย</span>
-                                            </div>
-                                            <div id="mAssign" class="fw-bold text-dark small">-</div>
-                                            <div class="text-muted extra-small mt-1" style="font-size:0.7rem;">
-                                                มอบหมายเมื่อ: <span id="mTimeAssign" class="fw-medium text-dark">-</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Acceptor Box (Featured) -->
-                                    <div class="p-3 rounded-3 border bg-white shadow-sm mt-auto" style="border-left: 4px solid #10b981 !important;">
-                                        <div class="d-flex align-items-center gap-2 mb-2">
-                                            <div class="avatar-icon bg-success text-white" style="width:28px; height:28px; font-size:0.85rem;">
-                                                <i class="bi bi-check-lg"></i>
-                                            </div>
-                                            <span class="info-label text-success mb-0">ผู้รับงาน (Acceptor)</span>
-                                        </div>
-                                        <div id="mAccept" class="fw-bold text-dark fs-6 ps-1 mb-2">-</div>
-                                        <div class="pt-2 border-top d-flex justify-content-between align-items-center ps-1">
-                                            <span class="text-muted extra-small" style="font-size:0.75rem;">รับงานเมื่อ</span>
-                                            <span id="mTimeAccept" class="fw-bold text-dark small">-</span>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Footer Alert -->
-                        <div class="mt-4">
-                            <div class="alert bg-white border shadow-sm d-flex align-items-center mb-0 p-3 rounded-3">
-                                <div class="avatar-icon bg-warning-subtle text-warning me-3">
-                                    <i class="bi bi-info-circle-fill"></i>
-                                </div>
-                                <div>
-                                    <div class="fw-bold text-dark small">ระบบ Zycoda Report (Read-Only)</div>
-                                    <div class="text-muted extra-small">หากต้องการแก้ไขข้อมูลหรืออัปเดตสถานะ กรุณาดำเนินการผ่านระบบจัดการหลัก</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>            
-        
-        <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content modal-content-modern border-0 shadow-lg">
 
                     <!-- Header -->
@@ -1533,119 +1271,729 @@
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
         </div>
-        <!-- ตัวเลือกสำหรับรายงานแต่ละประเภท -->
-        <div class="modal fade" id="printSelectModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
 
-                    <div class="modal-header border-0 pt-4 px-4 pb-2">
+        <!--
+========================================================================
+ แทนที่ modal ก้อนเดิมทั้งก้อน (ตั้งแต่ <div class="modal fade" id="jobDetailModal">
+ จนถึง </div> ปิดท้าย) ด้วยก้อนนี้แทน
+
+ เวอร์ชันสุดท้าย: การ์ดมีเงา/ความนูนกลับมา + โลโก้ ZYCODA ไล่สีแบบเดิม
+ + เก็บช่วงเวลามอบหมาย/รับงานไว้ครบ + เพิ่ม #mFinish ที่ JS เดิม set ค่าไว้แล้ว
+ element id ทั้งหมดเหมือนเดิมทุกตัว ไม่ต้องแก้ JS ส่วน render อื่น
+========================================================================
+-->
+
+        <div class="modal fade" id="jobDetailModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content border-0">
+
+                    <!-- Header -->
+                    <div class="modal-header">
+                        <div class="d-flex align-items-center">
+                            <span class="zycoda-brand">ZYCODA</span>
+                            <div>
+                                <div class="ticket-eyebrow">Service Ticket</div>
+                                <div class="ticket-id">#<span id="mId"></span></div>
+                            </div>
+                        </div>
+                        <div class="ms-auto d-flex align-items-center gap-2">
+                            <span id="mStatus" class="status-tag"></span>
+                            <button type="button" class="btn-close-plain d-flex align-items-center justify-content-center" data-bs-dismiss="modal" aria-label="Close">
+                                <i class="bi bi-x-lg" style="font-size: 0.8rem; color:#64748b;"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="modal-body">
+
+                        <!-- Title card: machine + origin section + time -->
+                        <div class="doc-card doc-title-card d-flex justify-content-between align-items-start">
+                            <div>
+                                <h5 id="mMachine">...</h5>
+                                <div class="kv-value muted" style="font-size:0.82rem;">
+                                    <span class="text-muted" style="font-size:0.82rem;">งานสุขาภิบาลระบายอากาศ</span>
+                                </div>
+                                <div class="kv-value muted mt-2" style="font-size:0.82rem;">
+                                    <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                                    <span id="mSectionCreateName" class="fw-bold text-dark"></span>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                                <div class="avatar-circle bg-accent-soft">
+                                    <i class="bi bi-clock-history"></i>
+                                </div>
+                                <div class="text-end">
+                                    <div class="kv-label">เวลาแจ้งงาน</div>
+                                    <div id="mTimeCreate" class="kv-value">...</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="doc-columns">
+                            <!-- Left: description -->
+                            <div class="doc-card d-flex flex-column">
+                                <div class="doc-card-title">
+                                    <i class="bi bi-file-earmark-text"></i> รายละเอียดงาน
+                                </div>
+
+                                <div class="kv-grid mb-3">
+                                    <div>
+                                        <div class="kv-label">ประเภทงาน</div>
+                                        <span id="mType" class="chip">-</span>
+                                    </div>
+                                    <div>
+                                        <div class="kv-label">ผลกระทบ</div>
+                                        <span id="mEffect" class="chip chip-muted">-</span>
+                                    </div>
+                                </div>
+
+                                <div class="kv-label mb-1">อาการ / รายละเอียดปัญหา</div>
+                                <div id="mDetail" class="detail-block">-</div>
+
+                                <div class="people-row mt-auto">
+                                    <div class="person">
+                                        <div class="avatar-circle bg-slate-soft">
+                                            <i class="bi bi-person-fill"></i>
+                                        </div>
+                                        <div>
+                                            <div class="kv-label">ผู้แจ้งงาน</div>
+                                            <div id="mUser" class="kv-value" style="font-size:0.82rem;">-</div>
+                                        </div>
+                                    </div>
+                                    <div class="person">
+                                        <div class="avatar-circle bg-success-soft">
+                                            <i class="bi bi-shield-check"></i>
+                                        </div>
+                                        <div>
+                                            <div class="kv-label text-success">ผู้อนุมัติ</div>
+                                            <div id="mApprove" class="kv-value" style="font-size:0.82rem;">-</div>
+                                            <div class="kv-value muted" style="font-size:0.7rem;">
+                                                <span id="mDateApprove">-</span> · <span id="mTimeApprove">-</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: assignment -->
+                            <div class="doc-card d-flex flex-column">
+                                <div class="doc-card-title">
+                                    <i class="bi bi-person-gear"></i> การมอบหมายงาน
+                                </div>
+
+                                <div class="kv-label mb-1">หน่วยงานรับผิดชอบ</div>
+                                <div id="mSection" class="kv-value mb-3" style="color:#0369a1;">-</div>
+
+                                <div class="assign-block">
+                                    <div class="kv-label mb-1">มอบหมายโดย</div>
+                                    <div id="mAssign" class="kv-value muted" style="font-size:0.85rem;">-</div>
+                                    <div class="when-text">มอบหมายเมื่อ: <span id="mTimeAssign">-</span></div>
+                                </div>
+
+                                <div class="acceptor-card mt-auto">
+                                    <div class="kv-label text-success mb-1"><i class="bi bi-person-check-fill me-1"></i>ผู้รับงาน</div>
+                                    <div id="mAccept" class="kv-value" style="font-size:0.9rem;">-</div>
+                                    <div class="when-text border-top pt-2 mt-2">รับงานเมื่อ: <span id="mTimeAccept">-</span></div>
+                                </div>
+
+                                <div class="assign-block mb-0">
+                                    <div class="kv-label mb-1">ผู้ปิดงาน</div>
+                                    <div id="mFinish" class="kv-value muted" style="font-size:0.85rem;">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="modal-footer">
+                        <span class="footer-note">
+                            <i class="bi bi-info-circle me-1"></i>การแก้ไขข้อมูลกรุณาดำเนินการผ่านระบบหลัก
+                        </span>
+                        <button type="button" class="btn btn-navy btn-sm px-3" data-bs-dismiss="modal">ปิดหน้าต่าง</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <style>
+            #jobDetailModal .modal-content {
+            border-radius: 16px !important;
+            border: none;
+            box-shadow: 0 20px 45px rgba(0, 31, 63, 0.20);
+            background: #f8fafc;
+            }
+
+            #jobDetailModal .modal-header {
+            background: #ffffff;
+            border-bottom: 0.5px solid #e2e8f0;
+            padding: 1.1rem 1.4rem;
+            border-radius: 16px 16px 0 0 !important;
+            }
+
+            #jobDetailModal .zycoda-brand {
+            font-weight: 800;
+            font-size: 1.05rem;
+            letter-spacing: 1px;
+            padding-right: 0.85rem;
+            margin-right: 0.85rem;
+            border-right: 1px solid #e2e8f0;
+            background: linear-gradient(135deg, #001f3f 0%, #0369a1 60%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            }
+
+            #jobDetailModal .ticket-eyebrow {
+            font-size: 0.68rem;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            color: #94a3b8;
+            font-weight: 600;
+            margin-bottom: 2px;
+            }
+
+            #jobDetailModal .ticket-id {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #1e293b;
+            }
+
+            #jobDetailModal .status-tag {
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 0.4rem 0.85rem;
+            border-radius: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            }
+
+            #jobDetailModal .btn-close-plain {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            }
+
+            #jobDetailModal .btn-close-plain:hover {
+            background: #f1f5f9;
+            }
+
+            #jobDetailModal .modal-body {
+            padding: 1.4rem;
+            }
+
+            /* Raised cards */
+            #jobDetailModal .doc-card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            padding: 1rem 1.1rem;
+            }
+
+            #jobDetailModal .doc-title-card {
+            margin-bottom: 1.25rem;
+            }
+
+            #jobDetailModal .doc-title-card h5 {
+            color: #1e293b;
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 2px;
+            }
+
+            #jobDetailModal .doc-card-title {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            }
+
+            #jobDetailModal .doc-card-title i {
+            color: #0369a1;
+            font-size: 0.9rem;
+            }
+
+            #jobDetailModal .doc-columns {
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 1rem;
+            }
+
+            @@media (max-width: 767px) {
+            #jobDetailModal .doc-columns {
+            grid-template-columns: 1fr;
+            }
+            }
+
+            #jobDetailModal .kv-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem 1.25rem;
+            }
+
+            #jobDetailModal .kv-label {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            font-weight: 600;
+            margin-bottom: 2px;
+            }
+
+            #jobDetailModal .kv-value {
+            font-size: 0.9rem;
+            color: #1e293b;
+            font-weight: 600;
+            line-height: 1.45;
+            }
+
+            #jobDetailModal .kv-value.muted {
+            color: #64748b;
+            font-weight: 500;
+            }
+
+            #jobDetailModal .chip {
+            display: inline-block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 0.25rem 0.65rem;
+            border-radius: 6px;
+            background: #f1f5f9;
+            color: #1e293b;
+            }
+
+            #jobDetailModal .chip-muted {
+            color: #64748b;
+            font-weight: 500;
+            }
+
+            #jobDetailModal .detail-block {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 0.75rem 0.9rem;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #334155;
+            white-space: pre-wrap;
+            min-height: 60px;
+            margin-bottom: 1rem;
+            }
+
+            #jobDetailModal .people-row {
+            border-top: 0.5px solid #e2e8f0;
+            padding-top: 0.85rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            }
+
+            #jobDetailModal .person {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            }
+
+            #jobDetailModal .avatar-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 0.85rem;
+            }
+
+            #jobDetailModal .bg-accent-soft {
+            background: #eff6ff;
+            color: #1d4ed8;
+            }
+
+            #jobDetailModal .bg-slate-soft {
+            background: #f1f5f9;
+            color: #64748b;
+            }
+
+            #jobDetailModal .bg-success-soft {
+            background: #f0fdf4;
+            color: #15803d;
+            }
+
+            #jobDetailModal .assign-block {
+            border-top: 0.5px solid #e2e8f0;
+            padding-top: 0.75rem;
+            margin-top: 0.75rem;
+            }
+
+            #jobDetailModal .when-text {
+            font-size: 0.72rem;
+            color: #94a3b8;
+            margin-top: 2px;
+            }
+
+            #jobDetailModal .acceptor-card {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 0.75rem 0.9rem;
+            margin-top: 0.75rem;
+            }
+
+            #jobDetailModal .modal-footer {
+            background: #ffffff;
+            border-top: 0.5px solid #e2e8f0;
+            padding: 0.85rem 1.4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 0 0 16px 16px;
+            }
+
+            #jobDetailModal .footer-note {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            }
+
+            .status-tag.st-pending {
+            background: #fef2f2;
+            color: #b91c1c;
+            }
+
+            .status-tag.st-accept {
+            background: #fffbeb;
+            color: #b45309;
+            }
+
+            .status-tag.st-assign {
+            background: #eff6ff;
+            color: #1d4ed8;
+            }
+
+            .status-tag.st-success {
+            background: #f0fdf4;
+            color: #15803d;
+            }
+
+            .status-tag.st-reject {
+            background: #f1f5f9;
+            color: #64748b;
+            }
+        </style>
+
+        <!--
+========================================================================
+ JS patch (เหมือนรอบก่อน — ไม่มีอะไรเปลี่ยน):
+
+    $('#mStatus').text($el.attr('data-status') || $el.data('status'))
+        .removeClass()
+        .addClass('status-tag ' + mapStatusToTagClass($el.attr('data-status')));
+
+    function mapStatusToTagClass(status) {
+        const s = (status || '').toUpperCase().trim();
+        if (s === 'PENDING' || s === 'CREATE') return 'st-pending';
+        if (s === 'ACCEPT') return 'st-accept';
+        if (s.includes('ASSIGN')) return 'st-assign';
+        if (s === 'FINISH' || s === 'CONFIRM') return 'st-success';
+        if (s.includes('REJECT') || s.includes('DENY')) return 'st-reject';
+        return 'st-reject';
+    }
+
+    $('#mFinish').text($el.attr('data-userfinish') || $el.data('userfinish') || '-');
+
+ element id ทั้งหมด (#mId #mStatus #mMachine #mSectionCreateName #mTimeCreate
+ #mType #mEffect #mDetail #mUser #mApprove #mDateApprove #mTimeApprove
+ #mSection #mAssign #mTimeAssign #mAccept #mTimeAccept #mFinish) เหมือนเดิม
+ ทุกตัว ไม่ต้องแก้โค้ด JS ส่วน render ที่เหลือเลย
+========================================================================
+-->
+
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content modal-content-modern border-0 shadow-lg">
+
+                <!-- Header -->
+                <div class="modal-header modal-header-modern align-items-center bg-white border-bottom py-3 px-4">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3 border-end pe-3">
+                            <span class="zycoda-logo-text fw-black text-primary">ZYCODA</span>
+                            <span class="zycoda-badge badge bg-primary-subtle text-primary ms-1">REPORT</span>
+                        </div>
                         <div>
-                            <h5 class="modal-title fw-bold text-navy"><i class="bi bi-printer-fill me-2"></i>เลือกรายงานที่ต้องการ</h5>
-                            <p class="text-muted small mb-0">ระบบ ZYCODA จะสร้างไฟล์ PDF ตามประเภทที่คุณเลือก</p>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-
-
-                    <div class="modal-body p-4">
-                        <div class="list-group list-group-flush border-0">
-
-                            @{
-                                // 💡 1. UPDATED: แก้ไขชื่อตัวแปรให้ตรงกันทั้งหมด ป้องกันการพังของโค้ดเช็คสิทธิ์
-                                var userSection = User.FindFirst("Section")?.Value ?? "";
-                                // var userClass = User.FindFirst("UserClass")?.Value ?? ""; เปลี่ยนจาก adminClass เป็น userClass ให้แมตช์ด้านล่าง
-
-                                // เช็คว่าเป็นกลุ่มทีมช่าง/วิศวกร (รหัสแผนกขึ้นต้นด้วย 310, 317, 320)
-                                // bool isMaintenanceGroup = userSection.StartsWith("310") ||
-                                //                            userSection.StartsWith("317") ||
-                                //                            userSection.StartsWith("320");
-
-                                // สิทธิ์ช่างระดับปฏิบัติการ/หัวหน้าหน้างาน
-                                bool hasMechanicAccess = userClass == "9" || userClass == "3";
-
-                            }
-
-                            <button type="button" onclick="PrintReport('JTR')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3 mb-2 rounded border">
-                                <div class="print-icon-box bg-soft-primary me-3" style="background-color: #eff6ff; color: #2563eb; padding: 10px; border-radius: 8px;">
-                                    <i class="bi bi-file-earmark-text-fill fs-4"></i>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <div class="fw-bold text-dark">รายงานติดตามสถานะงานซ่อม (JTR)</div>
-                                    <div class="text-muted" style="font-size: 0.75rem;">สำหรับหน่วยงานผู้แจ้งงานซ่อม ตรวจสอบความคืบหน้าภาพรวม</div>
-                                </div>
-                                <i class="bi bi-chevron-right text-muted"></i>
-                            </button>
-
-                            @if (hasMechanicAccess)
-                            {
-                                <button type="button" onclick="PrintReport('PM')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3 mb-2 rounded border">
-                                    <div class="print-icon-box bg-soft-warning me-3" style="background-color: #fffbeb; color: #d97706; padding: 10px; border-radius: 8px;">
-                                        <i class="bi bi-tools fs-4"></i>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <div class="fw-bold text-dark">รายงานแผนบำรุงรักษา (PM)</div>
-                                        <div class="text-muted" style="font-size: 0.75rem;">สรุปและติดตามความคืบหน้าแผนงานป้องกันเชิงรุก</div>
-                                    </div>
-                                    <i class="bi bi-chevron-right text-muted"></i>
-                                </button>
-                                <button type="button" onclick="PrintReport('JTR_INTERNAL')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3 mb-2 rounded border">
-                                    <div class="print-icon-box bg-soft-info me-3" style="background-color: #e0f2fe; color: #0369a1; padding: 10px; border-radius: 8px;">
-                                        <i class="bi bi-person-check-fill fs-4"></i>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <div class="fw-bold text-dark">รายงานรายละเอียดงานซ่อม (สำหรับช่าง / JTR Internal)</div>
-                                        <div class="text-muted" style="font-size: 0.75rem;">การ์ดบอร์ดติดตามเวลาหน้างานจริงและประเมินงานล่าช้า (Delay)</div>
-                                    </div>
-                                    <i class="bi bi-chevron-right text-muted"></i>
-                                </button>
-
-                                <button type="button" onclick="PrintReport('HOTLINE')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3 mb-2 rounded border">
-                                    <div class="print-icon-box bg-soft-danger me-3" style="background-color: #fef2f2; color: #dc2626; padding: 10px; border-radius: 8px;">
-                                        <i class="bi bi-telephone-fill fs-4"></i>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <div class="fw-bold text-dark">สรุปยอดงานประจำวัน (Hotline)</div>
-                                        <div class="text-muted" style="font-size: 0.75rem;">แดชบอร์ดสรุปตัวเลขสถิติ รับงาน / กำลังซ่อม / ส่งมอบ หน้างาน</div>
-                                    </div>
-                                    <i class="bi bi-chevron-right text-muted"></i>
-                                </button>
-                            }
-
-                            <button type="button" onclick="PrintReport('MONTHLY')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3 rounded border">
-                                <div class="print-icon-box bg-soft-success me-3" style="background-color: #f0fdf4; color: #16a34a; padding: 10px; border-radius: 8px;">
-                                    <i class="bi bi-calendar2-check-fill fs-4"></i>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <div class="fw-bold text-dark">รายงานสรุปประสิทธิภาพรายเดือน (KPI)</div>
-                                    <div class="text-muted" style="font-size: 0.75rem;">ภาพรวมดัชนีชี้วัดสถิติและประสิทธิภาพ KPI การซ่อมบำรุงประจำเดือน</div>
-                                </div>
-                                <i class="bi bi-chevron-right text-muted"></i>
-                            </button>
-
+                            <div class="text-muted extra-small text-uppercase fw-bold tracking-wider" style="font-size: 0.7rem; letter-spacing: 0.5px;">SERVICE TICKET</div>
+                            <h5 class="fw-bold text-navy mb-0">#<span id="mId"></span></h5>
                         </div>
                     </div>
-                    <div class="modal-footer border-0 pb-4 justify-content-center">
-                        <button type="button" class="btn btn-link text-muted fw-bold text-decoration-none" data-bs-dismiss="modal">ยกเลิกการพิมพ์</button>
+
+                    <div class="ms-auto d-flex align-items-center gap-3">
+                        <span id="mStatus" class="status-indicator badge rounded-pill px-3 py-2 shadow-none"></span>
+                        <button type="button" class="btn-close btn-close-modern" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
+                </div>
+
+                <!-- Body -->
+                <div class="modal-body p-4 bg-light bg-opacity-50">
+
+                    <!-- Machine Info Card -->
+                    <div class="info-card mb-4 p-3 bg-white rounded-3 shadow-sm border">
+                        <div class="row align-items-center">
+                            <div class="col-md-7">
+                                <h4 id="mMachine" class="fw-bold text-navy mb-1">...</h4>
+                                <div class="d-flex align-items-center text-muted small">
+                                    <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                                    <span>จากหน่วยงาน: </span>
+                                    <span id="mSectionCreateName" class="fw-bold text-dark ms-1"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-5 mt-3 mt-md-0 border-start-md ps-md-4">
+                                <div class="timeline-mini d-flex align-items-center">
+                                    <div class="bg-primary-subtle p-2 rounded-circle me-2 d-flex align-items-center justify-content-center" style="width:36px; height:36px;">
+                                        <i class="bi bi-clock-history text-primary fs-6"></i>
+                                    </div>
+                                    <div>
+                                        <div class="small text-muted" style="font-size: 0.75rem;">เวลาแจ้งงาน</div>
+                                        <div id="mTimeCreate" class="fw-bold text-navy small">...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <!-- Left Column: Description & Details -->
+                        <div class="col-md-7">
+                            <div class="detail-section-label fw-bold text-navy mb-2 small text-uppercase" style="letter-spacing: 0.5px;">
+                                <i class="bi bi-chat-left-dots-fill text-primary me-1"></i> Description & Detail
+                            </div>
+                            <div class="info-card p-3 bg-white rounded-3 shadow-sm border h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <!-- Work Type & Effect Bar -->
+                                    <!-- Work Type & Effect Section -->
+                                    <div class="row g-2 pb-3 mb-3 border-bottom">
+                                        <div class="col-12 d-flex align-items-center">
+                                            <span class="text-muted me-2 small flex-shrink-0">ประเภทงาน:</span>
+                                            <span id="mType" class="badge bg-navy-soft text-navy border px-2 py-1">-</span>
+                                        </div>
+
+                                        <!-- แก้ไขส่วนผลกระทบตรงนี้ -->
+                                        <div class="col-12 mt-2">
+                                            <div class="text-muted small mb-1">ผลกระทบ:</div>
+                                            <span id="mEffect" class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 text-wrap text-break text-start w-100 lh-base fw-normal">
+                                                -
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Detail Text -->
+                                    <div class="mb-3">
+                                        <div class="text-muted extra-small mb-1" style="font-size: 0.75rem;">รายละเอียดปัญหา</div>
+                                        <div id="mDetail" class="text-dark bg-light p-3 rounded-2" style="font-size: 0.95rem; line-height: 1.6; white-space: pre-wrap; min-height: 90px; border: 1px dashed #dee2e6;">-</div>
+                                    </div>
+                                </div>
+
+                                <!-- Requester & Approver Section -->
+                                <div class="pt-2 border-top">
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <div class="d-flex align-items-center">
+                                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2 flex-shrink-0" style="width: 36px; height: 36px;">
+                                                    <i class="bi bi-person-fill text-secondary"></i>
+                                                </div>
+                                                <div class="overflow-hidden">
+                                                    <div class="text-muted small" style="font-size: 0.75rem;">ผู้แจ้งงาน</div>
+                                                    <div id="mUser" class="fw-bold text-dark text-truncate small">-</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-6 border-start ps-3">
+                                            <div class="d-flex align-items-center">
+                                                <div class="bg-success-subtle rounded-circle d-flex align-items-center justify-content-center me-2 flex-shrink-0" style="width: 36px; height: 36px;">
+                                                    <i class="bi bi-shield-check text-success"></i>
+                                                </div>
+                                                <div class="overflow-hidden">
+                                                    <div class="text-success fw-bold small" style="font-size: 0.75rem;">ผู้อนุมัติ (Approver)</div>
+                                                    <div id="mApprove" class="fw-bold text-dark text-truncate small">-</div>
+                                                    <div class="text-muted d-flex align-items-center gap-1" style="font-size: 0.7rem;">
+                                                        <i class="bi bi-calendar3"></i><span id="mDateApprove">-</span>
+                                                        <i class="bi bi-clock ms-1"></i><span id="mTimeApprove">-</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Assignment & Action -->
+                        <div class="col-md-5">
+                            <div class="detail-section-label fw-bold text-navy mb-2 small text-uppercase" style="letter-spacing: 0.5px;">
+                                <i class="bi bi-person-gear text-primary me-1"></i> Assignment & Action
+                            </div>
+                            <div class="info-card p-3 bg-white rounded-3 shadow-sm border h-100 d-flex flex-column gap-3">
+
+                                <!-- Assigned Section -->
+                                <div>
+                                    <div class="text-muted small" style="font-size: 0.75rem;"><i class="bi bi-building me-1"></i> หน่วยงานรับผิดชอบ</div>
+                                    <div id="mSection" class="fw-bold text-primary fs-6 mt-1">-</div>
+                                </div>
+
+                                <hr class="my-0 opacity-10">
+
+                                <!-- Assignor Info -->
+                                <div>
+                                    <div class="text-muted small" style="font-size: 0.75rem;"><i class="bi bi-person-up me-1"></i> ผู้มอบหมาย (Assignor)</div>
+                                    <div id="mAssign" class="fw-bold text-dark small mt-1">-</div>
+                                    <div class="text-muted" style="font-size: 0.7rem;">
+                                        <i class="bi bi-calendar-check me-1"></i> มอบหมายเมื่อ: <span id="mTimeAssign">-</span>
+                                    </div>
+                                </div>
+
+                                <!-- Acceptor Card -->
+                                <div class="p-3 rounded-3 mt-auto" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                                    <div class="mb-2">
+                                        <div class="text-success fw-bold small" style="font-size: 0.8rem;"><i class="bi bi-person-check-fill me-1"></i> ผู้รับงาน (Acceptor)</div>
+                                        <div id="mAccept" class="fw-bold fs-6 text-dark mt-1">-</div>
+                                    </div>
+                                    <div class="border-top pt-2 mt-2">
+                                        <div class="text-muted" style="font-size: 0.75rem;"><i class="bi bi-clock-history me-1"></i> รับงานเมื่อ</div>
+                                        <div id="mTimeAccept" class="fw-bold text-navy small">-</div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Alert -->
+                    <div class="mt-4">
+                        <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center mb-0 py-2 px-3" style="border-radius: 10px;">
+                            <i class="bi bi-exclamation-triangle-fill fs-5 me-3 text-warning"></i>
+                            <div>
+                                <div class="fw-bold text-dark small">Zycoda Report</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">หากต้องการปรับเปลี่ยนข้อมูล กรุณาดำเนินการผ่านระบบหลัก</div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
+    <!-- ตัวเลือกสำหรับรายงานแต่ละประเภท -->
+    <div class="modal fade" id="printSelectModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
 
-    <div id="loader-wrapper">
-        <div class="bouncing-container">
-            <i class="bi bi-cpu" style="font-size: 3.5rem;"></i>
-        </div>
-        <div class="loading-text" id="loader-status-text">กำลังเตรียมข้อมูล...</div>
-        <div class="progress-container">
-            <div id="loader-progress"></div>
+                <div class="modal-header border-0 pt-4 px-4 pb-2">
+                    <div>
+                        <h5 class="modal-title fw-bold text-navy"><i class="bi bi-printer-fill me-2"></i>เลือกรายงานที่ต้องการ</h5>
+                        <p class="text-muted small mb-0">ระบบ ZYCODA จะสร้างไฟล์ PDF ตามประเภทที่คุณเลือก</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+
+                <div class="modal-body p-4">
+                    <div class="list-group list-group-flush border-0">
+
+                        @{
+                            // 💡 1. UPDATED: แก้ไขชื่อตัวแปรให้ตรงกันทั้งหมด ป้องกันการพังของโค้ดเช็คสิทธิ์
+                            var userSection = User.FindFirst("Section")?.Value ?? "";
+                            // var userClass = User.FindFirst("UserClass")?.Value ?? ""; เปลี่ยนจาก adminClass เป็น userClass ให้แมตช์ด้านล่าง
+
+                            // เช็คว่าเป็นกลุ่มทีมช่าง/วิศวกร (รหัสแผนกขึ้นต้นด้วย 310, 317, 320)
+                            // bool isMaintenanceGroup = userSection.StartsWith("310") ||
+                            //                            userSection.StartsWith("317") ||
+                            //                            userSection.StartsWith("320");
+
+                            // สิทธิ์ช่างระดับปฏิบัติการ/หัวหน้าหน้างาน
+                            bool hasMechanicAccess = userClass == "9" || userClass == "3";
+
+                        }
+
+                        <button type="button" onclick="PrintReport('JTR')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3 mb-2 rounded border">
+                            <div class="print-icon-box bg-soft-primary me-3" style="background-color: #eff6ff; color: #2563eb; padding: 10px; border-radius: 8px;">
+                                <i class="bi bi-file-earmark-text-fill fs-4"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="fw-bold text-dark">รายงานติดตามสถานะงานซ่อม (JTR)</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">สำหรับหน่วยงานผู้แจ้งงานซ่อม ตรวจสอบความคืบหน้าภาพรวม</div>
+                            </div>
+                            <i class="bi bi-chevron-right text-muted"></i>
+                        </button>
+
+                        @if (hasMechanicAccess)
+                        {
+                            <button type="button" onclick="PrintReport('PM')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3 mb-2 rounded border">
+                                <div class="print-icon-box bg-soft-warning me-3" style="background-color: #fffbeb; color: #d97706; padding: 10px; border-radius: 8px;">
+                                    <i class="bi bi-tools fs-4"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold text-dark">รายงานแผนบำรุงรักษา (PM)</div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">สรุปและติดตามความคืบหน้าแผนงานป้องกันเชิงรุก</div>
+                                </div>
+                                <i class="bi bi-chevron-right text-muted"></i>
+                            </button>
+                            <button type="button" onclick="PrintReport('JTR_INTERNAL')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3 mb-2 rounded border">
+                                <div class="print-icon-box bg-soft-info me-3" style="background-color: #e0f2fe; color: #0369a1; padding: 10px; border-radius: 8px;">
+                                    <i class="bi bi-person-check-fill fs-4"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold text-dark">รายงานรายละเอียดงานซ่อม (สำหรับช่าง / JTR Internal)</div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">การ์ดบอร์ดติดตามเวลาหน้างานจริงและประเมินงานล่าช้า (Delay)</div>
+                                </div>
+                                <i class="bi bi-chevron-right text-muted"></i>
+                            </button>
+
+                            <button type="button" onclick="PrintReport('HOTLINE')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3 mb-2 rounded border">
+                                <div class="print-icon-box bg-soft-danger me-3" style="background-color: #fef2f2; color: #dc2626; padding: 10px; border-radius: 8px;">
+                                    <i class="bi bi-telephone-fill fs-4"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold text-dark">สรุปยอดงานประจำวัน (Hotline)</div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">แดชบอร์ดสรุปตัวเลขสถิติ รับงาน / กำลังซ่อม / ส่งมอบ หน้างาน</div>
+                                </div>
+                                <i class="bi bi-chevron-right text-muted"></i>
+                            </button>
+                        }
+
+                        <button type="button" onclick="PrintReport('MONTHLY')" class="list-group-item list-group-item-action print-option-item d-flex align-items-center p-3 rounded border">
+                            <div class="print-icon-box bg-soft-success me-3" style="background-color: #f0fdf4; color: #16a34a; padding: 10px; border-radius: 8px;">
+                                <i class="bi bi-calendar2-check-fill fs-4"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="fw-bold text-dark">รายงานสรุปประสิทธิภาพรายเดือน (KPI)</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">ภาพรวมดัชนีชี้วัดสถิติและประสิทธิภาพ KPI การซ่อมบำรุงประจำเดือน</div>
+                            </div>
+                            <i class="bi bi-chevron-right text-muted"></i>
+                        </button>
+
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pb-4 justify-content-center">
+                    <button type="button" class="btn btn-link text-muted fw-bold text-decoration-none" data-bs-dismiss="modal">ยกเลิกการพิมพ์</button>
+                </div>
+            </div>
         </div>
     </div>
+</div>
+
+<div id="loader-wrapper">
+    <div class="bouncing-container">
+        <i class="bi bi-cpu" style="font-size: 3.5rem;"></i>
+    </div>
+    <div class="loading-text" id="loader-status-text">กำลังเตรียมข้อมูล...</div>
+    <div class="progress-container">
+        <div id="loader-progress"></div>
+    </div>
+</div>
 
 
 @section Scripts {
@@ -1680,437 +2028,437 @@
         // 2. HELPER FUNCTIONS
         // ==================================================
         function getSectionName(code) {
-            if (!code || code === '-') return '-';
-            return sectionLookup[String(code).trim()] || code;
+        if (!code || code === '-') return '-';
+        return sectionLookup[String(code).trim()] || code;
         }
 
         function formatDT(dateStr) {
-            if (!dateStr || dateStr === '-' || dateStr === '0001-01-01T00:00:00') return '-';
-            try {
-                const d = new Date(dateStr);
-                if (isNaN(d.getTime())) return dateStr;
-                return new Intl.DateTimeFormat('en-GB', {
-                    day: '2-digit', month: '2-digit', year: 'numeric',
-                    hour: '2-digit', minute: '2-digit', hour12: false
-                }).format(d).replace(/\//g, '-');
-            } catch {
-                return dateStr;
-            }
+        if (!dateStr || dateStr === '-' || dateStr === '0001-01-01T00:00:00') return '-';
+        try {
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return dateStr;
+        return new Intl.DateTimeFormat('en-GB', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', hour12: false
+        }).format(d).replace(/\//g, '-');
+        } catch {
+        return dateStr;
+        }
         }
 
         function updateClock() {
-            const el = document.getElementById('realtime-clock');
-            if (!el) return;
-            el.innerText = new Date().toLocaleString('th-TH', {
-                day: '2-digit', month: '2-digit', year: '2-digit',
-                hour: '2-digit', minute: '2-digit', second: '2-digit',
-                hour12: false
-            });
+        const el = document.getElementById('realtime-clock');
+        if (!el) return;
+        el.innerText = new Date().toLocaleString('th-TH', {
+        day: '2-digit', month: '2-digit', year: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hour12: false
+        });
         }
 
         function updateLastJobId() {
-            $('.job-row').each(function () {
-                const id = parseInt($(this).attr('data-id') || $(this).data('id'));
-                if (id && id > lastJobId) lastJobId = id;
-            });
+        $('.job-row').each(function () {
+        const id = parseInt($(this).attr('data-id') || $(this).data('id'));
+        if (id && id > lastJobId) lastJobId = id;
+        });
         }
 
         // ==================================================
         // 3. DYNAMIC COUNTERS & CHARTS PROCESSING
         // ==================================================
         function processDataAndRenderComponents() {
-            let totalJobs = 0, pending = 0, accept = 0, assign = 0, success = 0, reject = 0;
-            const sectionCounts = {};
-            const machineCounts = {};
-            const zycodaPalette = [
-                'rgba(0, 31, 63, 0.85)', 'rgba(56, 189, 248, 0.85)', 'rgba(16, 185, 129, 0.85)',
-                'rgba(139, 92, 246, 0.85)', 'rgba(244, 114, 182, 0.85)', 'rgba(245, 158, 11, 0.85)',
-                'rgba(71, 85, 105, 0.85)'
-            ];
+        let totalJobs = 0, pending = 0, accept = 0, assign = 0, success = 0, reject = 0;
+        const sectionCounts = {};
+        const machineCounts = {};
+        const zycodaPalette = [
+        'rgba(0, 31, 63, 0.85)', 'rgba(56, 189, 248, 0.85)', 'rgba(16, 185, 129, 0.85)',
+        'rgba(139, 92, 246, 0.85)', 'rgba(244, 114, 182, 0.85)', 'rgba(245, 158, 11, 0.85)',
+        'rgba(71, 85, 105, 0.85)'
+        ];
 
-            // 3.1 วนลูปนับข้อมูลจริงจากตาราง (.job-row)
-            $('.job-row').each(function () {
-                totalJobs++;
-                const status = ($(this).attr('data-status') || $(this).data('status') || '').toUpperCase().trim();
+        // 3.1 วนลูปนับข้อมูลจริงจากตาราง (.job-row)
+        $('.job-row').each(function () {
+        totalJobs++;
+        const status = ($(this).attr('data-status') || $(this).data('status') || '').toUpperCase().trim();
 
-                if (status === 'PENDING' || status === 'CREATE') pending++;
-                else if (status === 'ACCEPT') accept++;
-                else if (status === 'ASSIGN') assign++;
-                else if (status === 'SUCCESS') success++;
-                else if (status === 'REJECT' || status === 'DENY') reject++;
+        if (status === 'PENDING' || status === 'CREATE') pending++;
+        else if (status === 'ACCEPT') accept++;
+        else if (status === 'ASSIGN') assign++;
+        else if (status === 'SUCCESS') success++;
+        else if (status === 'REJECT' || status === 'DENY') reject++;
 
-                const sectionId = $(this).attr('data-sectioncreate') || $(this).data('sectioncreate') || 'ไม่ระบุ';
-                const sectionName = getSectionName(sectionId);
-                sectionCounts[sectionName] = (sectionCounts[sectionName] || 0) + 1;
+        const sectionId = $(this).attr('data-sectioncreate') || $(this).data('sectioncreate') || 'ไม่ระบุ';
+        const sectionName = getSectionName(sectionId);
+        sectionCounts[sectionName] = (sectionCounts[sectionName] || 0) + 1;
 
-                const machineName = $(this).attr('data-machine') || $(this).data('machine');
-                if (machineName && machineName !== '-' && machineName !== 'null') {
-                    machineCounts[machineName] = (machineCounts[machineName] || 0) + 1;
-                }
-            });
+        const machineName = $(this).attr('data-machine') || $(this).data('machine');
+        if (machineName && machineName !== '-' && machineName !== 'null') {
+        machineCounts[machineName] = (machineCounts[machineName] || 0) + 1;
+        }
+        });
 
-            // 3.2 อัปเดตตัวเลขลงบน Cards
-            $('#count-all-jobs, .card:contains("ALL JOBS") h3, .card:contains("ALL JOBS") .display-4').text(totalJobs);
-            $('#count-pending, .card:contains("PENDING") h3, .card:contains("PENDING") .display-4').text(pending);
-            $('#count-accept, .card:contains("ACCEPT") h3, .card:contains("ACCEPT") .display-4').text(accept);
-            $('#count-assign, .card:contains("ASSIGN") h3, .card:contains("ASSIGN") .display-4').text(assign);
-            $('#count-success, .card:contains("SUCCESS") h3, .card:contains("SUCCESS") .display-4').text(success);
-            $('#count-reject, .card:contains("REJECT") h3, .card:contains("REJECT") .display-4').text(reject);
+        // 3.2 อัปเดตตัวเลขลงบน Cards
+        $('#count-all-jobs, .card:contains("ALL JOBS") h3, .card:contains("ALL JOBS") .display-4').text(totalJobs);
+        $('#count-pending, .card:contains("PENDING") h3, .card:contains("PENDING") .display-4').text(pending);
+        $('#count-accept, .card:contains("ACCEPT") h3, .card:contains("ACCEPT") .display-4').text(accept);
+        $('#count-assign, .card:contains("ASSIGN") h3, .card:contains("ASSIGN") .display-4').text(assign);
+        $('#count-success, .card:contains("SUCCESS") h3, .card:contains("SUCCESS") .display-4').text(success);
+        $('#count-reject, .card:contains("REJECT") h3, .card:contains("REJECT") .display-4').text(reject);
 
-            // 3.3 Render Doughnut Chart (สัดส่วนงานซ่อมตามแผนก)
-            try {
-                const sectionLabels = Object.keys(sectionCounts);
-                const sectionData = Object.values(sectionCounts);
-                const chartEl = document.getElementById('maintenancePieChart');
+        // 3.3 Render Doughnut Chart (สัดส่วนงานซ่อมตามแผนก)
+        try {
+        const sectionLabels = Object.keys(sectionCounts);
+        const sectionData = Object.values(sectionCounts);
+        const chartEl = document.getElementById('maintenancePieChart');
 
-                if (pieChartInstance) pieChartInstance.destroy();
+        if (pieChartInstance) pieChartInstance.destroy();
 
-                if (sectionLabels.length > 0 && chartEl && typeof Chart !== 'undefined') {
-                    pieChartInstance = new Chart(chartEl.getContext('2d'), {
-                        type: 'doughnut',
-                        data: {
-                            labels: sectionLabels,
-                            datasets: [{
-                                data: sectionData,
-                                backgroundColor: sectionLabels.map((_, i) => zycodaPalette[i % zycodaPalette.length]),
-                                hoverOffset: 15,
-                                borderWidth: 2,
-                                borderColor: '#ffffff'
-                            }]
-                        },
-                        options: {
-                            maintainAspectRatio: false,
-                            cutout: '72%',
-                            plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 15 } } }
-                        }
-                    });
-                }
-            } catch (e) {
-                console.error("Pie Chart Error:", e);
-            }
+        if (sectionLabels.length > 0 && chartEl && typeof Chart !== 'undefined') {
+        pieChartInstance = new Chart(chartEl.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+        labels: sectionLabels,
+        datasets: [{
+        data: sectionData,
+        backgroundColor: sectionLabels.map((_, i) => zycodaPalette[i % zycodaPalette.length]),
+        hoverOffset: 15,
+        borderWidth: 2,
+        borderColor: '#ffffff'
+        }]
+        },
+        options: {
+        maintainAspectRatio: false,
+        cutout: '72%',
+        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 15 } } }
+        }
+        });
+        }
+        } catch (e) {
+        console.error("Pie Chart Error:", e);
+        }
 
-            // 3.4 Render Bar Chart (Top 10 เครื่องจักรที่แจ้งซ่อม)
-            try {
-                const sortedMachines = Object.entries(machineCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
-                const chartEl = document.getElementById('maintenanceBarChart');
+        // 3.4 Render Bar Chart (Top 10 เครื่องจักรที่แจ้งซ่อม)
+        try {
+        const sortedMachines = Object.entries(machineCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+        const chartEl = document.getElementById('maintenanceBarChart');
 
-                if (barChartInstance) barChartInstance.destroy();
+        if (barChartInstance) barChartInstance.destroy();
 
-                if (sortedMachines.length > 0 && chartEl && typeof Chart !== 'undefined') {
-                    barChartInstance = new Chart(chartEl.getContext('2d'), {
-                        type: 'bar',
-                        data: {
-                            labels: sortedMachines.map(item => item[0]),
-                            datasets: [{
-                                label: 'จำนวนครั้งที่ซ่อม',
-                                data: sortedMachines.map(item => item[1]),
-                                backgroundColor: sortedMachines.map((_, i) => zycodaPalette[i % zycodaPalette.length]),
-                                borderWidth: 1.5,
-                                borderRadius: 6,
-                                barThickness: 22
-                            }]
-                        },
-                        options: {
-                            indexAxis: 'y',
-                            maintainAspectRatio: false,
-                            plugins: { legend: { display: false } },
-                            scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }
-                        }
-                    });
-                }
-            } catch (e) {
-                console.error("Bar Chart Error:", e);
-            }
+        if (sortedMachines.length > 0 && chartEl && typeof Chart !== 'undefined') {
+        barChartInstance = new Chart(chartEl.getContext('2d'), {
+        type: 'bar',
+        data: {
+        labels: sortedMachines.map(item => item[0]),
+        datasets: [{
+        label: 'จำนวนครั้งที่ซ่อม',
+        data: sortedMachines.map(item => item[1]),
+        backgroundColor: sortedMachines.map((_, i) => zycodaPalette[i % zycodaPalette.length]),
+        borderWidth: 1.5,
+        borderRadius: 6,
+        barThickness: 22
+        }]
+        },
+        options: {
+        indexAxis: 'y',
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+        });
+        }
+        } catch (e) {
+        console.error("Bar Chart Error:", e);
+        }
         }
 
         // ==================================================
         // 4. FLATPICKR DATEPICKER INIT (ย้อนหลังสูงสุด 2 ปี)
-                // ==================================================
-               // 1. ตั้งค่า Common Config สำหรับ Flatpickr
+        // ==================================================
+        // 1. ตั้งค่า Common Config สำหรับ Flatpickr
         const commonConfig = {
-            dateFormat: "Y-m-d",      // ฟอร์แมตส่งค่าเข้า Backend
-            altInput: true,
-            altFormat: "d/m/Y",       // ฟอร์แมตแสดงผลในช่อง
-            allowInput: true,
-            disableMobile: true,
-            // บังคับให้ Flatpickr Parse วันที่เป็น ค.ศ. (Gregorian) เสมอ ป้องกันการสับสนกับ พ.ศ.
-            parseDate: (datestr, format) => {
-                return flatpickr.parseDate(datestr, format);
-            }
+        dateFormat: "Y-m-d",      // ฟอร์แมตส่งค่าเข้า Backend
+        altInput: true,
+        altFormat: "d/m/Y",       // ฟอร์แมตแสดงผลในช่อง
+        allowInput: true,
+        disableMobile: true,
+        // บังคับให้ Flatpickr Parse วันที่เป็น ค.ศ. (Gregorian) เสมอ ป้องกันการสับสนกับ พ.ศ.
+        parseDate: (datestr, format) => {
+        return flatpickr.parseDate(datestr, format);
+        }
         };
 
         function initDatePickers() {
-            if (fpStart) fpStart.destroy();
-            if (fpEnd) fpEnd.destroy();
+        if (fpStart) fpStart.destroy();
+        if (fpEnd) fpEnd.destroy();
 
-            // คำนวณ minDate ย้อนหลัง 2 ปีจากวันนี้แบบ dynamic (ไม่ hardcode)
-            const today = new Date();
-            const minDateObj = new Date(today.getFullYear() - 2, today.getMonth(), today.getDate());
-            console.log('DEBUG minDateObj:', minDateObj); // เพิ่มบรรทัดนี้ชั่วคราว
+        // คำนวณ minDate ย้อนหลัง 2 ปีจากวันนี้แบบ dynamic (ไม่ hardcode)
+        const today = new Date();
+        const minDateObj = new Date(today.getFullYear() - 2, today.getMonth(), today.getDate());
+        console.log('DEBUG minDateObj:', minDateObj); // เพิ่มบรรทัดนี้ชั่วคราว
 
-            // แปลงเป็น string รูปแบบ Y-m-d โดยไม่พึ่ง toISOString (กัน timezone เพี้ยน)
-            const pad = (n) => String(n).padStart(2, '0');
-            const minDateStr = `${minDateObj.getFullYear()}-${pad(minDateObj.getMonth() + 1)}-${pad(minDateObj.getDate())}`;
+        // แปลงเป็น string รูปแบบ Y-m-d โดยไม่พึ่ง toISOString (กัน timezone เพี้ยน)
+        const pad = (n) => String(n).padStart(2, '0');
+        const minDateStr = `${minDateObj.getFullYear()}-${pad(minDateObj.getMonth() + 1)}-${pad(minDateObj.getDate())}`;
 
-            const customConfig = {
-                dateFormat: "Y-m-d",
-                altInput: true,
-                altFormat: "d/m/Y",
-                allowInput: true,
-                disableMobile: true,
-                minDate: minDateStr,   // ย้อนหลัง 2 ปีจากวันนี้เสมอ
-                maxDate: "today"       // ให้ flatpickr ใช้วันปัจจุบันเป็นขอบเขตบน ไม่ต้องแก้มือทุกปี
-            };
+        const customConfig = {
+        dateFormat: "Y-m-d",
+        altInput: true,
+        altFormat: "d/m/Y",
+        allowInput: true,
+        disableMobile: true,
+        minDate: minDateStr,   // ย้อนหลัง 2 ปีจากวันนี้เสมอ
+        maxDate: "today"       // ให้ flatpickr ใช้วันปัจจุบันเป็นขอบเขตบน ไม่ต้องแก้มือทุกปี
+        };
 
-            fpStart = flatpickr("#startDatePicker", customConfig);
-            fpEnd = flatpickr("#endDatePicker", customConfig);
+        fpStart = flatpickr("#startDatePicker", customConfig);
+        fpEnd = flatpickr("#endDatePicker", customConfig);
 
-            const startInput = document.getElementById("startDatePicker");
-            const endInput = document.getElementById("endDatePicker");
+        const startInput = document.getElementById("startDatePicker");
+        const endInput = document.getElementById("endDatePicker");
 
-            if (startInput && startInput.dataset.default) {
-                fpStart.setDate(startInput.dataset.default, false, "Y-m-d");
-            }
-            if (endInput && endInput.dataset.default) {
-                fpEnd.setDate(endInput.dataset.default, false, "Y-m-d");
-            }
+        if (startInput && startInput.dataset.default) {
+        fpStart.setDate(startInput.dataset.default, false, "Y-m-d");
+        }
+        if (endInput && endInput.dataset.default) {
+        fpEnd.setDate(endInput.dataset.default, false, "Y-m-d");
+        }
         }
         // ==================================================
         // 5. BACKEND INTEGRATION & EXTERNAL ACTIONS
         // ==================================================
         function refreshDashboard() {
-            $.get(window.location.href, function (data) {
-                const newHtml = $(data);
+        $.get(window.location.href, function (data) {
+        const newHtml = $(data);
 
-                if ($.fn.DataTable.isDataTable('#maintenanceTable')) {
-                    $('#maintenanceTable').DataTable().destroy();
-                }
+        if ($.fn.DataTable.isDataTable('#maintenanceTable')) {
+        $('#maintenanceTable').DataTable().destroy();
+        }
 
-                $('#maintenanceTable tbody').html(newHtml.find('#maintenanceTable tbody').html());
+        $('#maintenanceTable tbody').html(newHtml.find('#maintenanceTable tbody').html());
 
-                $('#maintenanceTable').DataTable({
-                    pageLength: 10,
-                    lengthMenu: [[10, 15, 25, 50, 100], [10, 15, 25, 50, 100]],
-                    language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/th.json" },
-                    order: [[0, "desc"]],
-                    dom: '<"d-flex justify-content-between align-items-center px-3 pt-2 mb-2"l f>rt<"d-flex justify-content-between align-items-center px-3 pb-3 mt-2"i p>'
-                });
+        $('#maintenanceTable').DataTable({
+        pageLength: 10,
+        lengthMenu: [[10, 15, 25, 50, 100], [10, 15, 25, 50, 100]],
+        language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/th.json" },
+        order: [[0, "desc"]],
+        dom: '<"d-flex justify-content-between align-items-center px-3 pt-2 mb-2"l f>rt<"d-flex justify-content-between align-items-center px-3 pb-3 mt-2"i p>'
+        });
 
-                updateLastJobId();
-                processDataAndRenderComponents();
+        updateLastJobId();
+        processDataAndRenderComponents();
 
-                const syncTextEl = document.getElementById('sync-time-text');
-                if (syncTextEl) syncTextEl.innerText = "อัปเดตสำเร็จ";
+        const syncTextEl = document.getElementById('sync-time-text');
+        if (syncTextEl) syncTextEl.innerText = "อัปเดตสำเร็จ";
 
-                $('#loader-wrapper').fadeOut(200);
-            }).fail(function () {
-                $('#loader-wrapper').fadeOut(200);
-            });
+        $('#loader-wrapper').fadeOut(200);
+        }).fail(function () {
+        $('#loader-wrapper').fadeOut(200);
+        });
         }
 
         function checkUpdates() {
-            $.get('/Maintenance/GetStatusUpdate', function (data) {
-                if (!data || data.length === 0) return;
-                const newest = data[0];
-                if (lastKnownJob === null) {
-                    lastKnownJob = newest.jobNo;
-                    return;
-                }
-                if (newest.jobNo !== lastKnownJob) {
-                    Swal.fire({
-                        title: 'มีใบงานใหม่! 🆕',
-                        text: `ใบงานเลขที่: ${newest.jobNo} (${newest.status})`,
-                        icon: 'info',
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 5000
-                    });
-                    lastKnownJob = newest.jobNo;
-                }
-            });
+        $.get('/Maintenance/GetStatusUpdate', function (data) {
+        if (!data || data.length === 0) return;
+        const newest = data[0];
+        if (lastKnownJob === null) {
+        lastKnownJob = newest.jobNo;
+        return;
+        }
+        if (newest.jobNo !== lastKnownJob) {
+        Swal.fire({
+        title: 'มีใบงานใหม่! 🆕',
+        text: `ใบงานเลขที่: ${newest.jobNo} (${newest.status})`,
+        icon: 'info',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 5000
+        });
+        lastKnownJob = newest.jobNo;
+        }
+        });
         }
 
         function PrintReport(reportType) {
-            const currentParams = new URLSearchParams(window.location.search);
-            const params = new URLSearchParams({
-                start: currentParams.get("start") || (fpStart?.selectedDates?.length ? fpStart.formatDate(fpStart.selectedDates[0], "Y-m-d") : ""),
-                end: currentParams.get("end") || (fpEnd?.selectedDates?.length ? fpEnd.formatDate(fpEnd.selectedDates[0], "Y-m-d") : ""),
-                status: currentParams.get("Status") || currentParams.get("status") || document.getElementById("filterStatus")?.value || "",
-                sectionFrom: currentParams.get("sectionFrom") || document.getElementById("sectionFrom")?.value || "",
-                sectionTo: currentParams.get("sectionTo") || document.getElementById("sectionTo")?.value || "",
-                jobtype: currentParams.get("jobtype") || document.getElementById("jobtype")?.value || "EM,CM",
-                view: currentParams.get("view") || document.querySelector('input[name="view"]:checked')?.value || "followup",
-                rptType: reportType
-            });
-            window.open(`/Report/PrintReport?${params.toString()}`, '_blank');
-            $('#printSelectModal').modal('hide');
+        const currentParams = new URLSearchParams(window.location.search);
+        const params = new URLSearchParams({
+        start: currentParams.get("start") || (fpStart?.selectedDates?.length ? fpStart.formatDate(fpStart.selectedDates[0], "Y-m-d") : ""),
+        end: currentParams.get("end") || (fpEnd?.selectedDates?.length ? fpEnd.formatDate(fpEnd.selectedDates[0], "Y-m-d") : ""),
+        status: currentParams.get("Status") || currentParams.get("status") || document.getElementById("filterStatus")?.value || "",
+        sectionFrom: currentParams.get("sectionFrom") || document.getElementById("sectionFrom")?.value || "",
+        sectionTo: currentParams.get("sectionTo") || document.getElementById("sectionTo")?.value || "",
+        jobtype: currentParams.get("jobtype") || document.getElementById("jobtype")?.value || "EM,CM",
+        view: currentParams.get("view") || document.querySelector('input[name="view"]:checked')?.value || "followup",
+        rptType: reportType
+        });
+        window.open(`/Report/PrintReport?${params.toString()}`, '_blank');
+        $('#printSelectModal').modal('hide');
         }
         window.PrintReport = PrintReport;
 
         function checkLastSyncTime() {
-            const syncText = document.getElementById('sync-time-text');
-            const syncIcon = document.getElementById('sync-icon');
-            if (syncIcon) syncIcon.classList.add('spin-animation');
+        const syncText = document.getElementById('sync-time-text');
+        const syncIcon = document.getElementById('sync-icon');
+        if (syncIcon) syncIcon.classList.add('spin-animation');
 
-            fetch('/api/sync/last-time')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success && syncText) syncText.innerText = data.lastSync;
-                })
-                .catch(err => console.error("Error fetching sync time:", err))
-                .finally(() => {
-                    setTimeout(() => { if (syncIcon) syncIcon.classList.remove('spin-animation'); }, 1000);
-                });
+        fetch('/api/sync/last-time')
+        .then(response => response.json())
+        .then(data => {
+        if (data.success && syncText) syncText.innerText = data.lastSync;
+        })
+        .catch(err => console.error("Error fetching sync time:", err))
+        .finally(() => {
+        setTimeout(() => { if (syncIcon) syncIcon.classList.remove('spin-animation'); }, 1000);
+        });
         }
 
         function shareToLine(item) {
-            const jobId = item.id;
-            const location = item.fl;
-            const flDetail = item.fldetail;
-            const detail = item.detail;
-            const jobType = item.jobtype;
-            const priority = item.priority;
-            const assignTo = item.uassign ? item.uassign.join(', ') : '-';
-            const status = item.status;
-            const creator = item.usercreate ? item.usercreate : '-';
-            const rawSectionCode = item.sectioncreate;
-            let sectionName = getSectionName(rawSectionCode);
+        const jobId = item.id;
+        const location = item.fl;
+        const flDetail = item.fldetail;
+        const detail = item.detail;
+        const jobType = item.jobtype;
+        const priority = item.priority;
+        const assignTo = item.uassign ? item.uassign.join(', ') : '-';
+        const status = item.status;
+        const creator = item.usercreate ? item.usercreate : '-';
+        const rawSectionCode = item.sectioncreate;
+        let sectionName = getSectionName(rawSectionCode);
 
-            const message = `🛠 *ใบแจ้งซ่อมใหม่ (Job #${jobId})*\n----------------------------\n👤 *คนแจ้งงาน:* ${creator}\n🏬 *หน่วยงานที่แจ้ง:* ${sectionName}\n📌 *สถานที่:* ${location}\n📦 *อุปกรณ์:* ${flDetail}\n📝 *อาการ:* ${detail}\n----------------------------\n🔧 *ประเภทงาน:* ${jobType}\n⚠️ *ความสำคัญ:* ${priority}\n👤 *ช่างผู้รับผิดชอบ:* ${assignTo}\n🚩 *status:* ${status}\n\n🔗 *ดูรายละเอียด/กดรับงาน:* ${window.location.origin}/Maintenance/Details/${jobId}`;
-            window.open("https://line.me/R/msg/text/?" + encodeURIComponent(message), '_blank');
+        const message = `🛠 *ใบแจ้งซ่อมใหม่ (Job #${jobId})*\n----------------------------\n👤 *คนแจ้งงาน:* ${creator}\n🏬 *หน่วยงานที่แจ้ง:* ${sectionName}\n📌 *สถานที่:* ${location}\n📦 *อุปกรณ์:* ${flDetail}\n📝 *อาการ:* ${detail}\n----------------------------\n🔧 *ประเภทงาน:* ${jobType}\n⚠️ *ความสำคัญ:* ${priority}\n👤 *ช่างผู้รับผิดชอบ:* ${assignTo}\n🚩 *status:* ${status}\n\n🔗 *ดูรายละเอียด/กดรับงาน:* ${window.location.origin}/Maintenance/Details/${jobId}`;
+        window.open("https://line.me/R/msg/text/?" + encodeURIComponent(message), '_blank');
         }
 
         // ==================================================
         // 6. MAIN INITIALIZATION (DOM READY)
         // ==================================================
         $(document).ready(function () {
-            initDatePickers();
-            checkLastSyncTime();
+        initDatePickers();
+        checkLastSyncTime();
 
-            if (!$.fn.DataTable.isDataTable('#maintenanceTable')) {
-                $('#maintenanceTable').DataTable({
-                    pageLength: 10,
-                    lengthMenu: [[10, 15, 25, 50, 100], [10, 15, 25, 50, 100]],
-                    language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/th.json" },
-                    order: [[0, "desc"]],
-                    dom: '<"d-flex justify-content-between align-items-center px-3 pt-2 mb-2"l f>rt<"d-flex justify-content-between align-items-center px-3 pb-3 mt-2"i p>'
-                });
-            }
+        if (!$.fn.DataTable.isDataTable('#maintenanceTable')) {
+        $('#maintenanceTable').DataTable({
+        pageLength: 10,
+        lengthMenu: [[10, 15, 25, 50, 100], [10, 15, 25, 50, 100]],
+        language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/th.json" },
+        order: [[0, "desc"]],
+        dom: '<"d-flex justify-content-between align-items-center px-3 pt-2 mb-2"l f>rt<"d-flex justify-content-between align-items-center px-3 pb-3 mt-2"i p>'
+        });
+        }
 
-            // คำนวณยอดและวาดกราฟรอบแรก
-            processDataAndRenderComponents();
+        // คำนวณยอดและวาดกราฟรอบแรก
+        processDataAndRenderComponents();
 
-            // Event Click แถวตารางเปิด Modal
-            $(document).on('click', '.job-row', function () {
-                const $el = $(this);
-                const getId = $el.attr('data-id') || $el.data('id');
+        // Event Click แถวตารางเปิด Modal
+        $(document).on('click', '.job-row', function () {
+        const $el = $(this);
+        const getId = $el.attr('data-id') || $el.data('id');
 
-                $('#mId').text(getId);
-                $('#mMachine').text($el.attr('data-machine') || $el.data('machine') || '-');
-                $('#mType').text($el.attr('data-type') || $el.data('type') || '-');
-                $('#mUser').text($el.attr('data-user') || $el.data('user') || '-');
-                $('#mDetail').text($el.attr('data-detail') || $el.data('detail') || '-');
+        $('#mId').text(getId);
+        $('#mMachine').text($el.attr('data-machine') || $el.data('machine') || '-');
+        $('#mType').text($el.attr('data-type') || $el.data('type') || '-');
+        $('#mUser').text($el.attr('data-user') || $el.data('user') || '-');
+        $('#mDetail').text($el.attr('data-detail') || $el.data('detail') || '-');
 
-                $('#mStatus').text($el.attr('data-status') || $el.data('status'))
-                    .removeClass()
-                    .addClass('badge rounded-pill ' + ($el.attr('data-css') || $el.data('css') || 'bg-secondary'));
+        $('#mStatus').text($el.attr('data-status') || $el.data('status'))
+        .removeClass()
+        .addClass('badge rounded-pill ' + ($el.attr('data-css') || $el.data('css') || 'bg-secondary'));
 
-                $('#mSectionCreateName').text(getSectionName($el.attr('data-sectioncreate') || $el.data('sectioncreate')));
-                $('#mSection').text(getSectionName($el.attr('data-section') || $el.data('section')));
+        $('#mSectionCreateName').text(getSectionName($el.attr('data-sectioncreate') || $el.data('sectioncreate')));
+        $('#mSection').text(getSectionName($el.attr('data-section') || $el.data('section')));
 
-                $('#mAssign').text($el.attr('data-uassign') || $el.data('uassign') || 'ยังไม่มอบหมาย');
-                $('#mAccept').text($el.attr('data-useraccept') || $el.data('useraccept') || 'ยังไม่มีผู้รับงาน');
-                $('#mFinish').text($el.attr('data-userfinish') || $el.data('userfinish') || '-');
+        $('#mAssign').text($el.attr('data-uassign') || $el.data('uassign') || 'ยังไม่มอบหมาย');
+        $('#mAccept').text($el.attr('data-useraccept') || $el.data('useraccept') || 'ยังไม่มีผู้รับงาน');
+        $('#mFinish').text($el.attr('data-userfinish') || $el.data('userfinish') || '-');
 
-                $('#mTimeCreate').text(formatDT($el.attr('data-timecreate') || $el.data('timecreate')));
-                $('#mTimeAccept').text(formatDT($el.attr('data-timeaccept') || $el.data('timeaccept')));
-                $('#mTimeAssign').text(formatDT($el.attr('data-timeassign') || $el.data('timeassign')));
-                $('#mEffect').text($el.attr('data-effect') || $el.data('effect') || '-');
+        $('#mTimeCreate').text(formatDT($el.attr('data-timecreate') || $el.data('timecreate')));
+        $('#mTimeAccept').text(formatDT($el.attr('data-timeaccept') || $el.data('timeaccept')));
+        $('#mTimeAssign').text(formatDT($el.attr('data-timeassign') || $el.data('timeassign')));
+        $('#mEffect').text($el.attr('data-effect') || $el.data('effect') || '-');
 
-                // ข้อมูล ApproveCreate
-                const approveData = $el.data('approvecreate');
+        // ข้อมูล ApproveCreate
+        const approveData = $el.data('approvecreate');
 
-                if (approveData && approveData.length > 0) {
-                    const approver = approveData[0];
-                    $('#mApprove').text(approver.name || '-');
+        if (approveData && approveData.length > 0) {
+        const approver = approveData[0];
+        $('#mApprove').text(approver.name || '-');
 
-                    if (approver.datetime) {
-                        const parts = approver.datetime.split('T');
-                        $('#mDateApprove').text(parts[0] || '-');
-                        $('#mDateApprove').text(parts[0] || '-');
-                        $('#mTimeApprove').text(parts[1] ? parts[1].substring(0, 5) : '-');
-                    } else {
-                        $('#mDateApprove').text('-');
-                        $('#mTimeApprove').text('-');
-                    }
-                } else {
-                    $('#mApprove').text($el.attr('data-userapprove') || $el.data('userapprove') || '-');
+        if (approver.datetime) {
+        const parts = approver.datetime.split('T');
+        $('#mDateApprove').text(parts[0] || '-');
+        $('#mDateApprove').text(parts[0] || '-');
+        $('#mTimeApprove').text(parts[1] ? parts[1].substring(0, 5) : '-');
+        } else {
+        $('#mDateApprove').text('-');
+        $('#mTimeApprove').text('-');
+        }
+        } else {
+        $('#mApprove').text($el.attr('data-userapprove') || $el.data('userapprove') || '-');
 
-                    const oldTime = $el.attr('data-timeapprove') || $el.data('timeapprove');
-                    if (oldTime) {
-                        const parts = oldTime.split('T');
-                        $('#mDateApprove').text(parts[0] || '-');
-                        $('#mTimeApprove').text(parts[1] ? parts[1].substring(0, 5) : '-');
-                    } else {
-                        $('#mDateApprove').text('-');
-                        $('#mTimeApprove').text('-');
-                    }
-                }
+        const oldTime = $el.attr('data-timeapprove') || $el.data('timeapprove');
+        if (oldTime) {
+        const parts = oldTime.split('T');
+        $('#mDateApprove').text(parts[0] || '-');
+        $('#mTimeApprove').text(parts[1] ? parts[1].substring(0, 5) : '-');
+        } else {
+        $('#mDateApprove').text('-');
+        $('#mTimeApprove').text('-');
+        }
+        }
 
-                $('#jobDetailModal').modal('show');
-            });
+        $('#jobDetailModal').modal('show');
+        });
 
-            // Filter Loader Progress
-            document.getElementById('filterForm')?.addEventListener('submit', function () {
-                const $loader = document.getElementById('loader-wrapper');
-                const $progressBar = document.getElementById('loader-progress');
-                const $statusText = document.getElementById('loader-status-text');
+        // Filter Loader Progress
+        document.getElementById('filterForm')?.addEventListener('submit', function () {
+        const $loader = document.getElementById('loader-wrapper');
+        const $progressBar = document.getElementById('loader-progress');
+        const $statusText = document.getElementById('loader-status-text');
 
-                if ($loader) $loader.style.display = 'flex';
+        if ($loader) $loader.style.display = 'flex';
 
-                const steps = [
-                    "กำลังตรวจสอบเงื่อนไขการค้นหา...",
-                    "กำลังดึงข้อมูลจากระบบ...",
-                    "กำลังประมวลผลกราฟและตาราง...",
-                    "เกือบเสร็จแล้ว..."
-                ];
+        const steps = [
+        "กำลังตรวจสอบเงื่อนไขการค้นหา...",
+        "กำลังดึงข้อมูลจากระบบ...",
+        "กำลังประมวลผลกราฟและตาราง...",
+        "เกือบเสร็จแล้ว..."
+        ];
 
-                let progress = 0;
-                const interval = setInterval(() => {
-                    progress += Math.floor(Math.random() * 15) + 5;
-                    if (progress > 95) progress = 95;
-                    if ($progressBar) $progressBar.style.width = progress + "%";
+        let progress = 0;
+        const interval = setInterval(() => {
+        progress += Math.floor(Math.random() * 15) + 5;
+        if (progress > 95) progress = 95;
+        if ($progressBar) $progressBar.style.width = progress + "%";
 
-                    const stepIdx = Math.min(Math.floor((progress / 100) * steps.length), steps.length - 1);
-                    if ($statusText) $statusText.textContent = steps[stepIdx];
+        const stepIdx = Math.min(Math.floor((progress / 100) * steps.length), steps.length - 1);
+        if ($statusText) $statusText.textContent = steps[stepIdx];
 
-                    if (progress >= 95) clearInterval(interval);
-                }, 150);
-            });
+        if (progress >= 95) clearInterval(interval);
+        }, 150);
+        });
 
-            $('#loader-wrapper').fadeOut(200);
+        $('#loader-wrapper').fadeOut(200);
 
-            // Intervals
-            setInterval(updateClock, 1000);
-            setInterval(checkUpdates, 30000);
-            setInterval(refreshDashboard, 60000);
-            setInterval(checkLastSyncTime, 5 * 60 * 1000);
+        // Intervals
+        setInterval(updateClock, 1000);
+        setInterval(checkUpdates, 30000);
+        setInterval(refreshDashboard, 60000);
+        setInterval(checkLastSyncTime, 5 * 60 * 1000);
 
-            updateClock();
-            updateLastJobId();
+        updateClock();
+        updateLastJobId();
         });
 
         $(window).on('load', function () {
-            $('#loader-wrapper').fadeOut(300);
+        $('#loader-wrapper').fadeOut(300);
         });
 
         // กัน BFCache
         window.addEventListener('pageshow', function (event) {
-            if (event.persisted) {
-                const loader = document.getElementById('loader-wrapper');
-                if (loader) loader.style.display = 'none';
-            }
+        if (event.persisted) {
+        const loader = document.getElementById('loader-wrapper');
+        if (loader) loader.style.display = 'none';
+        }
         });
     </script>
 }
