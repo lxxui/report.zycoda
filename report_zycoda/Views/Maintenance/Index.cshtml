@@ -1105,176 +1105,6 @@
 
         <div class="modal fade" id="jobDetailModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content modal-content-modern border-0 shadow-lg">
-
-                    <!-- Header -->
-                    <div class="modal-header modal-header-modern align-items-center bg-white border-bottom py-3 px-4">
-                        <div class="d-flex align-items-center">
-                            <div class="me-3 border-end pe-3">
-                                <span class="zycoda-logo-text fw-black text-primary">ZYCODA</span>
-                                <span class="zycoda-badge badge bg-primary-subtle text-primary ms-1">REPORT</span>
-                            </div>
-                            <div>
-                                <div class="text-muted extra-small text-uppercase fw-bold tracking-wider" style="font-size: 0.7rem; letter-spacing: 0.5px;">SERVICE TICKET</div>
-                                <h5 class="fw-bold text-navy mb-0">#<span id="mId"></span></h5>
-                            </div>
-                        </div>
-
-                        <div class="ms-auto d-flex align-items-center gap-3">
-                            <span id="mStatus" class="status-indicator badge rounded-pill px-3 py-2 shadow-none"></span>
-                            <button type="button" class="btn-close btn-close-modern" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                    </div>
-
-                    <!-- Body -->
-                    <div class="modal-body p-4 bg-light bg-opacity-50">
-
-                        <!-- Machine Info Card -->
-                        <div class="info-card mb-4 p-3 bg-white rounded-3 shadow-sm border">
-                            <div class="row align-items-center">
-                                <div class="col-md-7">
-                                    <h4 id="mMachine" class="fw-bold text-navy mb-1">...</h4>
-                                    <div class="d-flex align-items-center text-muted small">
-                                        <i class="bi bi-geo-alt-fill text-danger me-1"></i>
-                                        <span>จากหน่วยงาน: </span>
-                                        <span id="mSectionCreateName" class="fw-bold text-dark ms-1"></span>
-                                    </div>
-                                </div>
-                                <div class="col-md-5 mt-3 mt-md-0 border-start-md ps-md-4">
-                                    <div class="timeline-mini d-flex align-items-center">
-                                        <div class="bg-primary-subtle p-2 rounded-circle me-2 d-flex align-items-center justify-content-center" style="width:36px; height:36px;">
-                                            <i class="bi bi-clock-history text-primary fs-6"></i>
-                                        </div>
-                                        <div>
-                                            <div class="small text-muted" style="font-size: 0.75rem;">เวลาแจ้งงาน</div>
-                                            <div id="mTimeCreate" class="fw-bold text-navy small">...</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row g-4">
-                            <!-- Left Column: Description & Details -->
-                            <div class="col-md-7">
-                                <div class="detail-section-label fw-bold text-navy mb-2 small text-uppercase" style="letter-spacing: 0.5px;">
-                                    <i class="bi bi-chat-left-dots-fill text-primary me-1"></i> Description & Detail
-                                </div>
-                                <div class="info-card p-3 bg-white rounded-3 shadow-sm border h-100 d-flex flex-column justify-content-between">
-                                    <div>
-                                        <!-- Work Type & Effect Bar -->
-                                        <div class="row g-2 pb-3 mb-3 border-bottom">
-                                            <div class="col-12 d-flex align-items-center">
-                                                <span class="text-muted me-2 small flex-shrink-0">ประเภทงาน:</span>
-                                                <span id="mType" class="badge bg-navy-soft text-navy border px-2 py-1">-</span>
-                                            </div>
-
-                                            <!-- แก้ไขส่วนผลกระทบตรงนี้ -->
-                                            <div class="col-12 mt-2">
-                                                <div class="text-muted small mb-1">ผลกระทบ:</div>
-                                                <span id="mEffect" class="text-danger fw-semibold small text-break lh-base">-</span>
-                                            </div>
-                                        </div>
-
-                                        <!-- Detail Text -->
-                                        <div class="mb-3">
-                                            <div class="text-muted extra-small mb-1" style="font-size: 0.75rem;">รายละเอียดปัญหา</div>
-                                            <div id="mDetail" class="text-dark bg-light p-3 rounded-2" style="font-size: 0.95rem; line-height: 1.6; white-space: pre-wrap; min-height: 90px; border: 1px dashed #dee2e6;">-</div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Requester & Approver Section -->
-                                    <div class="pt-2 border-top">
-                                        <div class="row g-2">
-                                            <div class="col-6">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2 flex-shrink-0" style="width: 36px; height: 36px;">
-                                                        <i class="bi bi-person-fill text-secondary"></i>
-                                                    </div>
-                                                    <div class="overflow-hidden">
-                                                        <div class="text-muted small" style="font-size: 0.75rem;">ผู้แจ้งงาน</div>
-                                                        <div id="mUser" class="fw-bold text-dark text-truncate small">-</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-6 border-start ps-3">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="bg-success-subtle rounded-circle d-flex align-items-center justify-content-center me-2 flex-shrink-0" style="width: 36px; height: 36px;">
-                                                        <i class="bi bi-shield-check text-success"></i>
-                                                    </div>
-                                                    <div class="overflow-hidden">
-                                                        <div class="text-success fw-bold small" style="font-size: 0.75rem;">ผู้อนุมัติ (Approver)</div>
-                                                        <div id="mApprove" class="fw-bold text-dark text-truncate small">-</div>
-                                                        <div class="text-muted d-flex align-items-center gap-1" style="font-size: 0.7rem;">
-                                                            <i class="bi bi-calendar3"></i><span id="mDateApprove">-</span>
-                                                            <i class="bi bi-clock ms-1"></i><span id="mTimeApprove">-</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Right Column: Assignment & Action -->
-                            <div class="col-md-5">
-                                <div class="detail-section-label fw-bold text-navy mb-2 small text-uppercase" style="letter-spacing: 0.5px;">
-                                    <i class="bi bi-person-gear text-primary me-1"></i> Assignment & Action
-                                </div>
-                                <div class="info-card p-3 bg-white rounded-3 shadow-sm border h-100 d-flex flex-column gap-3">
-
-                                    <!-- Assigned Section -->
-                                    <div>
-                                        <div class="text-muted small" style="font-size: 0.75rem;"><i class="bi bi-building me-1"></i> หน่วยงานรับผิดชอบ</div>
-                                        <div id="mSection" class="fw-bold text-primary fs-6 mt-1">-</div>
-                                    </div>
-
-                                    <hr class="my-0 opacity-10">
-
-                                    <!-- Assignor Info -->
-                                    <div>
-                                        <div class="text-muted small" style="font-size: 0.75rem;"><i class="bi bi-person-up me-1"></i> ผู้มอบหมาย (Assignor)</div>
-                                        <div id="mAssign" class="fw-bold text-dark small mt-1">-</div>
-                                        <div class="text-muted" style="font-size: 0.7rem;">
-                                            <i class="bi bi-calendar-check me-1"></i> มอบหมายเมื่อ: <span id="mTimeAssign">-</span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Acceptor Card -->
-                                    <div class="p-3 rounded-3 mt-auto" style="background: #f8fafc; border: 1px solid #e2e8f0;">
-                                        <div class="mb-2">
-                                            <div class="text-success fw-bold small" style="font-size: 0.8rem;"><i class="bi bi-person-check-fill me-1"></i> ผู้รับงาน (Acceptor)</div>
-                                            <div id="mAccept" class="fw-bold fs-6 text-dark mt-1">-</div>
-                                        </div>
-                                        <div class="border-top pt-2 mt-2">
-                                            <div class="text-muted" style="font-size: 0.75rem;"><i class="bi bi-clock-history me-1"></i> รับงานเมื่อ</div>
-                                            <div id="mTimeAccept" class="fw-bold text-navy small">-</div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-                        <br />
-                        <!-- Footer Alert -->
-                        <div class="mt-4">
-                            <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center mb-0 py-2 px-3" style="border-radius: 10px;">
-                                <i class="bi bi-exclamation-triangle-fill fs-5 me-3 text-warning"></i>
-                                <div>
-                                    <div class="fw-bold text-dark small">Zycoda Report</div>
-                                    <div class="text-muted" style="font-size: 0.75rem;">หากต้องการปรับเปลี่ยนข้อมูล กรุณาดำเนินการผ่านระบบหลัก</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="modal fade" id="jobDetailModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content border-0">
 
                     <!-- Header -->
@@ -1406,480 +1236,278 @@
                 </div>
             </div>
         </div>
-
+    
         <style>
+            /* ==========================================
+            ZYCODA Service Ticket Modal Styling
+            ========================================== */
+
+            /* Structure & Main Backdrop */
             #jobDetailModal .modal-content {
-            border-radius: 16px !important;
-            border: none;
-            box-shadow: 0 20px 45px rgba(0, 31, 63, 0.20);
-            background: #f8fafc;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.15), 0 0 1px rgba(15, 23, 42, 0.1);
+            background-color: #f8fafc;
+            overflow: hidden;
             }
 
+            /* Modal Header */
             #jobDetailModal .modal-header {
             background: #ffffff;
-            border-bottom: 0.5px solid #e2e8f0;
-            padding: 1.1rem 1.4rem;
-            border-radius: 16px 16px 0 0 !important;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1.25rem 1.5rem;
             }
 
-            #jobDetailModal .zycoda-brand {
+            .zycoda-brand {
             font-weight: 800;
-            font-size: 1.05rem;
-            letter-spacing: 1px;
-            padding-right: 0.85rem;
-            margin-right: 0.85rem;
-            border-right: 1px solid #e2e8f0;
-            background: linear-gradient(135deg, #001f3f 0%, #0369a1 60%, #38bdf8 100%);
+            font-size: 1.1rem;
+            letter-spacing: 1.5px;
+            color: #0f172a;
+            background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
             -webkit-background-clip: text;
-            background-clip: text;
             -webkit-text-fill-color: transparent;
+            padding-right: 1rem;
+            margin-right: 1rem;
+            border-right: 2px solid #e2e8f0;
             }
 
-            #jobDetailModal .ticket-eyebrow {
-            font-size: 0.68rem;
-            letter-spacing: 0.6px;
+            .ticket-eyebrow {
+            font-size: 0.7rem;
             text-transform: uppercase;
-            color: #94a3b8;
+            letter-spacing: 0.5px;
+            color: #64748b;
             font-weight: 600;
-            margin-bottom: 2px;
+            margin-bottom: -2px;
             }
 
-            #jobDetailModal .ticket-id {
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-weight: 700;
+            .ticket-id {
             font-size: 1rem;
-            color: #1e293b;
+            font-weight: 700;
+            color: #0284c7;
             }
 
-            #jobDetailModal .status-tag {
-            font-size: 0.72rem;
+            /* Status Badges */
+            .status-tag {
+            font-size: 0.75rem;
             font-weight: 600;
-            padding: 0.4rem 0.85rem;
-            border-radius: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            background-color: #e0f2fe;
+            color: #0369a1;
+            border: 1px solid #bae6fd;
             }
 
-            #jobDetailModal .btn-close-plain {
-            width: 30px;
-            height: 30px;
-            border-radius: 8px;
-            border: none;
-            background: transparent;
-            }
-
-            #jobDetailModal .btn-close-plain:hover {
+            .btn-close-plain {
             background: #f1f5f9;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
             }
 
+            .btn-close-plain:hover {
+            background: #e2e8f0;
+            transform: rotate(90deg);
+            }
+
+            /* Layout Cards */
             #jobDetailModal .modal-body {
-            padding: 1.4rem;
+            padding: 1.5rem;
             }
 
-            /* Raised cards */
-            #jobDetailModal .doc-card {
+            .doc-card {
             background: #ffffff;
+            border: 1px solid #e2e8f0;
             border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-            padding: 1rem 1.1rem;
+            padding: 1.25rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
             }
 
-            #jobDetailModal .doc-title-card {
+            .doc-title-card {
+            background: linear-gradient(to right, #ffffff, #f1f5f9);
+            border-left: 4px solid #0284c7;
             margin-bottom: 1.25rem;
             }
 
-            #jobDetailModal .doc-title-card h5 {
-            color: #1e293b;
+            .doc-title-card h5 {
+            font-size: 1.2rem;
             font-weight: 700;
-            font-size: 1.05rem;
-            margin-bottom: 2px;
+            color: #0f172a;
+            margin-bottom: 0.25rem;
             }
 
-            #jobDetailModal .doc-card-title {
-            font-size: 0.78rem;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            }
-
-            #jobDetailModal .doc-card-title i {
-            color: #0369a1;
-            font-size: 0.9rem;
-            }
-
-            #jobDetailModal .doc-columns {
+            .doc-columns {
             display: grid;
-            grid-template-columns: 1.3fr 1fr;
-            gap: 1rem;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
             }
 
-            @@media (max-width: 767px) {
-            #jobDetailModal .doc-columns {
+            @@media (max-width: 768px) {
+            .doc-columns {
             grid-template-columns: 1fr;
             }
             }
 
-            #jobDetailModal .kv-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem 1.25rem;
-            }
-
-            #jobDetailModal .kv-label {
-            font-size: 0.7rem;
-            color: #94a3b8;
-            font-weight: 600;
-            margin-bottom: 2px;
-            }
-
-            #jobDetailModal .kv-value {
+            .doc-card-title {
             font-size: 0.9rem;
-            color: #1e293b;
-            font-weight: 600;
-            line-height: 1.45;
-            }
-
-            #jobDetailModal .kv-value.muted {
-            color: #64748b;
-            font-weight: 500;
-            }
-
-            #jobDetailModal .chip {
-            display: inline-block;
-            font-size: 0.78rem;
-            font-weight: 600;
-            padding: 0.25rem 0.65rem;
-            border-radius: 6px;
-            background: #f1f5f9;
-            color: #1e293b;
-            }
-
-            #jobDetailModal .chip-muted {
-            color: #64748b;
-            font-weight: 500;
-            }
-
-            #jobDetailModal .detail-block {
-            background: #f8fafc;
-            border-radius: 8px;
-            padding: 0.75rem 0.9rem;
-            font-size: 0.85rem;
-            line-height: 1.6;
+            font-weight: 700;
             color: #334155;
-            white-space: pre-wrap;
-            min-height: 60px;
             margin-bottom: 1rem;
-            }
-
-            #jobDetailModal .people-row {
-            border-top: 0.5px solid #e2e8f0;
-            padding-top: 0.85rem;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            }
-
-            #jobDetailModal .person {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px dashed #e2e8f0;
             }
 
-            #jobDetailModal .avatar-circle {
-            width: 32px;
-            height: 32px;
+            /* Key-Value Styles & Typography */
+            .kv-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+            }
+
+            .kv-value {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #1e293b;
+            }
+
+            .kv-value.muted {
+            color: #64748b;
+            font-weight: 400;
+            }
+
+            .kv-grid {
+            display: flex;
+            gap: 1.5rem;
+            }
+
+            /* Dynamic Tags / Chips */
+            .chip {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 6px;
+            background-color: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+            margin-top: 0.25rem;
+            }
+
+            .chip-muted {
+            background-color: #fafafa;
+            color: #94a3b8;
+            }
+
+            .detail-block {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.85rem;
+            font-size: 0.875rem;
+            color: #334155;
+            line-height: 1.5;
+            min-height: 70px;
+            }
+
+            /* People & Section Blocks */
+            .people-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #f1f5f9;
+            }
+
+            .person {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            }
+
+            .avatar-circle {
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 0.95rem;
             flex-shrink: 0;
-            font-size: 0.85rem;
             }
 
-            #jobDetailModal .bg-accent-soft {
-            background: #eff6ff;
-            color: #1d4ed8;
+            .bg-accent-soft {
+            background-color: #e0f2fe;
+            color: #0284c7;
             }
 
-            #jobDetailModal .bg-slate-soft {
-            background: #f1f5f9;
-            color: #64748b;
+            .bg-slate-soft {
+            background-color: #f1f5f9;
+            color: #475569;
             }
 
-            #jobDetailModal .bg-success-soft {
-            background: #f0fdf4;
-            color: #15803d;
+            .bg-success-soft {
+            background-color: #dcfce7;
+            color: #16a34a;
             }
 
-            #jobDetailModal .assign-block {
-            border-top: 0.5px solid #e2e8f0;
-            padding-top: 0.75rem;
-            margin-top: 0.75rem;
-            }
-
-            #jobDetailModal .when-text {
-            font-size: 0.72rem;
-            color: #94a3b8;
-            margin-top: 2px;
-            }
-
-            #jobDetailModal .acceptor-card {
+            .assign-block {
             background: #f8fafc;
-            border-radius: 10px;
-            padding: 0.75rem 0.9rem;
-            margin-top: 0.75rem;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+            border: 1px solid #f1f5f9;
             }
 
+            .acceptor-card {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 0.85rem;
+            margin-bottom: 0.75rem;
+            }
+
+            .when-text {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+            }
+
+            /* Footer Styling */
             #jobDetailModal .modal-footer {
             background: #ffffff;
-            border-top: 0.5px solid #e2e8f0;
-            padding: 0.85rem 1.4rem;
+            border-top: 1px solid #e2e8f0;
+            padding: 0.85rem 1.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-radius: 0 0 16px 16px;
             }
 
-            #jobDetailModal .footer-note {
+            .footer-note {
             font-size: 0.75rem;
-            color: #94a3b8;
+            color: #94a3b8;k
+            color: #94a3b8;k
             }
 
-            .status-tag.st-pending {
-            background: #fef2f2;
-            color: #b91c1c;
+            .btn-navy {
+            background-color: #0f172a;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s ease;
             }
 
-            .status-tag.st-accept {
-            background: #fffbeb;
-            color: #b45309;
-            }
-
-            .status-tag.st-assign {
-            background: #eff6ff;
-            color: #1d4ed8;
-            }
-
-            .status-tag.st-success {
-            background: #f0fdf4;
-            color: #15803d;
-            }
-
-            .status-tag.st-reject {
-            background: #f1f5f9;
-            color: #64748b;
+            .btn-navy:hover {
+            background-color: #1e293b;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
             }
         </style>
-
-        <!--
-========================================================================
- JS patch (เหมือนรอบก่อน — ไม่มีอะไรเปลี่ยน):
-
-    $('#mStatus').text($el.attr('data-status') || $el.data('status'))
-        .removeClass()
-        .addClass('status-tag ' + mapStatusToTagClass($el.attr('data-status')));
-
-    function mapStatusToTagClass(status) {
-        const s = (status || '').toUpperCase().trim();
-        if (s === 'PENDING' || s === 'CREATE') return 'st-pending';
-        if (s === 'ACCEPT') return 'st-accept';
-        if (s.includes('ASSIGN')) return 'st-assign';
-        if (s === 'FINISH' || s === 'CONFIRM') return 'st-success';
-        if (s.includes('REJECT') || s.includes('DENY')) return 'st-reject';
-        return 'st-reject';
-    }
-
-    $('#mFinish').text($el.attr('data-userfinish') || $el.data('userfinish') || '-');
-
- element id ทั้งหมด (#mId #mStatus #mMachine #mSectionCreateName #mTimeCreate
- #mType #mEffect #mDetail #mUser #mApprove #mDateApprove #mTimeApprove
- #mSection #mAssign #mTimeAssign #mAccept #mTimeAccept #mFinish) เหมือนเดิม
- ทุกตัว ไม่ต้องแก้โค้ด JS ส่วน render ที่เหลือเลย
-========================================================================
--->
-
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content modal-content-modern border-0 shadow-lg">
-
-                <!-- Header -->
-                <div class="modal-header modal-header-modern align-items-center bg-white border-bottom py-3 px-4">
-                    <div class="d-flex align-items-center">
-                        <div class="me-3 border-end pe-3">
-                            <span class="zycoda-logo-text fw-black text-primary">ZYCODA</span>
-                            <span class="zycoda-badge badge bg-primary-subtle text-primary ms-1">REPORT</span>
-                        </div>
-                        <div>
-                            <div class="text-muted extra-small text-uppercase fw-bold tracking-wider" style="font-size: 0.7rem; letter-spacing: 0.5px;">SERVICE TICKET</div>
-                            <h5 class="fw-bold text-navy mb-0">#<span id="mId"></span></h5>
-                        </div>
-                    </div>
-
-                    <div class="ms-auto d-flex align-items-center gap-3">
-                        <span id="mStatus" class="status-indicator badge rounded-pill px-3 py-2 shadow-none"></span>
-                        <button type="button" class="btn-close btn-close-modern" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                </div>
-
-                <!-- Body -->
-                <div class="modal-body p-4 bg-light bg-opacity-50">
-
-                    <!-- Machine Info Card -->
-                    <div class="info-card mb-4 p-3 bg-white rounded-3 shadow-sm border">
-                        <div class="row align-items-center">
-                            <div class="col-md-7">
-                                <h4 id="mMachine" class="fw-bold text-navy mb-1">...</h4>
-                                <div class="d-flex align-items-center text-muted small">
-                                    <i class="bi bi-geo-alt-fill text-danger me-1"></i>
-                                    <span>จากหน่วยงาน: </span>
-                                    <span id="mSectionCreateName" class="fw-bold text-dark ms-1"></span>
-                                </div>
-                            </div>
-                            <div class="col-md-5 mt-3 mt-md-0 border-start-md ps-md-4">
-                                <div class="timeline-mini d-flex align-items-center">
-                                    <div class="bg-primary-subtle p-2 rounded-circle me-2 d-flex align-items-center justify-content-center" style="width:36px; height:36px;">
-                                        <i class="bi bi-clock-history text-primary fs-6"></i>
-                                    </div>
-                                    <div>
-                                        <div class="small text-muted" style="font-size: 0.75rem;">เวลาแจ้งงาน</div>
-                                        <div id="mTimeCreate" class="fw-bold text-navy small">...</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row g-4">
-                        <!-- Left Column: Description & Details -->
-                        <div class="col-md-7">
-                            <div class="detail-section-label fw-bold text-navy mb-2 small text-uppercase" style="letter-spacing: 0.5px;">
-                                <i class="bi bi-chat-left-dots-fill text-primary me-1"></i> Description & Detail
-                            </div>
-                            <div class="info-card p-3 bg-white rounded-3 shadow-sm border h-100 d-flex flex-column justify-content-between">
-                                <div>
-                                    <!-- Work Type & Effect Section -->
-                                    <div class="row g-2 pb-3 mb-3 border-bottom">
-                                        <!-- ประเภทงาน (Clean Key-Value Style) -->
-                                        <div class="col-12 d-flex align-items-center justify-content-between p-2 rounded-3 bg-light bg-opacity-70 border">
-                                            <span class="text-muted small d-flex align-items-center gap-1">
-                                                <i class="bi bi-tag-fill text-secondary"></i> ประเภทงาน
-                                            </span>
-                                            <span id="mType" class="badge bg-white text-dark border shadow-sm px-2.5 py-1.5 fw-semibold">-</span>
-                                        </div>
-
-                                        <!-- ผลกระทบ (Soft Alert Card) -->
-                                        <div class="col-12 mt-2">
-                                            <div class="p-3 rounded-3 border border-danger-subtle bg-danger-subtle bg-opacity-25">
-                                                <div class="d-flex align-items-center gap-1.5 text-danger fw-semibold small mb-1">
-                                                    <i class="bi bi-exclamation-triangle-fill fs-6"></i>
-                                                    <span>ผลกระทบ (Impact)</span>
-                                                </div>
-                                                <div id="mEffect" class="text-dark small text-break lh-base ps-4">
-                                                    -
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Detail Text -->
-                                    <div class="mb-3">
-                                        <div class="d-flex align-items-center justify-content-between mb-1">
-                                            <span class="text-muted extra-small fw-semibold text-uppercase tracking-wider" style="font-size: 0.725rem;">รายละเอียดปัญหา</span>
-                                        </div>
-                                        <div id="mDetail" class="text-dark bg-white p-3 rounded-3 shadow-2xs" style="font-size: 0.9rem; line-height: 1.6; white-space: pre-wrap; min-height: 90px; border: 1px solid #e2e8f0;">-</div>
-                                    </div>
-                                </div>
-
-                                <!-- Requester & Approver Section -->
-                                <div class="pt-2 border-top">
-                                    <div class="row g-2">
-                                        <div class="col-6">
-                                            <div class="d-flex align-items-center">
-                                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2 flex-shrink-0" style="width: 36px; height: 36px;">
-                                                    <i class="bi bi-person-fill text-secondary"></i>
-                                                </div>
-                                                <div class="overflow-hidden">
-                                                    <div class="text-muted small" style="font-size: 0.75rem;">ผู้แจ้งงาน</div>
-                                                    <div id="mUser" class="fw-bold text-dark text-truncate small">-</div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-6 border-start ps-3">
-                                            <div class="d-flex align-items-center">
-                                                <div class="bg-success-subtle rounded-circle d-flex align-items-center justify-content-center me-2 flex-shrink-0" style="width: 36px; height: 36px;">
-                                                    <i class="bi bi-shield-check text-success"></i>
-                                                </div>
-                                                <div class="overflow-hidden">
-                                                    <div class="text-success fw-bold small" style="font-size: 0.75rem;">ผู้อนุมัติ (Approver)</div>
-                                                    <div id="mApprove" class="fw-bold text-dark text-truncate small">-</div>
-                                                    <div class="text-muted d-flex align-items-center gap-1" style="font-size: 0.7rem;">
-                                                        <i class="bi bi-calendar3"></i><span id="mDateApprove">-</span>
-                                                        <i class="bi bi-clock ms-1"></i><span id="mTimeApprove">-</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Right Column: Assignment & Action -->
-                        <div class="col-md-5">
-                            <div class="detail-section-label fw-bold text-navy mb-2 small text-uppercase" style="letter-spacing: 0.5px;">
-                                <i class="bi bi-person-gear text-primary me-1"></i> Assignment & Action
-                            </div>
-                            <div class="info-card p-3 bg-white rounded-3 shadow-sm border h-100 d-flex flex-column gap-3">
-
-                                <!-- Assigned Section -->
-                                <div>
-                                    <div class="text-muted small" style="font-size: 0.75rem;"><i class="bi bi-building me-1"></i> หน่วยงานรับผิดชอบ</div>
-                                    <div id="mSection" class="fw-bold text-primary fs-6 mt-1">-</div>
-                                </div>
-
-                                <hr class="my-0 opacity-10">
-
-                                <!-- Assignor Info -->
-                                <div>
-                                    <div class="text-muted small" style="font-size: 0.75rem;"><i class="bi bi-person-up me-1"></i> ผู้มอบหมาย (Assignor)</div>
-                                    <div id="mAssign" class="fw-bold text-dark small mt-1">-</div>
-                                    <div class="text-muted" style="font-size: 0.7rem;">
-                                        <i class="bi bi-calendar-check me-1"></i> มอบหมายเมื่อ: <span id="mTimeAssign">-</span>
-                                    </div>
-                                </div>
-
-                                <!-- Acceptor Card -->
-                                <div class="p-3 rounded-3 mt-auto" style="background: #f8fafc; border: 1px solid #e2e8f0;">
-                                    <div class="mb-2">
-                                        <div class="text-success fw-bold small" style="font-size: 0.8rem;"><i class="bi bi-person-check-fill me-1"></i> ผู้รับงาน (Acceptor)</div>
-                                        <div id="mAccept" class="fw-bold fs-6 text-dark mt-1">-</div>
-                                    </div>
-                                    <div class="border-top pt-2 mt-2">
-                                        <div class="text-muted" style="font-size: 0.75rem;"><i class="bi bi-clock-history me-1"></i> รับงานเมื่อ</div>
-                                        <div id="mTimeAccept" class="fw-bold text-navy small">-</div>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Footer Alert -->
-                    <div class="mt-4">
-                        <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center mb-0 py-2 px-3" style="border-radius: 10px;">
-                            <i class="bi bi-exclamation-triangle-fill fs-5 me-3 text-warning"></i>
-                            <div>
-                                <div class="fw-bold text-dark small">Zycoda Report</div>
-                                <div class="text-muted" style="font-size: 0.75rem;">หากต้องการปรับเปลี่ยนข้อมูล กรุณาดำเนินการผ่านระบบหลัก</div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
     </div>
     <!-- ตัวเลือกสำหรับรายงานแต่ละประเภท -->
     <div class="modal fade" id="printSelectModal" tabindex="-1" aria-hidden="true">
