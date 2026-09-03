@@ -1,19 +1,20 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using report_zycoda.Models;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
-using System.Data;
-using Microsoft.Extensions.Configuration;
-using System.IO;
 
 namespace report_zycoda.Controllers
 {
@@ -41,7 +42,8 @@ namespace report_zycoda.Controllers
         // HELPER: ดึงข้อมูลขนานกัน
         // ==================================================
 
-        private async Task<List<MaintenanceApiModels>> FetchJobsFromApi(string sessionUser,string sessionPass,string jobtype,string start,string end,string sessionClass,string sessionSection,string view = "followup")
+        private async Task<List<MaintenanceApiModels>> FetchJobsFromApi(string sessionUser, string sessionPass, string jobtype, string start, string end,
+            string sessionClass, string sessionSection, string view = "followup")
         {
             var culture = CultureInfo.InvariantCulture;
 
@@ -49,7 +51,6 @@ namespace report_zycoda.Controllers
             {
                 if (!DateTime.TryParse(start, culture, DateTimeStyles.None, out globalStart))
                 {
-                    // 🎯 เปลี่ยนจาก New DateTime(2026, 01, 01) เป็นย้อนหลัง 2 ปีนับจากปัจจุบัน
                     globalStart = DateTime.Now.AddYears(-2);
                 }
             }
@@ -64,81 +65,93 @@ namespace report_zycoda.Controllers
 
             string finalStartStr = globalStart.ToString("yyyy-MM-dd", culture);
             string finalEndStr = globalEnd.ToString("yyyy-MM-dd", culture);
-            var finalJobType = string.IsNullOrWhiteSpace(jobtype) ? "EM,CM" : jobtype;
 
             var viewsToCall = (view == "all") ? new List<string> { "followup", "myjob" } : new List<string> { view };
-
             var uniqueJobs = new ConcurrentDictionary<string, MaintenanceApiModels>();
             var client = _httpClientFactory.CreateClient("ZycodaApiClient");
+
+            // Setting ป้องกัน Crash เมื่อ เจอ Type ไม่ตรง หรือ Null
+            var jsonSettings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore,
+                Error = (sender, args) =>
+                {
+                    Console.WriteLine($"⚠️ [JSON FIELD MISMATCH WARNING]: {args.ErrorContext.Error.Message}");
+                    args.ErrorContext.Handled = true; // สั่งข้ามฟิลด์ที่มีปัญหาแล้วแปลงฟิลด์อื่นต่อ
+                }
+            };
 
             var tasks = viewsToCall.Select(async v =>
             {
                 var queryParams = new Dictionary<string, string?>
                 {
                     ["plant"] = "FARMHOUSE",
-                    ["jobtype"] = finalJobType,
                     ["start"] = finalStartStr,
                     ["end"] = finalEndStr,
                     ["view"] = v
                 };
 
+                if (!string.IsNullOrWhiteSpace(jobtype) && jobtype != "all")
+                    queryParams["jobtype"] = jobtype;
+
                 var url = QueryHelpers.AddQueryString("apimpros/get_job_order", queryParams);
 
-                // 🛰️ LOG จุดที่ 1: ดู URL ที่ระบบฝั่งเรากำลังจะยิงออกไปจริงๆ
-                Console.WriteLine($"\n🚀 [API REQUEST] BaseUrl: {client.BaseAddress}{url}");
-                Console.WriteLine($"🔑 [API AUTH] User: {sessionUser} | Pass Length: {sessionPass?.Length ?? 0}");
-
                 using var request = new HttpRequestMessage(HttpMethod.Get, url);
-                request.Headers.Add("username", sessionUser);
-                request.Headers.Add("password", sessionPass);
+                request.Headers.TryAddWithoutValidation("accept", "application/json");
+                request.Headers.TryAddWithoutValidation("username", sessionUser);
+                request.Headers.TryAddWithoutValidation("password", sessionPass);
 
                 try
                 {
                     using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+                    var rawJson = await response.Content.ReadAsStringAsync();
 
-                    // 🛰️ LOG จุดที่ 2: เช็กว่าเซิร์ฟเวอร์ปลายทางตอบกลับมาด้วยสถานะอะไร
-                    Console.WriteLine($"📥 [API RESPONSE] View: {v} -> Status: {response.StatusCode} ({(int)response.StatusCode})");
+                    Console.WriteLine("--------------------------------------------------");
+                    Console.WriteLine($"📥 [API VIEW]: {v} | STATUS: {response.StatusCode}");
+                    Console.WriteLine($"🔍 [API RAW DATA SAMPLE]: {(rawJson.Length > 500 ? rawJson.Substring(0, 500) : rawJson)}");
+                    Console.WriteLine("--------------------------------------------------");
 
-                    if (response.IsSuccessStatusCode)
+                    if (response.IsSuccessStatusCode && !string.IsNullOrWhiteSpace(rawJson))
                     {
-                        var jsonString = await response.Content.ReadAsStringAsync();
+                        List<MaintenanceApiModels>? rawDataList = null;
 
-                        Console.WriteLine($"📦 [API DATA RAW] Length: {jsonString.Length} chars");
-                        if (jsonString.Length > 0)
+                        try
                         {
-                            var preview = jsonString.Length > 500 ? jsonString.Substring(0, 500) + "..." : jsonString;
-                            Console.WriteLine($"🔍 [API DATA PREVIEW]: {preview}");
-                        }
+                            // 1. แปลงเป็น JToken ก่อนเพื่อดูว่า response เป็น Array หรือ Object
+                            var token = JToken.Parse(rawJson);
 
-                        if (!string.IsNullOrWhiteSpace(jsonString))
-                        {
-                            try
+                            if (token is JArray)
                             {
-                                // 🎯 ปรับใหม่: ลองถอดรหัสออกมาเป็นแบบ List (Array) ดูก่อนเป็นอันดับแรก
-                                var data = JsonConvert.DeserializeObject<List<MaintenanceApiModels>>(jsonString);
-                                if (data != null)
+                                rawDataList = JsonConvert.DeserializeObject<List<MaintenanceApiModels>>(rawJson, jsonSettings);
+                            }
+                            else if (token is JObject jObj)
+                            {
+                                var dataToken = jObj["data"] ?? jObj["result"] ?? jObj["jobs"];
+                                if (dataToken != null)
                                 {
-                                    foreach (var item in data)
-                                    {
-                                        var idKey = item.id?.ToString();
-                                        if (!string.IsNullOrEmpty(idKey)) uniqueJobs.TryAdd(idKey, item);
-                                    }
+                                    rawDataList = dataToken.ToObject<List<MaintenanceApiModels>>(JsonSerializer.Create(jsonSettings));
+                                }
+                                else
+                                {
+                                    var single = jObj.ToObject<MaintenanceApiModels>(JsonSerializer.Create(jsonSettings));
+                                    if (single != null) rawDataList = new List<MaintenanceApiModels> { single };
                                 }
                             }
-                            catch (JsonSerializationException)
+                        }
+                        catch (Exception jsonEx)
+                        {
+                            Console.WriteLine($"❌ [JSON PARSE FAILED]: {jsonEx.Message}");
+                        }
+
+                        if (rawDataList != null)
+                        {
+                            foreach (var item in rawDataList)
                             {
-                                // 🎯 ถ้าถอดแบบ List ไม่สำเร็จ (เพราะเป็น Object เดี่ยว คีย์ `{}`) ให้สลับมาแกะแบบชิ้นเดียวทันที
-                                try
+                                var key = item?.id?.ToString();
+                                if (!string.IsNullOrEmpty(key))
                                 {
-                                    var singleData = JsonConvert.DeserializeObject<MaintenanceApiModels>(jsonString);
-                                    if (singleData != null && !string.IsNullOrEmpty(singleData.id?.ToString()))
-                                    {
-                                        uniqueJobs.TryAdd(singleData.id.ToString(), singleData);
-                                    }
-                                }
-                                catch (Exception innerEx)
-                                {
-                                    Console.WriteLine($"❌ [JSON PARSE ERROR]: แกะโครงสร้างไม่ได้ -> {innerEx.Message}");
+                                    uniqueJobs.TryAdd(key, item);
                                 }
                             }
                         }
@@ -146,18 +159,17 @@ namespace report_zycoda.Controllers
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"❌ [API CRASHED] View: {v} -> Exception: {ex.Message}");
-                    Console.WriteLine($"📌 [API CRASHED STACK]: {ex.StackTrace}");
+                    Console.WriteLine($"❌ [API CRASHED]: {ex.Message}");
                 }
             });
 
             await Task.WhenAll(tasks);
-
-            // 🛰️ LOG จุดที่ 4: สรุปยอดรวมใบงานสุดท้ายที่กรองและแปลงลง Model สำเร็จก่อนโยนไปหน้า UI
-            Console.WriteLine($"📊 [API SUMMARY] Total unique jobs mapped successfully: {uniqueJobs.Count} rows.\n");
+            Console.WriteLine($"📊 [API SUMMARY] Total unique jobs mapped: {uniqueJobs.Count} rows.\n");
 
             return uniqueJobs.Values.ToList();
         }
+
+
 
         // ==================================================
         // INDEX: หน้าหลัก
@@ -170,7 +182,7 @@ namespace report_zycoda.Controllers
             var sessionUser = User.Identity.Name;
             var sessionPass = User.Claims.FirstOrDefault(c => c.Type == "ApiPassword")?.Value;
 
-            // 🚀 ดึงค่า Class และ Section ที่เราดักไว้ออกมาจาก Claims Principal เพื่อนำไปส่งต่อ
+            // 🚀 ดึงค่า Class และ Section ออกมาจาก Claims Principal
             var sessionClass = User.Claims.FirstOrDefault(c => c.Type == "UserClass")?.Value ?? "0";
             var sessionSection = User.Claims.FirstOrDefault(c => c.Type == "Section")?.Value ?? "";
 
@@ -185,7 +197,6 @@ namespace report_zycoda.Controllers
             string view = Request.Query["view"].ToString();
 
             var todayStr = DateTime.Now.ToString("yyyy-MM-dd", culture);
-            // เปลี่ยนจาก .AddDays(-7) เป็น .AddYears(-2)
             var defaultStartStr = DateTime.Now.AddYears(-2).ToString("yyyy-MM-dd", culture);
 
             string finalStart = string.IsNullOrWhiteSpace(start) ? defaultStartStr : start.Trim();
@@ -201,13 +212,13 @@ namespace report_zycoda.Controllers
 
             var masterDataTask = LoadMasterDataAsync();
 
-            // 🚀 ส่งต่อ sessionClass และ sessionSection เข้าไปทำงานขนานในท่อ API
+            // 🚀 ยิง Task ดึงข้อมูลจาก API
             var apiJobsTask = FetchJobsFromApi(sessionUser, sessionPass, ViewBag.CurrentJobType, finalStart, finalEnd, sessionClass, sessionSection, ViewBag.CurrentView);
 
             await Task.WhenAll(masterDataTask, apiJobsTask);
 
-            //  สลับกลับมาดึงข้อมูลตรงๆ จาก API Task ที่รันเสร็จแล้วตรงนี้ครับ
-            var combined = apiJobsTask.Result;
+            // 🎯 ดึง Result อย่างปลอดภัยหลังจาก Task เสร็จสมบูรณ์
+            var combined = await apiJobsTask;
 
             var final = FilterAndOrderJobs(combined, ViewBag.SelectedStatus, ViewBag.CurrentSectionFrom, ViewBag.CurrentSectionTo);
 
@@ -230,7 +241,6 @@ namespace report_zycoda.Controllers
             var sessionUser = User.Identity.Name;
             var sessionPass = User.Claims.FirstOrDefault(c => c.Type == "ApiPassword")?.Value;
 
-            // 🚀 ดึงค่า Class และ Section ออกมาจาก Claims Principal ในหน้านี้ด้วยเช่นกัน
             var sessionClass = User.Claims.FirstOrDefault(c => c.Type == "UserClass")?.Value ?? "0";
             var sessionSection = User.Claims.FirstOrDefault(c => c.Type == "Section")?.Value ?? "";
 
@@ -240,33 +250,39 @@ namespace report_zycoda.Controllers
             string jobtype = Request.Query["jobtype"].ToString();
             string start = Request.Query["start"].ToString();
             if (string.IsNullOrEmpty(start)) start = Request.Query["Start"].ToString();
+
             string end = Request.Query["end"].ToString();
             if (string.IsNullOrEmpty(end)) end = Request.Query["End"].ToString();
+
             string sectionFrom = Request.Query["sectionFrom"].ToString();
             string sectionTo = Request.Query["sectionTo"].ToString();
+
             string status = Request.Query["status"].ToString();
             if (string.IsNullOrEmpty(status)) status = Request.Query["Status"].ToString();
+
             string view = Request.Query["view"].ToString();
 
-            string finalStart = string.IsNullOrEmpty(start) ? todayStr : start;
-            string finalEnd = string.IsNullOrEmpty(end) ? todayStr : end;
+            string finalStart = string.IsNullOrEmpty(start) ? todayStr : start.Trim();
+            string finalEnd = string.IsNullOrEmpty(end) ? todayStr : end.Trim();
 
             ViewBag.CurrentStart = finalStart;
             ViewBag.CurrentEnd = finalEnd;
-            ViewBag.SelectedStatus = status;
-            ViewBag.CurrentJobType = string.IsNullOrEmpty(jobtype) ? "EM,CM" : jobtype;
-            ViewBag.CurrentView = string.IsNullOrEmpty(view) ? "all" : view;
-            ViewBag.CurrentSectionFrom = sectionFrom;
-            ViewBag.CurrentSectionTo = sectionTo;
+            ViewBag.SelectedStatus = string.IsNullOrWhiteSpace(status) ? "all" : status.Trim();
+            ViewBag.CurrentJobType = string.IsNullOrWhiteSpace(jobtype) ? "EM,CM" : jobtype.Trim();
+            ViewBag.CurrentView = string.IsNullOrWhiteSpace(view) ? "all" : view.Trim();
+            ViewBag.CurrentSectionFrom = sectionFrom?.Trim();
+            ViewBag.CurrentSectionTo = sectionTo?.Trim();
 
             var masterDataTask = LoadMasterDataAsync();
 
-            // 🚀 ส่งต่อข้อมูลสิทธิ์เข้าไปดึงจาก API
+            // 🚀 ยิง Task ดึงข้อมูลจาก API
             var apiJobsTask = FetchJobsFromApi(sessionUser, sessionPass, ViewBag.CurrentJobType, finalStart, finalEnd, sessionClass, sessionSection, ViewBag.CurrentView);
 
             await Task.WhenAll(masterDataTask, apiJobsTask);
 
-            var final = FilterAndOrderJobs(apiJobsTask.Result, status, sectionFrom, sectionTo);
+            var jobs = await apiJobsTask;
+            var final = FilterAndOrderJobs(jobs, ViewBag.SelectedStatus, ViewBag.CurrentSectionFrom, ViewBag.CurrentSectionTo);
+
             return View(final);
         }
 

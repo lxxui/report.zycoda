@@ -120,12 +120,12 @@ namespace report_zycoda.Controllers
                     return Unauthorized(new { success = false, message = "ไม่พบข้อมูลสิทธิ์เข้าใช้งาน API กรุณาเข้าสู่ระบบใหม่อีกครั้ง" });
                 }
 
-                string start = "2025-01-01";
+                // 🔧 ปรับเป็น Dynamic Date Range ย้อนหลัง 1 ปีจากปัจจุบัน
+                string start = DateTime.Now.AddYears(-1).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
                 string end = DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 
                 List<MaintenanceApiModels> syncedJobs = await FetchJobsFromApiInternal(sessionUser, sessionPass, "EM,CM", start, end, "all");
 
-                // 🔧 กรองงานที่สถานะ Confirm (ปิดงานสมบูรณ์แล้ว) ออกก่อน ไม่ต้อง sync ซ้ำ
                 if (syncedJobs == null || syncedJobs.Count == 0)
                 {
                     return Ok(new { success = true, message = "ไม่พบชุดข้อมูลใหม่บนเกตเวย์ API สัญญาณปกติค่ะ", data = new List<MaintenanceApiModels>() });
@@ -137,53 +137,52 @@ namespace report_zycoda.Controllers
                 {
                     await localConn.OpenAsync();
 
-                    // 🔧 อัปเดตโครงสร้าง Query ให้ครอบคลุมฟิลด์ทั้งหมดจากฐานข้อมูลล่าสุด
                     string upsertQuery = @"
-                IF EXISTS (SELECT 1 FROM [dbo].[Job_order] WHERE [Id] = @Id)
-                BEGIN
-                    UPDATE [dbo].[Job_order]
-                    SET 
-                        [id_db] = @id_db, [refid] = @refid, [reforder] = @reforder, [MN] = @MN, [MO] = @MO,
-                        [detail] = @detail, [safety] = @safety, [code] = @code, [fl] = @fl, [downtime] = @downtime,
-                        [difftime] = @difftime, [timerepair] = @timerepair, [timerepair_ot] = @timerepair_ot,
-                        [tag_abnormal] = @tag_abnormal, [tag] = @tag, [tags] = @tags, [jobtype] = @jobtype,
-                        [section] = @section, [productionstop] = @productionstop, [planner] = @planner,
-                        [statustext] = @statustext, [statussection] = @statussection, [opt_5s] = @opt_5s,
-                        [opt_5s_comment] = @opt_5s_comment, [opt_protect] = @opt_protect, 
-                        [opt_protect_comment] = @opt_protect_comment, [rates] = @rates,
-                        [timecreate] = @timecreate, [timeassign] = @timeassign, [timestart] = @timestart,
-                        [timeend] = @timeend, [timefinish] = @timefinish, [timeaccept] = @timeaccept,
-                        [timestartrepair] = @timestartrepair, [timeendrepair] = @timeendrepair, [timeclose] = @timeclose,
-                        [timerunning] = @timerunning, [timeday] = @timeday, [fldetail] = @fldetail, [flrank] = @flrank,
-                        [flpngrp] = @flpngrp, [priority] = @priority, [status] = @status, [usercreate] = @usercreate,
-                        [sectioncreate] = @sectioncreate, [useraccept] = @useraccept, [userfinish] = @userfinish,
-                        [comment] = @comment, [solution] = @solution, [problem] = @problem, [causes] = @causes,
-                        [preventive] = @preventive, [ordertype] = @ordertype, [submiss] = @submiss, [bdfac] = @bdfac
-                    WHERE [Id] = @Id;
-                END
-                ELSE
-                BEGIN
-                    INSERT INTO [dbo].[Job_order] (
-                        [Id], [id_db], [refid], [reforder], [MN], [MO], [detail], [safety], [code], [fl], [downtime],
-                        [difftime], [timerepair], [timerepair_ot], [tag_abnormal], [tag], [tags], [jobtype], [section],
-                        [productionstop], [planner], [statustext], [statussection], [opt_5s], [opt_5s_comment],
-                        [opt_protect], [opt_protect_comment], [rates], [timecreate], [timeassign], [timestart],
-                        [timeend], [timefinish], [timeaccept], [timestartrepair], [timeendrepair], [timeclose],
-                        [timerunning], [timeday], [fldetail], [flrank], [flpngrp], [priority], [status], [usercreate],
-                        [sectioncreate], [useraccept], [userfinish], [comment], [solution], [problem], [causes],
-                        [preventive], [ordertype], [submiss], [bdfac]
-                    )
-                    VALUES (
-                        @Id, @id_db, @refid, @reforder, @MN, @MO, @detail, @safety, @code, @fl, @downtime,
-                        @difftime, @timerepair, @timerepair_ot, @tag_abnormal, @tag, @tags, @jobtype, @section,
-                        @productionstop, @planner, @statustext, @statussection, @opt_5s, @opt_5s_comment,
-                        @opt_protect, @opt_protect_comment, @rates, @timecreate, @timeassign, @timestart,
-                        @timeend, @timefinish, @timeaccept, @timestartrepair, @timeendrepair, @timeclose,
-                        @timerunning, @timeday, @fldetail, @flrank, @flpngrp, @priority, @status, @usercreate,
-                        @sectioncreate, @useraccept, @userfinish, @comment, @solution, @problem, @causes,
-                        @preventive, @ordertype, @submiss, @bdfac
-                    );
-                END;";
+        IF EXISTS (SELECT 1 FROM [dbo].[Job_order] WHERE [Id] = @Id)
+        BEGIN
+            UPDATE [dbo].[Job_order]
+            SET 
+                [id_db] = @id_db, [refid] = @refid, [reforder] = @reforder, [MN] = @MN, [MO] = @MO,
+                [detail] = @detail, [safety] = @safety, [code] = @code, [fl] = @fl, [downtime] = @downtime,
+                [difftime] = @difftime, [timerepair] = @timerepair, [timerepair_ot] = @timerepair_ot,
+                [tag_abnormal] = @tag_abnormal, [tag] = @tag, [tags] = @tags, [jobtype] = @jobtype,
+                [section] = @section, [productionstop] = @productionstop, [planner] = @planner,
+                [statustext] = @statustext, [statussection] = @statussection, [opt_5s] = @opt_5s,
+                [opt_5s_comment] = @opt_5s_comment, [opt_protect] = @opt_protect, 
+                [opt_protect_comment] = @opt_protect_comment, [rates] = @rates,
+                [timecreate] = @timecreate, [timeassign] = @timeassign, [timestart] = @timestart,
+                [timeend] = @timeend, [timefinish] = @timefinish, [timeaccept] = @timeaccept,
+                [timestartrepair] = @timestartrepair, [timeendrepair] = @timeendrepair, [timeclose] = @timeclose,
+                [timerunning] = @timerunning, [timeday] = @timeday, [fldetail] = @fldetail, [flrank] = @flrank,
+                [flpngrp] = @flpngrp, [priority] = @priority, [status] = @status, [usercreate] = @usercreate,
+                [sectioncreate] = @sectioncreate, [useraccept] = @useraccept, [userfinish] = @userfinish,
+                [comment] = @comment, [solution] = @solution, [problem] = @problem, [causes] = @causes,
+                [preventive] = @preventive, [ordertype] = @ordertype, [submiss] = @submiss, [bdfac] = @bdfac
+            WHERE [Id] = @Id;
+        END
+        ELSE
+        BEGIN
+            INSERT INTO [dbo].[Job_order] (
+                [Id], [id_db], [refid], [reforder], [MN], [MO], [detail], [safety], [code], [fl], [downtime],
+                [difftime], [timerepair], [timerepair_ot], [tag_abnormal], [tag], [tags], [jobtype], [section],
+                [productionstop], [planner], [statustext], [statussection], [opt_5s], [opt_5s_comment],
+                [opt_protect], [opt_protect_comment], [rates], [timecreate], [timeassign], [timestart],
+                [timeend], [timefinish], [timeaccept], [timestartrepair], [timeendrepair], [timeclose],
+                [timerunning], [timeday], [fldetail], [flrank], [flpngrp], [priority], [status], [usercreate],
+                [sectioncreate], [useraccept], [userfinish], [comment], [solution], [problem], [causes],
+                [preventive], [ordertype], [submiss], [bdfac]
+            )
+            VALUES (
+                @Id, @id_db, @refid, @reforder, @MN, @MO, @detail, @safety, @code, @fl, @downtime,
+                @difftime, @timerepair, @timerepair_ot, @tag_abnormal, @tag, @tags, @jobtype, @section,
+                @productionstop, @planner, @statustext, @statussection, @opt_5s, @opt_5s_comment,
+                @opt_protect, @opt_protect_comment, @rates, @timecreate, @timeassign, @timestart,
+                @timeend, @timefinish, @timeaccept, @timestartrepair, @timeendrepair, @timeclose,
+                @timerunning, @timeday, @fldetail, @flrank, @flpngrp, @priority, @status, @usercreate,
+                @sectioncreate, @useraccept, @userfinish, @comment, @solution, @problem, @causes,
+                @preventive, @ordertype, @submiss, @bdfac
+            );
+        END;";
 
                     using (SqlTransaction transaction = localConn.BeginTransaction())
                     {
@@ -191,139 +190,82 @@ namespace report_zycoda.Controllers
                         {
                             using (SqlCommand upsertCmd = new SqlCommand(upsertQuery, localConn, transaction))
                             {
-                                // 1. เพิ่มการประกาศ Parameters ให้ครบถ้วนตาม Data Type ของตาราง
-                                upsertCmd.Parameters.Add("@Id", SqlDbType.NVarChar, 50);
-                                upsertCmd.Parameters.Add("@id_db", SqlDbType.NVarChar, 50);
-                                upsertCmd.Parameters.Add("@refid", SqlDbType.NVarChar, 50);
-                                upsertCmd.Parameters.Add("@reforder", SqlDbType.NVarChar, 50);
-                                upsertCmd.Parameters.Add("@MN", SqlDbType.NVarChar, 100);
-                                upsertCmd.Parameters.Add("@MO", SqlDbType.NVarChar, 100);
-                                upsertCmd.Parameters.Add("@detail", SqlDbType.NVarChar, -1);
-                                upsertCmd.Parameters.Add("@safety", SqlDbType.NVarChar, 100);
-                                upsertCmd.Parameters.Add("@code", SqlDbType.NVarChar, 50);
-                                upsertCmd.Parameters.Add("@fl", SqlDbType.NVarChar, 100);
-                                upsertCmd.Parameters.Add("@downtime", SqlDbType.NVarChar, 50);
-                                
-                                upsertCmd.Parameters.Add("@difftime", SqlDbType.Int);
-                                upsertCmd.Parameters.Add("@timerepair", SqlDbType.Int);
-                                upsertCmd.Parameters.Add("@timerepair_ot", SqlDbType.Int);
-                                upsertCmd.Parameters.Add("@timerunning", SqlDbType.Int);
-                                upsertCmd.Parameters.Add("@comment", SqlDbType.Int); 
-
-                                upsertCmd.Parameters.Add("@tag_abnormal", SqlDbType.NVarChar, 50);
-                                upsertCmd.Parameters.Add("@tag", SqlDbType.NVarChar, 50);
-                                upsertCmd.Parameters.Add("@tags", SqlDbType.NVarChar, 100);
-                                upsertCmd.Parameters.Add("@jobtype", SqlDbType.NVarChar, 50);
-                                upsertCmd.Parameters.Add("@section", SqlDbType.NVarChar, 100);
-                                upsertCmd.Parameters.Add("@productionstop", SqlDbType.NVarChar, 50);
-                                upsertCmd.Parameters.Add("@planner", SqlDbType.NVarChar, 100);
-                                upsertCmd.Parameters.Add("@statustext", SqlDbType.NVarChar, 50);
-                                upsertCmd.Parameters.Add("@statussection", SqlDbType.NVarChar, 50);
-                                upsertCmd.Parameters.Add("@opt_5s", SqlDbType.NVarChar, 50);
-                                upsertCmd.Parameters.Add("@opt_5s_comment", SqlDbType.NVarChar, -1);
-                                upsertCmd.Parameters.Add("@opt_protect", SqlDbType.NVarChar, 50);
-                                upsertCmd.Parameters.Add("@opt_protect_comment", SqlDbType.NVarChar, -1);
-                                upsertCmd.Parameters.Add("@rates", SqlDbType.NVarChar, 50);
-
-                                // DateTime Parameters
-                                upsertCmd.Parameters.Add("@timecreate", SqlDbType.DateTime);
-                                upsertCmd.Parameters.Add("@timeassign", SqlDbType.DateTime);
-                                upsertCmd.Parameters.Add("@timestart", SqlDbType.DateTime);
-                                upsertCmd.Parameters.Add("@timeend", SqlDbType.DateTime);
-                                upsertCmd.Parameters.Add("@timefinish", SqlDbType.DateTime);
-                                upsertCmd.Parameters.Add("@timeaccept", SqlDbType.DateTime);
-                                upsertCmd.Parameters.Add("@timestartrepair", SqlDbType.DateTime);
-                                upsertCmd.Parameters.Add("@timeendrepair", SqlDbType.DateTime);
-                                upsertCmd.Parameters.Add("@timeclose", SqlDbType.DateTime);
-
-                                upsertCmd.Parameters.Add("@timeday", SqlDbType.NVarChar, 50);
-                                upsertCmd.Parameters.Add("@fldetail", SqlDbType.NVarChar, -1);
-                                upsertCmd.Parameters.Add("@flrank", SqlDbType.NVarChar, 50);
-                                upsertCmd.Parameters.Add("@flpngrp", SqlDbType.NVarChar, 50);
-                                upsertCmd.Parameters.Add("@priority", SqlDbType.NVarChar, 50);
-                                upsertCmd.Parameters.Add("@status", SqlDbType.NVarChar, 50);
-                                upsertCmd.Parameters.Add("@usercreate", SqlDbType.NVarChar, 100);
-                                upsertCmd.Parameters.Add("@sectioncreate", SqlDbType.NVarChar, 100);
-                                upsertCmd.Parameters.Add("@useraccept", SqlDbType.NVarChar, 100);
-                                upsertCmd.Parameters.Add("@userfinish", SqlDbType.NVarChar, 100);
-                                upsertCmd.Parameters.Add("@solution", SqlDbType.NVarChar, -1);
-                                upsertCmd.Parameters.Add("@problem", SqlDbType.NVarChar, -1);
-                                upsertCmd.Parameters.Add("@causes", SqlDbType.NVarChar, -1);
-                                upsertCmd.Parameters.Add("@preventive", SqlDbType.NVarChar, -1);
-                                upsertCmd.Parameters.Add("@ordertype", SqlDbType.NVarChar, 50);
-                                upsertCmd.Parameters.Add("@submiss", SqlDbType.NVarChar, 50);
-                                upsertCmd.Parameters.Add("@bdfac", SqlDbType.NVarChar, 50);
-
                                 foreach (var job in syncedJobs)
                                 {
                                     if (string.IsNullOrWhiteSpace(job.id))
                                         continue;
 
-                                    // 2. แมปค่าจาก API Model ไปยัง Parameters (รองรับ Null ด้วย ?? DBNull.Value)
-                                    upsertCmd.Parameters["@Id"].Value = job.id.Trim();
-                                    upsertCmd.Parameters["@id_db"].Value = job.id.Trim();
-                                    upsertCmd.Parameters["@refid"].Value = (object?)job.refId ?? DBNull.Value;
-                                    upsertCmd.Parameters["@reforder"].Value = (object?)job.reforder ?? DBNull.Value;
-                                    upsertCmd.Parameters["@MN"].Value = (object?)job.Mn ?? DBNull.Value;
-                                    upsertCmd.Parameters["@MO"].Value = (object?)job.Mo ?? DBNull.Value;
-                                    upsertCmd.Parameters["@detail"].Value = (object?)job.detail ?? DBNull.Value;
-                                    upsertCmd.Parameters["@safety"].Value = (object?)job.safety ?? DBNull.Value;
-                                    upsertCmd.Parameters["@code"].Value = (object?)job.code ?? DBNull.Value;
-                                    upsertCmd.Parameters["@fl"].Value = (object?)job.fl ?? DBNull.Value;
-                                    upsertCmd.Parameters["@downtime"].Value = (object?)job.downtime ?? DBNull.Value;
-                                    upsertCmd.Parameters["@difftime"].Value = ParseToIntOrDBNull(job.difftime);
-                                    upsertCmd.Parameters["@timerepair"].Value = ParseToIntOrDBNull(job.timerepair);
-                                    upsertCmd.Parameters["@timerepair"].Value = ParseToIntOrDBNull(job.timerepair);
-                                    upsertCmd.Parameters["@timerepair_ot"].Value = ParseToIntOrDBNull(job.timerepair_ot);
-                                    upsertCmd.Parameters["@tag_abnormal"].Value = (object?)job.tag_abnormal ?? DBNull.Value;
-                                    upsertCmd.Parameters["@tag"].Value = (object?)job.tag ?? DBNull.Value;
-                                    upsertCmd.Parameters["@tags"].Value = (object?)job.tags ?? DBNull.Value;
-                                    upsertCmd.Parameters["@jobtype"].Value = (object?)job.jobtype ?? DBNull.Value;
-                                    upsertCmd.Parameters["@section"].Value = (object?)(job.sectioncreate ?? job.section) ?? DBNull.Value;
-                                    upsertCmd.Parameters["@productionstop"].Value = (object?)job.productionstop ?? DBNull.Value;
-                                    upsertCmd.Parameters["@planner"].Value = (object?)job.planner ?? DBNull.Value;
-                                    upsertCmd.Parameters["@statustext"].Value = (object?)job.statustext ?? DBNull.Value;
-                                    upsertCmd.Parameters["@statussection"].Value = (object?)job.statussection ?? DBNull.Value;
-                                    upsertCmd.Parameters["@opt_5s"].Value = (object?)job.opt_5s ?? DBNull.Value;
-                                    upsertCmd.Parameters["@opt_5s_comment"].Value = (object?)job.opt_5s_comment ?? DBNull.Value;
-                                    upsertCmd.Parameters["@opt_protect"].Value = (object?)job.opt_protect ?? DBNull.Value;
-                                    upsertCmd.Parameters["@opt_protect_comment"].Value = (object?)job.opt_protect_comment ?? DBNull.Value;
-                                    upsertCmd.Parameters["@rates"].Value = (object?)job.rates ?? DBNull.Value;
+                                    upsertCmd.Parameters.Clear(); // 🔧 เคลียร์ Parameters ก่อนใส่ชุดใหม่
 
-                                    // 3. แปลงวันที่ผ่านฟังก์ชัน ParseApiDate
-                                    upsertCmd.Parameters["@timecreate"].Value = (object?)ParseApiDate(job.timecreate) ?? DBNull.Value;
-                                    upsertCmd.Parameters["@timeassign"].Value = (object?)ParseApiDate(job.timeassign) ?? DBNull.Value;
-                                    upsertCmd.Parameters["@timestart"].Value = (object?)ParseApiDate(job.timestart) ?? DBNull.Value;
-                                    upsertCmd.Parameters["@timeend"].Value = (object?)ParseApiDate(job.timeend) ?? DBNull.Value;
-                                    upsertCmd.Parameters["@timefinish"].Value = (object?)ParseApiDate(job.timefinish) ?? DBNull.Value;
-                                    upsertCmd.Parameters["@timeaccept"].Value = (object?)ParseApiDate(job.timeaccept) ?? DBNull.Value;
-                                    upsertCmd.Parameters["@timestartrepair"].Value = (object?)ParseApiDate(job.timestartrepair) ?? DBNull.Value;
-                                    upsertCmd.Parameters["@timeendrepair"].Value = (object?)ParseApiDate(job.timeendrepair) ?? DBNull.Value;
-                                    upsertCmd.Parameters["@timeclose"].Value = (object?)ParseApiDate(job.timeclose) ?? DBNull.Value;
+                                    // 1. Strings
+                                    upsertCmd.Parameters.Add("@Id", SqlDbType.NVarChar, 50).Value = job.id.Trim();
+                                    upsertCmd.Parameters.Add("@id_db", SqlDbType.NVarChar, 50).Value = job.id.Trim();
+                                    upsertCmd.Parameters.Add("@refid", SqlDbType.NVarChar, 50).Value = (object?)job.refId ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@reforder", SqlDbType.NVarChar, 50).Value = (object?)job.reforder ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@MN", SqlDbType.NVarChar, 100).Value = (object?)job.Mn ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@MO", SqlDbType.NVarChar, 100).Value = (object?)job.Mo ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@detail", SqlDbType.NVarChar, -1).Value = (object?)job.detail ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@safety", SqlDbType.NVarChar, 100).Value = (object?)job.safety ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@code", SqlDbType.NVarChar, 50).Value = (object?)job.code ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@fl", SqlDbType.NVarChar, 100).Value = (object?)job.fl ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@downtime", SqlDbType.NVarChar, 50).Value = (object?)job.downtime ?? DBNull.Value;
 
-                                    upsertCmd.Parameters["@timerunning"].Value = ParseToIntOrDBNull(job.timerunning); 
-                                    upsertCmd.Parameters["@timeday"].Value = (object?)job.timeday ?? DBNull.Value;
-                                    upsertCmd.Parameters["@fldetail"].Value = (object?)job.fldetail ?? DBNull.Value;
-                                    upsertCmd.Parameters["@flrank"].Value = (object?)job.flrank ?? DBNull.Value;
-                                    upsertCmd.Parameters["@flpngrp"].Value = (object?)job.flpngrp ?? DBNull.Value;
-                                    upsertCmd.Parameters["@priority"].Value = (object?)job.priority ?? DBNull.Value;
-                                    upsertCmd.Parameters["@status"].Value = (object?)job.status ?? DBNull.Value;
-                                    upsertCmd.Parameters["@usercreate"].Value = (object?)job.usercreate ?? DBNull.Value;
-                                    upsertCmd.Parameters["@sectioncreate"].Value = (object?)job.sectioncreate ?? DBNull.Value;
-                                    upsertCmd.Parameters["@useraccept"].Value = (object?)job.useraccept ?? DBNull.Value;
-                                    upsertCmd.Parameters["@userfinish"].Value = (object?)job.userfinish ?? DBNull.Value;
-                                    upsertCmd.Parameters["@comment"].Value = ParseToIntOrDBNull(job.comment);
-                                    upsertCmd.Parameters["@solution"].Value = (object?)job.solution ?? DBNull.Value;
-                                    upsertCmd.Parameters["@problem"].Value = (object?)job.problem ?? DBNull.Value;
-                                    upsertCmd.Parameters["@causes"].Value = (object?)job.causes ?? DBNull.Value;
-                                    upsertCmd.Parameters["@preventive"].Value = (object?)job.preventive ?? DBNull.Value;
-                                    upsertCmd.Parameters["@ordertype"].Value = (object?)job.ordertype ?? DBNull.Value;
-                                    upsertCmd.Parameters["@submiss"].Value = (object?)job.submiss ?? DBNull.Value;
-                                    upsertCmd.Parameters["@bdfac"].Value = (object?)job.bdfac ?? DBNull.Value;
+                                    // 2. Integers (แก้ไขจุดที่ซ้ำเรียบร้อย)
+                                    upsertCmd.Parameters.Add("@difftime", SqlDbType.Int).Value = ParseToIntOrDBNull(job.difftime);
+                                    upsertCmd.Parameters.Add("@timerepair", SqlDbType.Int).Value = ParseToIntOrDBNull(job.timerepair);
+                                    upsertCmd.Parameters.Add("@timerepair_ot", SqlDbType.Int).Value = ParseToIntOrDBNull(job.timerepair_ot);
+                                    upsertCmd.Parameters.Add("@timerunning", SqlDbType.Int).Value = ParseToIntOrDBNull(job.timerunning);
+                                    upsertCmd.Parameters.Add("@comment", SqlDbType.Int).Value = ParseToIntOrDBNull(job.comment);
+
+                                    // 3. Status & Tags
+                                    upsertCmd.Parameters.Add("@tag_abnormal", SqlDbType.NVarChar, 50).Value = (object?)job.tag_abnormal ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@tag", SqlDbType.NVarChar, 50).Value = (object?)job.tag ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@tags", SqlDbType.NVarChar, 100).Value = (object?)job.tags ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@jobtype", SqlDbType.NVarChar, 50).Value = (object?)job.jobtype ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@section", SqlDbType.NVarChar, 100).Value = (object?)(job.sectioncreate ?? job.section) ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@productionstop", SqlDbType.NVarChar, 50).Value = (object?)job.productionstop ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@planner", SqlDbType.NVarChar, 100).Value = (object?)job.planner ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@statustext", SqlDbType.NVarChar, 50).Value = (object?)job.statustext ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@statussection", SqlDbType.NVarChar, 50).Value = (object?)job.statussection ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@opt_5s", SqlDbType.NVarChar, 50).Value = (object?)job.opt_5s ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@opt_5s_comment", SqlDbType.NVarChar, -1).Value = (object?)job.opt_5s_comment ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@opt_protect", SqlDbType.NVarChar, 50).Value = (object?)job.opt_protect ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@opt_protect_comment", SqlDbType.NVarChar, -1).Value = (object?)job.opt_protect_comment ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@rates", SqlDbType.NVarChar, 50).Value = (object?)job.rates ?? DBNull.Value;
+
+                                    // 4. DateTimes
+                                    upsertCmd.Parameters.Add("@timecreate", SqlDbType.DateTime).Value = (object?)ParseApiDate(job.timecreate) ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@timeassign", SqlDbType.DateTime).Value = (object?)ParseApiDate(job.timeassign) ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@timestart", SqlDbType.DateTime).Value = (object?)ParseApiDate(job.timestart) ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@timeend", SqlDbType.DateTime).Value = (object?)ParseApiDate(job.timeend) ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@timefinish", SqlDbType.DateTime).Value = (object?)ParseApiDate(job.timefinish) ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@timeaccept", SqlDbType.DateTime).Value = (object?)ParseApiDate(job.timeaccept) ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@timestartrepair", SqlDbType.DateTime).Value = (object?)ParseApiDate(job.timestartrepair) ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@timeendrepair", SqlDbType.DateTime).Value = (object?)ParseApiDate(job.timeendrepair) ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@timeclose", SqlDbType.DateTime).Value = (object?)ParseApiDate(job.timeclose) ?? DBNull.Value;
+
+                                    // 5. Details & Users
+                                    upsertCmd.Parameters.Add("@timeday", SqlDbType.NVarChar, 50).Value = (object?)job.timeday ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@fldetail", SqlDbType.NVarChar, -1).Value = (object?)job.fldetail ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@flrank", SqlDbType.NVarChar, 50).Value = (object?)job.flrank ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@flpngrp", SqlDbType.NVarChar, 50).Value = (object?)job.flpngrp ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@priority", SqlDbType.NVarChar, 50).Value = (object?)job.priority ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@status", SqlDbType.NVarChar, 50).Value = (object?)job.status ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@usercreate", SqlDbType.NVarChar, 100).Value = (object?)job.usercreate ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@sectioncreate", SqlDbType.NVarChar, 100).Value = (object?)job.sectioncreate ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@useraccept", SqlDbType.NVarChar, 100).Value = (object?)job.useraccept ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@userfinish", SqlDbType.NVarChar, 100).Value = (object?)job.userfinish ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@solution", SqlDbType.NVarChar, -1).Value = (object?)job.solution ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@problem", SqlDbType.NVarChar, -1).Value = (object?)job.problem ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@causes", SqlDbType.NVarChar, -1).Value = (object?)job.causes ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@preventive", SqlDbType.NVarChar, -1).Value = (object?)job.preventive ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@ordertype", SqlDbType.NVarChar, 50).Value = (object?)job.ordertype ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@submiss", SqlDbType.NVarChar, 50).Value = (object?)job.submiss ?? DBNull.Value;
+                                    upsertCmd.Parameters.Add("@bdfac", SqlDbType.NVarChar, 50).Value = (object?)job.bdfac ?? DBNull.Value;
 
                                     await upsertCmd.ExecuteNonQueryAsync();
 
-                                    // 👥 4. จัดการตารางลูก Job_assign (เหมือนเดิม)
+                                    // 👥 จัดการตารางลูก Job_assign
                                     string deleteAssign = "DELETE FROM [dbo].[Job_assign] WHERE [job_id] = @JobId;";
                                     using (SqlCommand delAssignCmd = new SqlCommand(deleteAssign, localConn, transaction))
                                     {
@@ -344,7 +286,7 @@ namespace report_zycoda.Controllers
                                         }
                                     }
 
-                                    // 🛡️ 5. จัดการตารางลูก Job_approve (เหมือนเดิม)
+                                    // 🛡️ จัดการตารางลูก Job_approve
                                     string deleteApprove = "DELETE FROM [dbo].[Job_approve] WHERE [job_id] = @JobId;";
                                     using (SqlCommand delApproveCmd = new SqlCommand(deleteApprove, localConn, transaction))
                                     {
